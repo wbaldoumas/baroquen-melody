@@ -1,0 +1,20 @@
+[*]
+insert_final_newline = true
+
+[*.cs]
+
+# require trailing commas
+dotnet_diagnostic.MA0007.severity = none
+dotnet_diagnostic.SA1413.severity = none
+
+# require XML comments
+dotnet_diagnostic.CS1591.severity = none
+dotnet_diagnostic.SA1600.severity = none
+
+# require file headers
+dotnet_diagnostic.SA1633.severity = none
+
+[*.csproj]
+indent_style = space
+indent_size = 2
+tab_size = 2
