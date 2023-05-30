@@ -14,6 +14,27 @@ dotnet_diagnostic.SA1600.severity = none
 # require file headers
 dotnet_diagnostic.SA1633.severity = none
 
+# require that fields do not begin with an underscore
+dotnet_diagnostic.SA1309.severity = none
+
+# require that the keyword 'new' be followed by a space
+dotnet_diagnostic.SA1000.severity = none
+
+# require that local calls are prefixed with 'this'
+dotnet_diagnostic.SA1101.severity = none
+
+# require closing parenthesis to be on the same line as the last parameter
+dotnet_diagnostic.SA1111.severity = none
+
+# require closing parenthesis not be preceded by a space
+dotnet_diagnostic.SA1009.severity = none
+
+# require that arithmetic expressions declare precedence explicitly
+dotnet_diagnostic.SA1407.severity = none
+
+# require that closing square brackets be followed by a space
+dotnet_diagnostic.SA1011.severity = none
+
 [*.csproj]
 indent_style = space
 indent_size = 2
