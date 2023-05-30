@@ -29,7 +29,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     }
 
     [Test]
-    public void AddAndRetrieve_CompressedBitArrayDictionary()
+    public void AddAndRetrieve_results_in_identical_BitArray()
     {
         // act
         _dictionary.Add(1, _bitArray);
@@ -43,7 +43,107 @@ internal sealed class CompressedBitArrayDictionaryTests
     }
 
     [Test]
-    public void TryGetValue_KeyExists_ReturnsTrueAndCorrectValue()
+    public void AddAndRetrieve_with_KeyValuePair_results_in_identical_BitArray()
+    {
+        // act
+        _dictionary.Add(new KeyValuePair<int, BitArray>(1, _bitArray));
+        var retrievedBitArray = _dictionary[1];
+
+        // assert
+        retrievedBitArray.Should().BeEquivalentTo(_bitArray);
+
+        _compressor.Received(1).Compress(_bitArray);
+        _compressor.Received(1).Decompress(_compressedArray);
+    }
+
+    [Test]
+    public void AddAndRetrieve_with_indexer_results_in_identical_BitArray()
+    {
+        // act
+        _dictionary[1] = _bitArray;
+        var retrievedBitArray = _dictionary[1];
+
+        // assert
+        retrievedBitArray.Should().BeEquivalentTo(_bitArray);
+
+        _compressor.Received(1).Compress(_bitArray);
+        _compressor.Received(1).Decompress(_compressedArray);
+    }
+
+    [Test]
+    public void Contains_returns_true_when_key_exists()
+    {
+        // arrange
+        _dictionary.Add(1, _bitArray);
+
+        // act
+        var result = _dictionary.Contains(new KeyValuePair<int, BitArray>(1, _bitArray));
+
+        // assert
+        result.Should().BeTrue();
+    }
+
+    [Test]
+    public void Contains_returns_false_when_key_does_not_exist()
+    {
+        // act
+        var result = _dictionary.Contains(new KeyValuePair<int, BitArray>(1, _bitArray));
+
+        // assert
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void ContainsKey_returns_true_when_key_exists()
+    {
+        // arrange
+        _dictionary.Add(1, _bitArray);
+
+        // act
+        var result = _dictionary.ContainsKey(1);
+
+        // assert
+        result.Should().BeTrue();
+    }
+
+    [Test]
+    public void ContainsKey_returns_false_when_key_does_not_exist()
+    {
+        // act
+        var result = _dictionary.ContainsKey(1);
+
+        // assert
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void Remove_removes_item()
+    {
+        // arrange
+        _dictionary.Add(1, _bitArray);
+
+        // act
+        _dictionary.Remove(1);
+
+        // assert
+        _dictionary.Should().BeEmpty();
+    }
+
+    [Test]
+    public void GetEnumerator_returns_enumerator()
+    {
+        // arrange
+        _dictionary.Add(1, _bitArray);
+
+        // act
+        using var enumerator = _dictionary.GetEnumerator();
+
+        // assert
+        enumerator.Should().NotBeNull();
+    }
+
+    [Test]
+    public void TryGetValue_returns_true_and_correct_value()
     {
         // arrange
         _dictionary.Add(1, _bitArray);
@@ -57,7 +157,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     }
 
     [Test]
-    public void TryGetValue_KeyDoesNotExist_ReturnsFalseAndDefault()
+    public void TryGetValue_returns_false_and_null_value()
     {
         // act
         var result = _dictionary.TryGetValue(2, out var value);
@@ -68,7 +168,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     }
 
     [Test]
-    public void Remove_KeyExists_ReturnsTrue()
+    public void Remove_returns_true_when_key_exists()
     {
         // arrange
         _dictionary.Add(1, _bitArray);
@@ -81,7 +181,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     }
 
     [Test]
-    public void Remove_KeyDoesNotExist_ReturnsFalse()
+    public void Remove_returns_false_when_key_does_not_exist()
     {
         // act
         var result = _dictionary.Remove(2);
@@ -91,7 +191,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     }
 
     [Test]
-    public void Clear_Dictionary_IsEmpty()
+    public void Clear_clears_dictionary()
     {
         // arrange
         _dictionary.Add(1, _bitArray);
@@ -105,7 +205,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     }
 
     [Test]
-    public void Count_AfterAddingTwoItems_IsTwo()
+    public void Count_returns_expected_value()
     {
         // arrange
         _dictionary.Add(1, _bitArray);
@@ -116,7 +216,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     }
 
     [Test]
-    public void Keys_AfterAddingTwoItems_ContainsBothKeys()
+    public void Keys_returns_correct_keys()
     {
         // arrange
         _dictionary.Add(1, _bitArray);
@@ -127,7 +227,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     }
 
     [Test]
-    public void Values_AfterAddingTwoItems_ContainsBothValues()
+    public void Values_returns_correct_values()
     {
         // arrange
         _dictionary.Add(1, _bitArray);
@@ -138,14 +238,14 @@ internal sealed class CompressedBitArrayDictionaryTests
     }
 
     [Test]
-    public void IsReadOnly_ReturnsFalse()
+    public void IsReadOnly_returns_false()
     {
         // assert
         _dictionary.IsReadOnly.Should().BeFalse();
     }
 
     [Test]
-    public void GetEnumerator_EnumeratesAllItems()
+    public void GetEnumerator_enumerates_all_items()
     {
         // arrange
         _dictionary.Add(1, _bitArray);
