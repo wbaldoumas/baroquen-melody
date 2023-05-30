@@ -221,7 +221,20 @@ internal sealed class CompressedBitArrayDictionaryTests
         _dictionary.Add(1, _bitArray);
 
         // act
-        using var enumerator = _dictionary.GetEnumerator();
+        IEnumerator enumerator = _dictionary.GetEnumerator();
+
+        // assert
+        enumerator.Should().NotBeNull();
+    }
+
+    [Test]
+    public void IEnumerable_GetEnumerator_returns_enumerator()
+    {
+        // arrange
+        _dictionary.Add(1, _bitArray);
+
+        // act
+        var enumerator = ((IEnumerable)_dictionary).GetEnumerator();
 
         // assert
         enumerator.Should().NotBeNull();
