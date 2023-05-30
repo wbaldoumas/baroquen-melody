@@ -71,6 +71,78 @@ internal sealed class CompressedBitArrayDictionaryTests
     }
 
     [Test]
+    public void Add_throws_exception_when_key_already_exists()
+    {
+        // arrange
+        _dictionary.Add(1, _bitArray);
+
+        // act
+        var act = () => _dictionary.Add(1, _bitArray);
+
+        // assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Test]
+    public void CopyTo_copies_items_to_array()
+    {
+        // arrange
+        _dictionary.Add(1, _bitArray);
+
+        // act
+        var array = new KeyValuePair<int, BitArray>[1];
+        _dictionary.CopyTo(array, 0);
+
+        // assert
+        array[0].Key.Should().Be(1);
+        array[0].Value.Should().BeEquivalentTo(_bitArray);
+    }
+
+    [Test]
+    public void CopyTo_throws_ArgumentNullException_when_items_is_null()
+    {
+        // act
+        var act = () => _dictionary.CopyTo(null!, 0);
+
+        // assert
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Test]
+    public void CopyTo_throws_ArgumentOutOfRangeException_when_index_is_negative()
+    {
+        // act
+        var act = () => _dictionary.CopyTo(new KeyValuePair<int, BitArray>[1], -1);
+
+        // assert
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
+    public void CopyTo_throws_ArgumentOutOfRangeException_when_index_is_greater_than_array_length()
+    {
+        // act
+        var act = () => _dictionary.CopyTo(new KeyValuePair<int, BitArray>[1], 100);
+
+        // assert
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
+    public void CopyTo_throws_ArgumentException_when_number_of_elements_in_dictionary_is_greater_than_array_length()
+    {
+        // arrange
+        _dictionary.Add(1, _bitArray);
+        _dictionary.Add(2, _bitArray);
+
+        // act
+        var act = () => _dictionary.CopyTo(new KeyValuePair<int, BitArray>[1], 0);
+
+        // assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Test]
     public void Contains_returns_true_when_key_exists()
     {
         // arrange
@@ -124,6 +196,19 @@ internal sealed class CompressedBitArrayDictionaryTests
 
         // act
         _dictionary.Remove(1);
+
+        // assert
+        _dictionary.Should().BeEmpty();
+    }
+
+    [Test]
+    public void Remove_with_KeyValuePair_removes_item()
+    {
+        // arrange
+        _dictionary.Add(1, _bitArray);
+
+        // act
+        _dictionary.Remove(new KeyValuePair<int, BitArray>(1, _bitArray));
 
         // assert
         _dictionary.Should().BeEmpty();
