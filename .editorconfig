@@ -35,6 +35,18 @@ dotnet_diagnostic.SA1407.severity = none
 # require that closing square brackets be followed by a space
 dotnet_diagnostic.SA1011.severity = none
 
+# require that parameter names start with a lowercase letter
+dotnet_diagnostic.SA1313.severity = none
+
+# require that get auto-properties begin with "get"
+dotnet_diagnostic.SA1623.severity = none
+
+# don't throw NotImplementedException
+dotnet_diagnostic.MA0025.severity = none
+
+# a constructor should not follow a property
+dotnet_diagnostic.SA1201.severity = none
+
 [*.csproj]
 indent_style = space
 indent_size = 2
