@@ -8,13 +8,13 @@ namespace BaroquenMelody.Library.Composition.Choices;
 /// <inheritdoc cref="IChordChoiceRepository"/>
 internal sealed class QuartetChordChoiceRepository : IChordChoiceRepository
 {
-    private const int ExpectedNumberOfVoices = 4;
+    public const int NumberOfVoices = 4;
 
     private readonly ILazyCartesianProduct<NoteChoice, NoteChoice, NoteChoice, NoteChoice> _noteChoices;
 
     public QuartetChordChoiceRepository(CompositionConfiguration configuration, INoteChoiceGenerator noteChoiceGenerator)
     {
-        if (configuration.VoiceConfigurations.Count != ExpectedNumberOfVoices)
+        if (configuration.VoiceConfigurations.Count != NumberOfVoices)
         {
             throw new ArgumentException(
                 "The composition configuration must contain exactly four voice configurations.",

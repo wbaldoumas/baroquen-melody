@@ -8,13 +8,13 @@ namespace BaroquenMelody.Library.Composition.Choices;
 /// <inheritdoc cref="IChordChoiceRepository"/>
 internal sealed class DuetChordChoiceRepository : IChordChoiceRepository
 {
-    private const int ExpectedNumberOfVoices = 2;
+    public const int NumberOfVoices = 2;
 
     private readonly ILazyCartesianProduct<NoteChoice, NoteChoice> _noteChoices;
 
     public DuetChordChoiceRepository(CompositionConfiguration configuration, INoteChoiceGenerator noteChoiceGenerator)
     {
-        if (configuration.VoiceConfigurations.Count != ExpectedNumberOfVoices)
+        if (configuration.VoiceConfigurations.Count != NumberOfVoices)
         {
             throw new ArgumentException(
                 "The composition configuration must contain exactly two voice configurations.",
