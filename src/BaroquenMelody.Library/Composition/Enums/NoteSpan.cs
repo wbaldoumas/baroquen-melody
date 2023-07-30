@@ -13,5 +13,10 @@ internal enum NoteSpan : byte
     /// <summary>
     ///   Indicates that the note is arrived at by moving more than one step from the previous note.
     /// </summary>
-    Leap
+    Leap,
+
+    /// <summary>
+    ///   Indicates that the note is arrived at by staying on the same note as the previous note.
+    /// </summary>
+    None
 }

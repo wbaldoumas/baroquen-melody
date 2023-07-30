@@ -22,9 +22,9 @@ internal sealed class QuartetChordChoiceRepository : IChordChoiceRepository
             );
         }
 
-        var noteChoicesForVoices = configuration.VoiceConfigurations.Select(
-            voiceConfiguration => noteChoiceGenerator.GenerateNoteChoices(voiceConfiguration.Voice)
-        ).ToList();
+        var noteChoicesForVoices = configuration.VoiceConfigurations
+            .OrderBy(voiceConfiguration => voiceConfiguration.Voice)
+            .Select(voiceConfiguration => noteChoiceGenerator.GenerateNoteChoices(voiceConfiguration.Voice)).ToList();
 
         _noteChoices = new LazyCartesianProduct<NoteChoice, NoteChoice, NoteChoice, NoteChoice>(
             noteChoicesForVoices[0].ToList(),
