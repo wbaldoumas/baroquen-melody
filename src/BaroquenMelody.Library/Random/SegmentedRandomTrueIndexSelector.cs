@@ -38,7 +38,7 @@ internal sealed class SegmentedRandomTrueIndexSelector : IRandomTrueIndexSelecto
         var startIndex = currentSegment * SegmentSize;
         var endIndex = Math.Min(startIndex + SegmentSize, bitArray.Length);
 
-        for (var i = startIndex; i < endIndex; i++)
+        for (var i = startIndex; i < endIndex; ++i)
         {
             if (!bitArray[i])
             {
@@ -51,6 +51,7 @@ internal sealed class SegmentedRandomTrueIndexSelector : IRandomTrueIndexSelecto
             }
         }
 
+        // this can never be reached, but the compiler doesn't know that
         throw new InvalidOperationException("Failed to locate a random true index in the BitArray.");
     }
 }
