@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace BaroquenMelody.Library.Collections;
 
-public sealed class CompressedBitArrayDictionary : IDictionary<int, BitArray>
+internal sealed class CompressedBitArrayDictionary : IDictionary<int, BitArray>
 {
     private readonly IBitArrayCompressor _compressor;
 
