@@ -51,7 +51,7 @@ internal sealed class NoteContextGeneratorTests
                     new(voice, 4, NoteMotion.Oblique, NoteSpan.None),
                     new(voice, 5, NoteMotion.Ascending, NoteSpan.Step),
                     new(voice, 5, NoteMotion.Ascending, NoteSpan.Leap),
-                    new(voice, 5, NoteMotion.Oblique, NoteSpan.None),
+                    new(voice, 5, NoteMotion.Oblique, NoteSpan.None)
                 }
             ));
         }
