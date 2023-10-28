@@ -87,7 +87,7 @@ internal sealed class QuartetChordChoiceRepositoryTests
 
         noteChoice.Should().BeEquivalentTo(
             new ChordChoice(
-                new HashSet<NoteChoice>
+                new List<NoteChoice>
                 {
                     new(Voice.Soprano, NoteMotion.Oblique, 0),
                     new(Voice.Alto, NoteMotion.Oblique, 0),

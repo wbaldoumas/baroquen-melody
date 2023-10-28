@@ -35,7 +35,9 @@ internal sealed class QuartetChordContextRepository : IChordContextRepository
         );
     }
 
-    public BigInteger GetChordContextId(ChordContext chordContext) =>
+    public BigInteger Count => _noteContexts.Size;
+
+    public BigInteger GetChordContextIndex(ChordContext chordContext) =>
         _noteContexts.IndexOf(
             (
                 chordContext.NoteContexts[0],

@@ -3,9 +3,19 @@
 /// <summary>
 ///     Represents the note contexts for the voices in a given chord used to arrive at the current chord.
 /// </summary>
-/// <param name="NoteContexts"> The note contexts for the voices in a given chord used to arrive at the current chord. </param>
-internal sealed record ChordContext(IList<NoteContext> NoteContexts)
+internal sealed record ChordContext
 {
+    private readonly IList<NoteContext> _noteContexts;
+
+    public ChordContext(IEnumerable<NoteContext> noteContexts) =>
+        _noteContexts = noteContexts.OrderBy(noteContext => noteContext.Voice).ToList();
+
+    public IList<NoteContext> NoteContexts
+    {
+        get => _noteContexts;
+        init { _noteContexts = value.OrderBy(noteContext => noteContext.Voice).ToList(); }
+    }
+
     public bool Equals(ChordContext? other)
     {
         if (other is null)

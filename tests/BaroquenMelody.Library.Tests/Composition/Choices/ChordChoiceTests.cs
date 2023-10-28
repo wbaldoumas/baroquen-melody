@@ -16,7 +16,7 @@ internal sealed class ChordChoiceTests
         var note3 = new NoteChoice(Voice.Tenor, NoteMotion.Descending, 3);
         var note4 = new NoteChoice(Voice.Bass, NoteMotion.Ascending, 5);
 
-        var chordChoiceA = new ChordChoice(new HashSet<NoteChoice> { note1, note2, note3, note4 });
+        var chordChoiceA = new ChordChoice(new List<NoteChoice> { note1, note2, note3, note4 });
         var chordChoiceB = chordChoiceA;
 
         chordChoiceA.Should().BeEquivalentTo(chordChoiceB);
@@ -43,8 +43,8 @@ internal sealed class ChordChoiceTests
         var note3 = new NoteChoice(Voice.Tenor, NoteMotion.Descending, 3);
         var note4 = new NoteChoice(Voice.Bass, NoteMotion.Ascending, 5);
 
-        var chordChoiceA = new ChordChoice(new HashSet<NoteChoice> { note1, note2, note3, note4 });
-        var chordChoiceB = new ChordChoice(new HashSet<NoteChoice> { note1, note2, note3, note4 });
+        var chordChoiceA = new ChordChoice(new List<NoteChoice> { note1, note2, note3, note4 });
+        var chordChoiceB = new ChordChoice(new List<NoteChoice> { note1, note2, note3, note4 });
 
         chordChoiceA.Should().BeEquivalentTo(chordChoiceB);
         chordChoiceB.Should().BeEquivalentTo(chordChoiceA);
@@ -70,7 +70,7 @@ internal sealed class ChordChoiceTests
         var note3 = new NoteChoice(Voice.Tenor, NoteMotion.Descending, 3);
         var note4 = new NoteChoice(Voice.Bass, NoteMotion.Ascending, 5);
 
-        var chordChoiceA = new ChordChoice(new HashSet<NoteChoice> { note1, note2, note3, note4 });
+        var chordChoiceA = new ChordChoice(new List<NoteChoice> { note1, note2, note3, note4 });
         ChordChoice? chordChoiceB = null;
 
         chordChoiceA.Should().NotBeEquivalentTo(chordChoiceB);

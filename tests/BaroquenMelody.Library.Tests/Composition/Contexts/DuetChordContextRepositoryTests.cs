@@ -48,11 +48,11 @@ internal sealed class DuetChordContextRepositoryTests
         );
 
         // act
-        var chordContextId1 = duetChordContextRepository.GetChordContextId(
+        var chordContextId1 = duetChordContextRepository.GetChordContextIndex(
             new ChordContext(new[] { noteContext1, noteContext2 })
         );
 
-        var chordContextId2 = duetChordContextRepository.GetChordContextId(
+        var chordContextId2 = duetChordContextRepository.GetChordContextIndex(
             new ChordContext(new[] { noteContext3, noteContext4 })
         );
 

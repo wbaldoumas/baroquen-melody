@@ -63,7 +63,7 @@ internal sealed class DuetChordChoiceRepositoryTests
 
         noteChoice.Should().BeEquivalentTo(
             new ChordChoice(
-                new HashSet<NoteChoice>
+                new List<NoteChoice>
                 {
                     new(Voice.Soprano, NoteMotion.Ascending, 2),
                     new(Voice.Alto, NoteMotion.Descending, 3)
