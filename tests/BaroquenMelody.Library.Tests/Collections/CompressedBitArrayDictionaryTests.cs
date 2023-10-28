@@ -359,4 +359,14 @@ internal sealed class CompressedBitArrayDictionaryTests
             new KeyValuePair<BigInteger, BitArray>(2, _bitArray)
         );
     }
+
+    [Test]
+    public void DefaultConstructor_generates_usable_instance()
+    {
+        // arrange + act
+        var act = () => new CompressedBitArrayDictionary();
+
+        // assert
+        act.Should().NotThrow();
+    }
 }
