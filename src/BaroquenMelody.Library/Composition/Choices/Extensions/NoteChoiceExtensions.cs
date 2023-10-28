@@ -11,7 +11,7 @@ internal static class NoteChoiceExtensions
     /// <param name="source"> The tuple of <see cref="NoteChoice"/>s to convert. </param>
     /// <returns> The <see cref="ChordChoice"/> representing the given tuple of <see cref="NoteChoice"/>s. </returns>
     public static ChordChoice ToChordChoice(this (NoteChoice, NoteChoice) source) =>
-        new(new HashSet<NoteChoice> { source.Item1, source.Item2 });
+        new(new List<NoteChoice> { source.Item1, source.Item2 });
 
     /// <summary>
     ///     Convert a tuple of <see cref="NoteChoice"/>s to a <see cref="ChordChoice"/>.
@@ -19,7 +19,7 @@ internal static class NoteChoiceExtensions
     /// <param name="source"> The tuple of <see cref="NoteChoice"/>s to convert. </param>
     /// <returns> The <see cref="ChordChoice"/> representing the given tuple of <see cref="NoteChoice"/>s. </returns>
     public static ChordChoice ToChordChoice(this (NoteChoice, NoteChoice, NoteChoice) source) =>
-        new(new HashSet<NoteChoice> { source.Item1, source.Item2, source.Item3 });
+        new(new List<NoteChoice> { source.Item1, source.Item2, source.Item3 });
 
     /// <summary>
     ///     Convert a tuple of <see cref="NoteChoice"/>s to a <see cref="ChordChoice"/>.
@@ -27,5 +27,5 @@ internal static class NoteChoiceExtensions
     /// <param name="source"> The tuple of <see cref="NoteChoice"/>s to convert. </param>
     /// <returns> The <see cref="ChordChoice"/> representing the given tuple of <see cref="NoteChoice"/>s. </returns>
     public static ChordChoice ToChordChoice(this (NoteChoice, NoteChoice, NoteChoice, NoteChoice) source) =>
-        new(new HashSet<NoteChoice> { source.Item1, source.Item2, source.Item3, source.Item4 });
+        new(new List<NoteChoice> { source.Item1, source.Item2, source.Item3, source.Item4 });
 }

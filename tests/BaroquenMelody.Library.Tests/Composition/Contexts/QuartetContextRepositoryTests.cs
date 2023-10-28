@@ -71,11 +71,11 @@ internal sealed class QuartetChordContextRepositoryTests
         );
 
         // act
-        var chordContextId1 = quartetChordContextRepository.GetChordContextId(
+        var chordContextId1 = quartetChordContextRepository.GetChordContextIndex(
             new ChordContext(new[] { sopranoNoteContext1, altoNoteContext1, tenorNoteContext1, bassNoteContext1 })
         );
 
-        var chordContextId2 = quartetChordContextRepository.GetChordContextId(
+        var chordContextId2 = quartetChordContextRepository.GetChordContextIndex(
             new ChordContext(new[] { sopranoNoteContext2, altoNoteContext2, tenorNoteContext2, bassNoteContext2 })
         );
 

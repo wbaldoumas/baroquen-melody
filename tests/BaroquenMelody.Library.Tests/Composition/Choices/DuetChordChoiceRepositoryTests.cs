@@ -13,19 +13,9 @@ internal sealed class DuetChordChoiceRepositoryTests
     private INoteChoiceGenerator _mockNoteChoiceGenerator = null!;
 
     [SetUp]
-    public void SetUp() => _mockNoteChoiceGenerator = Substitute.For<INoteChoiceGenerator>();
-
-    [Test]
-    public void WhenDuetChordChoiceRepositoryIsConstructed_ItGeneratesNoteChoices()
+    public void SetUp()
     {
-        // arrange
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, 55, 90),
-                new(Voice.Alto, 45, 80)
-            }
-        );
+        _mockNoteChoiceGenerator = Substitute.For<INoteChoiceGenerator>();
 
         _mockNoteChoiceGenerator
             .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Soprano))
@@ -48,6 +38,19 @@ internal sealed class DuetChordChoiceRepositoryTests
                     new(Voice.Alto, NoteMotion.Descending, 3)
                 }
             );
+    }
+
+    [Test]
+    public void WhenDuetChordChoiceRepositoryIsConstructed_ItGeneratesNoteChoices()
+    {
+        // arrange
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<VoiceConfiguration>
+            {
+                new(Voice.Soprano, 55, 90),
+                new(Voice.Alto, 45, 80)
+            }
+        );
 
         var duetChordChoiceRepository = new DuetChordChoiceRepository(
             compositionConfiguration,
@@ -63,7 +66,7 @@ internal sealed class DuetChordChoiceRepositoryTests
 
         noteChoice.Should().BeEquivalentTo(
             new ChordChoice(
-                new HashSet<NoteChoice>
+                new List<NoteChoice>
                 {
                     new(Voice.Soprano, NoteMotion.Ascending, 2),
                     new(Voice.Alto, NoteMotion.Descending, 3)
@@ -95,5 +98,37 @@ internal sealed class DuetChordChoiceRepositoryTests
 
         // assert
         act.Should().Throw<ArgumentException>();
+    }
+
+    [Test]
+    public void GetChordChoiceIndex_ReturnsExpectedIndex()
+    {
+        // arrange
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<VoiceConfiguration>
+            {
+                new(Voice.Soprano, 55, 90),
+                new(Voice.Alto, 45, 80)
+            }
+        );
+
+        var duetChordChoiceRepository = new DuetChordChoiceRepository(
+            compositionConfiguration,
+            _mockNoteChoiceGenerator
+        );
+
+        // act
+        var index = duetChordChoiceRepository.GetChordChoiceIndex(
+            new ChordChoice(
+                new List<NoteChoice>
+                {
+                    new(Voice.Soprano, NoteMotion.Ascending, 2),
+                    new(Voice.Alto, NoteMotion.Descending, 3)
+                }
+            )
+        );
+
+        // assert
+        index.Should().Be(5);
     }
 }

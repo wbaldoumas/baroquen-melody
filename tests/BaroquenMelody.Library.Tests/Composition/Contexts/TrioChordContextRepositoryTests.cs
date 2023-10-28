@@ -61,11 +61,11 @@ internal sealed class TrioChordContextRepositoryTests
         );
 
         // act
-        var chordContextId1 = trioChordContextRepository.GetChordContextId(
+        var chordContextId1 = trioChordContextRepository.GetChordContextIndex(
             new ChordContext(new[] { sopranoNoteContext1, altoNoteContext1, tenorNoteContext1 })
         );
 
-        var chordContextId2 = trioChordContextRepository.GetChordContextId(
+        var chordContextId2 = trioChordContextRepository.GetChordContextIndex(
             new ChordContext(new[] { sopranoNoteContext2, altoNoteContext2, tenorNoteContext2 })
         );
 

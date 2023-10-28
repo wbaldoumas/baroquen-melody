@@ -4,6 +4,7 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using System.Collections;
+using System.Numerics;
 
 namespace BaroquenMelody.Library.Tests.Collections;
 
@@ -46,7 +47,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     public void AddAndRetrieve_with_KeyValuePair_results_in_identical_BitArray()
     {
         // act
-        _dictionary.Add(new KeyValuePair<int, BitArray>(1, _bitArray));
+        _dictionary.Add(new KeyValuePair<BigInteger, BitArray>(1, _bitArray));
         var retrievedBitArray = _dictionary[1];
 
         // assert
@@ -90,7 +91,7 @@ internal sealed class CompressedBitArrayDictionaryTests
         _dictionary.Add(1, _bitArray);
 
         // act
-        var array = new KeyValuePair<int, BitArray>[1];
+        var array = new KeyValuePair<BigInteger, BitArray>[1];
         _dictionary.CopyTo(array, 0);
 
         // assert
@@ -112,7 +113,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     public void CopyTo_throws_ArgumentOutOfRangeException_when_index_is_negative()
     {
         // act
-        var act = () => _dictionary.CopyTo(new KeyValuePair<int, BitArray>[1], -1);
+        var act = () => _dictionary.CopyTo(new KeyValuePair<BigInteger, BitArray>[1], -1);
 
         // assert
         act.Should().Throw<ArgumentOutOfRangeException>();
@@ -122,7 +123,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     public void CopyTo_throws_ArgumentOutOfRangeException_when_index_is_greater_than_array_length()
     {
         // act
-        var act = () => _dictionary.CopyTo(new KeyValuePair<int, BitArray>[1], 100);
+        var act = () => _dictionary.CopyTo(new KeyValuePair<BigInteger, BitArray>[1], 100);
 
         // assert
         act.Should().Throw<ArgumentOutOfRangeException>();
@@ -136,7 +137,7 @@ internal sealed class CompressedBitArrayDictionaryTests
         _dictionary.Add(2, _bitArray);
 
         // act
-        var act = () => _dictionary.CopyTo(new KeyValuePair<int, BitArray>[1], 0);
+        var act = () => _dictionary.CopyTo(new KeyValuePair<BigInteger, BitArray>[1], 0);
 
         // assert
         act.Should().Throw<ArgumentException>();
@@ -149,7 +150,7 @@ internal sealed class CompressedBitArrayDictionaryTests
         _dictionary.Add(1, _bitArray);
 
         // act
-        var result = _dictionary.Contains(new KeyValuePair<int, BitArray>(1, _bitArray));
+        var result = _dictionary.Contains(new KeyValuePair<BigInteger, BitArray>(1, _bitArray));
 
         // assert
         result.Should().BeTrue();
@@ -159,7 +160,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     public void Contains_returns_false_when_key_does_not_exist()
     {
         // act
-        var result = _dictionary.Contains(new KeyValuePair<int, BitArray>(1, _bitArray));
+        var result = _dictionary.Contains(new KeyValuePair<BigInteger, BitArray>(1, _bitArray));
 
         // assert
         result.Should().BeFalse();
@@ -208,7 +209,7 @@ internal sealed class CompressedBitArrayDictionaryTests
         _dictionary.Add(1, _bitArray);
 
         // act
-        _dictionary.Remove(new KeyValuePair<int, BitArray>(1, _bitArray));
+        _dictionary.Remove(new KeyValuePair<BigInteger, BitArray>(1, _bitArray));
 
         // assert
         _dictionary.Should().BeEmpty();
@@ -321,7 +322,7 @@ internal sealed class CompressedBitArrayDictionaryTests
         _dictionary.Add(2, _bitArray);
 
         // assert
-        _dictionary.Keys.Should().Contain(new[] { 1, 2 });
+        _dictionary.Keys.Should().Contain(new BigInteger[] { 1, 2 });
     }
 
     [Test]
@@ -354,8 +355,18 @@ internal sealed class CompressedBitArrayDictionaryTests
 
         // assert
         enumeratedItems.Should().Contain(
-            new KeyValuePair<int, BitArray>(1, _bitArray),
-            new KeyValuePair<int, BitArray>(2, _bitArray)
+            new KeyValuePair<BigInteger, BitArray>(1, _bitArray),
+            new KeyValuePair<BigInteger, BitArray>(2, _bitArray)
         );
+    }
+
+    [Test]
+    public void DefaultConstructor_generates_usable_instance()
+    {
+        // arrange + act
+        var act = () => new CompressedBitArrayDictionary();
+
+        // assert
+        act.Should().NotThrow();
     }
 }

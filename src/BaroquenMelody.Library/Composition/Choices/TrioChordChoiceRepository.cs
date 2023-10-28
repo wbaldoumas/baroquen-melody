@@ -36,4 +36,12 @@ internal sealed class TrioChordChoiceRepository : IChordChoiceRepository
     public BigInteger Count => _noteChoices.Size;
 
     public ChordChoice GetChordChoice(BigInteger index) => _noteChoices[index].ToChordChoice();
+
+    public BigInteger GetChordChoiceIndex(ChordChoice chordChoice) => _noteChoices.IndexOf(
+        (
+            chordChoice.NoteChoices[0],
+            chordChoice.NoteChoices[1],
+            chordChoice.NoteChoices[2]
+        )
+    );
 }

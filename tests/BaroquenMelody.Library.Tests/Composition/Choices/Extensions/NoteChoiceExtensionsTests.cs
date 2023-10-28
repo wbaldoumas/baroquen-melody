@@ -22,7 +22,7 @@ internal sealed class NoteChoiceExtensionsTests
         var result = source.ToChordChoice();
 
         // assert
-        result.Should().BeEquivalentTo(new ChordChoice(new HashSet<NoteChoice> { note1, note2 }));
+        result.Should().BeEquivalentTo(new ChordChoice(new List<NoteChoice> { note1, note2 }));
     }
 
     [Test]
@@ -39,7 +39,7 @@ internal sealed class NoteChoiceExtensionsTests
         var result = source.ToChordChoice();
 
         // assert
-        result.Should().BeEquivalentTo(new ChordChoice(new HashSet<NoteChoice> { note1, note2, note3 }));
+        result.Should().BeEquivalentTo(new ChordChoice(new List<NoteChoice> { note1, note2, note3 }));
     }
 
     [Test]
@@ -57,6 +57,6 @@ internal sealed class NoteChoiceExtensionsTests
         var result = source.ToChordChoice();
 
         // assert
-        result.Should().BeEquivalentTo(new ChordChoice(new HashSet<NoteChoice> { note1, note2, note3, note4 }));
+        result.Should().BeEquivalentTo(new ChordChoice(new List<NoteChoice> { note1, note2, note3, note4 }));
     }
 }

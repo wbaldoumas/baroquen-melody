@@ -8,9 +8,14 @@ namespace BaroquenMelody.Library.Composition.Contexts;
 internal interface IChordContextRepository
 {
     /// <summary>
+    ///   The number of available chord contexts.
+    /// </summary>
+    public BigInteger Count { get; }
+
+    /// <summary>
     ///     Get the ID of the given <see cref="ChordContext"/>.
     /// </summary>
     /// <param name="chordContext"> The <see cref="ChordContext"/> to get the ID of. </param>
     /// <returns> The ID of the given <see cref="ChordContext"/>. </returns>
-    BigInteger GetChordContextId(ChordContext chordContext);
+    BigInteger GetChordContextIndex(ChordContext chordContext);
 }

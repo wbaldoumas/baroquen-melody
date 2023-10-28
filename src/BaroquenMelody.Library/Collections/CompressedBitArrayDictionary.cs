@@ -1,21 +1,29 @@
 ﻿using BaroquenMelody.Library.Compression;
 using System.Collections;
+using System.IO.Compression;
+using System.Numerics;
 
 namespace BaroquenMelody.Library.Collections;
 
-internal sealed class CompressedBitArrayDictionary : IDictionary<int, BitArray>
+internal sealed class CompressedBitArrayDictionary : IDictionary<BigInteger, BitArray>
 {
     private readonly IBitArrayCompressor _compressor;
 
-    private readonly IDictionary<int, byte[]> _innerDictionary;
+    private readonly IDictionary<BigInteger, byte[]> _innerDictionary;
 
     public CompressedBitArrayDictionary(IBitArrayCompressor compressor)
     {
         _compressor = compressor;
-        _innerDictionary = new Dictionary<int, byte[]>();
+        _innerDictionary = new Dictionary<BigInteger, byte[]>();
     }
 
-    public ICollection<int> Keys => _innerDictionary.Keys;
+    public CompressedBitArrayDictionary()
+    {
+        _compressor = new BrotliBitArrayCompressor(CompressionLevel.Optimal);
+        _innerDictionary = new Dictionary<BigInteger, byte[]>();
+    }
+
+    public ICollection<BigInteger> Keys => _innerDictionary.Keys;
 
     public ICollection<BitArray> Values => _innerDictionary.Values.Select(_compressor.Decompress).ToList();
 
@@ -23,13 +31,13 @@ internal sealed class CompressedBitArrayDictionary : IDictionary<int, BitArray>
 
     public bool IsReadOnly => false;
 
-    public BitArray this[int key]
+    public BitArray this[BigInteger key]
     {
         get => _compressor.Decompress(_innerDictionary[key]);
         set => _innerDictionary[key] = _compressor.Compress(value);
     }
 
-    public void Add(int key, BitArray value)
+    public void Add(BigInteger key, BitArray value)
     {
         if (_innerDictionary.ContainsKey(key))
         {
@@ -39,17 +47,17 @@ internal sealed class CompressedBitArrayDictionary : IDictionary<int, BitArray>
         _innerDictionary.Add(key, _compressor.Compress(value));
     }
 
-    public void Add(KeyValuePair<int, BitArray> item) => Add(item.Key, item.Value);
+    public void Add(KeyValuePair<BigInteger, BitArray> item) => Add(item.Key, item.Value);
 
     public void Clear() => _innerDictionary.Clear();
 
-    public bool Contains(KeyValuePair<int, BitArray> item) =>
+    public bool Contains(KeyValuePair<BigInteger, BitArray> item) =>
         _innerDictionary.ContainsKey(item.Key) &&
         _innerDictionary[item.Key].SequenceEqual(_compressor.Compress(item.Value));
 
-    public bool ContainsKey(int key) => _innerDictionary.ContainsKey(key);
+    public bool ContainsKey(BigInteger key) => _innerDictionary.ContainsKey(key);
 
-    public void CopyTo(KeyValuePair<int, BitArray>[] items, int arrayIndex)
+    public void CopyTo(KeyValuePair<BigInteger, BitArray>[] items, int arrayIndex)
     {
         if (items is null)
         {
@@ -75,15 +83,15 @@ internal sealed class CompressedBitArrayDictionary : IDictionary<int, BitArray>
         }
     }
 
-    public IEnumerator<KeyValuePair<int, BitArray>> GetEnumerator() => _innerDictionary.Select(item =>
-        new KeyValuePair<int, BitArray>(item.Key, _compressor.Decompress(item.Value))
+    public IEnumerator<KeyValuePair<BigInteger, BitArray>> GetEnumerator() => _innerDictionary.Select(item =>
+        new KeyValuePair<BigInteger, BitArray>(item.Key, _compressor.Decompress(item.Value))
     ).GetEnumerator();
 
-    public bool Remove(int key) => _innerDictionary.Remove(key);
+    public bool Remove(BigInteger key) => _innerDictionary.Remove(key);
 
-    public bool Remove(KeyValuePair<int, BitArray> item) => _innerDictionary.Remove(item.Key);
+    public bool Remove(KeyValuePair<BigInteger, BitArray> item) => _innerDictionary.Remove(item.Key);
 
-    public bool TryGetValue(int key, out BitArray value)
+    public bool TryGetValue(BigInteger key, out BitArray value)
     {
         if (_innerDictionary.TryGetValue(key, out var compressedValue))
         {
