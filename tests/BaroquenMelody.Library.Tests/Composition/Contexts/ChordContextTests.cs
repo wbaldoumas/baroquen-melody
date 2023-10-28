@@ -78,4 +78,25 @@ internal sealed class ChordContextTests
 
         chordContextA.Equals(chordContextB).Should().BeFalse();
     }
+
+    [Test]
+    public void WhenNonDestructiveMutationUsed_InitializerInvoked()
+    {
+        var context1 = new NoteContext(Voice.Soprano, 60, NoteMotion.Oblique, NoteSpan.None);
+        var context2 = new NoteContext(Voice.Alto, 64, NoteMotion.Ascending, NoteSpan.Step);
+        var context3 = new NoteContext(Voice.Tenor, 67, NoteMotion.Descending, NoteSpan.Leap);
+        var context4 = new NoteContext(Voice.Bass, 72, NoteMotion.Ascending, NoteSpan.Step);
+
+        var chordContext = new ChordContext(new List<NoteContext> { context1, context2, context3, context4 });
+
+        var otherChordContext = chordContext with
+        {
+            NoteContexts = new List<NoteContext> { context4, context3, context1, context2 }
+        };
+
+        otherChordContext.NoteContexts.Should().HaveElementAt(0, context1);
+        otherChordContext.NoteContexts.Should().HaveElementAt(1, context2);
+        otherChordContext.NoteContexts.Should().HaveElementAt(2, context3);
+        otherChordContext.NoteContexts.Should().HaveElementAt(3, context4);
+    }
 }

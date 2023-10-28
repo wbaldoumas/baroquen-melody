@@ -13,21 +13,9 @@ internal sealed class QuartetChordChoiceRepositoryTests
     private INoteChoiceGenerator _mockNoteChoiceGenerator = null!;
 
     [SetUp]
-    public void SetUp() => _mockNoteChoiceGenerator = Substitute.For<INoteChoiceGenerator>();
-
-    [Test]
-    public void WhenDuetChordChoiceRepositoryIsConstructed_ItGeneratesNoteChoices()
+    public void SetUp()
     {
-        // arrange
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, 55, 90),
-                new(Voice.Alto, 45, 80),
-                new(Voice.Tenor, 35, 70),
-                new(Voice.Bass, 25, 60)
-            }
-        );
+        _mockNoteChoiceGenerator = Substitute.For<INoteChoiceGenerator>();
 
         _mockNoteChoiceGenerator
             .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Soprano))
@@ -72,6 +60,21 @@ internal sealed class QuartetChordChoiceRepositoryTests
                     new(Voice.Bass, NoteMotion.Descending, 3)
                 }
             );
+    }
+
+    [Test]
+    public void WhenDuetChordChoiceRepositoryIsConstructed_ItGeneratesNoteChoices()
+    {
+        // arrange
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<VoiceConfiguration>
+            {
+                new(Voice.Soprano, 55, 90),
+                new(Voice.Alto, 45, 80),
+                new(Voice.Tenor, 35, 70),
+                new(Voice.Bass, 25, 60)
+            }
+        );
 
         var quartetChordChoiceRepository = new QuartetChordChoiceRepository(
             compositionConfiguration,
@@ -120,5 +123,41 @@ internal sealed class QuartetChordChoiceRepositoryTests
 
         // assert
         act.Should().Throw<ArgumentException>();
+    }
+
+    [Test]
+    public void GetChordChoiceIndex_ReturnsExpectedIndex()
+    {
+        // arrange
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<VoiceConfiguration>
+            {
+                new(Voice.Soprano, 55, 90),
+                new(Voice.Alto, 45, 80),
+                new(Voice.Tenor, 35, 70),
+                new(Voice.Bass, 25, 60)
+            }
+        );
+
+        var quartetChordChoiceRepository = new QuartetChordChoiceRepository(
+            compositionConfiguration,
+            _mockNoteChoiceGenerator
+        );
+
+        // act
+        var index = quartetChordChoiceRepository.GetChordChoiceIndex(
+            new ChordChoice(
+                new List<NoteChoice>
+                {
+                    new(Voice.Soprano, NoteMotion.Oblique, 0),
+                    new(Voice.Alto, NoteMotion.Oblique, 0),
+                    new(Voice.Tenor, NoteMotion.Oblique, 0),
+                    new(Voice.Bass, NoteMotion.Ascending, 2)
+                }
+            )
+        );
+
+        // assert
+        index.Should().Be(1);
     }
 }
