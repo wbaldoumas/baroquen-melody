@@ -1,5 +1,4 @@
-﻿using BaroquenMelody.Library.Composition.Contexts;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace BaroquenMelody.Library.Composition.Choices;
 
