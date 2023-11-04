@@ -33,14 +33,10 @@ internal sealed class ChordContextExtensionsTests
 
         var expectedNotes = new HashSet<Note>
         {
-            new(62, chordContext[Voice.Soprano],
-                chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Soprano)),
-            new(54, chordContext[Voice.Alto],
-                chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Alto)),
-            new(50, chordContext[Voice.Tenor],
-                chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Tenor)),
-            new(48, chordContext[Voice.Bass],
-                chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Bass))
+            new(62, chordContext[Voice.Soprano], chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Soprano)),
+            new(54, chordContext[Voice.Alto], chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Alto)),
+            new(50, chordContext[Voice.Tenor], chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Tenor)),
+            new(48, chordContext[Voice.Bass], chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Bass))
         };
 
         // act
