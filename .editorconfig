@@ -47,6 +47,9 @@ dotnet_diagnostic.MA0025.severity = none
 # a constructor should not follow a property
 dotnet_diagnostic.SA1201.severity = none
 
+# force constructor documentation text
+dotnet_diagnostic.SA1642.severity = none
+
 [*.csproj]
 indent_style = space
 indent_size = 2
