@@ -1,4 +1,6 @@
-﻿namespace BaroquenMelody.Library.Composition.Contexts;
+﻿using BaroquenMelody.Library.Composition.Enums;
+
+namespace BaroquenMelody.Library.Composition.Contexts;
 
 /// <summary>
 ///     Represents the note contexts for the voices in a given chord used to arrive at the current chord.
@@ -15,6 +17,8 @@ internal sealed record ChordContext
         get => _noteContexts;
         init { _noteContexts = value.OrderBy(noteContext => noteContext.Voice).ToList(); }
     }
+
+    public NoteContext this[Voice voice] => NoteContexts.Single(noteContext => noteContext.Voice == voice);
 
     public bool Equals(ChordContext? other)
     {
