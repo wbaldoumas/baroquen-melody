@@ -26,6 +26,7 @@ internal static class NoteContextExtensions
 
         return new Note(
             (byte)pitch,
+            noteChoice.Voice,
             noteContext,
             noteChoice
         );

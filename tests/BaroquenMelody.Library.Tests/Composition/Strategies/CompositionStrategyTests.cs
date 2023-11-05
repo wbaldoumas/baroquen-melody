@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Composition.Choices;
+using BaroquenMelody.Library.Composition.Configurations;
 using BaroquenMelody.Library.Composition.Contexts;
 using BaroquenMelody.Library.Composition.Enums;
 using BaroquenMelody.Library.Composition.Strategies;
@@ -14,6 +15,22 @@ namespace BaroquenMelody.Library.Tests.Composition.Strategies;
 [TestFixture]
 internal sealed class CompositionStrategyTests
 {
+    private const byte MinSopranoPitch = 60;
+
+    private const byte MaxSopranoPitch = 72;
+
+    private const byte MinAltoPitch = 48;
+
+    private const byte MaxAltoPitch = 60;
+
+    private const byte MinTenorPitch = 36;
+
+    private const byte MaxTenorPitch = 48;
+
+    private const byte MinBassPitch = 24;
+
+    private const byte MaxBassPitch = 36;
+
     private static readonly BigInteger MockChordContextCount = 5;
 
     private static readonly BigInteger MockChordChoiceCount = 5;
@@ -28,6 +45,8 @@ internal sealed class CompositionStrategyTests
 
     private CompositionStrategy _compositionStrategy = default!;
 
+    private CompositionConfiguration _compositionConfiguration = default!;
+
     [SetUp]
     public void Setup()
     {
@@ -39,11 +58,22 @@ internal sealed class CompositionStrategyTests
         _mockChordChoiceRepository.Count.Returns(MockChordChoiceCount);
         _mockChordContextRepository.Count.Returns(MockChordContextCount);
 
+        _compositionConfiguration = new CompositionConfiguration(
+            new HashSet<VoiceConfiguration>
+            {
+                new(Voice.Soprano, MinSopranoPitch, MaxSopranoPitch),
+                new(Voice.Alto, MinAltoPitch, MaxAltoPitch),
+                new(Voice.Tenor, MinTenorPitch, MaxTenorPitch),
+                new(Voice.Bass, MinBassPitch, MaxBassPitch)
+            }
+        );
+
         _compositionStrategy = new CompositionStrategy(
             _mockChordChoiceRepository,
             _mockChordContextRepository,
             _mockRandomTrueIndexSelector,
-            _mockChordContextToChordChoiceMap
+            _mockChordContextToChordChoiceMap,
+            _compositionConfiguration
         );
     }
 
@@ -54,20 +84,20 @@ internal sealed class CompositionStrategyTests
         var chordContext = new ChordContext(
             new List<NoteContext>
             {
-                new(Voice.Soprano, 25, NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Alto, 25, NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Tenor, 25, NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Bass, 25, NoteMotion.Ascending, NoteSpan.Step)
+                new(Voice.Soprano, MaxSopranoPitch - 2, NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Alto, MinAltoPitch + 2, NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Tenor, MaxTenorPitch - 2, NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Bass, MinBassPitch + 2, NoteMotion.Ascending, NoteSpan.Step)
             }
         );
 
         var chordChoice = new ChordChoice(
             new List<NoteChoice>
             {
-                new(Voice.Soprano, NoteMotion.Ascending, 5),
-                new(Voice.Alto, NoteMotion.Ascending, 5),
-                new(Voice.Tenor, NoteMotion.Ascending, 5),
-                new(Voice.Bass, NoteMotion.Ascending, 5)
+                new(Voice.Soprano, NoteMotion.Ascending, 1),
+                new(Voice.Alto, NoteMotion.Ascending, 1),
+                new(Voice.Tenor, NoteMotion.Ascending, 1),
+                new(Voice.Bass, NoteMotion.Ascending, 1)
             }
         );
 
@@ -95,6 +125,84 @@ internal sealed class CompositionStrategyTests
                 _mockChordChoiceRepository.GetChordChoice(chordChoiceIndex);
             }
         );
+    }
+
+    [Test]
+    public void GetNextChordChoice_invalidates_choices_out_of_voice_range_and_returns_random_chord_choice()
+    {
+        // arrange
+        var chordContext = new ChordContext(
+            new List<NoteContext>
+            {
+                new(Voice.Soprano, MaxSopranoPitch - 2, NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Alto, MinAltoPitch + 2, NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Tenor, MaxTenorPitch - 2, NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Bass, MinBassPitch + 2, NoteMotion.Ascending, NoteSpan.Step)
+            }
+        );
+
+        var invalidChordChoiceA = new ChordChoice(
+            new List<NoteChoice>
+            {
+                new(Voice.Soprano, NoteMotion.Ascending, 5),
+                new(Voice.Alto, NoteMotion.Descending, 5),
+                new(Voice.Tenor, NoteMotion.Ascending, 5),
+                new(Voice.Bass, NoteMotion.Descending, 5)
+            }
+        );
+
+        var invalidChordChoiceB = new ChordChoice(
+            new List<NoteChoice>
+            {
+                new(Voice.Soprano, NoteMotion.Ascending, 6),
+                new(Voice.Alto, NoteMotion.Descending, 6),
+                new(Voice.Tenor, NoteMotion.Ascending, 6),
+                new(Voice.Bass, NoteMotion.Descending, 6)
+            }
+        );
+
+        var validChordChoice = new ChordChoice(
+            new List<NoteChoice>
+            {
+                new(Voice.Soprano, NoteMotion.Ascending, 1),
+                new(Voice.Alto, NoteMotion.Ascending, 1),
+                new(Voice.Tenor, NoteMotion.Ascending, 1),
+                new(Voice.Bass, NoteMotion.Ascending, 1)
+            }
+        );
+
+        const int chordContextIndex = 3;
+        const int invalidChordChoiceIndexA = 2;
+        const int invalidChordChoiceIndexB = 3;
+        const int validChordChoiceIndex = 4;
+
+        var bitArray = new BitArray(new[] { true, true, true, true, true });
+
+        _mockChordContextRepository.GetChordContextIndex(chordContext).Returns(chordContextIndex);
+        _mockChordContextToChordChoiceMap[chordContextIndex].Returns(bitArray);
+
+        _mockRandomTrueIndexSelector.SelectRandomTrueIndex(bitArray).Returns(
+            invalidChordChoiceIndexA,
+            invalidChordChoiceIndexB,
+            validChordChoiceIndex
+        );
+
+        _mockChordChoiceRepository.GetChordChoice(invalidChordChoiceIndexA).Returns(invalidChordChoiceA);
+        _mockChordChoiceRepository.GetChordChoice(invalidChordChoiceIndexB).Returns(invalidChordChoiceB);
+        _mockChordChoiceRepository.GetChordChoice(validChordChoiceIndex).Returns(validChordChoice);
+
+        _mockChordChoiceRepository.GetChordChoiceIndex(invalidChordChoiceA).Returns(invalidChordChoiceIndexA);
+        _mockChordChoiceRepository.GetChordChoiceIndex(invalidChordChoiceB).Returns(invalidChordChoiceIndexB);
+
+        // act
+        var result = _compositionStrategy.GetNextChordChoice(chordContext);
+
+        // assert
+        result.Should().BeEquivalentTo(validChordChoice);
+
+        bitArray[invalidChordChoiceIndexA].Should().BeFalse();
+        bitArray[invalidChordChoiceIndexB].Should().BeFalse();
+        bitArray[validChordChoiceIndex].Should().BeTrue();
     }
 
     [Test]
