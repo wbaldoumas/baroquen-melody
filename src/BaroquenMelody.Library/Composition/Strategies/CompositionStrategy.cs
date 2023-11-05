@@ -1,5 +1,7 @@
 ﻿using BaroquenMelody.Library.Composition.Choices;
+using BaroquenMelody.Library.Composition.Configurations;
 using BaroquenMelody.Library.Composition.Contexts;
+using BaroquenMelody.Library.Extensions;
 using BaroquenMelody.Library.Random;
 using System.Collections;
 using System.Numerics;
@@ -17,25 +19,40 @@ internal sealed class CompositionStrategy : ICompositionStrategy
 
     private readonly IDictionary<BigInteger, BitArray> _chordContextToChordChoiceMap;
 
+    private readonly CompositionConfiguration _compositionConfiguration;
+
     public CompositionStrategy(
         IChordChoiceRepository chordChoiceRepository,
         IChordContextRepository chordContextRepository,
         IRandomTrueIndexSelector randomTrueIndexSelector,
-        IDictionary<BigInteger, BitArray> chordContextToChordChoiceMap)
+        IDictionary<BigInteger, BitArray> chordContextToChordChoiceMap,
+        CompositionConfiguration compositionConfiguration)
     {
         _chordChoiceRepository = chordChoiceRepository;
         _chordContextRepository = chordContextRepository;
         _randomTrueIndexSelector = randomTrueIndexSelector;
         _chordContextToChordChoiceMap = chordContextToChordChoiceMap;
+        _compositionConfiguration = compositionConfiguration;
     }
 
     public ChordChoice GetNextChordChoice(ChordContext chordContext)
     {
         var chordContextIndex = _chordContextRepository.GetChordContextIndex(chordContext);
         var chordChoiceIndices = _chordContextToChordChoiceMap[chordContextIndex];
-        var chordChoiceIndex = _randomTrueIndexSelector.SelectRandomTrueIndex(chordChoiceIndices);
 
-        return _chordChoiceRepository.GetChordChoice(chordChoiceIndex);
+        while (true)
+        {
+            var chordChoiceIndex = _randomTrueIndexSelector.SelectRandomTrueIndex(chordChoiceIndices);
+            var chordChoice = _chordChoiceRepository.GetChordChoice(chordChoiceIndex);
+            var chord = chordContext.ApplyChordChoice(chordChoice);
+
+            if (chord.Notes.All(note => _compositionConfiguration.IsPitchInVoiceRange(note.Voice, note.Pitch)))
+            {
+                return chordChoice;
+            }
+
+            InvalidateChordChoice(chordContext, chordChoice);
+        }
     }
 
     public void InvalidateChordChoice(ChordContext chordContext, ChordChoice chordChoice)
