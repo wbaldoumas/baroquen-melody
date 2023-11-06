@@ -1,7 +1,7 @@
-﻿using BaroquenMelody.Library.Composition;
-using BaroquenMelody.Library.Composition.Choices;
-using BaroquenMelody.Library.Composition.Contexts;
-using BaroquenMelody.Library.Composition.Enums;
+﻿using BaroquenMelody.Library.Compositions;
+using BaroquenMelody.Library.Compositions.Choices;
+using BaroquenMelody.Library.Compositions.Contexts;
+using BaroquenMelody.Library.Compositions.Enums;
 
 namespace BaroquenMelody.Library.Extensions;
 

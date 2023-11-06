@@ -1,6 +1,6 @@
-﻿using BaroquenMelody.Library.Composition.Choices;
-using BaroquenMelody.Library.Composition.Contexts;
-using BaroquenMelody.Library.Composition.Enums;
+﻿using BaroquenMelody.Library.Compositions.Choices;
+using BaroquenMelody.Library.Compositions.Contexts;
+using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
