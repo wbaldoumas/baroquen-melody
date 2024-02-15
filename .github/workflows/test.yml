@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: 🔨 set up .net
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
 
@@ -30,7 +30,8 @@ jobs:
         cp TestResults/*/coverage.opencover.xml .    
 
     - name: 💌 publish code coverage
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         files: /home/runner/work/baroquen-melody/baroquen-melody/tests/BaroquenMelody.Library.Tests/coverage.opencover.xml
         fail_ci_if_error: true
