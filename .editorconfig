@@ -3,6 +3,8 @@ insert_final_newline = true
 
 [*.cs]
 
+dotnet_diagnostic.SA1010.severity = none
+
 # require trailing commas
 dotnet_diagnostic.MA0007.severity = none
 dotnet_diagnostic.SA1413.severity = none

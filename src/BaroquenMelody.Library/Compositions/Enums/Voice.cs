@@ -11,12 +11,12 @@ internal enum Voice : byte
     Soprano,
 
     /// <summary>
-    ///    The second highest voice.
+    ///    The second-highest voice.
     /// </summary>
     Alto,
 
     /// <summary>
-    ///   The second lowest voice.
+    ///   The second-lowest voice.
     /// </summary>
     Tenor,
 

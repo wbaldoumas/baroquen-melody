@@ -4,27 +4,22 @@ using BaroquenMelody.Library.Compositions.Configurations;
 namespace BaroquenMelody.Library.Compositions.Contexts;
 
 /// <inheritdoc cref="IChordChoiceRepository"/>
-internal sealed class ChordContextRepositoryFactory : IChordContextRepositoryFactory
+internal sealed class ChordContextRepositoryFactory(INoteContextGenerator noteContextGenerator) : IChordContextRepositoryFactory
 {
-    private readonly INoteContextGenerator _noteContextGenerator;
-
-    public ChordContextRepositoryFactory(INoteContextGenerator noteContextGenerator) =>
-        _noteContextGenerator = noteContextGenerator;
-
     public IChordContextRepository Create(CompositionConfiguration compositionConfiguration) =>
         compositionConfiguration.VoiceConfigurations.Count switch
         {
             DuetChordChoiceRepository.NumberOfVoices => new DuetChordContextRepository(
                 compositionConfiguration,
-                _noteContextGenerator
+                noteContextGenerator
             ),
             TrioChordChoiceRepository.NumberOfVoices => new TrioChordContextRepository(
                 compositionConfiguration,
-                _noteContextGenerator
+                noteContextGenerator
             ),
             QuartetChordChoiceRepository.NumberOfVoices => new QuartetChordContextRepository(
                 compositionConfiguration,
-                _noteContextGenerator
+                noteContextGenerator
             ),
             _ => throw new ArgumentException(
                 "The composition configuration must contain between two and four voice configurations.",
