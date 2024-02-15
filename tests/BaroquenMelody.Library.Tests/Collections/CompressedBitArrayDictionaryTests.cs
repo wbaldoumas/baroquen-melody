@@ -21,7 +21,7 @@ internal sealed class CompressedBitArrayDictionaryTests
     {
         _compressor = Substitute.For<IBitArrayCompressor>();
         _bitArray = new BitArray(new[] { true, false, true, false, true });
-        _compressedArray = new byte[] { 0b10101 };
+        _compressedArray = [0b10101];
 
         _compressor.Compress(_bitArray).Returns(_compressedArray);
         _compressor.Decompress(_compressedArray).Returns(_bitArray);
@@ -226,6 +226,8 @@ internal sealed class CompressedBitArrayDictionaryTests
 
         // assert
         enumerator.Should().NotBeNull();
+
+        (enumerator as IDisposable)?.Dispose();
     }
 
     [Test]
@@ -239,6 +241,8 @@ internal sealed class CompressedBitArrayDictionaryTests
 
         // assert
         enumerator.Should().NotBeNull();
+
+        (enumerator as IDisposable)?.Dispose();
     }
 
     [Test]

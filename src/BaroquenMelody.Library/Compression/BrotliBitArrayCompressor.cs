@@ -4,12 +4,8 @@ using System.IO.Compression;
 namespace BaroquenMelody.Library.Compression;
 
 /// <inheritdoc cref="IBitArrayCompressor"/>
-internal sealed class BrotliBitArrayCompressor : IBitArrayCompressor
+internal sealed class BrotliBitArrayCompressor(CompressionLevel compressionLevel) : IBitArrayCompressor
 {
-    private readonly CompressionLevel _compressionLevel;
-
-    public BrotliBitArrayCompressor(CompressionLevel compressionLevel) => _compressionLevel = compressionLevel;
-
     public byte[] Compress(BitArray bits)
     {
         var bytes = new byte[(bits.Length - 1) / 8 + 1];
@@ -18,7 +14,7 @@ internal sealed class BrotliBitArrayCompressor : IBitArrayCompressor
         using var originalStream = new MemoryStream(bytes);
         using var compressedStream = new MemoryStream();
 
-        using (var compressionStream = new BrotliStream(compressedStream, _compressionLevel))
+        using (var compressionStream = new BrotliStream(compressedStream, compressionLevel))
         {
             originalStream.CopyTo(compressionStream);
         }
