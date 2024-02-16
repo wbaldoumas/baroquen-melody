@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -11,10 +12,10 @@ internal sealed class ChordContextTests
     [Test]
     public void WhenChordContextsAreSameReference_TheyAreEqual()
     {
-        var context1 = new NoteContext(Voice.Soprano, 60, NoteMotion.Oblique, NoteSpan.None);
-        var context2 = new NoteContext(Voice.Alto, 64, NoteMotion.Ascending, NoteSpan.Step);
-        var context3 = new NoteContext(Voice.Tenor, 67, NoteMotion.Descending, NoteSpan.Leap);
-        var context4 = new NoteContext(Voice.Bass, 72, NoteMotion.Ascending, NoteSpan.Step);
+        var context1 = new NoteContext(Voice.Soprano, 60.ToNote(), NoteMotion.Oblique, NoteSpan.None);
+        var context2 = new NoteContext(Voice.Alto, 64.ToNote(), NoteMotion.Ascending, NoteSpan.Step);
+        var context3 = new NoteContext(Voice.Tenor, 67.ToNote(), NoteMotion.Descending, NoteSpan.Leap);
+        var context4 = new NoteContext(Voice.Bass, 72.ToNote(), NoteMotion.Ascending, NoteSpan.Step);
 
         var chordContextA = new ChordContext(new List<NoteContext> { context1, context2, context3, context4 });
         var chordContextB = chordContextA;
@@ -38,10 +39,10 @@ internal sealed class ChordContextTests
     [Test]
     public void WhenChordContextsHaveSameNoteContexts_TheyAreEqual()
     {
-        var context1 = new NoteContext(Voice.Soprano, 60, NoteMotion.Oblique, NoteSpan.None);
-        var context2 = new NoteContext(Voice.Alto, 64, NoteMotion.Ascending, NoteSpan.Step);
-        var context3 = new NoteContext(Voice.Tenor, 67, NoteMotion.Descending, NoteSpan.Leap);
-        var context4 = new NoteContext(Voice.Bass, 72, NoteMotion.Ascending, NoteSpan.Step);
+        var context1 = new NoteContext(Voice.Soprano, 60.ToNote(), NoteMotion.Oblique, NoteSpan.None);
+        var context2 = new NoteContext(Voice.Alto, 64.ToNote(), NoteMotion.Ascending, NoteSpan.Step);
+        var context3 = new NoteContext(Voice.Tenor, 67.ToNote(), NoteMotion.Descending, NoteSpan.Leap);
+        var context4 = new NoteContext(Voice.Bass, 72.ToNote(), NoteMotion.Ascending, NoteSpan.Step);
 
         var chordContextA = new ChordContext(new List<NoteContext> { context1, context2, context3, context4 });
         var chordContextB = new ChordContext(new List<NoteContext> { context1, context2, context3, context4 });
@@ -65,10 +66,10 @@ internal sealed class ChordContextTests
     [Test]
     public void WhenOneChordContextIsNull_TheyAreNotEqual()
     {
-        var context1 = new NoteContext(Voice.Soprano, 60, NoteMotion.Oblique, NoteSpan.None);
-        var context2 = new NoteContext(Voice.Alto, 64, NoteMotion.Ascending, NoteSpan.Step);
-        var context3 = new NoteContext(Voice.Tenor, 67, NoteMotion.Descending, NoteSpan.Leap);
-        var context4 = new NoteContext(Voice.Bass, 72, NoteMotion.Ascending, NoteSpan.Step);
+        var context1 = new NoteContext(Voice.Soprano, 60.ToNote(), NoteMotion.Oblique, NoteSpan.None);
+        var context2 = new NoteContext(Voice.Alto, 64.ToNote(), NoteMotion.Ascending, NoteSpan.Step);
+        var context3 = new NoteContext(Voice.Tenor, 67.ToNote(), NoteMotion.Descending, NoteSpan.Leap);
+        var context4 = new NoteContext(Voice.Bass, 72.ToNote(), NoteMotion.Ascending, NoteSpan.Step);
 
         var chordContextA = new ChordContext(new List<NoteContext> { context1, context2, context3, context4 });
         ChordContext? chordContextB = null;
@@ -82,10 +83,10 @@ internal sealed class ChordContextTests
     [Test]
     public void WhenNonDestructiveMutationUsed_InitializerInvoked()
     {
-        var context1 = new NoteContext(Voice.Soprano, 60, NoteMotion.Oblique, NoteSpan.None);
-        var context2 = new NoteContext(Voice.Alto, 64, NoteMotion.Ascending, NoteSpan.Step);
-        var context3 = new NoteContext(Voice.Tenor, 67, NoteMotion.Descending, NoteSpan.Leap);
-        var context4 = new NoteContext(Voice.Bass, 72, NoteMotion.Ascending, NoteSpan.Step);
+        var context1 = new NoteContext(Voice.Soprano, 60.ToNote(), NoteMotion.Oblique, NoteSpan.None);
+        var context2 = new NoteContext(Voice.Alto, 64.ToNote(), NoteMotion.Ascending, NoteSpan.Step);
+        var context3 = new NoteContext(Voice.Tenor, 67.ToNote(), NoteMotion.Descending, NoteSpan.Leap);
+        var context4 = new NoteContext(Voice.Bass, 72.ToNote(), NoteMotion.Ascending, NoteSpan.Step);
 
         var chordContext = new ChordContext(new List<NoteContext> { context1, context2, context3, context4 });
 

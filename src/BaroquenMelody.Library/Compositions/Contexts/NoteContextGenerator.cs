@@ -1,44 +1,41 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
+using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Contexts;
 
 /// <inheritdoc cref="INoteContextGenerator"/>
 internal sealed class NoteContextGenerator : INoteContextGenerator
 {
-    public ISet<NoteContext> GenerateNoteContexts(VoiceConfiguration voiceConfiguration)
+    public ISet<NoteContext> GenerateNoteContexts(VoiceConfiguration voiceConfiguration, Scale scale)
     {
-        var pitches = Enumerable.Range(
-            voiceConfiguration.MinPitch,
-            voiceConfiguration.MaxPitch - voiceConfiguration.MinPitch + 1
-        ).Select(pitch => (byte)pitch).ToList();
-
+        var notes = scale.GetNotes().Where(voiceConfiguration.IsNoteWithinVoiceRange).ToList();
         var noteMotions = new List<NoteMotion> { NoteMotion.Ascending, NoteMotion.Descending };
         var noteMotionSpans = new List<NoteSpan> { NoteSpan.Step, NoteSpan.Leap };
 
-        return pitches.SelectMany(
-            pitch => noteMotions.SelectMany(
+        return notes.SelectMany(
+            note => noteMotions.SelectMany(
                 noteMotion => noteMotionSpans.Select(
                     noteMotionSpan => new NoteContext(
                         voiceConfiguration.Voice,
-                        pitch,
+                        note,
                         noteMotion,
                         noteMotionSpan
                     )
                 )
             )
         ).Concat(
-            pitches.Select(
-                pitch => new NoteContext(
+            notes.Select(
+                note => new NoteContext(
                     voiceConfiguration.Voice,
-                    pitch,
+                    note,
                     NoteMotion.Oblique,
                     NoteSpan.None
                 )
             )
         ).Where(voiceContext =>
-            !(voiceContext.Pitch == voiceConfiguration.MaxPitch && voiceContext.NoteMotion == NoteMotion.Descending)
-            && !(voiceContext.Pitch == voiceConfiguration.MinPitch && voiceContext.NoteMotion == NoteMotion.Ascending)
+            !(voiceContext.Note == voiceConfiguration.MaxNote && voiceContext.NoteMotion == NoteMotion.Descending)
+            && !(voiceContext.Note == voiceConfiguration.MinNote && voiceContext.NoteMotion == NoteMotion.Ascending)
         ).ToHashSet();
     }
 }

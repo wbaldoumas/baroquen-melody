@@ -4,6 +4,7 @@ using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Extensions;
 using FluentAssertions;
+using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests.Extensions;
@@ -17,10 +18,10 @@ internal sealed class ChordContextExtensionsTests
         // arrange
         var chordContext = new ChordContext(new[]
         {
-            new NoteContext(Voice.Soprano, 60, NoteMotion.Oblique, NoteSpan.Leap),
-            new NoteContext(Voice.Alto, 55, NoteMotion.Oblique, NoteSpan.Leap),
-            new NoteContext(Voice.Tenor, 50, NoteMotion.Oblique, NoteSpan.Leap),
-            new NoteContext(Voice.Bass, 45, NoteMotion.Oblique, NoteSpan.Leap)
+            new NoteContext(Voice.Soprano, Note.Get(NoteName.C, 5), NoteMotion.Oblique, NoteSpan.Leap),
+            new NoteContext(Voice.Alto, Note.Get(NoteName.A, 4), NoteMotion.Oblique, NoteSpan.Leap),
+            new NoteContext(Voice.Tenor, Note.Get(NoteName.F, 4), NoteMotion.Oblique, NoteSpan.Leap),
+            new NoteContext(Voice.Bass, Note.Get(NoteName.F, 3), NoteMotion.Oblique, NoteSpan.Leap)
         });
 
         var chordChoice = new ChordChoice(new HashSet<NoteChoice>
@@ -31,19 +32,19 @@ internal sealed class ChordContextExtensionsTests
             new(Voice.Bass, NoteMotion.Ascending, 3)
         });
 
-        var expectedNotes = new HashSet<Note>
+        var expectedNotes = new HashSet<VoicedNote>
         {
-            new(62, Voice.Soprano, chordContext[Voice.Soprano], chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Soprano)),
-            new(54, Voice.Alto, chordContext[Voice.Alto], chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Alto)),
-            new(50, Voice.Tenor, chordContext[Voice.Tenor], chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Tenor)),
-            new(48, Voice.Bass, chordContext[Voice.Bass], chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Bass))
+            new(Note.Get(NoteName.E, 5), Voice.Soprano, chordContext[Voice.Soprano], chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Soprano)),
+            new(Note.Get(NoteName.G, 4), Voice.Alto, chordContext[Voice.Alto], chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Alto)),
+            new(Note.Get(NoteName.F, 4), Voice.Tenor, chordContext[Voice.Tenor], chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Tenor)),
+            new(Note.Get(NoteName.B, 3), Voice.Bass, chordContext[Voice.Bass], chordChoice.NoteChoices.First(noteChoice => noteChoice.Voice == Voice.Bass))
         };
 
         // act
-        var resultChord = chordContext.ApplyChordChoice(chordChoice);
+        var resultChord = chordContext.ApplyChordChoice(chordChoice, Scale.Parse("C Major"));
 
         // assert
-        resultChord.Notes.Should().BeEquivalentTo(expectedNotes);
+        resultChord.VoicedNotes.Should().BeEquivalentTo(expectedNotes);
         resultChord.ChordContext.Should().Be(chordContext);
         resultChord.ChordChoice.Should().Be(chordChoice);
     }

@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Enums;
+using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Configurations;
 
@@ -6,11 +7,10 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 ///     The composition configuration.
 /// </summary>
 /// <param name="VoiceConfigurations"> The voice configurations to be used in the composition. </param>
-internal sealed record CompositionConfiguration(ISet<VoiceConfiguration> VoiceConfigurations)
+/// <param name="Scale"> The scale to be used in the composition. </param>
+internal sealed record CompositionConfiguration(ISet<VoiceConfiguration> VoiceConfigurations, Scale Scale)
 {
-    public bool IsPitchInVoiceRange(Voice voice, byte pitch) => pitch >= GetMinPitch(voice) && pitch <= GetMaxPitch(voice);
-
-    private byte GetMinPitch(Voice voice) => VoiceConfigurations.First(x => x.Voice == voice).MinPitch;
-
-    private byte GetMaxPitch(Voice voice) => VoiceConfigurations.First(x => x.Voice == voice).MaxPitch;
+    public bool IsNoteInVoiceRange(Voice voice, Note note) => VoiceConfigurations.First(
+        voiceConfiguration => voiceConfiguration.Voice == voice
+    ).IsNoteWithinVoiceRange(note);
 }

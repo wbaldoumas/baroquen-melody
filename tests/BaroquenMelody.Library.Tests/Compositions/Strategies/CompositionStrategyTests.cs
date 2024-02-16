@@ -3,8 +3,10 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Strategies;
+using BaroquenMelody.Library.Extensions;
 using BaroquenMelody.Library.Random;
 using FluentAssertions;
+using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
 using System.Collections;
@@ -61,11 +63,12 @@ internal sealed class CompositionStrategyTests
         _compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, MinSopranoPitch, MaxSopranoPitch),
-                new(Voice.Alto, MinAltoPitch, MaxAltoPitch),
-                new(Voice.Tenor, MinTenorPitch, MaxTenorPitch),
-                new(Voice.Bass, MinBassPitch, MaxBassPitch)
-            }
+                new(Voice.Soprano, MinSopranoPitch.ToNote(), MaxSopranoPitch.ToNote()),
+                new(Voice.Alto, MinAltoPitch.ToNote(), MaxAltoPitch.ToNote()),
+                new(Voice.Tenor, MinTenorPitch.ToNote(), MaxTenorPitch.ToNote()),
+                new(Voice.Bass, MinBassPitch.ToNote(), MaxBassPitch.ToNote())
+            },
+            Scale.Parse("C Major")
         );
 
         _compositionStrategy = new CompositionStrategy(
@@ -84,10 +87,10 @@ internal sealed class CompositionStrategyTests
         var chordContext = new ChordContext(
             new List<NoteContext>
             {
-                new(Voice.Soprano, MaxSopranoPitch - 2, NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Alto, MinAltoPitch + 2, NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Tenor, MaxTenorPitch - 2, NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Bass, MinBassPitch + 2, NoteMotion.Ascending, NoteSpan.Step)
+                new(Voice.Soprano, (MaxSopranoPitch - 1).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Alto, (MinAltoPitch + 2).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Tenor, (MaxTenorPitch - 1).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Bass, (MinBassPitch + 2).ToNote(), NoteMotion.Ascending, NoteSpan.Step)
             }
         );
 
@@ -134,10 +137,10 @@ internal sealed class CompositionStrategyTests
         var chordContext = new ChordContext(
             new List<NoteContext>
             {
-                new(Voice.Soprano, MaxSopranoPitch - 2, NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Alto, MinAltoPitch + 2, NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Tenor, MaxTenorPitch - 2, NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Bass, MinBassPitch + 2, NoteMotion.Ascending, NoteSpan.Step)
+                new(Voice.Soprano, (MaxSopranoPitch - 1).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Alto, (MinAltoPitch + 2).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Tenor, (MaxTenorPitch - 1).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Bass, (MinBassPitch + 2).ToNote(), NoteMotion.Ascending, NoteSpan.Step)
             }
         );
 
@@ -212,10 +215,10 @@ internal sealed class CompositionStrategyTests
         var chordContext = new ChordContext(
             new List<NoteContext>
             {
-                new(Voice.Soprano, 25, NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Alto, 25, NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Tenor, 25, NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Bass, 25, NoteMotion.Ascending, NoteSpan.Step)
+                new(Voice.Soprano, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Alto, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Tenor, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+                new(Voice.Bass, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step)
             }
         );
 

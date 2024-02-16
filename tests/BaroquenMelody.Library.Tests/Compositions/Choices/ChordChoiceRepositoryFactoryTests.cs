@@ -1,7 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Extensions;
 using FluentAssertions;
+using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -32,8 +34,9 @@ internal sealed class ChordChoiceRepositoryFactoryTests
         // arrange
         var compositionConfiguration = new CompositionConfiguration(
             Enumerable.Range(0, numberOfVoices)
-                .Select(index => new VoiceConfiguration(Voice.Soprano, (byte)index, (byte)(index + 1)))
-                .ToHashSet()
+                .Select(index => new VoiceConfiguration(Voice.Soprano, index.ToNote(), (index + 1).ToNote()))
+                .ToHashSet(),
+            Scale.Parse("C Major")
         );
 
         // act
@@ -51,8 +54,9 @@ internal sealed class ChordChoiceRepositoryFactoryTests
             new HashSet<VoiceConfiguration>
             {
                 // invalid configuration: only one voice
-                new(Voice.Soprano, 55, 90)
-            }
+                new(Voice.Soprano, 55.ToNote(), 90.ToNote())
+            },
+            Scale.Parse("C Major")
         );
 
         // act

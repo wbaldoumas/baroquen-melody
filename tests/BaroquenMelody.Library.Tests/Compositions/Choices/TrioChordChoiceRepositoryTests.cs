@@ -1,7 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Extensions;
 using FluentAssertions;
+using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -58,10 +60,11 @@ internal sealed class TrioChordChoiceRepositoryTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, 55, 90),
-                new(Voice.Alto, 45, 80),
-                new(Voice.Tenor, 35, 70)
-            }
+                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
+                new(Voice.Alto, 45.ToNote(), 80.ToNote()),
+                new(Voice.Tenor, 35.ToNote(), 70.ToNote())
+            },
+            Scale.Parse("C Major")
         );
 
         var trioChordChoiceRepository = new TrioChordChoiceRepository(
@@ -97,11 +100,12 @@ internal sealed class TrioChordChoiceRepositoryTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, 55, 90),
-                new(Voice.Alto, 45, 80),
-                new(Voice.Tenor, 35, 70),
-                new(Voice.Bass, 25, 60)
-            }
+                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
+                new(Voice.Alto, 45.ToNote(), 80.ToNote()),
+                new(Voice.Tenor, 35.ToNote(), 70.ToNote()),
+                new(Voice.Bass, 25.ToNote(), 60.ToNote())
+            },
+            Scale.Parse("C Major")
         );
 
         // act
@@ -121,10 +125,11 @@ internal sealed class TrioChordChoiceRepositoryTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, 55, 90),
-                new(Voice.Alto, 45, 80),
-                new(Voice.Tenor, 35, 70)
-            }
+                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
+                new(Voice.Alto, 45.ToNote(), 80.ToNote()),
+                new(Voice.Tenor, 35.ToNote(), 70.ToNote())
+            },
+            Scale.Parse("C Major")
         );
 
         var trioChordChoiceRepository = new TrioChordChoiceRepository(
