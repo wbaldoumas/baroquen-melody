@@ -1,7 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Extensions;
 using FluentAssertions;
+using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -22,36 +24,40 @@ internal sealed class TrioChordContextRepositoryTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, 55, 90),
-                new(Voice.Alto, 45, 80),
-                new(Voice.Tenor, 35, 70)
-            }
+                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
+                new(Voice.Alto, 45.ToNote(), 80.ToNote()),
+                new(Voice.Tenor, 35.ToNote(), 70.ToNote())
+            },
+            Scale.Parse("C Major")
         );
 
-        var sopranoNoteContext1 = new NoteContext(Voice.Soprano, 60, NoteMotion.Oblique, NoteSpan.None);
-        var sopranoNoteContext2 = new NoteContext(Voice.Soprano, 65, NoteMotion.Oblique, NoteSpan.None);
+        var sopranoNoteContext1 = new NoteContext(Voice.Soprano, 60.ToNote(), NoteMotion.Oblique, NoteSpan.None);
+        var sopranoNoteContext2 = new NoteContext(Voice.Soprano, 65.ToNote(), NoteMotion.Oblique, NoteSpan.None);
 
-        var altoNoteContext1 = new NoteContext(Voice.Alto, 70, NoteMotion.Oblique, NoteSpan.None);
-        var altoNoteContext2 = new NoteContext(Voice.Alto, 75, NoteMotion.Oblique, NoteSpan.None);
+        var altoNoteContext1 = new NoteContext(Voice.Alto, 70.ToNote(), NoteMotion.Oblique, NoteSpan.None);
+        var altoNoteContext2 = new NoteContext(Voice.Alto, 75.ToNote(), NoteMotion.Oblique, NoteSpan.None);
 
-        var tenorNoteContext1 = new NoteContext(Voice.Tenor, 40, NoteMotion.Oblique, NoteSpan.None);
-        var tenorNoteContext2 = new NoteContext(Voice.Tenor, 45, NoteMotion.Oblique, NoteSpan.None);
+        var tenorNoteContext1 = new NoteContext(Voice.Tenor, 40.ToNote(), NoteMotion.Oblique, NoteSpan.None);
+        var tenorNoteContext2 = new NoteContext(Voice.Tenor, 45.ToNote(), NoteMotion.Oblique, NoteSpan.None);
 
         _mockNoteContextGenerator
             .GenerateNoteContexts(
-                Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Soprano)
+                Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Soprano),
+                Arg.Any<Scale>()
             )
             .Returns(new HashSet<NoteContext> { sopranoNoteContext1, sopranoNoteContext2 });
 
         _mockNoteContextGenerator
             .GenerateNoteContexts(
-                Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Alto)
+                Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Alto),
+                Arg.Any<Scale>()
             )
             .Returns(new HashSet<NoteContext> { altoNoteContext1, altoNoteContext2 });
 
         _mockNoteContextGenerator
             .GenerateNoteContexts(
-                Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Tenor)
+                Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Tenor),
+                Arg.Any<Scale>()
             )
             .Returns(new HashSet<NoteContext> { tenorNoteContext1, tenorNoteContext2 });
 
@@ -78,15 +84,18 @@ internal sealed class TrioChordContextRepositoryTests
         Received.InOrder(() =>
             {
                 _mockNoteContextGenerator.GenerateNoteContexts(
-                    Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Soprano)
+                    Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Soprano),
+                    Arg.Any<Scale>()
                 );
 
                 _mockNoteContextGenerator.GenerateNoteContexts(
-                    Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Alto)
+                    Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Alto),
+                    Arg.Any<Scale>()
                 );
 
                 _mockNoteContextGenerator.GenerateNoteContexts(
-                    Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Tenor)
+                    Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Tenor),
+                    Arg.Any<Scale>()
                 );
             }
         );
@@ -99,9 +108,10 @@ internal sealed class TrioChordContextRepositoryTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, 55, 90),
-                new(Voice.Alto, 45, 80)
-            }
+                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
+                new(Voice.Alto, 45.ToNote(), 80.ToNote())
+            },
+            Scale.Parse("C Major")
         );
 
         // act

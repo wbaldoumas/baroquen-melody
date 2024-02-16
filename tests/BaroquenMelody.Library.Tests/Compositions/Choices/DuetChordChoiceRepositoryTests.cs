@@ -1,7 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Extensions;
 using FluentAssertions;
+using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -47,9 +49,10 @@ internal sealed class DuetChordChoiceRepositoryTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, 55, 90),
-                new(Voice.Alto, 45, 80)
-            }
+                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
+                new(Voice.Alto, 45.ToNote(), 80.ToNote())
+            },
+            Scale.Parse("C Major")
         );
 
         var duetChordChoiceRepository = new DuetChordChoiceRepository(
@@ -84,10 +87,11 @@ internal sealed class DuetChordChoiceRepositoryTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, 55, 90),
-                new(Voice.Alto, 45, 80),
-                new(Voice.Tenor, 35, 70)
-            }
+                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
+                new(Voice.Alto, 45.ToNote(), 80.ToNote()),
+                new(Voice.Tenor, 35.ToNote(), 70.ToNote())
+            },
+            Scale.Parse("C Major")
         );
 
         // act
@@ -107,9 +111,10 @@ internal sealed class DuetChordChoiceRepositoryTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, 55, 90),
-                new(Voice.Alto, 45, 80)
-            }
+                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
+                new(Voice.Alto, 45.ToNote(), 80.ToNote())
+            },
+            Scale.Parse("C Major")
         );
 
         var duetChordChoiceRepository = new DuetChordChoiceRepository(

@@ -1,7 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Extensions;
 using FluentAssertions;
+using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -22,24 +24,29 @@ internal sealed class DuetChordContextRepositoryTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, 55, 90),
-                new(Voice.Alto, 45, 80)
-            }
+                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
+                new(Voice.Alto, 45.ToNote(), 80.ToNote())
+            },
+            Scale.Parse("C Major")
         );
 
-        var noteContext1 = new NoteContext(Voice.Soprano, 60, NoteMotion.Oblique, NoteSpan.None);
-        var noteContext2 = new NoteContext(Voice.Alto, 70, NoteMotion.Oblique, NoteSpan.None);
-        var noteContext3 = new NoteContext(Voice.Soprano, 65, NoteMotion.Oblique, NoteSpan.None);
-        var noteContext4 = new NoteContext(Voice.Alto, 75, NoteMotion.Oblique, NoteSpan.None);
+        var noteContext1 = new NoteContext(Voice.Soprano, 60.ToNote(), NoteMotion.Oblique, NoteSpan.None);
+        var noteContext2 = new NoteContext(Voice.Alto, 70.ToNote(), NoteMotion.Oblique, NoteSpan.None);
+        var noteContext3 = new NoteContext(Voice.Soprano, 65.ToNote(), NoteMotion.Oblique, NoteSpan.None);
+        var noteContext4 = new NoteContext(Voice.Alto, 75.ToNote(), NoteMotion.Oblique, NoteSpan.None);
 
         _mockNoteContextGenerator
             .GenerateNoteContexts(
-                Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Soprano)
+                Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Soprano),
+                Arg.Any<Scale>()
             )
             .Returns(new HashSet<NoteContext> { noteContext1, noteContext3 });
 
         _mockNoteContextGenerator
-            .GenerateNoteContexts(Arg.Is<VoiceConfiguration>(vc => vc.Voice == Voice.Alto))
+            .GenerateNoteContexts(
+                Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Alto),
+                Arg.Any<Scale>()
+            )
             .Returns(new HashSet<NoteContext> { noteContext2, noteContext4 });
 
         var duetChordContextRepository = new DuetChordContextRepository(
@@ -63,11 +70,13 @@ internal sealed class DuetChordContextRepositoryTests
         Received.InOrder(() =>
             {
                 _mockNoteContextGenerator.GenerateNoteContexts(
-                    Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Soprano)
+                    Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Soprano),
+                    Arg.Any<Scale>()
                 );
 
                 _mockNoteContextGenerator.GenerateNoteContexts(
-                    Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Alto)
+                    Arg.Is<VoiceConfiguration>(voiceConfiguration => voiceConfiguration.Voice == Voice.Alto),
+                    Arg.Any<Scale>()
                 );
             }
         );
@@ -80,10 +89,11 @@ internal sealed class DuetChordContextRepositoryTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, 55, 90),
-                new(Voice.Alto, 45, 80),
-                new(Voice.Tenor, 35, 70)
-            }
+                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
+                new(Voice.Alto, 45.ToNote(), 80.ToNote()),
+                new(Voice.Tenor, 35.ToNote(), 70.ToNote())
+            },
+            Scale.Parse("C Major")
         );
 
         // act

@@ -26,7 +26,8 @@ internal sealed class DuetChordContextRepository : IChordContextRepository
 
         var noteContextsForVoices = configuration.VoiceConfigurations
             .OrderBy(voiceConfiguration => voiceConfiguration.Voice)
-            .Select(noteContextGenerator.GenerateNoteContexts).ToList();
+            .Select(voiceConfiguration => noteContextGenerator.GenerateNoteContexts(voiceConfiguration, configuration.Scale))
+            .ToList();
 
         _noteContexts = new LazyCartesianProduct<NoteContext, NoteContext>(
             noteContextsForVoices[0].ToList(),

@@ -7,9 +7,9 @@ namespace BaroquenMelody.Library.Compositions.Choices;
 /// </summary>
 /// <param name="Voice"> The voice associated with the note choice. </param>
 /// <param name="Motion"> The motion which will be used to arrive at the next note. </param>
-/// <param name="PitchChange"> The amount of pitch change which will be used to arrive at the next note. </param>
+/// <param name="ScaleStepChange"> The change in scale steps which will be used to arrive at the next note. </param>
 internal sealed record NoteChoice(
     Voice Voice,
     NoteMotion Motion,
-    byte PitchChange
+    byte ScaleStepChange
 );

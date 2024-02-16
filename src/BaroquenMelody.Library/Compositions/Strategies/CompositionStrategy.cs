@@ -26,9 +26,9 @@ internal sealed class CompositionStrategy(
         {
             var chordChoiceIndex = randomTrueIndexSelector.SelectRandomTrueIndex(chordChoiceIndices);
             var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceIndex);
-            var chord = chordContext.ApplyChordChoice(chordChoice);
+            var chord = chordContext.ApplyChordChoice(chordChoice, compositionConfiguration.Scale);
 
-            if (chord.Notes.All(note => compositionConfiguration.IsPitchInVoiceRange(note.Voice, note.Pitch)))
+            if (chord.VoicedNotes.All(voicedNote => compositionConfiguration.IsNoteInVoiceRange(voicedNote.Voice, voicedNote.Note)))
             {
                 return chordChoice;
             }
