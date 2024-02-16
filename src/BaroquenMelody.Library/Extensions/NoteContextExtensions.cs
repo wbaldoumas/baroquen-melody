@@ -18,9 +18,6 @@ internal static class NoteContextExtensions
     /// <exception cref="ArgumentOutOfRangeException"> Thrown when the given <see cref="NoteChoice"/> has an invalid <see cref="NoteMotion"/>. </exception>
     public static VoicedNote ApplyNoteChoice(this NoteContext noteContext, NoteChoice noteChoice, Scale scale)
     {
-        var notes = scale.GetDescendingNotes(noteContext.Note);
-        var ascendingNotes = scale.GetAscendingNotes(noteContext.Note);
-
         var note = noteChoice.Motion switch
         {
             NoteMotion.Ascending => scale.GetAscendingNotes(noteContext.Note).ElementAt(noteChoice.ScaleStepChange),
