@@ -16,7 +16,7 @@ internal enum NoteMotion : byte
     Descending,
 
     /// <summary>
-    ///     Indicates that the note is arrived at by staying at the same pitch as the previous note.
+    ///     Indicates that the note is arrived at by staying at the same note as the previous note.
     /// </summary>
     Oblique
 }
