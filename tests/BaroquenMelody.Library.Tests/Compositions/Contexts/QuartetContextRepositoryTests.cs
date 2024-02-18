@@ -1,7 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Extensions;
+using BaroquenMelody.Library.Compositions.Extensions;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
@@ -29,7 +29,9 @@ internal sealed class QuartetChordContextRepositoryTests
                 new(Voice.Tenor, 35.ToNote(), 70.ToNote()),
                 new(Voice.Bass, 25.ToNote(), 60.ToNote())
             },
-            Scale.Parse("C Major")
+            Scale.Parse("C Major"),
+            Meter.FourFour,
+            CompositionLength: 100
         );
 
         var sopranoNoteContext1 = new NoteContext(Voice.Soprano, 60.ToNote(), NoteMotion.Oblique, NoteSpan.None);
@@ -128,7 +130,9 @@ internal sealed class QuartetChordContextRepositoryTests
                 new(Voice.Alto, 45.ToNote(), 80.ToNote()),
                 new(Voice.Tenor, 35.ToNote(), 70.ToNote())
             },
-            Scale.Parse("C Major")
+            Scale.Parse("C Major"),
+            Meter.FourFour,
+            CompositionLength: 100
         );
 
         // act
