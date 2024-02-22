@@ -2,9 +2,9 @@
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Strategies;
-using BaroquenMelody.Library.Extensions;
-using BaroquenMelody.Library.Random;
+using BaroquenMelody.Library.Infrastructure.Random;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
@@ -68,7 +68,9 @@ internal sealed class CompositionStrategyTests
                 new(Voice.Tenor, MinTenorPitch.ToNote(), MaxTenorPitch.ToNote()),
                 new(Voice.Bass, MinBassPitch.ToNote(), MaxBassPitch.ToNote())
             },
-            Scale.Parse("C Major")
+            Scale.Parse("C Major"),
+            Meter.FourFour,
+            CompositionLength: 100
         );
 
         _compositionStrategy = new CompositionStrategy(
@@ -85,24 +87,20 @@ internal sealed class CompositionStrategyTests
     {
         // arrange
         var chordContext = new ChordContext(
-            new List<NoteContext>
-            {
-                new(Voice.Soprano, (MaxSopranoPitch - 1).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Alto, (MinAltoPitch + 2).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Tenor, (MaxTenorPitch - 1).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Bass, (MinBassPitch + 2).ToNote(), NoteMotion.Ascending, NoteSpan.Step)
-            }
-        );
+        [
+            new NoteContext(Voice.Soprano, (MaxSopranoPitch - 1).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Alto, (MinAltoPitch + 2).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Tenor, (MaxTenorPitch - 1).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Bass, (MinBassPitch + 2).ToNote(), NoteMotion.Ascending, NoteSpan.Step)
+        ]);
 
         var chordChoice = new ChordChoice(
-            new List<NoteChoice>
-            {
-                new(Voice.Soprano, NoteMotion.Ascending, 1),
-                new(Voice.Alto, NoteMotion.Ascending, 1),
-                new(Voice.Tenor, NoteMotion.Ascending, 1),
-                new(Voice.Bass, NoteMotion.Ascending, 1)
-            }
-        );
+        [
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Alto, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Bass, NoteMotion.Ascending, 1)
+        ]);
 
         const int chordContextIndex = 3;
         const int chordChoiceIndex = 3;
@@ -135,44 +133,36 @@ internal sealed class CompositionStrategyTests
     {
         // arrange
         var chordContext = new ChordContext(
-            new List<NoteContext>
-            {
-                new(Voice.Soprano, (MaxSopranoPitch - 1).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Alto, (MinAltoPitch + 2).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Tenor, (MaxTenorPitch - 1).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Bass, (MinBassPitch + 2).ToNote(), NoteMotion.Ascending, NoteSpan.Step)
-            }
-        );
+        [
+            new NoteContext(Voice.Soprano, (MaxSopranoPitch - 1).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Alto, (MinAltoPitch + 2).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Tenor, (MaxTenorPitch - 1).ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Bass, (MinBassPitch + 2).ToNote(), NoteMotion.Ascending, NoteSpan.Step)
+        ]);
 
         var invalidChordChoiceA = new ChordChoice(
-            new List<NoteChoice>
-            {
-                new(Voice.Soprano, NoteMotion.Ascending, 5),
-                new(Voice.Alto, NoteMotion.Descending, 5),
-                new(Voice.Tenor, NoteMotion.Ascending, 5),
-                new(Voice.Bass, NoteMotion.Descending, 5)
-            }
-        );
+        [
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Alto, NoteMotion.Descending, 5),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Bass, NoteMotion.Descending, 5)
+        ]);
 
         var invalidChordChoiceB = new ChordChoice(
-            new List<NoteChoice>
-            {
-                new(Voice.Soprano, NoteMotion.Ascending, 6),
-                new(Voice.Alto, NoteMotion.Descending, 6),
-                new(Voice.Tenor, NoteMotion.Ascending, 6),
-                new(Voice.Bass, NoteMotion.Descending, 6)
-            }
-        );
+        [
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 6),
+            new NoteChoice(Voice.Alto, NoteMotion.Descending, 6),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 6),
+            new NoteChoice(Voice.Bass, NoteMotion.Descending, 6)
+        ]);
 
         var validChordChoice = new ChordChoice(
-            new List<NoteChoice>
-            {
-                new(Voice.Soprano, NoteMotion.Ascending, 1),
-                new(Voice.Alto, NoteMotion.Ascending, 1),
-                new(Voice.Tenor, NoteMotion.Ascending, 1),
-                new(Voice.Bass, NoteMotion.Ascending, 1)
-            }
-        );
+        [
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Alto, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Bass, NoteMotion.Ascending, 1)
+        ]);
 
         const int chordContextIndex = 3;
         const int invalidChordChoiceIndexA = 2;
@@ -213,24 +203,20 @@ internal sealed class CompositionStrategyTests
     {
         // arrange
         var chordContext = new ChordContext(
-            new List<NoteContext>
-            {
-                new(Voice.Soprano, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Alto, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Tenor, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step),
-                new(Voice.Bass, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step)
-            }
-        );
+        [
+            new NoteContext(Voice.Soprano, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Alto, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Tenor, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Bass, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step)
+        ]);
 
         var chordChoice = new ChordChoice(
-            new List<NoteChoice>
-            {
-                new(Voice.Soprano, NoteMotion.Ascending, 5),
-                new(Voice.Alto, NoteMotion.Ascending, 5),
-                new(Voice.Tenor, NoteMotion.Ascending, 5),
-                new(Voice.Bass, NoteMotion.Ascending, 5)
-            }
-        );
+        [
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Alto, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Bass, NoteMotion.Ascending, 5)
+        ]);
 
         const int chordContextIndex = 3;
         const int chordChoiceIndex = 3;
@@ -254,5 +240,31 @@ internal sealed class CompositionStrategyTests
                 _mockChordChoiceRepository.GetChordChoiceIndex(chordChoice);
             }
         );
+    }
+
+    [Test]
+    public void GetInitialChord_generates_valid_chord()
+    {
+        // run this test a bunch to account for randomness
+        for (var i = 0; i < 100000; ++i)
+        {
+            // act
+            var chord = _compositionStrategy.GetInitialChord();
+
+            // assert
+            chord.Notes.Count.Should().Be(4);
+
+            // since there are four voices but only three unique notes in a C Major chord, there should be at least one voice with a repeated note
+            chord.Notes.GroupBy(note => note.Note.NoteName).Should().HaveCount(3).And.OnlyContain(grouping => grouping.Count() <= 2);
+
+            foreach (var contextualizedNote in chord.Notes)
+            {
+                contextualizedNote.Note.NoteName.Should().BeOneOf(
+                    NoteName.C,
+                    NoteName.E,
+                    NoteName.G
+                );
+            }
+        }
     }
 }

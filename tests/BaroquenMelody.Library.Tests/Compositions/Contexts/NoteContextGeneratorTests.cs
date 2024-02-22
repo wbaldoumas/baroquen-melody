@@ -1,7 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Extensions;
+using BaroquenMelody.Library.Compositions.Extensions;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;

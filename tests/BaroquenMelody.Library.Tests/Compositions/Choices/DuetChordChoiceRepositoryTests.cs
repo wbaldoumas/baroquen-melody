@@ -1,7 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Extensions;
+using BaroquenMelody.Library.Compositions.Extensions;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
@@ -52,7 +52,9 @@ internal sealed class DuetChordChoiceRepositoryTests
                 new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
                 new(Voice.Alto, 45.ToNote(), 80.ToNote())
             },
-            Scale.Parse("C Major")
+            Scale.Parse("C Major"),
+            Meter.FourFour,
+            CompositionLength: 100
         );
 
         var duetChordChoiceRepository = new DuetChordChoiceRepository(
@@ -91,7 +93,9 @@ internal sealed class DuetChordChoiceRepositoryTests
                 new(Voice.Alto, 45.ToNote(), 80.ToNote()),
                 new(Voice.Tenor, 35.ToNote(), 70.ToNote())
             },
-            Scale.Parse("C Major")
+            Scale.Parse("C Major"),
+            Meter.FourFour,
+            CompositionLength: 100
         );
 
         // act
@@ -114,7 +118,9 @@ internal sealed class DuetChordChoiceRepositoryTests
                 new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
                 new(Voice.Alto, 45.ToNote(), 80.ToNote())
             },
-            Scale.Parse("C Major")
+            Scale.Parse("C Major"),
+            Meter.FourFour,
+            CompositionLength: 100
         );
 
         var duetChordChoiceRepository = new DuetChordChoiceRepository(

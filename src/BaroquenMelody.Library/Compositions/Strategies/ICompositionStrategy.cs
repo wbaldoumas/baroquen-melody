@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Contexts;
+using BaroquenMelody.Library.Compositions.Domain;
 
 namespace BaroquenMelody.Library.Compositions.Strategies;
 
@@ -24,4 +25,10 @@ internal interface ICompositionStrategy
     /// <param name="chordContext"> The <see cref="ChordContext" /> we are currently in.</param>
     /// <param name="chordChoice"> The <see cref="ChordChoice" /> to invalidate.</param>
     void InvalidateChordChoice(ChordContext chordContext, ChordChoice chordChoice);
+
+    /// <summary>
+    ///     Selects an initial chord to start the composition.
+    /// </summary>
+    /// <returns> The initial chord to start the composition. </returns>
+    public ContextualizedChord GetInitialChord();
 }

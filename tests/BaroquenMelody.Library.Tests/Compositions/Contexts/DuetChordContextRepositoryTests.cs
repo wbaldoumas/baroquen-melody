@@ -1,7 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Extensions;
+using BaroquenMelody.Library.Compositions.Extensions;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
@@ -27,7 +27,9 @@ internal sealed class DuetChordContextRepositoryTests
                 new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
                 new(Voice.Alto, 45.ToNote(), 80.ToNote())
             },
-            Scale.Parse("C Major")
+            Scale.Parse("C Major"),
+            Meter.FourFour,
+            CompositionLength: 100
         );
 
         var noteContext1 = new NoteContext(Voice.Soprano, 60.ToNote(), NoteMotion.Oblique, NoteSpan.None);
@@ -93,7 +95,9 @@ internal sealed class DuetChordContextRepositoryTests
                 new(Voice.Alto, 45.ToNote(), 80.ToNote()),
                 new(Voice.Tenor, 35.ToNote(), 70.ToNote())
             },
-            Scale.Parse("C Major")
+            Scale.Parse("C Major"),
+            Meter.FourFour,
+            CompositionLength: 100
         );
 
         // act
