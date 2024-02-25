@@ -24,6 +24,8 @@ internal sealed class ComposerTests
 
     private ICompositionStrategy _mockCompositionStrategy = null!;
 
+    private IChordContextGenerator _mockChordContextGenerator = null!;
+
     private CompositionConfiguration _compositionConfiguration = null!;
 
     private Composer _composer = null!;
@@ -32,6 +34,7 @@ internal sealed class ComposerTests
     public void SetUp()
     {
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
+        _mockChordContextGenerator = Substitute.For<IChordContextGenerator>();
 
         _compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
@@ -44,7 +47,7 @@ internal sealed class ComposerTests
             CompositionLength: 100
         );
 
-        _composer = new Composer(_mockCompositionStrategy, _compositionConfiguration);
+        _composer = new Composer(_mockCompositionStrategy, _mockChordContextGenerator, _compositionConfiguration);
     }
 
     [Test]
@@ -89,6 +92,15 @@ internal sealed class ComposerTests
                         new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0)
                     ]
                 )
+            );
+
+        _mockChordContextGenerator.GenerateChordContext(Arg.Any<ContextualizedChord>(), Arg.Any<ContextualizedChord>())
+            .Returns(
+                new ChordContext(
+                [
+                    new NoteContext(Voice.Soprano, MinSopranoNote, NoteMotion.Oblique, NoteSpan.None),
+                    new NoteContext(Voice.Alto, MinAltoNote, NoteMotion.Oblique, NoteSpan.None)
+                ])
             );
 
         // act

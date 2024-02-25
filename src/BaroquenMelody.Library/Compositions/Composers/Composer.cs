@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Strategies;
@@ -9,9 +10,11 @@ namespace BaroquenMelody.Library.Compositions.Composers;
 ///     Represents a composer which can generate a <see cref="Composition"/>.
 /// </summary>
 /// <param name="compositionStrategy"> The strategy that the composer should use to generate the composition. </param>
+/// <param name="chordContextGenerator"> The generator to use to generate chord contexts. </param>
 /// <param name="compositionConfiguration"> The configuration to use to generate the composition. </param>
 internal sealed class Composer(
     ICompositionStrategy compositionStrategy,
+    IChordContextGenerator chordContextGenerator,
     CompositionConfiguration compositionConfiguration
 ) : IComposer
 {
@@ -24,11 +27,13 @@ internal sealed class Composer(
             initialMeasure
         };
 
-        var currentChordContext = measures[0].Beats.Last().Chord.ChordContext;
+        var currentChordContext = measures[^1].Beats.Last().Chord.ChordContext;
 
         while (measures.Count < compositionConfiguration.CompositionLength)
         {
             var beats = new List<Beat>();
+
+            var previousChord = measures[^1].Beats.Last().Chord;
 
             while (beats.Count < compositionConfiguration.Meter.BeatsPerMeasure())
             {
@@ -37,7 +42,8 @@ internal sealed class Composer(
 
                 beats.Add(new Beat(nextChord));
 
-                currentChordContext = nextChord.ChordContext;
+                currentChordContext = chordContextGenerator.GenerateChordContext(previousChord, nextChord);
+                previousChord = nextChord;
             }
 
             measures.Add(new Measure(beats, compositionConfiguration.Meter));
