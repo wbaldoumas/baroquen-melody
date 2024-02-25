@@ -28,13 +28,12 @@ internal sealed class Composer(
         };
 
         var currentChordContext = measures[^1].Beats.Last().Chord.ChordContext;
-        var previousChord = measures[^1].Beats.Last().Chord;
 
         while (measures.Count < compositionConfiguration.CompositionLength)
         {
             var beats = new List<Beat>();
 
-            previousChord = measures[^1].Beats.Last().Chord;
+            var previousChord = measures[^1].Beats.Last().Chord;
 
             while (beats.Count < compositionConfiguration.Meter.BeatsPerMeasure())
             {
@@ -44,7 +43,6 @@ internal sealed class Composer(
                 beats.Add(new Beat(nextChord));
 
                 currentChordContext = chordContextGenerator.GenerateChordContext(previousChord, nextChord);
-
                 previousChord = nextChord;
             }
 
