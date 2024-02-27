@@ -10,19 +10,19 @@ internal sealed class DuetChordChoiceRepository : IChordChoiceRepository
 {
     public const int NumberOfVoices = 2;
 
-    private readonly ILazyCartesianProduct<NoteChoice, NoteChoice> _noteChoices;
+    private readonly LazyCartesianProduct<NoteChoice, NoteChoice> _noteChoices;
 
-    public DuetChordChoiceRepository(CompositionConfiguration configuration, INoteChoiceGenerator noteChoiceGenerator)
+    public DuetChordChoiceRepository(CompositionConfiguration compositionConfiguration, INoteChoiceGenerator noteChoiceGenerator)
     {
-        if (configuration.VoiceConfigurations.Count != NumberOfVoices)
+        if (compositionConfiguration.VoiceConfigurations.Count != NumberOfVoices)
         {
             throw new ArgumentException(
                 "The composition configuration must contain exactly two voice configurations.",
-                nameof(configuration)
+                nameof(compositionConfiguration)
             );
         }
 
-        var noteChoicesForVoices = configuration.VoiceConfigurations
+        var noteChoicesForVoices = compositionConfiguration.VoiceConfigurations
             .OrderBy(voiceConfiguration => voiceConfiguration.Voice)
             .Select(voiceConfiguration => noteChoiceGenerator.GenerateNoteChoices(voiceConfiguration.Voice)).ToList();
 
@@ -34,9 +34,9 @@ internal sealed class DuetChordChoiceRepository : IChordChoiceRepository
 
     public BigInteger Count => _noteChoices.Size;
 
-    public ChordChoice GetChordChoice(BigInteger index) => _noteChoices[index].ToChordChoice();
+    public ChordChoice GetChordChoice(BigInteger id) => _noteChoices[id].ToChordChoice();
 
-    public BigInteger GetChordChoiceIndex(ChordChoice chordChoice) => _noteChoices.IndexOf(
+    public BigInteger GetChordChoiceId(ChordChoice chordChoice) => _noteChoices.IndexOf(
         (chordChoice.NoteChoices[0], chordChoice.NoteChoices[1])
     );
 }

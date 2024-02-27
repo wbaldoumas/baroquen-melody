@@ -1,13 +1,13 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Contexts;
+using BaroquenMelody.Library.Compositions.Contexts.Extensions;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Extensions;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
-namespace BaroquenMelody.Library.Tests.Compositions.Extensions;
+namespace BaroquenMelody.Library.Tests.Compositions.Contexts.Extensions;
 
 [TestFixture]
 internal sealed class ChordContextExtensionsTests
@@ -45,7 +45,7 @@ internal sealed class ChordContextExtensionsTests
 
         // assert
         resultChord.Notes.Should().BeEquivalentTo(expectedNotes);
-        resultChord.ChordContext.Should().Be(chordContext);
-        resultChord.ChordChoice.Should().Be(chordChoice);
+        resultChord.ArrivedFromChordContext.Should().Be(chordContext);
+        resultChord.ArrivedFromChordChoice.Should().Be(chordChoice);
     }
 }

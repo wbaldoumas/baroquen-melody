@@ -5,7 +5,7 @@ using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Strategies;
-using BaroquenMelody.Library.Tests.Compositions.Extensions;
+using BaroquenMelody.Library.Tests.Compositions.Enums.Extensions;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
@@ -110,10 +110,15 @@ internal sealed class ComposerTests
         composition.Should().NotBeNull();
         composition.Measures.Should().HaveCount(_compositionConfiguration.CompositionLength);
 
+        foreach (var measure in composition.Measures)
+        {
+            measure.Beats.Should().HaveCount(_compositionConfiguration.Meter.BeatsPerMeasure());
+        }
+
         _mockCompositionStrategy.Received(1).GetInitialChord();
 
         _mockCompositionStrategy
-            .Received(_compositionConfiguration.CompositionLength * _compositionConfiguration.Meter.BeatsPerMeasure())
+            .Received(_compositionConfiguration.CompositionLength * _compositionConfiguration.Meter.BeatsPerMeasure() - 1) // 1 less since the initial chord is generated separately
             .GetNextChordChoice(Arg.Any<ChordContext>());
     }
 }

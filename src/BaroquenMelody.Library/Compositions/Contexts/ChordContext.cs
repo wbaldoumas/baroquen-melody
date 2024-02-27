@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Infrastructure.Equality;
 
 namespace BaroquenMelody.Library.Compositions.Contexts;
 
@@ -35,8 +36,8 @@ internal sealed record ChordContext
         unchecked
         {
             return NoteContexts.Aggregate(
-                1430287,
-                (current, noteChoice) => current * 7302013 ^ noteChoice.GetHashCode()
+                HashCodeGeneration.InitialValue,
+                (current, noteChoice) => current * HashCodeGeneration.Multiplier ^ noteChoice.GetHashCode()
             );
         }
     }

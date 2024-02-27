@@ -1,9 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Contexts;
+using BaroquenMelody.Library.Compositions.Contexts.Extensions;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Infrastructure.Random;
 using Melanchall.DryWetMidi.MusicTheory;
 using System.Collections;
@@ -31,13 +31,13 @@ internal sealed class CompositionStrategy(
 
     public ChordChoice GetNextChordChoice(ChordContext chordContext)
     {
-        var chordContextIndex = chordContextRepository.GetChordContextIndex(chordContext);
-        var chordChoiceIndices = chordContextToChordChoiceMap[chordContextIndex];
+        var chordContextId = chordContextRepository.GetChordContextId(chordContext);
+        var chordChoiceIndices = chordContextToChordChoiceMap[chordContextId];
 
         while (true)
         {
-            var chordChoiceIndex = randomTrueIndexSelector.SelectRandomTrueIndex(chordChoiceIndices);
-            var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceIndex);
+            var chordChoiceId = randomTrueIndexSelector.SelectRandomTrueIndex(chordChoiceIndices);
+            var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceId);
             var chord = chordContext.ApplyChordChoice(chordChoice, compositionConfiguration.Scale);
 
             if (chord.Notes.All(voicedNote => compositionConfiguration.IsNoteInVoiceRange(voicedNote.Voice, voicedNote.Note)))
@@ -51,10 +51,10 @@ internal sealed class CompositionStrategy(
 
     public void InvalidateChordChoice(ChordContext chordContext, ChordChoice chordChoice)
     {
-        var chordContextIndex = chordContextRepository.GetChordContextIndex(chordContext);
-        var chordChoiceIndex = chordChoiceRepository.GetChordChoiceIndex(chordChoice);
+        var chordContextId = chordContextRepository.GetChordContextId(chordContext);
+        var chordChoiceId = chordChoiceRepository.GetChordChoiceId(chordChoice);
 
-        chordContextToChordChoiceMap[chordContextIndex][(int)chordChoiceIndex] = false;
+        chordContextToChordChoiceMap[chordContextId][(int)chordChoiceId] = false;
     }
 
     /// <summary>
@@ -83,8 +83,8 @@ internal sealed class CompositionStrategy(
 
         return new ContextualizedChord(
             contextualizedNotes,
-            new ChordContext(contextualizedNotes.Select(contextualizedNote => contextualizedNote.NoteContext)),
-            new ChordChoice(contextualizedNotes.Select(contextualizedNote => contextualizedNote.NoteChoice))
+            new ChordContext(contextualizedNotes.Select(contextualizedNote => contextualizedNote.ArrivedFromNoteContext)),
+            new ChordChoice(contextualizedNotes.Select(contextualizedNote => contextualizedNote.ArrivedFromNoteChoice))
         );
     }
 
@@ -101,9 +101,8 @@ internal sealed class CompositionStrategy(
         CompositionConfiguration compositionConfiguration,
         VoiceConfiguration voiceConfiguration,
         IReadOnlyCollection<Note> notes,
-        IReadOnlySet<NoteName> startingNoteNames,
-        ref Dictionary<NoteName, int> startingNoteCounts
-    )
+        HashSet<NoteName> startingNoteNames,
+        ref Dictionary<NoteName, int> startingNoteCounts)
     {
         Note? chosenNote;
 

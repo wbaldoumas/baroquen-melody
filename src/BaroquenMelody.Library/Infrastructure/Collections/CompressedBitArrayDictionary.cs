@@ -9,18 +9,18 @@ internal sealed class CompressedBitArrayDictionary : IDictionary<BigInteger, Bit
 {
     private readonly IBitArrayCompressor _compressor;
 
-    private readonly IDictionary<BigInteger, byte[]> _innerDictionary;
+    private readonly Dictionary<BigInteger, byte[]> _innerDictionary;
 
     public CompressedBitArrayDictionary(IBitArrayCompressor compressor)
     {
         _compressor = compressor;
-        _innerDictionary = new Dictionary<BigInteger, byte[]>();
+        _innerDictionary = [];
     }
 
     public CompressedBitArrayDictionary()
     {
         _compressor = new BrotliBitArrayCompressor(CompressionLevel.Optimal);
-        _innerDictionary = new Dictionary<BigInteger, byte[]>();
+        _innerDictionary = [];
     }
 
     public ICollection<BigInteger> Keys => _innerDictionary.Keys;
@@ -59,10 +59,7 @@ internal sealed class CompressedBitArrayDictionary : IDictionary<BigInteger, Bit
 
     public void CopyTo(KeyValuePair<BigInteger, BitArray>[] items, int arrayIndex)
     {
-        if (items is null)
-        {
-            throw new ArgumentNullException(nameof(items));
-        }
+        ArgumentNullException.ThrowIfNull(items);
 
         if (arrayIndex < 0 || arrayIndex > items.Length)
         {

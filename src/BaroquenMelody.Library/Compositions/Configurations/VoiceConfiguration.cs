@@ -12,8 +12,7 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 internal sealed record VoiceConfiguration(
     Voice Voice,
     Note MinNote,
-    Note MaxNote
-)
+    Note MaxNote)
 {
     public bool IsNoteWithinVoiceRange(Note note) => note.NoteNumber >= MinNote.NoteNumber &&
                                                      note.NoteNumber <= MaxNote.NoteNumber;

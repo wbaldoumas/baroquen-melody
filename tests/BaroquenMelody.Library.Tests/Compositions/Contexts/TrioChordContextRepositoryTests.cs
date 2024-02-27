@@ -69,18 +69,18 @@ internal sealed class TrioChordContextRepositoryTests
         );
 
         // act
-        var chordContextId1 = trioChordContextRepository.GetChordContextIndex(
+        var chordContextId1 = trioChordContextRepository.GetChordContextId(
             new ChordContext(new[] { sopranoNoteContext1, altoNoteContext1, tenorNoteContext1 })
         );
 
-        var chordContextId2 = trioChordContextRepository.GetChordContextIndex(
+        var chordContextId2 = trioChordContextRepository.GetChordContextId(
             new ChordContext(new[] { sopranoNoteContext2, altoNoteContext2, tenorNoteContext2 })
         );
 
         // assert
         chordContextId1.Should().Be(0);
 
-        // As the Cartesian product of three sets, the index for the second context in each set would be 7 ((2*2*2)-1).
+        // As the Cartesian product of three sets, the id for the second context in each set would be 7 ((2*2*2)-1).
         chordContextId2.Should().Be(7);
 
         Received.InOrder(() =>

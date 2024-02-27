@@ -7,6 +7,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Title>baroquen-melody</Title>
     <AssemblyName>baroquen-melody</AssemblyName>
@@ -19,7 +22,7 @@
     <PackageTags>music;music-generation;generative-music;baroque;melody;midi</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Copyright>Copyright ©2023 William Baldoumas</Copyright>
+    <Copyright>Copyright ©2024 William Baldoumas</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

@@ -13,7 +13,7 @@ namespace BaroquenMelody.Library.Tests.Compositions.Contexts;
 internal sealed class ChordContextRepositoryFactoryTests
 {
     private INoteContextGenerator _mockNoteContextGenerator = null!;
-    private IChordContextRepositoryFactory _chordContextRepositoryFactory = null!;
+    private ChordContextRepositoryFactory _chordContextRepositoryFactory = null!;
 
     [SetUp]
     public void SetUp()

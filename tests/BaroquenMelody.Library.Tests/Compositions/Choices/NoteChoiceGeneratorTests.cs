@@ -8,7 +8,7 @@ namespace BaroquenMelody.Library.Tests.Compositions.Choices;
 [TestFixture]
 internal sealed class NoteChoiceGeneratorTests
 {
-    private INoteChoiceGenerator _noteChoiceGenerator = null!;
+    private NoteChoiceGenerator _noteChoiceGenerator = null!;
 
     [SetUp]
     public void SetUp() => _noteChoiceGenerator = new NoteChoiceGenerator(1, 7);

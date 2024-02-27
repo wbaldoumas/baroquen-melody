@@ -10,11 +10,9 @@ internal sealed class DuetChordContextRepository : IChordContextRepository
 {
     public const int NumberOfVoices = 2;
 
-    private readonly ILazyCartesianProduct<NoteContext, NoteContext> _noteContexts;
+    private readonly LazyCartesianProduct<NoteContext, NoteContext> _noteContexts;
 
-    public DuetChordContextRepository(
-        CompositionConfiguration configuration,
-        INoteContextGenerator noteContextGenerator)
+    public DuetChordContextRepository(CompositionConfiguration configuration, INoteContextGenerator noteContextGenerator)
     {
         if (configuration.VoiceConfigurations.Count != NumberOfVoices)
         {
@@ -38,6 +36,5 @@ internal sealed class DuetChordContextRepository : IChordContextRepository
     [ExcludeFromCodeCoverage]
     public BigInteger Count => _noteContexts.Size;
 
-    public BigInteger GetChordContextIndex(ChordContext chordContext) =>
-        _noteContexts.IndexOf((chordContext.NoteContexts[0], chordContext.NoteContexts[1]));
+    public BigInteger GetChordContextId(ChordContext chordContext) => _noteContexts.IndexOf((chordContext.NoteContexts[0], chordContext.NoteContexts[1]));
 }

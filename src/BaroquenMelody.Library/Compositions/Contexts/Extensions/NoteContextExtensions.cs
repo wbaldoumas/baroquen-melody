@@ -1,10 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
-using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using Melanchall.DryWetMidi.MusicTheory;
 
-namespace BaroquenMelody.Library.Compositions.Extensions;
+namespace BaroquenMelody.Library.Compositions.Contexts.Extensions;
 
 internal static class NoteContextExtensions
 {

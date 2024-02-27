@@ -13,16 +13,16 @@ internal interface IChordChoiceRepository
     public BigInteger Count { get; }
 
     /// <summary>
-    ///   Gets the <see cref="ChordChoice"/> at the given index.
+    ///   Gets the <see cref="ChordChoice"/> for the given ID.
     /// </summary>
-    /// <param name="index"> The index of the <see cref="ChordChoice"/> to get. </param>
-    /// <returns> The <see cref="ChordChoice"/> at the given index. </returns>
-    public ChordChoice GetChordChoice(BigInteger index);
+    /// <param name="id"> The ID of the <see cref="ChordChoice"/> to get. </param>
+    /// <returns> The <see cref="ChordChoice"/> for the given ID. </returns>
+    public ChordChoice GetChordChoice(BigInteger id);
 
     /// <summary>
     ///     Get the ID of the given <see cref="ChordChoice"/>.
     /// </summary>
     /// <param name="chordChoice"> The <see cref="ChordChoice"/> to get the ID of. </param>
     /// <returns> The ID of the given <see cref="ChordChoice"/>. </returns>
-    BigInteger GetChordChoiceIndex(ChordChoice chordChoice);
+    BigInteger GetChordChoiceId(ChordChoice chordChoice);
 }

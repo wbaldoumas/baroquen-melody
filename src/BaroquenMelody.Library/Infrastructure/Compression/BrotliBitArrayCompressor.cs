@@ -9,6 +9,7 @@ internal sealed class BrotliBitArrayCompressor(CompressionLevel compressionLevel
     public byte[] Compress(BitArray bits)
     {
         var bytes = new byte[(bits.Length - 1) / 8 + 1];
+
         bits.CopyTo(bytes, 0);
 
         using var originalStream = new MemoryStream(bytes);

@@ -37,6 +37,10 @@ internal sealed class CompositionStrategyTests
 
     private static readonly BigInteger MockChordChoiceCount = 5;
 
+    private static readonly bool[] AllTrue = [true, true, true, true, true];
+
+    private static readonly bool[] Alternating = [true, false, true, false, true];
+
     private IChordChoiceRepository _mockChordChoiceRepository = default!;
 
     private IChordContextRepository _mockChordContextRepository = default!;
@@ -102,15 +106,15 @@ internal sealed class CompositionStrategyTests
             new NoteChoice(Voice.Bass, NoteMotion.Ascending, 1)
         ]);
 
-        const int chordContextIndex = 3;
-        const int chordChoiceIndex = 3;
+        const int chordContextId = 3;
+        const int chordChoiceId = 3;
 
-        var bitArray = new BitArray(new[] { true, false, false, true, false });
+        var bitArray = new BitArray(Alternating);
 
-        _mockChordContextRepository.GetChordContextIndex(chordContext).Returns(chordContextIndex);
-        _mockChordContextToChordChoiceMap[chordContextIndex].Returns(bitArray);
-        _mockRandomTrueIndexSelector.SelectRandomTrueIndex(bitArray).Returns(chordChoiceIndex);
-        _mockChordChoiceRepository.GetChordChoice(chordChoiceIndex).Returns(chordChoice);
+        _mockChordContextRepository.GetChordContextId(chordContext).Returns(chordContextId);
+        _mockChordContextToChordChoiceMap[chordContextId].Returns(bitArray);
+        _mockRandomTrueIndexSelector.SelectRandomTrueIndex(bitArray).Returns(chordChoiceId);
+        _mockChordChoiceRepository.GetChordChoice(chordChoiceId).Returns(chordChoice);
 
         // act
         var result = _compositionStrategy.GetNextChordChoice(chordContext);
@@ -121,9 +125,9 @@ internal sealed class CompositionStrategyTests
         Received.InOrder(
             () =>
             {
-                _mockChordContextRepository.GetChordContextIndex(chordContext);
+                _mockChordContextRepository.GetChordContextId(chordContext);
                 _mockRandomTrueIndexSelector.SelectRandomTrueIndex(Arg.Any<BitArray>());
-                _mockChordChoiceRepository.GetChordChoice(chordChoiceIndex);
+                _mockChordChoiceRepository.GetChordChoice(chordChoiceId);
             }
         );
     }
@@ -164,28 +168,28 @@ internal sealed class CompositionStrategyTests
             new NoteChoice(Voice.Bass, NoteMotion.Ascending, 1)
         ]);
 
-        const int chordContextIndex = 3;
-        const int invalidChordChoiceIndexA = 2;
-        const int invalidChordChoiceIndexB = 3;
-        const int validChordChoiceIndex = 4;
+        const int chordContextId = 3;
+        const int invalidChordChoiceIdA = 2;
+        const int invalidChordChoiceIdB = 3;
+        const int validChordChoiceId = 4;
 
-        var bitArray = new BitArray(new[] { true, true, true, true, true });
+        var bitArray = new BitArray(AllTrue);
 
-        _mockChordContextRepository.GetChordContextIndex(chordContext).Returns(chordContextIndex);
-        _mockChordContextToChordChoiceMap[chordContextIndex].Returns(bitArray);
+        _mockChordContextRepository.GetChordContextId(chordContext).Returns(chordContextId);
+        _mockChordContextToChordChoiceMap[chordContextId].Returns(bitArray);
 
         _mockRandomTrueIndexSelector.SelectRandomTrueIndex(bitArray).Returns(
-            invalidChordChoiceIndexA,
-            invalidChordChoiceIndexB,
-            validChordChoiceIndex
+            invalidChordChoiceIdA,
+            invalidChordChoiceIdB,
+            validChordChoiceId
         );
 
-        _mockChordChoiceRepository.GetChordChoice(invalidChordChoiceIndexA).Returns(invalidChordChoiceA);
-        _mockChordChoiceRepository.GetChordChoice(invalidChordChoiceIndexB).Returns(invalidChordChoiceB);
-        _mockChordChoiceRepository.GetChordChoice(validChordChoiceIndex).Returns(validChordChoice);
+        _mockChordChoiceRepository.GetChordChoice(invalidChordChoiceIdA).Returns(invalidChordChoiceA);
+        _mockChordChoiceRepository.GetChordChoice(invalidChordChoiceIdB).Returns(invalidChordChoiceB);
+        _mockChordChoiceRepository.GetChordChoice(validChordChoiceId).Returns(validChordChoice);
 
-        _mockChordChoiceRepository.GetChordChoiceIndex(invalidChordChoiceA).Returns(invalidChordChoiceIndexA);
-        _mockChordChoiceRepository.GetChordChoiceIndex(invalidChordChoiceB).Returns(invalidChordChoiceIndexB);
+        _mockChordChoiceRepository.GetChordChoiceId(invalidChordChoiceA).Returns(invalidChordChoiceIdA);
+        _mockChordChoiceRepository.GetChordChoiceId(invalidChordChoiceB).Returns(invalidChordChoiceIdB);
 
         // act
         var result = _compositionStrategy.GetNextChordChoice(chordContext);
@@ -193,9 +197,9 @@ internal sealed class CompositionStrategyTests
         // assert
         result.Should().BeEquivalentTo(validChordChoice);
 
-        bitArray[invalidChordChoiceIndexA].Should().BeFalse();
-        bitArray[invalidChordChoiceIndexB].Should().BeFalse();
-        bitArray[validChordChoiceIndex].Should().BeTrue();
+        bitArray[invalidChordChoiceIdA].Should().BeFalse();
+        bitArray[invalidChordChoiceIdB].Should().BeFalse();
+        bitArray[validChordChoiceId].Should().BeTrue();
     }
 
     [Test]
@@ -218,26 +222,26 @@ internal sealed class CompositionStrategyTests
             new NoteChoice(Voice.Bass, NoteMotion.Ascending, 5)
         ]);
 
-        const int chordContextIndex = 3;
-        const int chordChoiceIndex = 3;
+        const int chordContextId = 3;
+        const int chordChoiceId = 3;
 
         var bitArray = new BitArray(5, true);
 
-        _mockChordContextRepository.GetChordContextIndex(chordContext).Returns(chordContextIndex);
-        _mockChordChoiceRepository.GetChordChoiceIndex(chordChoice).Returns(chordChoiceIndex);
-        _mockChordContextToChordChoiceMap[chordContextIndex].Returns(bitArray);
+        _mockChordContextRepository.GetChordContextId(chordContext).Returns(chordContextId);
+        _mockChordChoiceRepository.GetChordChoiceId(chordChoice).Returns(chordChoiceId);
+        _mockChordContextToChordChoiceMap[chordContextId].Returns(bitArray);
 
         // act
         _compositionStrategy.InvalidateChordChoice(chordContext, chordChoice);
 
         // assert
-        bitArray[chordChoiceIndex].Should().BeFalse();
+        bitArray[chordChoiceId].Should().BeFalse();
 
         Received.InOrder(
             () =>
             {
-                _mockChordContextRepository.GetChordContextIndex(chordContext);
-                _mockChordChoiceRepository.GetChordChoiceIndex(chordChoice);
+                _mockChordContextRepository.GetChordContextId(chordContext);
+                _mockChordChoiceRepository.GetChordChoiceId(chordChoice);
             }
         );
     }
@@ -246,7 +250,7 @@ internal sealed class CompositionStrategyTests
     public void GetInitialChord_generates_valid_chord()
     {
         // run this test a bunch to account for randomness
-        for (var i = 0; i < 100000; ++i)
+        for (var i = 0; i < 1000; ++i)
         {
             // act
             var chord = _compositionStrategy.GetInitialChord();

@@ -83,12 +83,11 @@ internal sealed class TrioChordChoiceRepositoryTests
 
         noteChoice.Should().BeEquivalentTo(
             new ChordChoice(
-                new List<NoteChoice>
-                {
-                    new(Voice.Soprano, NoteMotion.Oblique, 0),
-                    new(Voice.Alto, NoteMotion.Oblique, 0),
-                    new(Voice.Tenor, NoteMotion.Ascending, 2)
-                }
+                [
+                    new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 2)
+                ]
             )
         );
 
@@ -123,7 +122,7 @@ internal sealed class TrioChordChoiceRepositoryTests
     }
 
     [Test]
-    public void GetChordChoiceIndex_ReturnsExpectedIndex()
+    public void GetChordChoiceId_ReturnsExpectedId()
     {
         // arrange
         var compositionConfiguration = new CompositionConfiguration(
@@ -144,18 +143,17 @@ internal sealed class TrioChordChoiceRepositoryTests
         );
 
         // act
-        var index = trioChordChoiceRepository.GetChordChoiceIndex(
+        var id = trioChordChoiceRepository.GetChordChoiceId(
             new ChordChoice(
-                new List<NoteChoice>
-                {
-                    new(Voice.Soprano, NoteMotion.Oblique, 0),
-                    new(Voice.Alto, NoteMotion.Oblique, 0),
-                    new(Voice.Tenor, NoteMotion.Ascending, 2)
-                }
+                [
+                    new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 2)
+                ]
             )
         );
 
         // assert
-        index.Should().Be(1);
+        id.Should().Be(1);
     }
 }

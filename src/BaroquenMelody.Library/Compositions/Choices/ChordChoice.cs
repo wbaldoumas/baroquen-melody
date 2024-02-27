@@ -1,7 +1,9 @@
-﻿namespace BaroquenMelody.Library.Compositions.Choices;
+﻿using BaroquenMelody.Library.Infrastructure.Equality;
+
+namespace BaroquenMelody.Library.Compositions.Choices;
 
 /// <summary>
-///     Represents the note choices for the voices in a given chord to arrive at the next chord.
+///     Represents the note choices for the voices in a given chord to move to the next chord.
 /// </summary>
 internal sealed record ChordChoice
 {
@@ -30,7 +32,9 @@ internal sealed record ChordChoice
     {
         unchecked
         {
-            return NoteChoices.Aggregate(1430287, (current, noteChoice) => current * 7302013 ^ noteChoice.GetHashCode());
+            return NoteChoices.Aggregate(
+                HashCodeGeneration.InitialValue,
+                (current, noteChoice) => current * HashCodeGeneration.Multiplier ^ noteChoice.GetHashCode());
         }
     }
 }

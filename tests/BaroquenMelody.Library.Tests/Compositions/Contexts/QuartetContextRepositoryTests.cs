@@ -80,18 +80,18 @@ internal sealed class QuartetChordContextRepositoryTests
         );
 
         // act
-        var chordContextId1 = quartetChordContextRepository.GetChordContextIndex(
+        var chordContextId1 = quartetChordContextRepository.GetChordContextId(
             new ChordContext(new[] { sopranoNoteContext1, altoNoteContext1, tenorNoteContext1, bassNoteContext1 })
         );
 
-        var chordContextId2 = quartetChordContextRepository.GetChordContextIndex(
+        var chordContextId2 = quartetChordContextRepository.GetChordContextId(
             new ChordContext(new[] { sopranoNoteContext2, altoNoteContext2, tenorNoteContext2, bassNoteContext2 })
         );
 
         // assert
         chordContextId1.Should().Be(0);
 
-        // As the Cartesian product of four sets, the index for the second context in each set would be 15 ((2*2*2*2)-1).
+        // As the Cartesian product of four sets, the id for the second context in each set would be 15 ((2*2*2*2)-1).
         chordContextId2.Should().Be(15);
 
         Received.InOrder(() =>

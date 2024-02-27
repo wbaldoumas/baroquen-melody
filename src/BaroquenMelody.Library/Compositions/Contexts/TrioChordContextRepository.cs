@@ -10,11 +10,9 @@ internal sealed class TrioChordContextRepository : IChordContextRepository
 {
     public const int NumberOfVoices = 3;
 
-    private readonly ILazyCartesianProduct<NoteContext, NoteContext, NoteContext> _noteContexts;
+    private readonly LazyCartesianProduct<NoteContext, NoteContext, NoteContext> _noteContexts;
 
-    public TrioChordContextRepository(
-        CompositionConfiguration configuration,
-        INoteContextGenerator noteContextGenerator)
+    public TrioChordContextRepository(CompositionConfiguration configuration, INoteContextGenerator noteContextGenerator)
     {
         if (configuration.VoiceConfigurations.Count != NumberOfVoices)
         {
@@ -39,12 +37,11 @@ internal sealed class TrioChordContextRepository : IChordContextRepository
     [ExcludeFromCodeCoverage]
     public BigInteger Count => _noteContexts.Size;
 
-    public BigInteger GetChordContextIndex(ChordContext chordContext) =>
-        _noteContexts.IndexOf(
-            (
-                chordContext.NoteContexts[0],
-                chordContext.NoteContexts[1],
-                chordContext.NoteContexts[2]
-            )
-        );
+    public BigInteger GetChordContextId(ChordContext chordContext) => _noteContexts.IndexOf(
+        (
+            chordContext.NoteContexts[0],
+            chordContext.NoteContexts[1],
+            chordContext.NoteContexts[2]
+        )
+    );
 }

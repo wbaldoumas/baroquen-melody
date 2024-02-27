@@ -8,7 +8,7 @@ namespace BaroquenMelody.Library.Compositions.Contexts;
 internal interface IChordContextGenerator
 {
     /// <summary>
-    ///     Generates a chord context from the previous and current chords.
+    ///     Generates a <see cref="ChordContext"/> from the previous and current chords.
     /// </summary>
     /// <param name="previousChord"> The previous chord. </param>
     /// <param name="currentChord"> The current chord. </param>

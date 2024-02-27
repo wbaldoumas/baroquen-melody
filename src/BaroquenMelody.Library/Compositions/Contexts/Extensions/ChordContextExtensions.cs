@@ -1,9 +1,8 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
-using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Domain;
 using Melanchall.DryWetMidi.MusicTheory;
 
-namespace BaroquenMelody.Library.Compositions.Extensions;
+namespace BaroquenMelody.Library.Compositions.Contexts.Extensions;
 
 internal static class ChordContextExtensions
 {
