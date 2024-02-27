@@ -11,8 +11,8 @@ namespace BaroquenMelody.Library.Compositions.Strategies;
 internal sealed class CompositionStrategyFactory(
     IChordChoiceRepositoryFactory chordChoiceRepositoryFactory,
     IChordContextRepositoryFactory chordContextRepositoryFactory,
-    IRandomTrueIndexSelector randomTrueIndexSelector)
-    : ICompositionStrategyFactory
+    IRandomTrueIndexSelector randomTrueIndexSelector
+) : ICompositionStrategyFactory
 {
     public ICompositionStrategy Create(CompositionConfiguration compositionConfiguration)
     {
@@ -33,17 +33,15 @@ internal sealed class CompositionStrategyFactory(
         );
     }
 
-    private static CompressedBitArrayDictionary CreateChordContextToChordChoiceMap(
-        BigInteger chordChoiceCount,
-        BigInteger chordContextCount)
+    private static CompressedBitArrayDictionary CreateChordContextToChordChoiceMap(BigInteger chordChoiceCount, BigInteger chordContextCount)
     {
         var chordContextToChordChoiceMap = new CompressedBitArrayDictionary();
 
-        for (BigInteger chordContextIndex = 0; chordContextIndex < chordContextCount; chordContextIndex++)
+        for (BigInteger chordContextId = 0; chordContextId < chordContextCount; chordContextId++)
         {
             var chordChoiceValues = new BitArray((int)chordChoiceCount, defaultValue: true);
 
-            chordContextToChordChoiceMap.Add(chordContextIndex, chordChoiceValues);
+            chordContextToChordChoiceMap.Add(chordContextId, chordChoiceValues);
         }
 
         return chordContextToChordChoiceMap;

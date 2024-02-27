@@ -17,7 +17,7 @@ internal sealed class ChordContextTests
         var context3 = new NoteContext(Voice.Tenor, 67.ToNote(), NoteMotion.Descending, NoteSpan.Leap);
         var context4 = new NoteContext(Voice.Bass, 72.ToNote(), NoteMotion.Ascending, NoteSpan.Step);
 
-        var chordContextA = new ChordContext(new List<NoteContext> { context1, context2, context3, context4 });
+        var chordContextA = new ChordContext([context1, context2, context3, context4]);
         var chordContextB = chordContextA;
 
         chordContextA.Should().BeEquivalentTo(chordContextB);
@@ -44,8 +44,8 @@ internal sealed class ChordContextTests
         var context3 = new NoteContext(Voice.Tenor, 67.ToNote(), NoteMotion.Descending, NoteSpan.Leap);
         var context4 = new NoteContext(Voice.Bass, 72.ToNote(), NoteMotion.Ascending, NoteSpan.Step);
 
-        var chordContextA = new ChordContext(new List<NoteContext> { context1, context2, context3, context4 });
-        var chordContextB = new ChordContext(new List<NoteContext> { context1, context2, context3, context4 });
+        var chordContextA = new ChordContext([context1, context2, context3, context4]);
+        var chordContextB = new ChordContext([context1, context2, context3, context4]);
 
         chordContextA.Should().BeEquivalentTo(chordContextB);
         chordContextB.Should().BeEquivalentTo(chordContextA);
@@ -71,7 +71,7 @@ internal sealed class ChordContextTests
         var context3 = new NoteContext(Voice.Tenor, 67.ToNote(), NoteMotion.Descending, NoteSpan.Leap);
         var context4 = new NoteContext(Voice.Bass, 72.ToNote(), NoteMotion.Ascending, NoteSpan.Step);
 
-        var chordContextA = new ChordContext(new List<NoteContext> { context1, context2, context3, context4 });
+        var chordContextA = new ChordContext([context1, context2, context3, context4]);
         ChordContext? chordContextB = null;
 
         chordContextA.Should().NotBeEquivalentTo(chordContextB);
@@ -88,11 +88,11 @@ internal sealed class ChordContextTests
         var context3 = new NoteContext(Voice.Tenor, 67.ToNote(), NoteMotion.Descending, NoteSpan.Leap);
         var context4 = new NoteContext(Voice.Bass, 72.ToNote(), NoteMotion.Ascending, NoteSpan.Step);
 
-        var chordContext = new ChordContext(new List<NoteContext> { context1, context2, context3, context4 });
+        var chordContext = new ChordContext([context1, context2, context3, context4]);
 
         var otherChordContext = chordContext with
         {
-            NoteContexts = new List<NoteContext> { context4, context3, context1, context2 }
+            NoteContexts = [context4, context3, context1, context2]
         };
 
         otherChordContext.NoteContexts.Should().HaveElementAt(0, context1);

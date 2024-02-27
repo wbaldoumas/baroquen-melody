@@ -24,10 +24,9 @@ internal sealed class ChordContextGenerator : IChordContextGenerator
                     _ => NoteMotion.Oblique
                 };
 
-#pragma warning disable CS8509 // This switch statement doesn't need to handle values less than 0, so the case for < 0 can be removed.
                 var noteSpan = Math.Abs(previousNote.NoteNumber - currentNote.NoteNumber) switch
-#pragma warning restore CS8509
                 {
+                    < 0 => throw new InvalidOperationException("The note span cannot not be negative."),
                     0 => NoteSpan.None,
                     > 0 and <= LeapThreshold => NoteSpan.Step,
                     > LeapThreshold => NoteSpan.Leap

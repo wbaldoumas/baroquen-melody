@@ -11,7 +11,7 @@ namespace BaroquenMelody.Library.Tests.Compositions.Contexts;
 [TestFixture]
 internal sealed class ChordContextGeneratorTests
 {
-    private IChordContextGenerator _chordContextGenerator = null!;
+    private ChordContextGenerator _chordContextGenerator = null!;
 
     [SetUp]
     public void SetUp() => _chordContextGenerator = new ChordContextGenerator();

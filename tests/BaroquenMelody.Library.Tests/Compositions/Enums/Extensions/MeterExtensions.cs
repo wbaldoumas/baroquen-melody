@@ -1,6 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Enums;
 
-namespace BaroquenMelody.Library.Tests.Compositions.Extensions;
+namespace BaroquenMelody.Library.Tests.Compositions.Enums.Extensions;
 
 internal static class MeterExtensions
 {

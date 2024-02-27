@@ -71,11 +71,10 @@ internal sealed class DuetChordChoiceRepositoryTests
 
         noteChoice.Should().BeEquivalentTo(
             new ChordChoice(
-                new List<NoteChoice>
-                {
-                    new(Voice.Soprano, NoteMotion.Ascending, 2),
-                    new(Voice.Alto, NoteMotion.Descending, 3)
-                }
+                [
+                    new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 2),
+                    new NoteChoice(Voice.Alto, NoteMotion.Descending, 3)
+                ]
             )
         );
 
@@ -109,7 +108,7 @@ internal sealed class DuetChordChoiceRepositoryTests
     }
 
     [Test]
-    public void GetChordChoiceIndex_ReturnsExpectedIndex()
+    public void GetChordChoiceId_ReturnsExpectedId()
     {
         // arrange
         var compositionConfiguration = new CompositionConfiguration(
@@ -129,17 +128,16 @@ internal sealed class DuetChordChoiceRepositoryTests
         );
 
         // act
-        var index = duetChordChoiceRepository.GetChordChoiceIndex(
+        var id = duetChordChoiceRepository.GetChordChoiceId(
             new ChordChoice(
-                new List<NoteChoice>
-                {
-                    new(Voice.Soprano, NoteMotion.Ascending, 2),
-                    new(Voice.Alto, NoteMotion.Descending, 3)
-                }
+                [
+                    new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 2),
+                    new NoteChoice(Voice.Alto, NoteMotion.Descending, 3)
+                ]
             )
         );
 
         // assert
-        index.Should().Be(5);
+        id.Should().Be(5);
     }
 }

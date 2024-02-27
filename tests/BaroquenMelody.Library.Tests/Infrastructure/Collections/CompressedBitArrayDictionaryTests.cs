@@ -11,16 +11,21 @@ namespace BaroquenMelody.Library.Tests.Infrastructure.Collections;
 [TestFixture]
 internal sealed class CompressedBitArrayDictionaryTests
 {
+    private static readonly bool[] AlternatingBitArrayValues = [true, false, true, false, true];
+
     private IBitArrayCompressor _compressor = default!;
+
     private BitArray _bitArray = default!;
+
     private byte[] _compressedArray = default!;
+
     private CompressedBitArrayDictionary _dictionary = default!;
 
     [SetUp]
     public void Setup()
     {
         _compressor = Substitute.For<IBitArrayCompressor>();
-        _bitArray = new BitArray(new[] { true, false, true, false, true });
+        _bitArray = new BitArray(AlternatingBitArrayValues);
         _compressedArray = [0b10101];
 
         _compressor.Compress(_bitArray).Returns(_compressedArray);

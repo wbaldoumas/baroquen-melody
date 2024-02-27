@@ -14,7 +14,7 @@ internal sealed class ChordChoiceRepositoryFactoryTests
 {
     private INoteChoiceGenerator _mockNoteChoiceGenerator = null!;
 
-    private IChordChoiceRepositoryFactory _chordChoiceRepositoryFactory = null!;
+    private ChordChoiceRepositoryFactory _chordChoiceRepositoryFactory = null!;
 
     [SetUp]
     public void SetUp()

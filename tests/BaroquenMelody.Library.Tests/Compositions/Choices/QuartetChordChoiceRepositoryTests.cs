@@ -95,13 +95,12 @@ internal sealed class QuartetChordChoiceRepositoryTests
 
         noteChoice.Should().BeEquivalentTo(
             new ChordChoice(
-                new List<NoteChoice>
-                {
-                    new(Voice.Soprano, NoteMotion.Oblique, 0),
-                    new(Voice.Alto, NoteMotion.Oblique, 0),
-                    new(Voice.Tenor, NoteMotion.Oblique, 0),
-                    new(Voice.Bass, NoteMotion.Ascending, 2)
-                }
+                [
+                    new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Tenor, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Bass, NoteMotion.Ascending, 2)
+                ]
             )
         );
 
@@ -134,7 +133,7 @@ internal sealed class QuartetChordChoiceRepositoryTests
     }
 
     [Test]
-    public void GetChordChoiceIndex_ReturnsExpectedIndex()
+    public void GetChordChoiceId_ReturnsExpectedIndex()
     {
         // arrange
         var compositionConfiguration = new CompositionConfiguration(
@@ -156,19 +155,18 @@ internal sealed class QuartetChordChoiceRepositoryTests
         );
 
         // act
-        var index = quartetChordChoiceRepository.GetChordChoiceIndex(
+        var id = quartetChordChoiceRepository.GetChordChoiceId(
             new ChordChoice(
-                new List<NoteChoice>
-                {
-                    new(Voice.Soprano, NoteMotion.Oblique, 0),
-                    new(Voice.Alto, NoteMotion.Oblique, 0),
-                    new(Voice.Tenor, NoteMotion.Oblique, 0),
-                    new(Voice.Bass, NoteMotion.Ascending, 2)
-                }
+                [
+                    new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Tenor, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Bass, NoteMotion.Ascending, 2)
+                ]
             )
         );
 
         // assert
-        index.Should().Be(1);
+        id.Should().Be(1);
     }
 }

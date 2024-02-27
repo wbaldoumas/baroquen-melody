@@ -17,5 +17,5 @@ internal interface IChordContextRepository
     /// </summary>
     /// <param name="chordContext"> The <see cref="ChordContext"/> to get the ID of. </param>
     /// <returns> The ID of the given <see cref="ChordContext"/>. </returns>
-    BigInteger GetChordContextIndex(ChordContext chordContext);
+    BigInteger GetChordContextId(ChordContext chordContext);
 }

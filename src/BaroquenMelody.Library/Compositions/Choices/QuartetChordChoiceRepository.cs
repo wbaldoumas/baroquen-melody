@@ -10,7 +10,7 @@ internal sealed class QuartetChordChoiceRepository : IChordChoiceRepository
 {
     public const int NumberOfVoices = 4;
 
-    private readonly ILazyCartesianProduct<NoteChoice, NoteChoice, NoteChoice, NoteChoice> _noteChoices;
+    private readonly LazyCartesianProduct<NoteChoice, NoteChoice, NoteChoice, NoteChoice> _noteChoices;
 
     public QuartetChordChoiceRepository(
         CompositionConfiguration configuration,
@@ -38,9 +38,9 @@ internal sealed class QuartetChordChoiceRepository : IChordChoiceRepository
 
     public BigInteger Count => _noteChoices.Size;
 
-    public ChordChoice GetChordChoice(BigInteger index) => _noteChoices[index].ToChordChoice();
+    public ChordChoice GetChordChoice(BigInteger id) => _noteChoices[id].ToChordChoice();
 
-    public BigInteger GetChordChoiceIndex(ChordChoice chordChoice) => _noteChoices.IndexOf(
+    public BigInteger GetChordChoiceId(ChordChoice chordChoice) => _noteChoices.IndexOf(
         (
             chordChoice.NoteChoices[0],
             chordChoice.NoteChoices[1],
