@@ -10,11 +10,11 @@ namespace BaroquenMelody.Library.Compositions.Domain;
 /// </summary>
 /// <param name="Note"> The note. </param>
 /// <param name="Voice"> The voice of the note. </param>
-/// <param name="NoteContext"> The previous note context from which this note was generated. </param>
-/// <param name="NoteChoice"> The note choice which was used to generate this note. </param>
+/// <param name="ArrivedFromNoteContext"> The previous note context from which this note was generated. </param>
+/// <param name="ArrivedFromNoteChoice"> The note choice which was used to generate this note. </param>
 internal sealed record ContextualizedNote(
     Note Note,
     Voice Voice,
-    NoteContext NoteContext,
-    NoteChoice NoteChoice
+    NoteContext ArrivedFromNoteContext,
+    NoteChoice ArrivedFromNoteChoice
 );

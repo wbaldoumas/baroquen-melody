@@ -7,6 +7,6 @@ namespace BaroquenMelody.Library.Compositions.Domain;
 ///    Represents a chord in a composition.
 /// </summary>
 /// <param name="Notes"> The notes which make up the chord. </param>
-/// <param name="ChordContext"> The previous chord context from which this chord was generated. </param>
-/// <param name="ChordChoice"> The chord choice which was used to generate this chord. </param>
-internal sealed record ContextualizedChord(ISet<ContextualizedNote> Notes, ChordContext ChordContext, ChordChoice ChordChoice);
+/// <param name="ArrivedFromChordContext"> The previous chord context from which this chord was generated. </param>
+/// <param name="ArrivedFromChordChoice"> The chord choice which was used to generate this chord. </param>
+internal sealed record ContextualizedChord(ISet<ContextualizedNote> Notes, ChordContext ArrivedFromChordContext, ChordChoice ArrivedFromChordChoice);

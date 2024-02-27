@@ -39,12 +39,12 @@ internal sealed class Composer(
                 previousChord = measures[^1].Beats[^1].Chord;
             }
 
-            var previousChordContext = previousChord.ChordContext;
+            var previousChordContext = previousChord.ArrivedFromChordContext;
 
             while (beats.Count < compositionConfiguration.Meter.BeatsPerMeasure())
             {
                 var chordChoice = compositionStrategy.GetNextChordChoice(previousChordContext);
-                var nextChord = previousChord.ChordContext.ApplyChordChoice(chordChoice, compositionConfiguration.Scale);
+                var nextChord = previousChord.ArrivedFromChordContext.ApplyChordChoice(chordChoice, compositionConfiguration.Scale);
 
                 beats.Add(new Beat(nextChord));
 

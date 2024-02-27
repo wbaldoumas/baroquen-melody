@@ -83,8 +83,8 @@ internal sealed class CompositionStrategy(
 
         return new ContextualizedChord(
             contextualizedNotes,
-            new ChordContext(contextualizedNotes.Select(contextualizedNote => contextualizedNote.NoteContext)),
-            new ChordChoice(contextualizedNotes.Select(contextualizedNote => contextualizedNote.NoteChoice))
+            new ChordContext(contextualizedNotes.Select(contextualizedNote => contextualizedNote.ArrivedFromNoteContext)),
+            new ChordChoice(contextualizedNotes.Select(contextualizedNote => contextualizedNote.ArrivedFromNoteChoice))
         );
     }
 

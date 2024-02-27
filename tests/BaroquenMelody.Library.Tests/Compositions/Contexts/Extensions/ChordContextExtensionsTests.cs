@@ -45,7 +45,7 @@ internal sealed class ChordContextExtensionsTests
 
         // assert
         resultChord.Notes.Should().BeEquivalentTo(expectedNotes);
-        resultChord.ChordContext.Should().Be(chordContext);
-        resultChord.ChordChoice.Should().Be(chordChoice);
+        resultChord.ArrivedFromChordContext.Should().Be(chordContext);
+        resultChord.ArrivedFromChordChoice.Should().Be(chordChoice);
     }
 }

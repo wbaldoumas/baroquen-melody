@@ -31,8 +31,8 @@ internal sealed class NoteContextExtensionsTests
 
         // assert
         resultNote.Note.Should().Be(expectedPitch.ToNote());
-        resultNote.NoteContext.Should().BeEquivalentTo(noteContext);
-        resultNote.NoteChoice.Should().BeEquivalentTo(noteChoice);
+        resultNote.ArrivedFromNoteContext.Should().BeEquivalentTo(noteContext);
+        resultNote.ArrivedFromNoteChoice.Should().BeEquivalentTo(noteChoice);
     }
 
     [Test]
