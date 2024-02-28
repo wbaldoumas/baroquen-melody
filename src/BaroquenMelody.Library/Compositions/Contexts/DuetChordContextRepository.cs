@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Contexts.Extensions;
 using LazyCart;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
@@ -37,4 +38,6 @@ internal sealed class DuetChordContextRepository : IChordContextRepository
     public BigInteger Count => _noteContexts.Size;
 
     public BigInteger GetChordContextId(ChordContext chordContext) => _noteContexts.IndexOf((chordContext.NoteContexts[0], chordContext.NoteContexts[1]));
+
+    public ChordContext GetChordContext(BigInteger id) => _noteContexts[id].ToChordContext();
 }

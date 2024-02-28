@@ -3,14 +3,15 @@
 namespace BaroquenMelody.Library.Compositions.Evaluations.Rules;
 
 /// <summary>
-///     A composition rule to be checked against a composition.
+///     A composition rule to be checked against a chord progression in a composition.
 /// </summary>
 internal interface ICompositionRule
 {
     /// <summary>
-    ///     Evaluates the given composition for any violations of the rule.
+    ///    Checks if the given chord progression from the current chord to the next chord is valid.
     /// </summary>
-    /// <param name="composition">The composition to be evaluated.</param>
-    /// <returns>The evaluated composition.</returns>
-    Composition EvaluateComposition(Composition composition);
+    /// <param name="currentChord">The current chord in the progression.</param>
+    /// <param name="nextChord">The next chord in the progression.</param>
+    /// <returns>True if the chord progression is valid, false otherwise.</returns>
+    bool ValidateChordProgression(ContextualizedChord currentChord, ContextualizedChord nextChord);
 }

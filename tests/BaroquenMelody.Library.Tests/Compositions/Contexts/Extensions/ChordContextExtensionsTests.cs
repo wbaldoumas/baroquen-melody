@@ -44,8 +44,37 @@ internal sealed class ChordContextExtensionsTests
         var resultChord = chordContext.ApplyChordChoice(chordChoice, Scale.Parse("C Major"));
 
         // assert
-        resultChord.Notes.Should().BeEquivalentTo(expectedNotes);
+        resultChord.ContextualizedNotes.Should().BeEquivalentTo(expectedNotes);
         resultChord.ArrivedFromChordContext.Should().Be(chordContext);
         resultChord.ArrivedFromChordChoice.Should().Be(chordChoice);
+    }
+
+    [Test]
+    public void ToContextualizedChord_ShouldConvertChordContextToContextualizedChord()
+    {
+        // arrange
+        var chordContext = new ChordContext(
+        [
+            new NoteContext(Voice.Soprano, Note.Get(NoteName.C, 5), NoteMotion.Oblique, NoteSpan.Leap),
+            new NoteContext(Voice.Alto, Note.Get(NoteName.A, 4), NoteMotion.Oblique, NoteSpan.Leap),
+            new NoteContext(Voice.Tenor, Note.Get(NoteName.F, 4), NoteMotion.Oblique, NoteSpan.Leap),
+            new NoteContext(Voice.Bass, Note.Get(NoteName.F, 3), NoteMotion.Oblique, NoteSpan.Leap)
+        ]);
+
+        var expectedNotes = new HashSet<ContextualizedNote>
+        {
+            new(Note.Get(NoteName.C, 5), Voice.Soprano, chordContext[Voice.Soprano], NoteChoice.Empty),
+            new(Note.Get(NoteName.A, 4), Voice.Alto, chordContext[Voice.Alto], NoteChoice.Empty),
+            new(Note.Get(NoteName.F, 4), Voice.Tenor, chordContext[Voice.Tenor], NoteChoice.Empty),
+            new(Note.Get(NoteName.F, 3), Voice.Bass, chordContext[Voice.Bass], NoteChoice.Empty)
+        };
+
+        // act
+        var resultChord = chordContext.ToContextualizedChord();
+
+        // assert
+        resultChord.ContextualizedNotes.Should().BeEquivalentTo(expectedNotes);
+        resultChord.ArrivedFromChordContext.Should().Be(chordContext);
+        resultChord.ArrivedFromChordChoice.Should().Be(ChordChoice.Empty);
     }
 }

@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Infrastructure.Random;
@@ -21,6 +22,8 @@ internal sealed class CompositionStrategyFactoryTests
 
     private IRandomTrueIndexSelector _mockRandomTrueIndexSelector = null!;
 
+    private ICompositionRule _mockCompositionRule = null!;
+
     private CompositionStrategyFactory _compositionStrategyFactory = null!;
 
     [SetUp]
@@ -29,11 +32,13 @@ internal sealed class CompositionStrategyFactoryTests
         _mockChordChoiceRepositoryFactory = Substitute.For<IChordChoiceRepositoryFactory>();
         _mockChordContextRepositoryFactory = Substitute.For<IChordContextRepositoryFactory>();
         _mockRandomTrueIndexSelector = Substitute.For<IRandomTrueIndexSelector>();
+        _mockCompositionRule = Substitute.For<ICompositionRule>();
 
         _compositionStrategyFactory = new CompositionStrategyFactory(
             _mockChordChoiceRepositoryFactory,
             _mockChordContextRepositoryFactory,
-            _mockRandomTrueIndexSelector
+            _mockRandomTrueIndexSelector,
+            _mockCompositionRule
         );
     }
 

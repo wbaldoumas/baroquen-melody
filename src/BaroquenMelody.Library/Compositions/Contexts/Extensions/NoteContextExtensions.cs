@@ -32,4 +32,25 @@ internal static class NoteContextExtensions
             noteChoice
         );
     }
+
+    /// <summary>
+    ///     Generates a <see cref="ChordContext"/> from the given tuple of <see cref="NoteContext"/>s.
+    /// </summary>
+    /// <param name="source"> The tuple of <see cref="NoteContext"/>s to convert. </param>
+    /// <returns> The <see cref="ChordContext"/> representing the given tuple of <see cref="NoteContext"/>s. </returns>
+    public static ChordContext ToChordContext(this (NoteContext, NoteContext) source) => new([source.Item1, source.Item2]);
+
+    /// <summary>
+    ///     Generates a <see cref="ChordContext"/> from the given tuple of <see cref="NoteContext"/>s.
+    /// </summary>
+    /// <param name="source"> The tuple of <see cref="NoteContext"/>s to convert. </param>
+    /// <returns> The <see cref="ChordContext"/> representing the given tuple of <see cref="NoteContext"/>s. </returns>
+    public static ChordContext ToChordContext(this (NoteContext, NoteContext, NoteContext) source) => new([source.Item1, source.Item2, source.Item3]);
+
+    /// <summary>
+    ///     Generates a <see cref="ChordContext"/> from the given tuple of <see cref="NoteContext"/>s.
+    /// </summary>
+    /// <param name="source"> The tuple of <see cref="NoteContext"/>s to convert. </param>
+    /// <returns> The <see cref="ChordContext"/> representing the given tuple of <see cref="NoteContext"/>s. </returns>
+    public static ChordContext ToChordContext(this (NoteContext, NoteContext, NoteContext, NoteContext) source) => new([source.Item1, source.Item2, source.Item3, source.Item4]);
 }

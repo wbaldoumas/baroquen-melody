@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Contexts.Extensions;
 using LazyCart;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
@@ -44,4 +45,6 @@ internal sealed class TrioChordContextRepository : IChordContextRepository
             chordContext.NoteContexts[2]
         )
     );
+
+    public ChordContext GetChordContext(BigInteger id) => _noteContexts[id].ToChordContext();
 }

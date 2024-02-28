@@ -10,12 +10,12 @@ internal sealed class ChordContextGenerator : IChordContextGenerator
 
     public ChordContext GenerateChordContext(ContextualizedChord previousChord, ContextualizedChord currentChord)
     {
-        var noteContexts = previousChord.Notes
+        var noteContexts = previousChord.ContextualizedNotes
             .Select(contextualizedNote => contextualizedNote.Voice)
             .Select(voice =>
             {
-                var previousNote = previousChord.Notes.First(note => note.Voice == voice).Note;
-                var currentNote = currentChord.Notes.First(note => note.Voice == voice).Note;
+                var previousNote = previousChord.ContextualizedNotes.First(note => note.Voice == voice).Note;
+                var currentNote = currentChord.ContextualizedNotes.First(note => note.Voice == voice).Note;
 
                 var noteMotion = previousNote.CompareTo(currentNote) switch
                 {

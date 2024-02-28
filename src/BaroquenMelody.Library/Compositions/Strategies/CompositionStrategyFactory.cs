@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Contexts;
+using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using BaroquenMelody.Library.Infrastructure.Random;
 using System.Collections;
@@ -11,7 +12,8 @@ namespace BaroquenMelody.Library.Compositions.Strategies;
 internal sealed class CompositionStrategyFactory(
     IChordChoiceRepositoryFactory chordChoiceRepositoryFactory,
     IChordContextRepositoryFactory chordContextRepositoryFactory,
-    IRandomTrueIndexSelector randomTrueIndexSelector
+    IRandomTrueIndexSelector randomTrueIndexSelector,
+    ICompositionRule compositionRule
 ) : ICompositionStrategyFactory
 {
     public ICompositionStrategy Create(CompositionConfiguration compositionConfiguration)
@@ -29,6 +31,7 @@ internal sealed class CompositionStrategyFactory(
             chordContextRepository,
             randomTrueIndexSelector,
             chordContextToChordChoiceMap,
+            compositionRule,
             compositionConfiguration
         );
     }

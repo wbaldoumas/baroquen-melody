@@ -41,4 +41,6 @@ internal sealed record ChordContext
             );
         }
     }
+
+    public static ChordContext Empty { get; } = new([]);
 }
