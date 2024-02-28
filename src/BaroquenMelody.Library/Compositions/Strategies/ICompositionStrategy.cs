@@ -31,4 +31,9 @@ internal interface ICompositionStrategy
     /// </summary>
     /// <returns> The initial chord to start the composition. </returns>
     public ContextualizedChord GetInitialChord();
+
+    /// <summary>
+    ///     Pre-learns the strategy by invalidating any invalid chord choices for each chord context.
+    /// </summary>
+    public void PreLearn();
 }

@@ -48,4 +48,49 @@ internal sealed class NoteContextExtensionsTests
         // assert
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
+
+    [Test]
+    public void ToChordContext_WithTwoNoteContexts_ShouldConvertToChordContext()
+    {
+        // arrange
+        var noteContext1 = new NoteContext(Voice.Soprano, Note.Get(NoteName.C, 4), NoteMotion.Oblique, NoteSpan.None);
+        var noteContext2 = new NoteContext(Voice.Alto, Note.Get(NoteName.A, 3), NoteMotion.Oblique, NoteSpan.None);
+
+        // act
+        var resultChordContext = (noteContext1, noteContext2).ToChordContext();
+
+        // assert
+        resultChordContext.NoteContexts.Should().BeEquivalentTo(new[] { noteContext1, noteContext2 });
+    }
+
+    [Test]
+    public void ToChordContext_WithThreeNoteContexts_ShouldConvertToChordContext()
+    {
+        // arrange
+        var noteContext1 = new NoteContext(Voice.Soprano, Note.Get(NoteName.C, 4), NoteMotion.Oblique, NoteSpan.None);
+        var noteContext2 = new NoteContext(Voice.Alto, Note.Get(NoteName.A, 3), NoteMotion.Oblique, NoteSpan.None);
+        var noteContext3 = new NoteContext(Voice.Tenor, Note.Get(NoteName.F, 3), NoteMotion.Oblique, NoteSpan.None);
+
+        // act
+        var resultChordContext = (noteContext1, noteContext2, noteContext3).ToChordContext();
+
+        // assert
+        resultChordContext.NoteContexts.Should().BeEquivalentTo(new[] { noteContext1, noteContext2, noteContext3 });
+    }
+
+    [Test]
+    public void ToChordContext_WithFourNoteContexts_ShouldConvertToChordContext()
+    {
+        // arrange
+        var noteContext1 = new NoteContext(Voice.Soprano, Note.Get(NoteName.C, 4), NoteMotion.Oblique, NoteSpan.None);
+        var noteContext2 = new NoteContext(Voice.Alto, Note.Get(NoteName.A, 3), NoteMotion.Oblique, NoteSpan.None);
+        var noteContext3 = new NoteContext(Voice.Tenor, Note.Get(NoteName.F, 3), NoteMotion.Oblique, NoteSpan.None);
+        var noteContext4 = new NoteContext(Voice.Bass, Note.Get(NoteName.F, 2), NoteMotion.Oblique, NoteSpan.None);
+
+        // act
+        var resultChordContext = (noteContext1, noteContext2, noteContext3, noteContext4).ToChordContext();
+
+        // assert
+        resultChordContext.NoteContexts.Should().BeEquivalentTo(new[] { noteContext1, noteContext2, noteContext3, noteContext4 });
+    }
 }

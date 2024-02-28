@@ -4,6 +4,7 @@ using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Contexts.Extensions;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Infrastructure.Random;
 using Melanchall.DryWetMidi.MusicTheory;
 using System.Collections;
@@ -17,17 +18,41 @@ internal sealed class CompositionStrategy(
     IChordContextRepository chordContextRepository,
     IRandomTrueIndexSelector randomTrueIndexSelector,
     IDictionary<BigInteger, BitArray> chordContextToChordChoiceMap,
-    CompositionConfiguration compositionConfiguration)
-    : ICompositionStrategy
+    ICompositionRule compositionRule,
+    CompositionConfiguration compositionConfiguration
+) : ICompositionStrategy
 {
     private const int MaxRepeatedNotes = 2;
 
+    /// <summary>
+    ///     Hardcoded for now, but this might be configurable in the future and also encompass multiple different chords.
+    /// </summary>
     private readonly HashSet<NoteName> validStartingNoteNames =
     [
         compositionConfiguration.Scale.GetDegree(ScaleDegree.Tonic),
         compositionConfiguration.Scale.GetDegree(ScaleDegree.Mediant),
         compositionConfiguration.Scale.GetDegree(ScaleDegree.Dominant)
     ];
+
+    public void PreLearn()
+    {
+        Parallel.For(0, (int)chordContextRepository.Count, chordContextId =>
+        {
+            var chordContext = chordContextRepository.GetChordContext(chordContextId);
+            var previousChord = chordContext.ToContextualizedChord();
+
+            for (var chordChoiceId = 0; chordChoiceId < chordChoiceRepository.Count; chordChoiceId++)
+            {
+                var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceId);
+                var nextChord = chordContext.ApplyChordChoice(chordChoice, compositionConfiguration.Scale);
+
+                if (!compositionRule.ValidateChordProgression(previousChord, nextChord))
+                {
+                    chordContextToChordChoiceMap[chordContextId][chordChoiceId] = false;
+                }
+            }
+        });
+    }
 
     public ChordChoice GetNextChordChoice(ChordContext chordContext)
     {
@@ -40,7 +65,7 @@ internal sealed class CompositionStrategy(
             var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceId);
             var chord = chordContext.ApplyChordChoice(chordChoice, compositionConfiguration.Scale);
 
-            if (chord.Notes.All(voicedNote => compositionConfiguration.IsNoteInVoiceRange(voicedNote.Voice, voicedNote.Note)))
+            if (chord.ContextualizedNotes.All(voicedNote => compositionConfiguration.IsNoteInVoiceRange(voicedNote.Voice, voicedNote.Note)))
             {
                 return chordChoice;
             }

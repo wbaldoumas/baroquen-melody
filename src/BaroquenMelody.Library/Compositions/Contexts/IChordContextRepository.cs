@@ -18,4 +18,11 @@ internal interface IChordContextRepository
     /// <param name="chordContext"> The <see cref="ChordContext"/> to get the ID of. </param>
     /// <returns> The ID of the given <see cref="ChordContext"/>. </returns>
     BigInteger GetChordContextId(ChordContext chordContext);
+
+    /// <summary>
+    ///    Get the <see cref="ChordContext"/> with the given ID.
+    /// </summary>
+    /// <param name="id"> The ID of the <see cref="ChordContext"/> to get. </param>
+    /// <returns> The <see cref="ChordContext"/> with the given ID. </returns>
+    ChordContext GetChordContext(BigInteger id);
 }

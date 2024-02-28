@@ -30,4 +30,26 @@ internal static class ChordContextExtensions
             chordChoice
         );
     }
+
+    /// <summary>
+    ///     Converts the given <see cref="ChordContext"/> to a <see cref="ContextualizedChord"/>.
+    /// </summary>
+    /// <remarks>
+    ///     Note that the <see cref="ChordChoice"/> in the generated <see cref="ContextualizedChord"/> will be empty
+    ///     since there is no information about which <see cref="ChordChoice"/> led to the given <see cref="ChordContext"/>.
+    /// </remarks>
+    /// <param name="chordContext"> The chord context to convert. </param>
+    /// <returns> The converted contextualized chord. </returns>
+    public static ContextualizedChord ToContextualizedChord(this ChordContext chordContext) => new(
+        chordContext.NoteContexts.Select(noteContext =>
+            new ContextualizedNote(
+                noteContext.Note,
+                noteContext.Voice,
+                noteContext,
+                NoteChoice.Empty // no information about the note choice to arrive at the note
+            )
+        ).ToHashSet(),
+        chordContext,
+        ChordChoice.Empty // no information about the chord choice to arrive at the chord
+    );
 }

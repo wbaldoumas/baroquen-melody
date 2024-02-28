@@ -7,6 +7,8 @@ namespace BaroquenMelody.Library.Compositions.Choices;
 /// </summary>
 internal sealed record ChordChoice
 {
+    public static ChordChoice Empty { get; } = new([]);
+
     private readonly IList<NoteChoice> _noteChoices;
 
     public ChordChoice(IEnumerable<NoteChoice> noteChoices) =>

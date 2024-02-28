@@ -1,7 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Contexts;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Infrastructure.Random;
@@ -47,6 +49,8 @@ internal sealed class CompositionStrategyTests
 
     private IRandomTrueIndexSelector _mockRandomTrueIndexSelector = default!;
 
+    private ICompositionRule _mockCompositionRule = default!;
+
     private IDictionary<BigInteger, BitArray> _mockChordContextToChordChoiceMap = default!;
 
     private CompositionStrategy _compositionStrategy = default!;
@@ -59,6 +63,7 @@ internal sealed class CompositionStrategyTests
         _mockChordChoiceRepository = Substitute.For<IChordChoiceRepository>();
         _mockChordContextRepository = Substitute.For<IChordContextRepository>();
         _mockRandomTrueIndexSelector = Substitute.For<IRandomTrueIndexSelector>();
+        _mockCompositionRule = Substitute.For<ICompositionRule>();
         _mockChordContextToChordChoiceMap = Substitute.For<IDictionary<BigInteger, BitArray>>();
 
         _mockChordChoiceRepository.Count.Returns(MockChordChoiceCount);
@@ -82,6 +87,7 @@ internal sealed class CompositionStrategyTests
             _mockChordContextRepository,
             _mockRandomTrueIndexSelector,
             _mockChordContextToChordChoiceMap,
+            _mockCompositionRule,
             _compositionConfiguration
         );
     }
@@ -208,10 +214,10 @@ internal sealed class CompositionStrategyTests
         // arrange
         var chordContext = new ChordContext(
         [
-            new NoteContext(Voice.Soprano, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step),
-            new NoteContext(Voice.Alto, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step),
-            new NoteContext(Voice.Tenor, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step),
-            new NoteContext(Voice.Bass, 25.ToNote(), NoteMotion.Ascending, NoteSpan.Step)
+            new NoteContext(Voice.Soprano, Note.Get(NoteName.A, 5), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Alto, Note.Get(NoteName.A, 4), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Tenor, Note.Get(NoteName.A, 3), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Bass, Note.Get(NoteName.A, 2), NoteMotion.Ascending, NoteSpan.Step)
         ]);
 
         var chordChoice = new ChordChoice(
@@ -256,12 +262,12 @@ internal sealed class CompositionStrategyTests
             var chord = _compositionStrategy.GetInitialChord();
 
             // assert
-            chord.Notes.Count.Should().Be(4);
+            chord.ContextualizedNotes.Count.Should().Be(4);
 
             // since there are four voices but only three unique notes in a C Major chord, there should be at least one voice with a repeated note
-            chord.Notes.GroupBy(note => note.Note.NoteName).Should().HaveCount(3).And.OnlyContain(grouping => grouping.Count() <= 2);
+            chord.ContextualizedNotes.GroupBy(note => note.Note.NoteName).Should().HaveCount(3).And.OnlyContain(grouping => grouping.Count() <= 2);
 
-            foreach (var contextualizedNote in chord.Notes)
+            foreach (var contextualizedNote in chord.ContextualizedNotes)
             {
                 contextualizedNote.Note.NoteName.Should().BeOneOf(
                     NoteName.C,
@@ -270,5 +276,74 @@ internal sealed class CompositionStrategyTests
                 );
             }
         }
+    }
+
+    [Test]
+    public void PreLearn_Invalidates_Expected_ChordChoices()
+    {
+        // arrange
+        var chordContext = new ChordContext(
+        [
+            new NoteContext(Voice.Soprano, Note.Get(NoteName.A, 5), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Alto, Note.Get(NoteName.A, 4), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Tenor, Note.Get(NoteName.A, 3), NoteMotion.Ascending, NoteSpan.Step),
+            new NoteContext(Voice.Bass, Note.Get(NoteName.A, 2), NoteMotion.Ascending, NoteSpan.Step)
+        ]);
+
+        var chordChoiceA = new ChordChoice(
+        [
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Alto, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Bass, NoteMotion.Ascending, 5)
+        ]);
+
+        var chordChoiceB = new ChordChoice(
+        [
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 6),
+            new NoteChoice(Voice.Alto, NoteMotion.Ascending, 6),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 6),
+            new NoteChoice(Voice.Bass, NoteMotion.Ascending, 6)
+        ]);
+
+        var chordChoiceC = new ChordChoice(
+        [
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Alto, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Bass, NoteMotion.Ascending, 1)
+        ]);
+
+        const int chordContextId = 0;
+
+        const int chordChoiceIdA = 0;
+        const int chordChoiceIdB = 1;
+        const int chordChoiceIdC = 2;
+
+        var bitArray = new BitArray(3, true);
+
+        _mockChordContextRepository.GetChordContextId(chordContext).Returns(chordContextId);
+        _mockChordContextRepository.GetChordContext(chordContextId).Returns(chordContext);
+        _mockChordContextRepository.Count.Returns(1);
+
+        _mockChordChoiceRepository.GetChordChoice(chordChoiceIdA).Returns(chordChoiceA);
+        _mockChordChoiceRepository.GetChordChoice(chordChoiceIdB).Returns(chordChoiceB);
+        _mockChordChoiceRepository.GetChordChoice(chordChoiceIdC).Returns(chordChoiceC);
+        _mockChordChoiceRepository.Count.Returns(3);
+
+        _mockChordContextToChordChoiceMap[chordContextId].Returns(bitArray);
+
+        _mockCompositionRule.ValidateChordProgression(
+            Arg.Any<ContextualizedChord>(),
+            Arg.Any<ContextualizedChord>()
+        ).Returns(true, false, true);
+
+        // act
+        _compositionStrategy.PreLearn();
+
+        // assert
+        bitArray[chordChoiceIdA].Should().BeTrue();
+        bitArray[chordChoiceIdB].Should().BeFalse();
+        bitArray[chordChoiceIdC].Should().BeTrue();
     }
 }
