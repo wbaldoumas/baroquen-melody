@@ -46,7 +46,7 @@ internal sealed class CompositionStrategy(
                 var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceId);
                 var nextChord = chordContext.ApplyChordChoice(chordChoice, compositionConfiguration.Scale);
 
-                if (!compositionRule.ValidateChordProgression(previousChord, nextChord))
+                if (!compositionRule.Evaluate(previousChord, nextChord))
                 {
                     chordContextToChordChoiceMap[chordContextId][chordChoiceId] = false;
                 }

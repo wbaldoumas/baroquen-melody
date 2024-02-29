@@ -27,34 +27,34 @@ internal sealed class AggregateCompositionRuleTests
     }
 
     [Test]
-    public void ValidateChordProgression_AllRulesPass_ReturnsTrue()
+    public void Evaluate_AllRulesPass_ReturnsTrue()
     {
         // arrange
         var currentChord = new ContextualizedChord(new HashSet<ContextualizedNote>(), ChordContext.Empty, ChordChoice.Empty);
         var nextChord = new ContextualizedChord(new HashSet<ContextualizedNote>(), ChordContext.Empty, ChordChoice.Empty);
 
-        _mockCompositionRule1.ValidateChordProgression(currentChord, nextChord).Returns(true);
-        _mockCompositionRule2.ValidateChordProgression(currentChord, nextChord).Returns(true);
+        _mockCompositionRule1.Evaluate(currentChord, nextChord).Returns(true);
+        _mockCompositionRule2.Evaluate(currentChord, nextChord).Returns(true);
 
         // act
-        var result = aggregateCompositionRule.ValidateChordProgression(currentChord, nextChord);
+        var result = aggregateCompositionRule.Evaluate(currentChord, nextChord);
 
         // assert
         result.Should().BeTrue();
     }
 
     [Test]
-    public void ValidateChordProgression_OneRuleFails_ReturnsFalse()
+    public void Evaluate_OneRuleFails_ReturnsFalse()
     {
         // arrange
         var currentChord = new ContextualizedChord(new HashSet<ContextualizedNote>(), ChordContext.Empty, ChordChoice.Empty);
         var nextChord = new ContextualizedChord(new HashSet<ContextualizedNote>(), ChordContext.Empty, ChordChoice.Empty);
 
-        _mockCompositionRule1.ValidateChordProgression(currentChord, nextChord).Returns(true);
-        _mockCompositionRule2.ValidateChordProgression(currentChord, nextChord).Returns(false);
+        _mockCompositionRule1.Evaluate(currentChord, nextChord).Returns(true);
+        _mockCompositionRule2.Evaluate(currentChord, nextChord).Returns(false);
 
         // act
-        var result = aggregateCompositionRule.ValidateChordProgression(currentChord, nextChord);
+        var result = aggregateCompositionRule.Evaluate(currentChord, nextChord);
 
         // assert
         result.Should().BeFalse();
