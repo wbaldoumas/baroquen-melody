@@ -48,7 +48,7 @@ internal sealed class CompositionStrategy(
 
                 if (!compositionRule.Evaluate(previousChord, nextChord))
                 {
-                    chordContextToChordChoiceMap[chordContextId][chordChoiceId] = false;
+                    InvalidateChordChoice(chordContextId, chordChoiceId);
                 }
             }
         });
@@ -70,7 +70,7 @@ internal sealed class CompositionStrategy(
                 return chordChoice;
             }
 
-            InvalidateChordChoice(chordContext, chordChoice);
+            InvalidateChordChoice(chordContextId, chordChoiceId);
         }
     }
 
@@ -79,7 +79,7 @@ internal sealed class CompositionStrategy(
         var chordContextId = chordContextRepository.GetChordContextId(chordContext);
         var chordChoiceId = chordChoiceRepository.GetChordChoiceId(chordChoice);
 
-        chordContextToChordChoiceMap[chordContextId][(int)chordChoiceId] = false;
+        InvalidateChordChoice(chordContextId, chordChoiceId);
     }
 
     /// <summary>
@@ -150,5 +150,13 @@ internal sealed class CompositionStrategy(
         startingNoteCounts[chosenNote.NoteName]++;
 
         return chosenNote;
+    }
+
+    private void InvalidateChordChoice(BigInteger chordContextId, BigInteger chordChoiceId)
+    {
+        var chordChoiceIds = chordContextToChordChoiceMap[chordContextId];
+
+        chordChoiceIds[(int)chordChoiceId] = false;
+        chordContextToChordChoiceMap[chordContextId] = chordChoiceIds;
     }
 }
