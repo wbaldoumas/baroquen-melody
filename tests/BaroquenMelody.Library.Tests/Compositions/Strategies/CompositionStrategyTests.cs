@@ -333,7 +333,7 @@ internal sealed class CompositionStrategyTests
 
         _mockChordContextToChordChoiceMap[chordContextId].Returns(bitArray);
 
-        _mockCompositionRule.ValidateChordProgression(
+        _mockCompositionRule.Evaluate(
             Arg.Any<ContextualizedChord>(),
             Arg.Any<ContextualizedChord>()
         ).Returns(true, false, true);
