@@ -3,7 +3,7 @@
 namespace BaroquenMelody.Library.Compositions.Choices;
 
 /// <inheritdoc cref="INoteChoiceGenerator"/>
-internal sealed class NoteChoiceGenerator(byte minScaleStepChange = 1, byte maxScaleStepChange = 9) : INoteChoiceGenerator
+internal sealed class NoteChoiceGenerator(byte minScaleStepChange = 1, byte maxScaleStepChange = 7) : INoteChoiceGenerator
 {
     public ISet<NoteChoice> GenerateNoteChoices(Voice voice) => Enumerable
         .Range(minScaleStepChange, maxScaleStepChange - minScaleStepChange + 1)
