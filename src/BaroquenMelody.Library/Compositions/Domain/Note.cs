@@ -1,6 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Enums;
-using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Domain;
 
-internal sealed record BaroquenNote(Voice Voice, Note Raw);
+internal sealed record Note(Voice Voice, Melanchall.DryWetMidi.MusicTheory.Note Raw);

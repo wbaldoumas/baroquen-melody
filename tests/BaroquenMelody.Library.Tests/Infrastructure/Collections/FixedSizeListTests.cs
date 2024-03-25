@@ -96,8 +96,28 @@ internal sealed class FixedSizeListTests
     {
         var list = new FixedSizeList<int>(2) { 1 };
 
-        var act = () => { var item = list[2]; };
+        var act = () => { _ = list[2]; };
 
         act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
+    public void NonGenericGetEnumerator_EnumeratesAllItems()
+    {
+        var list = new FixedSizeList<int>(3)
+        {
+            1,
+            2,
+            3
+        };
+
+        var items = new List<int>();
+
+        foreach (int item in (System.Collections.IEnumerable)list)
+        {
+            items.Add(item);
+        }
+
+        items.Should().Equal([1, 2, 3]);
     }
 }

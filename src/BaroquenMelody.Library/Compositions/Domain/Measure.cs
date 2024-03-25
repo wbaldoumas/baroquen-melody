@@ -2,4 +2,4 @@
 
 namespace BaroquenMelody.Library.Compositions.Domain;
 
-internal sealed record BaroquenMeasure(IEnumerable<BaroquenBeat> Beats, Meter Meter);
+internal sealed record Measure(IEnumerable<Beat> Beats, Meter Meter);

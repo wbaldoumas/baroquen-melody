@@ -9,7 +9,7 @@ using BaroquenMelody.Library.Infrastructure.Random;
 namespace BaroquenMelody.Library.Compositions.Composers;
 
 /// <summary>
-///     Represents a composer which can generate a <see cref="BaroquenComposition"/>.
+///     Represents a composer which can generate a <see cref="Composition"/>.
 /// </summary>
 /// <param name="compositionStrategy"> The strategy that the composer should use to generate the composition. </param>
 /// <param name="compositionConfiguration"> The configuration to use to generate the composition. </param>
@@ -18,11 +18,11 @@ internal sealed class Composer(
     CompositionConfiguration compositionConfiguration
 ) : IComposer
 {
-    public BaroquenComposition Compose()
+    public Composition Compose()
     {
         var measures = ComposeInitialMeasures();
 
-        var compositionContext = new FixedSizeList<BaroquenChord>(
+        var compositionContext = new FixedSizeList<Chord>(
             compositionConfiguration.CompositionContextSize,
             measures.SelectMany(measure => measure.Beats.Select(beat => beat.Chord))
         );
@@ -30,7 +30,7 @@ internal sealed class Composer(
         while (measures.Count < compositionConfiguration.CompositionLength)
         {
             var initialChord = GenerateNextChord(compositionContext);
-            var beats = new List<BaroquenBeat> { new(initialChord) };
+            var beats = new List<Beat> { new(initialChord) };
 
             compositionContext.Add(initialChord);
 
@@ -39,19 +39,19 @@ internal sealed class Composer(
                 var nextChord = GenerateNextChord(compositionContext);
 
                 compositionContext.Add(nextChord);
-                beats.Add(new BaroquenBeat(nextChord));
+                beats.Add(new Beat(nextChord));
             }
 
-            measures.Add(new BaroquenMeasure(beats, compositionConfiguration.Meter));
+            measures.Add(new Measure(beats, compositionConfiguration.Meter));
         }
 
-        return new BaroquenComposition(measures);
+        return new Composition(measures);
     }
 
-    private List<BaroquenMeasure> ComposeInitialMeasures()
+    private List<Measure> ComposeInitialMeasures()
     {
         var initialChord = compositionStrategy.GenerateInitialChord();
-        var beats = new List<BaroquenBeat> { new(initialChord) };
+        var beats = new List<Beat> { new(initialChord) };
         var precedingChords = beats.Select(beat => beat.Chord).ToList();
 
         while (beats.Count < compositionConfiguration.Meter.BeatsPerMeasure())
@@ -59,13 +59,13 @@ internal sealed class Composer(
             var nextChord = GenerateNextChord(precedingChords);
 
             precedingChords.Add(nextChord);
-            beats.Add(new BaroquenBeat(nextChord));
+            beats.Add(new Beat(nextChord));
         }
 
-        return [new BaroquenMeasure(beats, compositionConfiguration.Meter)];
+        return [new Measure(beats, compositionConfiguration.Meter)];
     }
 
-    private BaroquenChord GenerateNextChord(IReadOnlyList<BaroquenChord> precedingChords)
+    private Chord GenerateNextChord(IReadOnlyList<Chord> precedingChords)
     {
         var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(precedingChords);
         var chordChoice = possibleChordChoices.OrderBy(_ => ThreadLocalRandom.Next(int.MaxValue)).First();

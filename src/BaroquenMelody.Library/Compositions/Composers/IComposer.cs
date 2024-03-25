@@ -3,13 +3,13 @@
 namespace BaroquenMelody.Library.Compositions.Composers;
 
 /// <summary>
-///     Represents a composer which can generate a <see cref="BaroquenComposition"/>.
+///     Represents a composer which can generate a <see cref="Composition"/>.
 /// </summary>
 internal interface IComposer
 {
     /// <summary>
-    ///    Composes a <see cref="BaroquenComposition"/>.
+    ///    Composes a <see cref="Composition"/>.
     /// </summary>
-    /// <returns> The composed <see cref="BaroquenComposition"/>. </returns>
-    BaroquenComposition Compose();
+    /// <returns> The composed <see cref="Composition"/>. </returns>
+    Composition Compose();
 }

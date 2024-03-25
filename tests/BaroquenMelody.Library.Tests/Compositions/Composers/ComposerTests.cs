@@ -1,7 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Composers;
 using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Tests.Compositions.Enums.Extensions;
@@ -9,17 +8,19 @@ using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
+using Chord = BaroquenMelody.Library.Compositions.Domain.Chord;
+using Note = BaroquenMelody.Library.Compositions.Domain.Note;
 
 namespace BaroquenMelody.Library.Tests.Compositions.Composers;
 
 [TestFixture]
 internal sealed class ComposerTests
 {
-    private static readonly Note MinSopranoNote = Note.Get(NoteName.A, 4);
-    private static readonly Note MaxSopranoNote = Note.Get(NoteName.A, 5);
+    private static readonly Melanchall.DryWetMidi.MusicTheory.Note MinSopranoNote = Melanchall.DryWetMidi.MusicTheory.Note.Get(NoteName.A, 4);
+    private static readonly Melanchall.DryWetMidi.MusicTheory.Note MaxSopranoNote = Melanchall.DryWetMidi.MusicTheory.Note.Get(NoteName.A, 5);
 
-    private static readonly Note MinAltoNote = Note.Get(NoteName.C, 3);
-    private static readonly Note MaxAltoNote = Note.Get(NoteName.C, 4);
+    private static readonly Melanchall.DryWetMidi.MusicTheory.Note MinAltoNote = Melanchall.DryWetMidi.MusicTheory.Note.Get(NoteName.C, 3);
+    private static readonly Melanchall.DryWetMidi.MusicTheory.Note MaxAltoNote = Melanchall.DryWetMidi.MusicTheory.Note.Get(NoteName.C, 4);
 
     private ICompositionStrategy _mockCompositionStrategy = null!;
 
@@ -51,16 +52,16 @@ internal sealed class ComposerTests
     {
         // arrange
         _mockCompositionStrategy.GenerateInitialChord().Returns(
-            new BaroquenChord(
+            new Chord(
                 [
-                    new BaroquenNote(Voice.Soprano, MinSopranoNote),
-                    new BaroquenNote(Voice.Alto, MinAltoNote)
+                    new Note(Voice.Soprano, MinSopranoNote),
+                    new Note(Voice.Alto, MinAltoNote)
                 ]
             )
         );
 
         _mockCompositionStrategy
-            .GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .GetPossibleChordChoices(Arg.Any<IReadOnlyList<Chord>>())
             .Returns(
                 new List<ChordChoice>
                 {
@@ -89,6 +90,6 @@ internal sealed class ComposerTests
 
         _mockCompositionStrategy
             .Received(_compositionConfiguration.CompositionLength * _compositionConfiguration.Meter.BeatsPerMeasure() - 1) // 1 less since the initial chord is generated separately
-            .GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>());
+            .GetPossibleChordChoices(Arg.Any<IReadOnlyList<Chord>>());
     }
 }

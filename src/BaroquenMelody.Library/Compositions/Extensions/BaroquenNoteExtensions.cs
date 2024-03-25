@@ -1,16 +1,16 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
-using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using Melanchall.DryWetMidi.MusicTheory;
+using Note = BaroquenMelody.Library.Compositions.Domain.Note;
 
 namespace BaroquenMelody.Library.Compositions.Extensions;
 
 /// <summary>
-///     A home for extension methods for <see cref="BaroquenNote"/>.
+///     A home for extension methods for <see cref="Domain.Note"/>.
 /// </summary>
 internal static class BaroquenNoteExtensions
 {
-    public static BaroquenNote ApplyNoteChoice(this BaroquenNote note, Scale scale, NoteChoice noteChoice)
+    public static Note ApplyNoteChoice(this Note note, Scale scale, NoteChoice noteChoice)
     {
         var nextNote = noteChoice.Motion switch
         {

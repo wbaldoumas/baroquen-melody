@@ -13,5 +13,5 @@ internal interface ICompositionRule
     /// <param name="precedingChords">The chords which precede the proposed next chord.</param>
     /// <param name="nextChord">The proposed next chord.</param>
     /// <returns>Whether the proposed next chord is valid according to the rule.</returns>
-    bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord);
+    bool Evaluate(IReadOnlyList<Chord> precedingChords, Chord nextChord);
 }

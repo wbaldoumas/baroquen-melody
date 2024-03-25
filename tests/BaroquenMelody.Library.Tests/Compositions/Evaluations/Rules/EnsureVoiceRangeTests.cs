@@ -1,11 +1,11 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
-using Notes = BaroquenMelody.Library.Tests.Compositions.TestData.Notes;
+using Chord = BaroquenMelody.Library.Compositions.Domain.Chord;
+using Note = BaroquenMelody.Library.Compositions.Domain.Note;
 
 namespace BaroquenMelody.Library.Tests.Compositions.Evaluations.Rules;
 
@@ -35,7 +35,7 @@ internal sealed class EnsureVoiceRangeTests
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
-    public void Evaluate_ReturnsExpectedResult(BaroquenChord nextChord, bool expectedResult) =>
+    public void Evaluate_ReturnsExpectedResult(Chord nextChord, bool expectedResult) =>
         _ensureVoiceRange.Evaluate(default!, nextChord).Should().Be(expectedResult);
 
     private static IEnumerable<TestCaseData> TestCases
@@ -43,12 +43,12 @@ internal sealed class EnsureVoiceRangeTests
         get
         {
             yield return new TestCaseData(
-                new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C3)]),
+                new Chord([new Note(Voice.Soprano, Notes.C3)]),
                 true
             ).SetName("Soprano note is in range.");
 
             yield return new TestCaseData(
-                new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.B2)]),
+                new Chord([new Note(Voice.Soprano, Notes.B2)]),
                 false
             ).SetName("Soprano note is out of range.");
         }

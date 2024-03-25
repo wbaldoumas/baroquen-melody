@@ -6,7 +6,7 @@ namespace BaroquenMelody.Library.Compositions.Evaluations.Rules;
 /// <inheritdoc cref="ICompositionRule"/>
 internal sealed class AvoidDissonance : ICompositionRule
 {
-    public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
+    public bool Evaluate(IReadOnlyList<Chord> precedingChords, Chord nextChord)
     {
         var notes = nextChord.Notes.Select(note => note.Raw).ToHashSet();
 
