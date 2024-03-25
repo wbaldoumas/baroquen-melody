@@ -1,10 +1,9 @@
-﻿using BaroquenMelody.Library.Compositions.Enums;
+﻿using BaroquenMelody.Library.Compositions.Domain;
+using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
-using Chord = BaroquenMelody.Library.Compositions.Domain.Chord;
-using Note = BaroquenMelody.Library.Compositions.Domain.Note;
 
 namespace BaroquenMelody.Library.Tests.Compositions.Evaluations.Rules;
 
@@ -18,7 +17,7 @@ internal sealed class AvoidDissonanceTests
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
-    public void Evaluate_ReturnsExpectedResult(Chord currentChord, Chord nextChord, bool expectedResult) =>
+    public void Evaluate_ReturnsExpectedResult(BaroquenChord currentChord, BaroquenChord nextChord, bool expectedResult) =>
         _avoidDissonance.Evaluate([currentChord], nextChord).Should().Be(expectedResult);
 
     private static IEnumerable<TestCaseData> TestCases
@@ -26,21 +25,21 @@ internal sealed class AvoidDissonanceTests
         get
         {
             // the current chord is unnecessary for this test, so it is set to empty
-            var unusedChord = new Chord([]);
+            var unusedChord = new BaroquenChord([]);
 
-            var sopranoC4 = new Note(Voice.Soprano, Notes.C4);
-            var altoE3 = new Note(Voice.Alto, Notes.E3);
-            var tenorG2 = new Note(Voice.Tenor, Notes.G2);
-            var bassC1 = new Note(Voice.Bass, Notes.C1);
-            var sopranoB4 = new Note(Voice.Soprano, Notes.B4);
-            var sopranoCSharp4 = new Note(Voice.Soprano, Notes.CSharp4);
-            var bassASharp1 = new Note(Voice.Bass, Notes.ASharp1);
+            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4);
+            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3);
+            var tenorG2 = new BaroquenNote(Voice.Tenor, Notes.G2);
+            var bassC1 = new BaroquenNote(Voice.Bass, Notes.C1);
+            var sopranoB4 = new BaroquenNote(Voice.Soprano, Notes.B4);
+            var sopranoCSharp4 = new BaroquenNote(Voice.Soprano, Notes.CSharp4);
+            var bassASharp1 = new BaroquenNote(Voice.Bass, Notes.ASharp1);
 
-            var cMajor = new Chord([sopranoC4, altoE3, tenorG2, bassC1]);
-            var eMinor = new Chord([altoE3, tenorG2, sopranoB4]);
-            var cMajor7 = new Chord([sopranoB4, altoE3, tenorG2, bassC1]);
-            var cSharpDiminished = new Chord([sopranoCSharp4, altoE3, tenorG2, bassASharp1]);
-            var cSharpDiminishedMajor7 = new Chord([sopranoCSharp4, altoE3, tenorG2, bassC1]);
+            var cMajor = new BaroquenChord([sopranoC4, altoE3, tenorG2, bassC1]);
+            var eMinor = new BaroquenChord([altoE3, tenorG2, sopranoB4]);
+            var cMajor7 = new BaroquenChord([sopranoB4, altoE3, tenorG2, bassC1]);
+            var cSharpDiminished = new BaroquenChord([sopranoCSharp4, altoE3, tenorG2, bassASharp1]);
+            var cSharpDiminishedMajor7 = new BaroquenChord([sopranoCSharp4, altoE3, tenorG2, bassC1]);
 
             yield return new TestCaseData(unusedChord, cMajor, true).SetName("Major triad is consonant.");
 

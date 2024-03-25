@@ -1,15 +1,15 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
+using BaroquenMelody.Library.Compositions.Domain;
 using Melanchall.DryWetMidi.MusicTheory;
-using Chord = BaroquenMelody.Library.Compositions.Domain.Chord;
 
 namespace BaroquenMelody.Library.Compositions.Extensions;
 
 /// <summary>
-///     A home for extension methods for <see cref="Domain.Chord"/>.
+///     A home for extension methods for <see cref="BaroquenChord"/>.
 /// </summary>
 internal static class BaroquenChordExtensions
 {
-    public static Chord ApplyChordChoice(this Chord chord, Scale scale, ChordChoice chordChoice) => new(
+    public static BaroquenChord ApplyChordChoice(this BaroquenChord chord, Scale scale, ChordChoice chordChoice) => new(
         from noteChoice in chordChoice.NoteChoices
         let voice = noteChoice.Voice
         let note = chord[voice]

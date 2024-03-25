@@ -1,11 +1,10 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Infrastructure.Random;
 using Melanchall.DryWetMidi.MusicTheory;
-using Chord = BaroquenMelody.Library.Compositions.Domain.Chord;
-using Note = BaroquenMelody.Library.Compositions.Domain.Note;
 
 namespace BaroquenMelody.Library.Compositions.Strategies;
 
@@ -28,7 +27,7 @@ internal sealed class CompositionStrategy(
         compositionConfiguration.Scale.GetDegree(ScaleDegree.Dominant)
     ];
 
-    public IReadOnlyList<ChordChoice> GetPossibleChordChoices(IReadOnlyList<Chord> precedingChords)
+    public IReadOnlyList<ChordChoice> GetPossibleChordChoices(IReadOnlyList<BaroquenChord> precedingChords)
     {
         var currentChord = precedingChords[^1];
         var result = new List<ChordChoice>();
@@ -47,21 +46,21 @@ internal sealed class CompositionStrategy(
         return result;
     }
 
-    public Chord GenerateInitialChord()
+    public BaroquenChord GenerateInitialChord()
     {
         var startingNoteCounts = validStartingNoteNames.ToDictionary(noteName => noteName, _ => 0);
         var rawNotes = compositionConfiguration.Scale.GetNotes().ToList();
-        var notes = new HashSet<Note>();
+        var notes = new HashSet<BaroquenNote>();
 
         foreach (var voiceConfiguration in compositionConfiguration.VoiceConfigurations)
         {
             var rawNote = ChooseStartingNote(compositionConfiguration, voiceConfiguration, rawNotes, validStartingNoteNames, ref startingNoteCounts);
-            var contextualizedNote = new Note(voiceConfiguration.Voice, rawNote);
+            var contextualizedNote = new BaroquenNote(voiceConfiguration.Voice, rawNote);
 
             notes.Add(contextualizedNote);
         }
 
-        return new Chord(notes);
+        return new BaroquenChord(notes);
     }
 
     /// <summary>
@@ -73,14 +72,14 @@ internal sealed class CompositionStrategy(
     /// <param name="startingNoteNames"> The valid starting note names. </param>
     /// <param name="startingNoteCounts"> The counts of starting notes already chosen. </param>
     /// <returns> The chosen starting note. </returns>
-    private static Melanchall.DryWetMidi.MusicTheory.Note ChooseStartingNote(
+    private static Note ChooseStartingNote(
         CompositionConfiguration compositionConfiguration,
         VoiceConfiguration voiceConfiguration,
-        IReadOnlyCollection<Melanchall.DryWetMidi.MusicTheory.Note> notes,
+        IReadOnlyCollection<Note> notes,
         HashSet<NoteName> startingNoteNames,
         ref Dictionary<NoteName, int> startingNoteCounts)
     {
-        Melanchall.DryWetMidi.MusicTheory.Note? chosenNote;
+        Note? chosenNote;
 
         do
         {

@@ -1,3 +1,7 @@
 ﻿namespace BaroquenMelody.Library.Compositions.Domain;
 
-internal sealed record Beat(Chord Chord);
+/// <summary>
+///     Represents a beat in a composition.
+/// </summary>
+/// <param name="Chord"> The chord that is played during the beat. </param>
+internal sealed record Beat(BaroquenChord Chord);

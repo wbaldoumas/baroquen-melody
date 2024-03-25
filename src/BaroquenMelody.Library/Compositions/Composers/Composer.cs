@@ -22,7 +22,7 @@ internal sealed class Composer(
     {
         var measures = ComposeInitialMeasures();
 
-        var compositionContext = new FixedSizeList<Chord>(
+        var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
             measures.SelectMany(measure => measure.Beats.Select(beat => beat.Chord))
         );
@@ -65,7 +65,7 @@ internal sealed class Composer(
         return [new Measure(beats, compositionConfiguration.Meter)];
     }
 
-    private Chord GenerateNextChord(IReadOnlyList<Chord> precedingChords)
+    private BaroquenChord GenerateNextChord(IReadOnlyList<BaroquenChord> precedingChords)
     {
         var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(precedingChords);
         var chordChoice = possibleChordChoices.OrderBy(_ => ThreadLocalRandom.Next(int.MaxValue)).First();

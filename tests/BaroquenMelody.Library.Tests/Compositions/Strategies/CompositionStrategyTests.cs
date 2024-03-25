@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Compositions.Extensions;
@@ -9,8 +10,6 @@ using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
 using System.Numerics;
-using Chord = BaroquenMelody.Library.Compositions.Domain.Chord;
-using Note = BaroquenMelody.Library.Compositions.Domain.Note;
 
 namespace BaroquenMelody.Library.Tests.Compositions.Strategies;
 
@@ -101,13 +100,13 @@ internal sealed class CompositionStrategyTests
     public void GetPossibleChordChoices_returns_expected_chord_choices()
     {
         // arrange
-        var precedingChords = new List<Chord>
+        var precedingChords = new List<BaroquenChord>
         {
             new([
-                new Note(Voice.Soprano, Notes.C4),
-                new Note(Voice.Alto, Notes.E3),
-                new Note(Voice.Tenor, Notes.G2),
-                new Note(Voice.Bass, Notes.C2)
+                new BaroquenNote(Voice.Soprano, Notes.C4),
+                new BaroquenNote(Voice.Alto, Notes.E3),
+                new BaroquenNote(Voice.Tenor, Notes.G2),
+                new BaroquenNote(Voice.Bass, Notes.C2)
             ])
         };
 
@@ -127,7 +126,7 @@ internal sealed class CompositionStrategyTests
 
         _mockChordChoiceRepository.GetChordChoice(Arg.Any<BigInteger>()).Returns(goodChordChoice, badChordChoice);
 
-        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<Chord>>(), Arg.Any<Chord>()).Returns(true, false);
+        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(true, false);
 
         // act
         var possibleChordChoices = _compositionStrategy.GetPossibleChordChoices(precedingChords).ToList();

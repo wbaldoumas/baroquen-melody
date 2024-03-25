@@ -5,6 +5,6 @@ namespace BaroquenMelody.Library.Compositions.Evaluations.Rules;
 
 internal sealed class EnsureVoiceRange(CompositionConfiguration configuration) : ICompositionRule
 {
-    public bool Evaluate(IReadOnlyList<Chord> precedingChords, Chord nextChord) =>
+    public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord) =>
         nextChord.Notes.All(note => configuration.IsNoteInVoiceRange(note.Voice, note.Raw));
 }
