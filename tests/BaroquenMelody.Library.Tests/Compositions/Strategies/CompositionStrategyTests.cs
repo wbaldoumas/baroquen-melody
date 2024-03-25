@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Compositions.Extensions;
@@ -93,5 +94,46 @@ internal sealed class CompositionStrategyTests
                 );
             }
         }
+    }
+
+    [Test]
+    public void GetPossibleChordChoices_returns_expected_chord_choices()
+    {
+        // arrange
+        var precedingChords = new List<BaroquenChord>
+        {
+            new([
+                new BaroquenNote(Voice.Soprano, Notes.C4),
+                new BaroquenNote(Voice.Alto, Notes.E3),
+                new BaroquenNote(Voice.Tenor, Notes.G2),
+                new BaroquenNote(Voice.Bass, Notes.C2)
+            ])
+        };
+
+        var goodChordChoice = new ChordChoice([
+            new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
+            new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0),
+            new NoteChoice(Voice.Tenor, NoteMotion.Oblique, 0),
+            new NoteChoice(Voice.Bass, NoteMotion.Oblique, 0)
+        ]);
+
+        var badChordChoice = new ChordChoice([
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Alto, NoteMotion.Descending, 5),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Bass, NoteMotion.Descending, 5)
+        ]);
+
+        _mockChordChoiceRepository.GetChordChoice(Arg.Any<BigInteger>()).Returns(goodChordChoice, badChordChoice);
+
+        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(true, false);
+
+        // act
+        var possibleChordChoices = _compositionStrategy.GetPossibleChordChoices(precedingChords).ToList();
+
+        // Assert
+        possibleChordChoices
+            .Should()
+            .ContainSingle(chordChoice => chordChoice.Equals(goodChordChoice), "because the chord choice passed the composition rule");
     }
 }
