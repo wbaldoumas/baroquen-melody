@@ -1,52 +1,17 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Evaluations.Rules;
-using BaroquenMelody.Library.Infrastructure.Collections;
-using BaroquenMelody.Library.Infrastructure.Random;
-using System.Collections;
-using System.Numerics;
 
 namespace BaroquenMelody.Library.Compositions.Strategies;
 
 internal sealed class CompositionStrategyFactory(
     IChordChoiceRepositoryFactory chordChoiceRepositoryFactory,
-    IChordContextRepositoryFactory chordContextRepositoryFactory,
-    IRandomTrueIndexSelector randomTrueIndexSelector,
     ICompositionRule compositionRule
 ) : ICompositionStrategyFactory
 {
-    public ICompositionStrategy Create(CompositionConfiguration compositionConfiguration)
-    {
-        var chordChoiceRepository = chordChoiceRepositoryFactory.Create(compositionConfiguration);
-        var chordContextRepository = chordContextRepositoryFactory.Create(compositionConfiguration);
-
-        var chordContextToChordChoiceMap = CreateChordContextToChordChoiceMap(
-            chordChoiceRepository.Count,
-            chordContextRepository.Count
-        );
-
-        return new CompositionStrategy(
-            chordChoiceRepository,
-            chordContextRepository,
-            randomTrueIndexSelector,
-            chordContextToChordChoiceMap,
-            compositionRule,
-            compositionConfiguration
-        );
-    }
-
-    private static CompressedBitArrayDictionary CreateChordContextToChordChoiceMap(BigInteger chordChoiceCount, BigInteger chordContextCount)
-    {
-        var chordContextToChordChoiceMap = new CompressedBitArrayDictionary();
-
-        for (BigInteger chordContextId = 0; chordContextId < chordContextCount; chordContextId++)
-        {
-            var chordChoiceValues = new BitArray((int)chordChoiceCount, defaultValue: true);
-
-            chordContextToChordChoiceMap.Add(chordContextId, chordChoiceValues);
-        }
-
-        return chordContextToChordChoiceMap;
-    }
+    public ICompositionStrategy Create(CompositionConfiguration compositionConfiguration) => new CompositionStrategy(
+        chordChoiceRepositoryFactory.Create(compositionConfiguration),
+        compositionRule,
+        compositionConfiguration
+    );
 }

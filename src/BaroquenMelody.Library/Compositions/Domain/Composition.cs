@@ -1,7 +1,7 @@
 ﻿namespace BaroquenMelody.Library.Compositions.Domain;
 
 /// <summary>
-///     The composition.
+///     Represents a composition of music.
 /// </summary>
-/// <param name="Measures"> The measures which make up the composition. </param>
-internal sealed record Composition(IList<Measure> Measures);
+/// <param name="Measures">The measures that make up the composition.</param>
+internal sealed record Composition(IEnumerable<Measure> Measures);

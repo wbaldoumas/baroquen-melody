@@ -1,23 +1,16 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Contexts;
-using BaroquenMelody.Library.Compositions.Contexts.Extensions;
 using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Evaluations.Rules;
+using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Infrastructure.Random;
 using Melanchall.DryWetMidi.MusicTheory;
-using System.Collections;
-using System.Numerics;
 
 namespace BaroquenMelody.Library.Compositions.Strategies;
 
 /// <inheritdoc cref="ICompositionStrategy"/>
 internal sealed class CompositionStrategy(
     IChordChoiceRepository chordChoiceRepository,
-    IChordContextRepository chordContextRepository,
-    IRandomTrueIndexSelector randomTrueIndexSelector,
-    IDictionary<BigInteger, BitArray> chordContextToChordChoiceMap,
     ICompositionRule compositionRule,
     CompositionConfiguration compositionConfiguration
 ) : ICompositionStrategy
@@ -34,83 +27,40 @@ internal sealed class CompositionStrategy(
         compositionConfiguration.Scale.GetDegree(ScaleDegree.Dominant)
     ];
 
-    public void PreLearn()
+    public IReadOnlyList<ChordChoice> GetPossibleChordChoices(IReadOnlyList<BaroquenChord> precedingChords)
     {
-        Parallel.For(0, (int)chordContextRepository.Count, chordContextId =>
+        var currentChord = precedingChords[^1];
+        var result = new List<ChordChoice>();
+
+        for (var chordChoiceId = 0; chordChoiceId < chordChoiceRepository.Count; ++chordChoiceId)
         {
-            var chordContext = chordContextRepository.GetChordContext(chordContextId);
-            var previousChord = chordContext.ToContextualizedChord();
-
-            for (var chordChoiceId = 0; chordChoiceId < chordChoiceRepository.Count; chordChoiceId++)
-            {
-                var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceId);
-                var nextChord = chordContext.ApplyChordChoice(chordChoice, compositionConfiguration.Scale);
-
-                if (!compositionRule.Evaluate(previousChord, nextChord))
-                {
-                    InvalidateChordChoice(chordContextId, chordChoiceId);
-                }
-            }
-        });
-    }
-
-    public ChordChoice GetNextChordChoice(ChordContext chordContext)
-    {
-        var chordContextId = chordContextRepository.GetChordContextId(chordContext);
-        var chordChoiceIndices = chordContextToChordChoiceMap[chordContextId];
-
-        while (true)
-        {
-            var chordChoiceId = randomTrueIndexSelector.SelectRandomTrueIndex(chordChoiceIndices);
             var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceId);
-            var chord = chordContext.ApplyChordChoice(chordChoice, compositionConfiguration.Scale);
+            var nextChord = currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice);
 
-            if (chord.ContextualizedNotes.All(voicedNote => compositionConfiguration.IsNoteInVoiceRange(voicedNote.Voice, voicedNote.Note)))
+            if (compositionRule.Evaluate(precedingChords, nextChord))
             {
-                return chordChoice;
+                result.Add(chordChoice);
             }
-
-            InvalidateChordChoice(chordContextId, chordChoiceId);
         }
+
+        return result;
     }
 
-    public void InvalidateChordChoice(ChordContext chordContext, ChordChoice chordChoice)
-    {
-        var chordContextId = chordContextRepository.GetChordContextId(chordContext);
-        var chordChoiceId = chordChoiceRepository.GetChordChoiceId(chordChoice);
-
-        InvalidateChordChoice(chordContextId, chordChoiceId);
-    }
-
-    /// <summary>
-    ///     Select an initial chord to start the composition. For now, just select a root chord based on the scale.
-    /// </summary>
-    /// <returns> The initial chord. </returns>
-    public ContextualizedChord GetInitialChord()
+    public BaroquenChord GenerateInitialChord()
     {
         var startingNoteCounts = validStartingNoteNames.ToDictionary(noteName => noteName, _ => 0);
-        var contextualizedNotes = new HashSet<ContextualizedNote>();
-        var notes = compositionConfiguration.Scale.GetNotes().ToList();
+        var rawNotes = compositionConfiguration.Scale.GetNotes().ToList();
+        var notes = new HashSet<BaroquenNote>();
 
         foreach (var voiceConfiguration in compositionConfiguration.VoiceConfigurations)
         {
-            var note = ChooseStartingNote(compositionConfiguration, voiceConfiguration, notes, validStartingNoteNames, ref startingNoteCounts);
+            var rawNote = ChooseStartingNote(compositionConfiguration, voiceConfiguration, rawNotes, validStartingNoteNames, ref startingNoteCounts);
+            var contextualizedNote = new BaroquenNote(voiceConfiguration.Voice, rawNote);
 
-            var contextualizedNote = new ContextualizedNote(
-                note,
-                voiceConfiguration.Voice,
-                new NoteContext(voiceConfiguration.Voice, note, NoteMotion.Oblique, NoteSpan.None),
-                new NoteChoice(voiceConfiguration.Voice, NoteMotion.Oblique, 0)
-            );
-
-            contextualizedNotes.Add(contextualizedNote);
+            notes.Add(contextualizedNote);
         }
 
-        return new ContextualizedChord(
-            contextualizedNotes,
-            new ChordContext(contextualizedNotes.Select(contextualizedNote => contextualizedNote.ArrivedFromNoteContext)),
-            new ChordChoice(contextualizedNotes.Select(contextualizedNote => contextualizedNote.ArrivedFromNoteChoice))
-        );
+        return new BaroquenChord(notes);
     }
 
     /// <summary>
@@ -133,7 +83,7 @@ internal sealed class CompositionStrategy(
 
         do
         {
-            // try to first choose a note that hasn't been chosen at all, then only choose a note that has not already been doubled.
+            // try to first choose a note that hasn't been chosen at all, then only choose a note that has not already been doubled...
             var unChosenNotes = startingNoteCounts.Where(startingNoteCount => startingNoteCount.Value == 0)
                 .Select(startingNoteCount => startingNoteCount.Key)
                 .ToHashSet();
@@ -150,13 +100,5 @@ internal sealed class CompositionStrategy(
         startingNoteCounts[chosenNote.NoteName]++;
 
         return chosenNote;
-    }
-
-    private void InvalidateChordChoice(BigInteger chordContextId, BigInteger chordChoiceId)
-    {
-        var chordChoiceIds = chordContextToChordChoiceMap[chordContextId];
-
-        chordChoiceIds[(int)chordChoiceId] = false;
-        chordContextToChordChoiceMap[chordContextId] = chordChoiceIds;
     }
 }

@@ -8,10 +8,10 @@ namespace BaroquenMelody.Library.Compositions.Evaluations.Rules;
 internal interface ICompositionRule
 {
     /// <summary>
-    ///    Checks if the given chords are valid according to the implemented rule.
+    ///   Checks if the given chords are valid according to the implemented rule.
     /// </summary>
-    /// <param name="currentChord">The current chord in the progression.</param>
-    /// <param name="nextChord">The next chord in the progression.</param>
-    /// <returns>True if the chords are valid, False otherwise.</returns>
-    bool Evaluate(ContextualizedChord currentChord, ContextualizedChord nextChord);
+    /// <param name="precedingChords">The chords which precede the proposed next chord.</param>
+    /// <param name="nextChord">The proposed next chord.</param>
+    /// <returns>Whether the proposed next chord is valid according to the rule.</returns>
+    bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord);
 }

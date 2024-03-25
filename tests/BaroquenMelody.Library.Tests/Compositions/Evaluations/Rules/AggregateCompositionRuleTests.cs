@@ -1,7 +1,4 @@
-﻿using BaroquenMelody.Library.Compositions.Choices;
-using BaroquenMelody.Library.Compositions.Contexts;
-using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.Evaluations.Rules;
+﻿using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -27,36 +24,35 @@ internal sealed class AggregateCompositionRuleTests
     }
 
     [Test]
-    public void Evaluate_AllRulesPass_ReturnsTrue()
+    public void Evaluate_WhenAllRulesPass_ReturnsTrue()
     {
-        // arrange
-        var currentChord = new ContextualizedChord(new HashSet<ContextualizedNote>(), ChordContext.Empty, ChordChoice.Empty);
-        var nextChord = new ContextualizedChord(new HashSet<ContextualizedNote>(), ChordContext.Empty, ChordChoice.Empty);
+        _mockCompositionRule1.Evaluate(default!, default!).ReturnsForAnyArgs(true);
+        _mockCompositionRule2.Evaluate(default!, default!).ReturnsForAnyArgs(true);
 
-        _mockCompositionRule1.Evaluate(currentChord, nextChord).Returns(true);
-        _mockCompositionRule2.Evaluate(currentChord, nextChord).Returns(true);
+        var result = aggregateCompositionRule.Evaluate(default!, default!);
 
-        // act
-        var result = aggregateCompositionRule.Evaluate(currentChord, nextChord);
-
-        // assert
         result.Should().BeTrue();
     }
 
     [Test]
-    public void Evaluate_OneRuleFails_ReturnsFalse()
+    public void Evaluate_WhenAnyRuleFails_ReturnsFalse()
     {
-        // arrange
-        var currentChord = new ContextualizedChord(new HashSet<ContextualizedNote>(), ChordContext.Empty, ChordChoice.Empty);
-        var nextChord = new ContextualizedChord(new HashSet<ContextualizedNote>(), ChordContext.Empty, ChordChoice.Empty);
+        _mockCompositionRule1.Evaluate(default!, default!).ReturnsForAnyArgs(true);
+        _mockCompositionRule2.Evaluate(default!, default!).ReturnsForAnyArgs(false);
 
-        _mockCompositionRule1.Evaluate(currentChord, nextChord).Returns(true);
-        _mockCompositionRule2.Evaluate(currentChord, nextChord).Returns(false);
+        var result = aggregateCompositionRule.Evaluate(default!, default!);
 
-        // act
-        var result = aggregateCompositionRule.Evaluate(currentChord, nextChord);
+        result.Should().BeFalse();
+    }
 
-        // assert
+    [Test]
+    public void Evaluate_WhenAllRulesFail_ReturnsFalse()
+    {
+        _mockCompositionRule1.Evaluate(default!, default!).ReturnsForAnyArgs(false);
+        _mockCompositionRule2.Evaluate(default!, default!).ReturnsForAnyArgs(false);
+
+        var result = aggregateCompositionRule.Evaluate(default!, default!);
+
         result.Should().BeFalse();
     }
 }

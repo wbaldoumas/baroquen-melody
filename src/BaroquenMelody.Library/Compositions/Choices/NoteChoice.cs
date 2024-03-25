@@ -11,7 +11,5 @@ namespace BaroquenMelody.Library.Compositions.Choices;
 internal sealed record NoteChoice(
     Voice Voice,
     NoteMotion Motion,
-    byte ScaleStepChange)
-{
-    public static NoteChoice Empty { get; } = new(Voice.Soprano, NoteMotion.Oblique, 0);
-}
+    byte ScaleStepChange
+);
