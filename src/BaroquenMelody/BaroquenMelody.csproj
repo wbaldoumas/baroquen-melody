@@ -13,15 +13,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Title>baroquen-melody</Title>
     <AssemblyName>baroquen-melody</AssemblyName>
-    <PackageId>baroquen-melody</PackageId>
+    <PublishAot>true</PublishAot>
     <Description>A tool for creating generative, baroque-style music.</Description>
-    <PackAsTool>true</PackAsTool>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/wbaldoumas/baroquen-melody</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/wbaldoumas/baroquen-melody</PackageProjectUrl>
-    <PackageTags>music;music-generation;generative-music;baroque;melody;midi</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Copyright>Copyright ©2024 William Baldoumas</Copyright>
   </PropertyGroup>
 

@@ -1,11 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Strategies;
-using BaroquenMelody.Library.Infrastructure.Random;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
@@ -18,10 +16,6 @@ internal sealed class CompositionStrategyFactoryTests
 {
     private IChordChoiceRepositoryFactory _mockChordChoiceRepositoryFactory = null!;
 
-    private IChordContextRepositoryFactory _mockChordContextRepositoryFactory = null!;
-
-    private IRandomTrueIndexSelector _mockRandomTrueIndexSelector = null!;
-
     private ICompositionRule _mockCompositionRule = null!;
 
     private CompositionStrategyFactory _compositionStrategyFactory = null!;
@@ -30,16 +24,9 @@ internal sealed class CompositionStrategyFactoryTests
     public void SetUp()
     {
         _mockChordChoiceRepositoryFactory = Substitute.For<IChordChoiceRepositoryFactory>();
-        _mockChordContextRepositoryFactory = Substitute.For<IChordContextRepositoryFactory>();
-        _mockRandomTrueIndexSelector = Substitute.For<IRandomTrueIndexSelector>();
         _mockCompositionRule = Substitute.For<ICompositionRule>();
 
-        _compositionStrategyFactory = new CompositionStrategyFactory(
-            _mockChordChoiceRepositoryFactory,
-            _mockChordContextRepositoryFactory,
-            _mockRandomTrueIndexSelector,
-            _mockCompositionRule
-        );
+        _compositionStrategyFactory = new CompositionStrategyFactory(_mockChordChoiceRepositoryFactory, _mockCompositionRule);
     }
 
     [Test]
@@ -47,12 +34,9 @@ internal sealed class CompositionStrategyFactoryTests
     {
         // arrange
         var mockChordChoiceRepository = Substitute.For<IChordChoiceRepository>();
-        var mockChordContextRepository = Substitute.For<IChordContextRepository>();
 
         _mockChordChoiceRepositoryFactory.Create(Arg.Any<CompositionConfiguration>()).Returns(mockChordChoiceRepository);
-        _mockChordContextRepositoryFactory.Create(Arg.Any<CompositionConfiguration>()).Returns(mockChordContextRepository);
 
-        mockChordContextRepository.Count.Returns(500);
         mockChordChoiceRepository.Count.Returns(500);
 
         var compositionConfiguration = new CompositionConfiguration(

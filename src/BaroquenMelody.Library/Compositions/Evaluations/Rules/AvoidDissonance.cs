@@ -6,9 +6,9 @@ namespace BaroquenMelody.Library.Compositions.Evaluations.Rules;
 /// <inheritdoc cref="ICompositionRule"/>
 internal sealed class AvoidDissonance : ICompositionRule
 {
-    public bool Evaluate(ContextualizedChord currentChord, ContextualizedChord nextChord)
+    public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
     {
-        var notes = nextChord.ContextualizedNotes.Select(contextualizedNote => contextualizedNote.Note).ToHashSet();
+        var notes = nextChord.Notes.Select(note => note.Raw).ToHashSet();
 
         return notes.All(note => notes.Where(otherNote => otherNote != note).All(otherNote => !note.IsDissonantWith(otherNote)));
     }

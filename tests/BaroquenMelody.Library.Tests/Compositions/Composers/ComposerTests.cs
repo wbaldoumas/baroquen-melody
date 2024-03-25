@@ -1,7 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Composers;
 using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Contexts;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Strategies;
@@ -24,8 +23,6 @@ internal sealed class ComposerTests
 
     private ICompositionStrategy _mockCompositionStrategy = null!;
 
-    private IChordContextGenerator _mockChordContextGenerator = null!;
-
     private CompositionConfiguration _compositionConfiguration = null!;
 
     private Composer _composer = null!;
@@ -34,7 +31,6 @@ internal sealed class ComposerTests
     public void SetUp()
     {
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
-        _mockChordContextGenerator = Substitute.For<IChordContextGenerator>();
 
         _compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
@@ -47,60 +43,34 @@ internal sealed class ComposerTests
             CompositionLength: 100
         );
 
-        _composer = new Composer(_mockCompositionStrategy, _mockChordContextGenerator, _compositionConfiguration);
+        _composer = new Composer(_mockCompositionStrategy, _compositionConfiguration);
     }
 
     [Test]
     public void WhenComposeIsInvoked_ThenCompositionIsReturned()
     {
         // arrange
-        _mockCompositionStrategy.GetInitialChord().Returns(
-            new ContextualizedChord(
-                new HashSet<ContextualizedNote>
-                {
-                    new(
-                        MinSopranoNote,
-                        Voice.Soprano,
-                        new NoteContext(Voice.Soprano, MinSopranoNote, NoteMotion.Oblique, NoteSpan.None),
-                        new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0)
-                    ),
-                    new(
-                        MinAltoNote,
-                        Voice.Alto,
-                        new NoteContext(Voice.Alto, MinAltoNote, NoteMotion.Oblique, NoteSpan.None),
-                        new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0)
-                    )
-                },
-                new ChordContext(
+        _mockCompositionStrategy.GenerateInitialChord().Returns(
+            new BaroquenChord(
                 [
-                    new NoteContext(Voice.Soprano, MinSopranoNote, NoteMotion.Oblique, NoteSpan.None),
-                    new NoteContext(Voice.Alto, MinAltoNote, NoteMotion.Oblique, NoteSpan.None)
-                ]),
-                new ChordChoice(
-                [
-                    new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0)
-                ])
+                    new BaroquenNote(Voice.Soprano, MinSopranoNote),
+                    new BaroquenNote(Voice.Alto, MinAltoNote)
+                ]
             )
         );
 
-        _mockCompositionStrategy.GetNextChordChoice(Arg.Any<ChordContext>())
+        _mockCompositionStrategy
+            .GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
             .Returns(
-                new ChordChoice(
-                    [
-                        new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
-                        new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0)
-                    ]
-                )
-            );
-
-        _mockChordContextGenerator.GenerateChordContext(Arg.Any<ContextualizedChord>(), Arg.Any<ContextualizedChord>())
-            .Returns(
-                new ChordContext(
-                [
-                    new NoteContext(Voice.Soprano, MinSopranoNote, NoteMotion.Oblique, NoteSpan.None),
-                    new NoteContext(Voice.Alto, MinAltoNote, NoteMotion.Oblique, NoteSpan.None)
-                ])
+                new List<ChordChoice>
+                {
+                    new(
+                        [
+                            new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
+                            new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0)
+                        ]
+                    )
+                }
             );
 
         // act
@@ -115,10 +85,10 @@ internal sealed class ComposerTests
             measure.Beats.Should().HaveCount(_compositionConfiguration.Meter.BeatsPerMeasure());
         }
 
-        _mockCompositionStrategy.Received(1).GetInitialChord();
+        _mockCompositionStrategy.Received(1).GenerateInitialChord();
 
         _mockCompositionStrategy
             .Received(_compositionConfiguration.CompositionLength * _compositionConfiguration.Meter.BeatsPerMeasure() - 1) // 1 less since the initial chord is generated separately
-            .GetNextChordChoice(Arg.Any<ChordContext>());
+            .GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>());
     }
 }

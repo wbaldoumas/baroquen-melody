@@ -1,75 +1,75 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Contexts;
-using BaroquenMelody.Library.Compositions.Contexts.Extensions;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums.Extensions;
+using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Strategies;
+using BaroquenMelody.Library.Infrastructure.Collections;
+using BaroquenMelody.Library.Infrastructure.Random;
 
 namespace BaroquenMelody.Library.Compositions.Composers;
 
 /// <summary>
-///     Represents a composer which can generate a <see cref="Composition"/>.
+///     Represents a composer which can generate a <see cref="BaroquenComposition"/>.
 /// </summary>
 /// <param name="compositionStrategy"> The strategy that the composer should use to generate the composition. </param>
-/// <param name="chordContextGenerator"> The generator to use to generate chord contexts. </param>
 /// <param name="compositionConfiguration"> The configuration to use to generate the composition. </param>
 internal sealed class Composer(
     ICompositionStrategy compositionStrategy,
-    IChordContextGenerator chordContextGenerator,
     CompositionConfiguration compositionConfiguration
 ) : IComposer
 {
-    public Composition Compose()
+    public BaroquenComposition Compose()
     {
-        var initialMeasure = ComposeInitialMeasure();
+        var measures = ComposeInitialMeasures();
 
-        var measures = new List<Measure>
-        {
-            initialMeasure
-        };
-
-        var currentChordContext = measures[^1].Beats.Last().Chord.ArrivedFromChordContext;
+        var compositionContext = new FixedSizeList<BaroquenChord>(
+            compositionConfiguration.CompositionContextSize,
+            measures.SelectMany(measure => measure.Beats.Select(beat => beat.Chord))
+        );
 
         while (measures.Count < compositionConfiguration.CompositionLength)
         {
-            var beats = new List<Beat>();
+            var initialChord = GenerateNextChord(compositionContext);
+            var beats = new List<BaroquenBeat> { new(initialChord) };
 
-            var previousChord = measures[^1].Beats.Last().Chord;
+            compositionContext.Add(initialChord);
 
             while (beats.Count < compositionConfiguration.Meter.BeatsPerMeasure())
             {
-                var chordChoice = compositionStrategy.GetNextChordChoice(currentChordContext);
-                var nextChord = currentChordContext.ApplyChordChoice(chordChoice, compositionConfiguration.Scale);
+                var nextChord = GenerateNextChord(compositionContext);
 
-                beats.Add(new Beat(nextChord));
-
-                currentChordContext = chordContextGenerator.GenerateChordContext(previousChord, nextChord);
-                previousChord = nextChord;
+                compositionContext.Add(nextChord);
+                beats.Add(new BaroquenBeat(nextChord));
             }
 
-            measures.Add(new Measure(beats, compositionConfiguration.Meter));
+            measures.Add(new BaroquenMeasure(beats, compositionConfiguration.Meter));
         }
 
-        return new Composition(measures);
+        return new BaroquenComposition(measures);
     }
 
-    private Measure ComposeInitialMeasure()
+    private List<BaroquenMeasure> ComposeInitialMeasures()
     {
-        var initialChord = compositionStrategy.GetInitialChord();
-        var chordContext = initialChord.ArrivedFromChordContext;
+        var initialChord = compositionStrategy.GenerateInitialChord();
+        var beats = new List<BaroquenBeat> { new(initialChord) };
+        var precedingChords = beats.Select(beat => beat.Chord).ToList();
 
-        var beats = new List<Beat> { new(initialChord) };
-
-        while (beats.Count <= compositionConfiguration.Meter.BeatsPerMeasure() - 1)
+        while (beats.Count < compositionConfiguration.Meter.BeatsPerMeasure())
         {
-            var chordChoice = compositionStrategy.GetNextChordChoice(chordContext);
-            var nextChord = initialChord.ArrivedFromChordContext.ApplyChordChoice(chordChoice, compositionConfiguration.Scale);
+            var nextChord = GenerateNextChord(precedingChords);
 
-            beats.Add(new Beat(nextChord));
-
-            chordContext = nextChord.ArrivedFromChordContext;
+            precedingChords.Add(nextChord);
+            beats.Add(new BaroquenBeat(nextChord));
         }
 
-        return new Measure(beats, compositionConfiguration.Meter);
+        return [new BaroquenMeasure(beats, compositionConfiguration.Meter)];
+    }
+
+    private BaroquenChord GenerateNextChord(IReadOnlyList<BaroquenChord> precedingChords)
+    {
+        var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(precedingChords);
+        var chordChoice = possibleChordChoices.OrderBy(_ => ThreadLocalRandom.Next(int.MaxValue)).First();
+
+        return precedingChords[^1].ApplyChordChoice(compositionConfiguration.Scale, chordChoice);
     }
 }
