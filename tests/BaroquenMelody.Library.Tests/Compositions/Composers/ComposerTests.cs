@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Compositions.Composers;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Tests.Compositions.Enums.Extensions;
 using FluentAssertions;
@@ -23,6 +24,8 @@ internal sealed class ComposerTests
 
     private ICompositionStrategy _mockCompositionStrategy = null!;
 
+    private ICompositionDecorator _mockCompositionDecorator = null!;
+
     private CompositionConfiguration _compositionConfiguration = null!;
 
     private Composer _composer = null!;
@@ -31,6 +34,7 @@ internal sealed class ComposerTests
     public void SetUp()
     {
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
+        _mockCompositionDecorator = Substitute.For<ICompositionDecorator>();
 
         _compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
@@ -43,7 +47,7 @@ internal sealed class ComposerTests
             CompositionLength: 100
         );
 
-        _composer = new Composer(_mockCompositionStrategy, _compositionConfiguration);
+        _composer = new Composer(_mockCompositionStrategy, _mockCompositionDecorator, _compositionConfiguration);
     }
 
     [Test]
@@ -90,5 +94,7 @@ internal sealed class ComposerTests
         _mockCompositionStrategy
             .Received(_compositionConfiguration.CompositionLength * _compositionConfiguration.Meter.BeatsPerMeasure() - 1) // 1 less since the initial chord is generated separately
             .GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>());
+
+        _mockCompositionDecorator.Received(1).Decorate(composition);
     }
 }
