@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums.Extensions;
 using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using BaroquenMelody.Library.Infrastructure.Random;
@@ -12,9 +13,11 @@ namespace BaroquenMelody.Library.Compositions.Composers;
 ///     Represents a composer which can generate a <see cref="Composition"/>.
 /// </summary>
 /// <param name="compositionStrategy"> The strategy that the composer should use to generate the composition. </param>
+/// <param name="compositionDecorator"> The decorator that the composer should use to decorate the composition. </param>
 /// <param name="compositionConfiguration"> The configuration to use to generate the composition. </param>
 internal sealed class Composer(
     ICompositionStrategy compositionStrategy,
+    ICompositionDecorator compositionDecorator,
     CompositionConfiguration compositionConfiguration
 ) : IComposer
 {
@@ -45,7 +48,11 @@ internal sealed class Composer(
             measures.Add(new Measure(beats, compositionConfiguration.Meter));
         }
 
-        return new Composition(measures);
+        var composition = new Composition(measures);
+
+        compositionDecorator.Decorate(composition);
+
+        return composition;
     }
 
     private List<Measure> ComposeInitialMeasures()

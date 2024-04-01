@@ -20,6 +20,6 @@ internal static class BaroquenNoteExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(noteChoice))
         };
 
-        return note with { Raw = nextNote };
+        return new BaroquenNote(note.Voice, nextNote);
     }
 }

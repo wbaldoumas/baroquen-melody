@@ -3,6 +3,9 @@ using BaroquenMelody.Library.Compositions.Composers;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Evaluations.Rules;
+using BaroquenMelody.Library.Compositions.Ornamentation;
+using BaroquenMelody.Library.Compositions.Ornamentation.Engine;
+using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Strategies;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Composing;
@@ -38,8 +41,14 @@ var compositionStrategy = compositionStrategyFactory.Create(compositionConfigura
 
 Console.WriteLine("Done creating composition strategy!");
 
+var compositionDecorator = new CompositionDecorator(
+    new OrnamentationEngineBuilder(compositionConfiguration, new MusicalTimeSpanCalculator()).Build(),
+    compositionConfiguration
+);
+
 var composer = new Composer(
     compositionStrategy,
+    compositionDecorator,
     compositionConfiguration
 );
 
@@ -51,14 +60,14 @@ Console.WriteLine("Done composing!");
 Console.WriteLine("Creating MIDI file...");
 
 // just for testing purposes, we'll create a MIDI file with 3 tracks, one for each voice
-var tempoMap = TempoMap.Default;
+var tempoMap = TempoMap.Create(Tempo.FromBeatsPerMinute(60));
 
 var patternBuildersByVoice = new Dictionary<Voice, PatternBuilder>
 {
-    { Voice.Soprano, new PatternBuilder().ProgramChange(GeneralMidiProgram.Harpsichord).SetNoteLength(MusicalTimeSpan.Quarter) },
-    { Voice.Alto, new PatternBuilder().ProgramChange(GeneralMidiProgram.Harpsichord).SetNoteLength(MusicalTimeSpan.Quarter) },
-    { Voice.Tenor, new PatternBuilder().ProgramChange(GeneralMidiProgram.Harpsichord).SetNoteLength(MusicalTimeSpan.Quarter) },
-    { Voice.Bass, new PatternBuilder().ProgramChange(GeneralMidiProgram.Harpsichord).SetNoteLength(MusicalTimeSpan.Quarter) }
+    { Voice.Soprano, new PatternBuilder().ProgramChange(GeneralMidiProgram.Harpsichord) },
+    { Voice.Alto, new PatternBuilder().ProgramChange(GeneralMidiProgram.Harpsichord) },
+    { Voice.Tenor, new PatternBuilder().ProgramChange(GeneralMidiProgram.Harpsichord) },
+    { Voice.Bass, new PatternBuilder().ProgramChange(GeneralMidiProgram.Harpsichord) }
 };
 
 // Use pattern builders to add notes to the pattern for each voice...
@@ -66,10 +75,38 @@ foreach (var measure in composition.Measures)
 {
     foreach (var beat in measure.Beats)
     {
-        patternBuildersByVoice[Voice.Soprano].Note(beat.Chord[Voice.Soprano].Raw);
-        patternBuildersByVoice[Voice.Alto].Note(beat.Chord[Voice.Alto].Raw);
-        patternBuildersByVoice[Voice.Tenor].Note(beat.Chord[Voice.Tenor].Raw);
-        patternBuildersByVoice[Voice.Bass].Note(beat.Chord[Voice.Bass].Raw);
+        var sopranoNote = beat.Chord[Voice.Soprano];
+        var altoNote = beat.Chord[Voice.Alto];
+        var tenorNote = beat.Chord[Voice.Tenor];
+        var bassNote = beat.Chord[Voice.Bass];
+
+        patternBuildersByVoice[Voice.Soprano].SetNoteLength(sopranoNote.Duration).Note(sopranoNote.Raw);
+
+        foreach (var ornamentation in sopranoNote.Ornamentations)
+        {
+            patternBuildersByVoice[Voice.Soprano].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
+        }
+
+        patternBuildersByVoice[Voice.Alto].SetNoteLength(altoNote.Duration).Note(altoNote.Raw);
+
+        foreach (var ornamentation in altoNote.Ornamentations)
+        {
+            patternBuildersByVoice[Voice.Alto].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
+        }
+
+        patternBuildersByVoice[Voice.Tenor].SetNoteLength(tenorNote.Duration).Note(tenorNote.Raw);
+
+        foreach (var ornamentation in tenorNote.Ornamentations)
+        {
+            patternBuildersByVoice[Voice.Tenor].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
+        }
+
+        patternBuildersByVoice[Voice.Bass].SetNoteLength(bassNote.Duration).Note(bassNote.Raw);
+
+        foreach (var ornamentation in bassNote.Ornamentations)
+        {
+            patternBuildersByVoice[Voice.Bass].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
+        }
     }
 }
 
