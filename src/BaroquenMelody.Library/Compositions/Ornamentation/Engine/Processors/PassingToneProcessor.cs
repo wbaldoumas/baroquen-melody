@@ -12,19 +12,19 @@ internal class PassingToneProcessor(IMusicalTimeSpanCalculator musicalTimeSpanCa
     public void Process(OrnamentationItem item)
     {
         var currentNote = item.CurrentBeat[item.Voice];
-        var nextNote = item.NextBeat?[item.Voice];
+        var nextNote = item.NextBeat![item.Voice];
 
         var notes = configuration.Scale.GetNotes().ToList();
 
-        var currentScaleIndex = notes.IndexOf(currentNote.Raw);
-        var nextScaleIndex = notes.IndexOf(nextNote?.Raw ?? currentNote.Raw);
+        var currentNoteScaleIndex = notes.IndexOf(currentNote.Raw);
+        var nextNoteScaleIndex = notes.IndexOf(nextNote.Raw);
 
-        var passingToneIndex = currentScaleIndex > nextScaleIndex ? currentScaleIndex - 1 : currentScaleIndex + 1;
-        var passingToneNote = notes[passingToneIndex];
+        var passingToneScaleIndex = currentNoteScaleIndex > nextNoteScaleIndex ? currentNoteScaleIndex - 1 : currentNoteScaleIndex + 1;
+        var passingTone = notes[passingToneScaleIndex];
 
         currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.PassingTone, configuration.Meter);
 
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, passingToneNote)
+        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, passingTone)
         {
             Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.PassingTone, configuration.Meter)
         });

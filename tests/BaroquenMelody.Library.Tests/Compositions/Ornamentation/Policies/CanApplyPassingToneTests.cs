@@ -69,6 +69,16 @@ internal sealed class CanApplyPassingToneTests
                 ),
                 InputPolicyResult.Reject
             ).SetName($"When notes are not a third apart, then {nameof(InputPolicyResult.Reject)} is returned.");
+
+            yield return new TestCaseData(
+                new OrnamentationItem(
+                    Voice.Soprano,
+                    testCompositionContext,
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
+                    null
+                ),
+                InputPolicyResult.Reject
+            ).SetName($"When the next note is null, then {nameof(InputPolicyResult.Reject)} is returned.");
         }
     }
 }

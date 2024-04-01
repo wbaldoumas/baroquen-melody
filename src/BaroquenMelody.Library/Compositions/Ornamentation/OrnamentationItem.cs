@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation;
 
@@ -10,6 +11,7 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation;
 /// <param name="PrecedingBeats">The beats preceding the current beat to be ornamented.</param>
 /// <param name="CurrentBeat">The beat to be ornamented.</param>
 /// <param name="NextBeat">The beat following the current beat to be ornamented.</param>
+[ExcludeFromCodeCoverage(Justification = "Record with no logic.")]
 internal sealed record OrnamentationItem(
     Voice Voice,
     IReadOnlyList<Beat> PrecedingBeats,
