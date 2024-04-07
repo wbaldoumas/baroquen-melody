@@ -52,7 +52,7 @@ internal sealed class Composer(
 
             measures.Add(new Measure(beats, compositionConfiguration.Meter));
 
-            if (currentMeasureIndex++ % 4 == 0)
+            if (currentMeasureIndex++ % compositionConfiguration.PhrasingConfiguration.PhraseLengths.Min() == 0)
             {
                 compositionPhraser.AttemptPhraseRepetition(measures);
             }

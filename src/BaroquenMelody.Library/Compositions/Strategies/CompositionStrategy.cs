@@ -90,9 +90,9 @@ internal sealed class CompositionStrategy(
 
             chosenNote = notes
                 .Where(note => compositionConfiguration.IsNoteInVoiceRange(voiceConfiguration.Voice, note) && unChosenNotes.Contains(note.NoteName))
-                .MinBy(_ => ThreadLocalRandom.Next(int.MaxValue)) ?? notes
+                .MinBy(_ => ThreadLocalRandom.Next()) ?? notes
                 .Where(note => compositionConfiguration.IsNoteInVoiceRange(voiceConfiguration.Voice, note) && startingNoteNames.Contains(note.NoteName))
-                .OrderBy(_ => ThreadLocalRandom.Next(int.MaxValue))
+                .OrderBy(_ => ThreadLocalRandom.Next())
                 .First();
         }
         while (startingNoteCounts.TryGetValue(chosenNote.NoteName, out var count) && count >= MaxRepeatedNotes);
