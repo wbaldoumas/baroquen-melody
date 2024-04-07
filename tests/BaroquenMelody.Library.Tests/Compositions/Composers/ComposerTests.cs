@@ -4,6 +4,7 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
+using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Tests.Compositions.Enums.Extensions;
 using FluentAssertions;
@@ -26,6 +27,8 @@ internal sealed class ComposerTests
 
     private ICompositionDecorator _mockCompositionDecorator = null!;
 
+    private ICompositionPhraser _mockCompositionPhraser = null!;
+
     private CompositionConfiguration _compositionConfiguration = null!;
 
     private Composer _composer = null!;
@@ -35,6 +38,7 @@ internal sealed class ComposerTests
     {
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
         _mockCompositionDecorator = Substitute.For<ICompositionDecorator>();
+        _mockCompositionPhraser = Substitute.For<ICompositionPhraser>();
 
         _compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
@@ -47,7 +51,7 @@ internal sealed class ComposerTests
             CompositionLength: 100
         );
 
-        _composer = new Composer(_mockCompositionStrategy, _mockCompositionDecorator, _compositionConfiguration);
+        _composer = new Composer(_mockCompositionStrategy, _mockCompositionDecorator, _mockCompositionPhraser, _compositionConfiguration);
     }
 
     [Test]

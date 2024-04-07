@@ -6,6 +6,7 @@ using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
+using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Strategies;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Composing;
@@ -17,6 +18,13 @@ using System.Globalization;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
 // proof of concept testing code...
+var phrasingConfiguration = new PhrasingConfiguration(
+    PhraseLengths: [1, 2],
+    MaxPhraseRepetitions: 8,
+    MinPhraseRepetitionPoolSize: 2,
+    PhraseRepetitionProbability: 90
+);
+
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
@@ -25,16 +33,19 @@ var compositionConfiguration = new CompositionConfiguration(
         new(Voice.Tenor, Note.Get(NoteName.G, 2), Note.Get(NoteName.C, 3)),
         new(Voice.Bass, Note.Get(NoteName.C, 1), Note.Get(NoteName.G, 2))
     },
+    phrasingConfiguration,
     Scale.Parse("C Harmonic Minor"),
     Meter.FourFour,
     100
 );
 
+var compositionRule = new AggregateCompositionRule([new EnsureVoiceRange(compositionConfiguration), new AvoidDissonance()]);
+
 var compositionStrategyFactory = new CompositionStrategyFactory(
     new ChordChoiceRepositoryFactory(
         new NoteChoiceGenerator()
     ),
-    new AggregateCompositionRule([new EnsureVoiceRange(compositionConfiguration), new AvoidDissonance()])
+    compositionRule
 );
 
 var compositionStrategy = compositionStrategyFactory.Create(compositionConfiguration);
@@ -46,9 +57,12 @@ var compositionDecorator = new CompositionDecorator(
     compositionConfiguration
 );
 
+var compositionPhraser = new CompositionPhraser(compositionRule, compositionConfiguration);
+
 var composer = new Composer(
     compositionStrategy,
     compositionDecorator,
+    compositionPhraser,
     compositionConfiguration
 );
 

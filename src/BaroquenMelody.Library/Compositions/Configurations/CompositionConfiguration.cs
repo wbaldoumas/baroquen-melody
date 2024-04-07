@@ -7,12 +7,14 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 ///     The composition configuration.
 /// </summary>
 /// <param name="VoiceConfigurations"> The voice configurations to be used in the composition. </param>
+/// <param name="PhrasingConfiguration"> The phrasing configuration to be used in the composition. </param>
 /// <param name="Scale"> The scale to be used in the composition. </param>
 /// <param name="CompositionLength"> The length of the composition in measures. </param>
 /// <param name="Meter"> The meter to be used in the composition. </param>
 /// <param name="CompositionContextSize"> The size of the context to be used in the composition. </param>
 internal sealed record CompositionConfiguration(
     ISet<VoiceConfiguration> VoiceConfigurations,
+    PhrasingConfiguration PhrasingConfiguration,
     Scale Scale,
     Meter Meter,
     int CompositionLength,
@@ -27,4 +29,20 @@ internal sealed record CompositionConfiguration(
     public bool IsNoteInVoiceRange(Voice voice, Note note) => VoiceConfigurations.First(
         voiceConfiguration => voiceConfiguration.Voice == voice
     ).IsNoteWithinVoiceRange(note);
+
+    public CompositionConfiguration(
+        ISet<VoiceConfiguration> VoiceConfigurations,
+        Scale Scale,
+        Meter Meter,
+        int CompositionLength,
+        int CompositionContextSize = 4)
+        : this(
+            VoiceConfigurations,
+            PhrasingConfiguration.Default,
+            Scale,
+            Meter,
+            CompositionLength,
+            CompositionContextSize)
+    {
+    }
 }
