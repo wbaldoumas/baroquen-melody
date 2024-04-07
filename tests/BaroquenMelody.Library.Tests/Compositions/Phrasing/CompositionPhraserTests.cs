@@ -93,14 +93,50 @@ internal sealed class CompositionPhraserTests
     [Test]
     public void AttemptPhraseRepetition_ProbabilityNotMet_ShouldNotRepeat()
     {
+        // arrange
         var phraser = CreatePhraser(new PhrasingConfiguration([4], 2, 1, 0));
         var measures = CreateMeasures(8);
 
         SetRuleEvaluationOutcome(_mockCompositionRule, true);
 
+        // act
         phraser.AttemptPhraseRepetition(measures);
 
+        // assert
         measures.Count.Should().Be(8, "no phrases should be repeated due to 0% repetition probability");
+    }
+
+    [Test]
+    public void AttemptPhraseRepetition_WithCoolOffPhrase_ShouldUtilizeCoolOffPhrase()
+    {
+        // arrange
+        var phraser = CreatePhraser(new PhrasingConfiguration([2], 1, 1, 100)); // Ensuring coolOffPhrase can be set
+        var measures = CreateMeasures(4);
+
+        SetRuleEvaluationOutcome(_mockCompositionRule, true);
+
+        // act
+        phraser.AttemptPhraseRepetition(measures);
+        phraser.AttemptPhraseRepetition(measures);
+
+        // assert
+        measures.Count.Should().Be(8);
+    }
+
+    [Test]
+    public void AttemptPhraseRepetition_MeasuresLessThanPhraseLength_ShouldNotCreateOrRepeatPhrase()
+    {
+        // arrange
+        var phraser = CreatePhraser(new PhrasingConfiguration([5], 2, 0, 100)); // Phrase length greater than measures count
+        var measures = CreateMeasures(4); // Less than the required phrase length
+
+        SetRuleEvaluationOutcome(_mockCompositionRule, true);
+
+        // act
+        phraser.AttemptPhraseRepetition(measures);
+
+        // assert
+        measures.Count.Should().Be(4, "no new phrase should be created or repeated due to measures count being less than the phrase length");
     }
 
     private static List<Measure> CreateMeasures(int count, int beatsPerMeasure = 4)

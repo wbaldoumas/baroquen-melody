@@ -84,6 +84,8 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
             return false;
         }
 
+        Console.WriteLine($"REPEATING PREVIOUSLY REPEATED PHRASE: {repeatedPhrase.Id}. Repeat count: {repeatedPhrase.RepetitionCount}.");
+
         measures.AddRange(repeatedPhrase.Phrase);
         repeatedPhrase.RepetitionCount++;
 

@@ -20,7 +20,7 @@ using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 // proof of concept testing code...
 var phrasingConfiguration = new PhrasingConfiguration(
     PhraseLengths: [1, 2],
-    MaxPhraseRepetitions: 8,
+    MaxPhraseRepetitions: 4,
     MinPhraseRepetitionPoolSize: 2,
     PhraseRepetitionProbability: 90
 );
