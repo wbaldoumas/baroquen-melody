@@ -17,24 +17,27 @@ using Melanchall.DryWetMidi.Standards;
 using System.Globalization;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
+Console.WriteLine("Hit 'enter' to start composing...");
+Console.ReadLine();
+
 // proof of concept testing code...
 var phrasingConfiguration = new PhrasingConfiguration(
-    PhraseLengths: [1, 2],
+    PhraseLengths: [2, 4, 8],
     MaxPhraseRepetitions: 4,
-    MinPhraseRepetitionPoolSize: 2,
+    MinPhraseRepetitionPoolSize: 10,
     PhraseRepetitionProbability: 90
 );
 
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
-        new(Voice.Soprano, Note.Get(NoteName.G, 4), Note.Get(NoteName.C, 6)),
-        new(Voice.Alto, Note.Get(NoteName.C, 3), Note.Get(NoteName.G, 4)),
-        new(Voice.Tenor, Note.Get(NoteName.G, 2), Note.Get(NoteName.C, 3)),
-        new(Voice.Bass, Note.Get(NoteName.C, 1), Note.Get(NoteName.G, 2))
+        new(Voice.Soprano, Note.Get(NoteName.G, 5), Note.Get(NoteName.C, 6)),
+        new(Voice.Alto, Note.Get(NoteName.C, 4), Note.Get(NoteName.G, 5)),
+        new(Voice.Tenor, Note.Get(NoteName.C, 3), Note.Get(NoteName.C, 4)),
+        new(Voice.Bass, Note.Get(NoteName.C, 2), Note.Get(NoteName.C, 3))
     },
     phrasingConfiguration,
-    Scale.Parse("C Harmonic Minor"),
+    Scale.Parse("D dorian"),
     Meter.FourFour,
     100
 );

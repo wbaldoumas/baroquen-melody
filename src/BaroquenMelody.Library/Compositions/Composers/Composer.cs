@@ -24,9 +24,14 @@ internal sealed class Composer(
     CompositionConfiguration compositionConfiguration
 ) : IComposer
 {
-    private int currentMeasureIndex;
-
     public Composition Compose()
+    {
+        var composition = ComposeInitialComposition();
+
+        return PhraseComposition(composition);
+    }
+
+    private Composition ComposeInitialComposition()
     {
         var measures = ComposeInitialMeasures();
 
@@ -37,25 +42,20 @@ internal sealed class Composer(
 
         while (measures.Count < compositionConfiguration.CompositionLength)
         {
-            var initialChord = GenerateNextChord(compositionContext);
+            var initialChord = ComposeNextChord(compositionContext);
             var beats = new List<Beat> { new(initialChord) };
 
             compositionContext.Add(initialChord);
 
             while (beats.Count < compositionConfiguration.Meter.BeatsPerMeasure())
             {
-                var nextChord = GenerateNextChord(compositionContext);
+                var nextChord = ComposeNextChord(compositionContext);
 
                 compositionContext.Add(nextChord);
                 beats.Add(new Beat(nextChord));
             }
 
             measures.Add(new Measure(beats, compositionConfiguration.Meter));
-
-            if (currentMeasureIndex++ % compositionConfiguration.PhrasingConfiguration.PhraseLengths.Min() == 0)
-            {
-                compositionPhraser.AttemptPhraseRepetition(measures);
-            }
         }
 
         var composition = new Composition(measures);
@@ -63,6 +63,33 @@ internal sealed class Composer(
         compositionDecorator.Decorate(composition);
 
         return composition;
+    }
+
+    private Composition PhraseComposition(Composition initialComposition)
+    {
+        var currentMeasureIndex = 0;
+        var phrasedMeasures = new List<Measure>();
+
+        foreach (var measure in initialComposition.Measures)
+        {
+            phrasedMeasures.Add(measure);
+
+            if (currentMeasureIndex++ % compositionConfiguration.PhrasingConfiguration.PhraseLengths.Min() == 0)
+            {
+                compositionPhraser.AttemptPhraseRepetition(phrasedMeasures);
+            }
+
+            if (phrasedMeasures.Count >= compositionConfiguration.CompositionLength)
+            {
+                break;
+            }
+        }
+
+        var phrasedComposition = new Composition(phrasedMeasures);
+
+        compositionDecorator.Decorate(phrasedComposition);
+
+        return phrasedComposition;
     }
 
     private List<Measure> ComposeInitialMeasures()
@@ -73,7 +100,7 @@ internal sealed class Composer(
 
         while (beats.Count < compositionConfiguration.Meter.BeatsPerMeasure())
         {
-            var nextChord = GenerateNextChord(precedingChords);
+            var nextChord = ComposeNextChord(precedingChords);
 
             precedingChords.Add(nextChord);
             beats.Add(new Beat(nextChord));
@@ -82,7 +109,7 @@ internal sealed class Composer(
         return [new Measure(beats, compositionConfiguration.Meter)];
     }
 
-    private BaroquenChord GenerateNextChord(IReadOnlyList<BaroquenChord> precedingChords)
+    private BaroquenChord ComposeNextChord(IReadOnlyList<BaroquenChord> precedingChords)
     {
         var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(precedingChords);
         var chordChoice = possibleChordChoices.OrderBy(_ => ThreadLocalRandom.Next()).First();
