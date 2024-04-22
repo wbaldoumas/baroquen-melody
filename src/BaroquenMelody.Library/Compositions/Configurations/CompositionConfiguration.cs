@@ -18,7 +18,7 @@ internal sealed record CompositionConfiguration(
     Scale Scale,
     Meter Meter,
     int CompositionLength,
-    int CompositionContextSize = 4)
+    int CompositionContextSize = 8)
 {
     /// <summary>
     ///     Determine if the given note is within the range of the given voice for the composition.
