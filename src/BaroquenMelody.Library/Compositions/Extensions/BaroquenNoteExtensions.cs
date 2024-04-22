@@ -22,4 +22,6 @@ internal static class BaroquenNoteExtensions
 
         return new BaroquenNote(note.Voice, nextNote);
     }
+
+    public static bool IsDissonantWith(this BaroquenNote note, BaroquenNote otherNote) => note.Raw.IsDissonantWith(otherNote.Raw);
 }

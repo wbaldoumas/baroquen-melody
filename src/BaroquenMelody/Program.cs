@@ -42,7 +42,14 @@ var compositionConfiguration = new CompositionConfiguration(
     100
 );
 
-var compositionRule = new AggregateCompositionRule([new EnsureVoiceRange(compositionConfiguration), new AvoidDissonance()]);
+var compositionRule = new AggregateCompositionRule(
+    [
+        new EnsureVoiceRange(compositionConfiguration),
+        new AvoidDissonance(),
+        new AvoidDissonantLeaps(compositionConfiguration),
+        new AvoidRepetition()
+    ]
+);
 
 var compositionStrategyFactory = new CompositionStrategyFactory(
     new ChordChoiceRepositoryFactory(

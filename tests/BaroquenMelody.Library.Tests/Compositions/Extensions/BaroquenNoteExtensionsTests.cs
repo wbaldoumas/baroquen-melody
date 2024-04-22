@@ -15,7 +15,7 @@ internal sealed class BaroquenNoteExtensionsTests
     public void ApplyNoteChoice_WhenMotionIsAscending_ThenNextNoteIsReturned()
     {
         // arrange
-        var note = new BaroquenNote(Voice.Soprano, Note.Get(NoteName.A, 4));
+        var note = new BaroquenNote(Voice.Soprano, Notes.A4);
         var scale = Scale.Parse("C Major");
         var noteChoice = new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 2);
 
@@ -23,14 +23,14 @@ internal sealed class BaroquenNoteExtensionsTests
         var result = note.ApplyNoteChoice(scale, noteChoice);
 
         // assert
-        result.Raw.Should().Be(Note.Get(NoteName.C, 5));
+        result.Raw.Should().Be(Notes.C5);
     }
 
     [Test]
     public void ApplyNoteChoice_WhenMotionIsDescending_ThenNextNoteIsReturned()
     {
         // arrange
-        var note = new BaroquenNote(Voice.Soprano, Note.Get(NoteName.C, 5));
+        var note = new BaroquenNote(Voice.Soprano, Notes.C5);
         var scale = Scale.Parse("C Major");
         var noteChoice = new NoteChoice(Voice.Soprano, NoteMotion.Descending, 2);
 
@@ -38,14 +38,14 @@ internal sealed class BaroquenNoteExtensionsTests
         var result = note.ApplyNoteChoice(scale, noteChoice);
 
         // assert
-        result.Raw.Should().Be(Note.Get(NoteName.A, 4));
+        result.Raw.Should().Be(Notes.A4);
     }
 
     [Test]
     public void ApplyNoteChoice_WhenMotionIsOblique_ThenNextNoteIsReturned()
     {
         // arrange
-        var note = new BaroquenNote(Voice.Soprano, Note.Get(NoteName.C, 5));
+        var note = new BaroquenNote(Voice.Soprano, Notes.C5);
         var scale = Scale.Parse("C Major");
         var noteChoice = new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0);
 
@@ -53,14 +53,14 @@ internal sealed class BaroquenNoteExtensionsTests
         var result = note.ApplyNoteChoice(scale, noteChoice);
 
         // assert
-        result.Raw.Should().Be(Note.Get(NoteName.C, 5));
+        result.Raw.Should().Be(Notes.C5);
     }
 
     [Test]
     public void ApplyNoteChoice_WhenMotionIsInvalid_ThenExceptionIsThrown()
     {
         // arrange
-        var note = new BaroquenNote(Voice.Soprano, Note.Get(NoteName.C, 5));
+        var note = new BaroquenNote(Voice.Soprano, Notes.C5);
         var scale = Scale.Parse("C Major");
         var noteChoice = new NoteChoice(Voice.Soprano, (NoteMotion)99, 0);
 
@@ -69,5 +69,33 @@ internal sealed class BaroquenNoteExtensionsTests
 
         // assert
         act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
+    public void IsDissonantWith_WhenNotDissonant_IsFalse()
+    {
+        // arrange
+        var note = new BaroquenNote(Voice.Soprano, Notes.C5);
+        var otherNote = new BaroquenNote(Voice.Soprano, Notes.E4);
+
+        // act
+        var result = note.IsDissonantWith(otherNote);
+
+        // assert
+        result.Should().BeFalse();
+    }
+
+    [Test]
+    public void IsDissonantWith_WhenDissonant_IsTrue()
+    {
+        // arrange
+        var note = new BaroquenNote(Voice.Soprano, Notes.C5);
+        var otherNote = new BaroquenNote(Voice.Soprano, Notes.B4);
+
+        // act
+        var result = note.IsDissonantWith(otherNote);
+
+        // assert
+        result.Should().BeTrue();
     }
 }
