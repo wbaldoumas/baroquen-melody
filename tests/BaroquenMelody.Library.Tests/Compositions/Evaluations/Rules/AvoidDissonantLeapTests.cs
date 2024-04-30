@@ -26,10 +26,10 @@ internal sealed class AvoidDissonantLeapsTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, Note.Get(NoteName.G, 5), Note.Get(NoteName.C, 6)),
-                new(Voice.Alto, Note.Get(NoteName.C, 4), Note.Get(NoteName.G, 5)),
-                new(Voice.Tenor, Note.Get(NoteName.C, 3), Note.Get(NoteName.C, 4)),
-                new(Voice.Bass, Note.Get(NoteName.C, 2), Note.Get(NoteName.C, 3))
+                new(Voice.Soprano, Notes.G5, Notes.G6),
+                new(Voice.Alto, Notes.C4, Notes.G5),
+                new(Voice.Tenor, Notes.C3, Notes.C4),
+                new(Voice.Bass, Notes.C2, Notes.C3)
             },
             phrasingConfiguration,
             Scale.Parse("C Major"),

@@ -8,6 +8,8 @@ namespace BaroquenMelody.Library.Compositions.Evaluations.Rules;
 /// <inheritdoc cref="ICompositionRule"/>
 internal sealed class AvoidDissonantLeaps(CompositionConfiguration compositionConfiguration) : ICompositionRule
 {
+    private const int LeapThreshold = 1;
+
     public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
     {
         if (precedingChords.Count == 0)
@@ -22,25 +24,13 @@ internal sealed class AvoidDissonantLeaps(CompositionConfiguration compositionCo
     {
         var notes = compositionConfiguration.Scale.GetNotes().ToList();
 
-        foreach (var note in lastChord.Notes)
-        {
-            var nextNote = nextChord[note.Voice];
-
-            if (!note.IsDissonantWith(nextNote))
-            {
-                continue;
-            }
-
-            var noteScaleIndex = notes.IndexOf(note.Raw);
-            var nextNoteScaleIndex = notes.IndexOf(nextNote.Raw);
-            var scaleStepDifference = Math.Abs(noteScaleIndex - nextNoteScaleIndex);
-
-            if (scaleStepDifference > 1)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return (
+            from note in lastChord.Notes
+            let nextNote = nextChord[note.Voice]
+            where note.IsDissonantWith(nextNote)
+            let noteScaleIndex = notes.IndexOf(note.Raw)
+            let nextNoteScaleIndex = notes.IndexOf(nextNote.Raw)
+            select Math.Abs(noteScaleIndex - nextNoteScaleIndex)
+        ).Any(scaleStepDifference => scaleStepDifference > LeapThreshold);
     }
 }

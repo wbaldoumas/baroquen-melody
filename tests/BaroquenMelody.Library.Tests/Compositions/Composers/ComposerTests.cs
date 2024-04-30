@@ -17,11 +17,11 @@ namespace BaroquenMelody.Library.Tests.Compositions.Composers;
 [TestFixture]
 internal sealed class ComposerTests
 {
-    private static readonly Note MinSopranoNote = Note.Get(NoteName.A, 4);
-    private static readonly Note MaxSopranoNote = Note.Get(NoteName.A, 5);
+    private static readonly Note MinSopranoNote = Notes.A4;
+    private static readonly Note MaxSopranoNote = Notes.A5;
 
-    private static readonly Note MinAltoNote = Note.Get(NoteName.C, 3);
-    private static readonly Note MaxAltoNote = Note.Get(NoteName.C, 4);
+    private static readonly Note MinAltoNote = Notes.C3;
+    private static readonly Note MaxAltoNote = Notes.C4;
 
     private ICompositionStrategy _mockCompositionStrategy = null!;
 
