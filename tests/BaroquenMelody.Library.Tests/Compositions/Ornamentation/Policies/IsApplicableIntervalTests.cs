@@ -12,9 +12,9 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Policies;
 
 [TestFixture]
-internal sealed class CanApplyPassingToneTests
+internal sealed class IsApplicableIntervalTests
 {
-    private CanApplyPassingTone _canApplyPassingTone = null!;
+    private IsApplicableInterval _isApplicableInterval = null!;
 
     [SetUp]
     public void SetUp()
@@ -30,7 +30,7 @@ internal sealed class CanApplyPassingToneTests
             CompositionLength: 100
         );
 
-        _canApplyPassingTone = new CanApplyPassingTone(compositionConfiguration);
+        _isApplicableInterval = new IsApplicableInterval(compositionConfiguration, Interval: 2);
     }
 
     [Test]
@@ -38,7 +38,7 @@ internal sealed class CanApplyPassingToneTests
     public void ShouldProcess(OrnamentationItem item, InputPolicyResult expectedInputPolicyResult)
     {
         // act
-        var inputPolicyResult = _canApplyPassingTone.ShouldProcess(item);
+        var inputPolicyResult = _isApplicableInterval.ShouldProcess(item);
 
         // assert
         inputPolicyResult.Should().Be(expectedInputPolicyResult);

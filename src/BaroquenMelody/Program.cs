@@ -15,7 +15,6 @@ using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
 using System.Globalization;
-using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
 Console.WriteLine("Hit 'enter' to start composing...");
 Console.ReadLine();
@@ -37,7 +36,7 @@ var compositionConfiguration = new CompositionConfiguration(
         new(Voice.Bass, Notes.C2, Notes.C3)
     },
     phrasingConfiguration,
-    Scale.Parse("D dorian"),
+    Scale.Parse("C Harmonic Minor"),
     Meter.FourFour,
     100
 );
@@ -47,7 +46,10 @@ var compositionRule = new AggregateCompositionRule(
         new EnsureVoiceRange(compositionConfiguration),
         new AvoidDissonance(),
         new AvoidDissonantLeaps(compositionConfiguration),
-        new AvoidRepetition()
+        new AvoidRepetition(),
+        new AvoidParallelFourths(compositionConfiguration),
+        new AvoidParallelFifths(compositionConfiguration),
+        new AvoidParallelOctaves(compositionConfiguration)
     ]
 );
 
