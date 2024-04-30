@@ -10,12 +10,12 @@ internal sealed record ChordChoice
     private readonly IList<NoteChoice> _noteChoices;
 
     public ChordChoice(IEnumerable<NoteChoice> noteChoices) =>
-        _noteChoices = noteChoices.OrderBy(noteChoice => noteChoice.Voice).ToList();
+        _noteChoices = [.. noteChoices.OrderBy(noteChoice => noteChoice.Voice)];
 
     public IList<NoteChoice> NoteChoices
     {
         get => _noteChoices;
-        init { _noteChoices = value.OrderBy(noteChoice => noteChoice.Voice).ToList(); }
+        init { _noteChoices = [.. value.OrderBy(noteChoice => noteChoice.Voice)]; }
     }
 
     public bool Equals(ChordChoice? other)

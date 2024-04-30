@@ -27,8 +27,8 @@ internal sealed class DuetChordChoiceRepository : IChordChoiceRepository
             .Select(voiceConfiguration => noteChoiceGenerator.GenerateNoteChoices(voiceConfiguration.Voice)).ToList();
 
         _noteChoices = new LazyCartesianProduct<NoteChoice, NoteChoice>(
-            noteChoicesForVoices[0].ToList(),
-            noteChoicesForVoices[1].ToList()
+            [.. noteChoicesForVoices[0]],
+            [.. noteChoicesForVoices[1]]
         );
     }
 

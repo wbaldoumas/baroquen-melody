@@ -80,7 +80,7 @@ internal sealed class CompositionStrategyTests
             var chord = _compositionStrategy.GenerateInitialChord();
 
             // assert
-            chord.Notes.Count().Should().Be(4);
+            chord.Notes.Should().HaveCount(4);
 
             // since there are four voices but only three unique notes in a C Major chord, there should be at least one voice with a repeated note
             chord.Notes.GroupBy(note => note.Raw.NoteName).Should().HaveCount(3).And.OnlyContain(grouping => grouping.Count() <= 2);
