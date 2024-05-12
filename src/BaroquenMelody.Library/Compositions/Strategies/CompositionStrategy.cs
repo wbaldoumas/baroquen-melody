@@ -63,6 +63,10 @@ internal sealed class CompositionStrategy(
         return new BaroquenChord(notes);
     }
 
+    /*
+     * Implement "look ahead" to ensure that the next few chords are also valid.
+     */
+
     /// <summary>
     ///    Choose a starting note for the given voice, ensuring that the note is within the voice's range and not repeated more than twice.
     /// </summary>
