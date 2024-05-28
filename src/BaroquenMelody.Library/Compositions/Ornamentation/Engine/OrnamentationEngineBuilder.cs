@@ -14,18 +14,32 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
     public IPolicyEngine<OrnamentationItem> Build() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithoutInputPolicies()
         .WithProcessors(
-            BuildPassingToneEngine()
+            BuildPassingToneEngine(),
+            BuildSixteenthNoteRunEngine()
         )
         .WithoutOutputPolicies()
         .Build();
 
     private IPolicyEngine<OrnamentationItem> BuildPassingToneEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
+            new WantsToOrnament(),
             new HasNoOrnamentation(),
-            new CanApplyPassingTone(compositionConfiguration)
+            new IsApplicableInterval(compositionConfiguration, PassingToneProcessor.Interval)
         )
         .WithProcessors(
             new PassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration)
+        )
+        .WithoutOutputPolicies()
+        .Build();
+
+    private IPolicyEngine<OrnamentationItem> BuildSixteenthNoteRunEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+        .WithInputPolicies(
+            new WantsToOrnament(),
+            new HasNoOrnamentation(),
+            new IsApplicableInterval(compositionConfiguration, SixteenthNoteRunProcessor.Interval)
+        )
+        .WithProcessors(
+            new SixteenthNoteRunProcessor(musicalTimeSpanCalculator, compositionConfiguration)
         )
         .WithoutOutputPolicies()
         .Build();

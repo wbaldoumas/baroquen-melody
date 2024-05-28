@@ -4,10 +4,8 @@ using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies;
 
-internal sealed class CanApplyPassingTone(CompositionConfiguration configuration) : IInputPolicy<OrnamentationItem>
+internal sealed class IsApplicableInterval(CompositionConfiguration configuration, int Interval) : IInputPolicy<OrnamentationItem>
 {
-    private const int PassingToneInterval = 2;
-
     public InputPolicyResult ShouldProcess(OrnamentationItem item)
     {
         var currentNote = item.CurrentBeat[item.Voice];
@@ -18,6 +16,6 @@ internal sealed class CanApplyPassingTone(CompositionConfiguration configuration
         var currentNoteScaleIndex = notes.IndexOf(currentNote.Raw);
         var nextNoteScaleIndex = notes.IndexOf(nextNote?.Raw ?? currentNote.Raw);
 
-        return Math.Abs(nextNoteScaleIndex - currentNoteScaleIndex) == PassingToneInterval ? InputPolicyResult.Continue : InputPolicyResult.Reject;
+        return Math.Abs(nextNoteScaleIndex - currentNoteScaleIndex) == Interval ? InputPolicyResult.Continue : InputPolicyResult.Reject;
     }
 }
