@@ -9,6 +9,8 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 
 internal class PassingToneProcessor(IMusicalTimeSpanCalculator musicalTimeSpanCalculator, CompositionConfiguration configuration) : IProcessor<OrnamentationItem>
 {
+    public const int Interval = 2;
+
     public void Process(OrnamentationItem item)
     {
         var currentNote = item.CurrentBeat[item.Voice];

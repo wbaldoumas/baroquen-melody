@@ -15,7 +15,6 @@ using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
 using System.Globalization;
-using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
 Console.WriteLine("Hit 'enter' to start composing...");
 Console.ReadLine();
