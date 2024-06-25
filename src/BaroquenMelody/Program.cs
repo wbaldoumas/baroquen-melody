@@ -31,10 +31,10 @@ var phrasingConfiguration = new PhrasingConfiguration(
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
-        new(Voice.Soprano, Notes.G5, Notes.C7),
+        new(Voice.Soprano, Notes.G5, Notes.C6),
         new(Voice.Alto, Notes.C4, Notes.G5),
         new(Voice.Tenor, Notes.C3, Notes.C4),
-        new(Voice.Bass, Notes.G1, Notes.C3)
+        new(Voice.Bass, Notes.C2, Notes.C3)
     },
     phrasingConfiguration,
     BaroquenScale.Parse("C Minor"),

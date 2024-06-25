@@ -66,10 +66,7 @@ internal sealed class CompositionStrategyTests
         _compositionStrategy = new CompositionStrategy(
             _mockChordChoiceRepository,
             _mockCompositionRule,
-            _compositionConfiguration,
-            maxRepeatedNotes: 2,
-            maxLookAheadDepth: 2,
-            minLookAheadChordChoices: 2
+            _compositionConfiguration
         );
     }
 

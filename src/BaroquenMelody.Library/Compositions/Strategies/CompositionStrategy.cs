@@ -60,6 +60,7 @@ internal sealed class CompositionStrategy(
 
         do
         {
+            // try to first choose a note that hasn't been chosen at all, then only choose a note that has not already been doubled...
             var unChosenNotes = startingNoteCounts.Where(startingNoteCount => startingNoteCount.Value == 0)
                 .Select(startingNoteCount => startingNoteCount.Key)
                 .ToHashSet();
