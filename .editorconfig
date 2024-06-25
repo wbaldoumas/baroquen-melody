@@ -55,6 +55,9 @@ dotnet_diagnostic.SA1201.severity = none
 # force constructor documentation text
 dotnet_diagnostic.SA1642.severity = none
 
+# force static members to appear before non-static
+dotnet_diagnostic.SA1204.severity = none
+
 [*.csproj]
 indent_style = space
 indent_size = 2
