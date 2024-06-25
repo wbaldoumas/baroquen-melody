@@ -58,7 +58,7 @@ internal sealed class CompositionStrategyTests
                 new(Voice.Tenor, MinTenorPitch.ToNote(), MaxTenorPitch.ToNote()),
                 new(Voice.Bass, MinBassPitch.ToNote(), MaxBassPitch.ToNote())
             },
-            new BaroquenScale(Scale.Parse("C Major")),
+            BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             CompositionLength: 100
         );
@@ -66,7 +66,10 @@ internal sealed class CompositionStrategyTests
         _compositionStrategy = new CompositionStrategy(
             _mockChordChoiceRepository,
             _mockCompositionRule,
-            _compositionConfiguration
+            _compositionConfiguration,
+            maxRepeatedNotes: 2,
+            maxLookAheadDepth: 2,
+            minLookAheadChordChoices: 2
         );
     }
 
@@ -117,6 +120,13 @@ internal sealed class CompositionStrategyTests
             new NoteChoice(Voice.Bass, NoteMotion.Oblique, 0)
         ]);
 
+        var otherGoodChordChoice = new ChordChoice([
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Alto, NoteMotion.Descending, 1),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Bass, NoteMotion.Descending, 1)
+        ]);
+
         var badChordChoice = new ChordChoice([
             new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 5),
             new NoteChoice(Voice.Alto, NoteMotion.Descending, 5),
@@ -124,9 +134,64 @@ internal sealed class CompositionStrategyTests
             new NoteChoice(Voice.Bass, NoteMotion.Descending, 5)
         ]);
 
-        _mockChordChoiceRepository.GetChordChoice(Arg.Any<BigInteger>()).Returns(goodChordChoice, badChordChoice);
+        var mockChordChoices = new List<ChordChoice>
+        {
+            goodChordChoice,
+            badChordChoice,
+            otherGoodChordChoice
+        };
 
-        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(true, false);
+        _mockChordChoiceRepository.Count.Returns(mockChordChoices.Count);
+
+        var mockChordChoiceRepositoryReturn = new List<ChordChoice>();
+
+        // Some fun times mocking here and below to account for recursion and look-ahead depth
+        foreach (var outerChordChoice in mockChordChoices)
+        {
+            mockChordChoiceRepositoryReturn.Add(outerChordChoice);
+
+            foreach (var innerChordChoice in mockChordChoices)
+            {
+                mockChordChoiceRepositoryReturn.Add(innerChordChoice);
+                mockChordChoiceRepositoryReturn.AddRange(mockChordChoices);
+            }
+        }
+
+        _mockChordChoiceRepository
+            .GetChordChoice(Arg.Any<BigInteger>())
+            .Returns(
+                mockChordChoiceRepositoryReturn[0],
+                mockChordChoiceRepositoryReturn.ToArray()[1..]
+            );
+
+        const bool goodChordChoiceResult = true;
+        const bool otherGoodChordChoiceResult = true;
+        const bool badChordChoiceResult = false;
+
+        var mockChordChoiceEvaluationResults = new List<bool>
+        {
+            goodChordChoiceResult,
+            badChordChoiceResult,
+            otherGoodChordChoiceResult
+        };
+
+        var mockCompositionRuleReturns = new List<bool>();
+
+        foreach (var outerChordChoiceEvaluationResult in mockChordChoiceEvaluationResults)
+        {
+            mockCompositionRuleReturns.Add(outerChordChoiceEvaluationResult);
+
+            foreach (var innerChordChoiceEvaluationResult in mockChordChoiceEvaluationResults)
+            {
+                mockCompositionRuleReturns.Add(innerChordChoiceEvaluationResult);
+                mockCompositionRuleReturns.AddRange(mockChordChoiceEvaluationResults);
+            }
+        }
+
+        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(
+            mockCompositionRuleReturns[0],
+            mockCompositionRuleReturns.ToArray()[1..]
+        );
 
         // act
         var possibleChordChoices = _compositionStrategy.GetPossibleChordChoices(precedingChords).ToList();
@@ -134,6 +199,9 @@ internal sealed class CompositionStrategyTests
         // Assert
         possibleChordChoices
             .Should()
-            .ContainSingle(chordChoice => chordChoice.Equals(goodChordChoice), "because the chord choice passed the composition rule");
+            .HaveCount(2)
+            .And.Contain(goodChordChoice)
+            .And.Contain(otherGoodChordChoice)
+            .And.NotContain(badChordChoice);
     }
 }
