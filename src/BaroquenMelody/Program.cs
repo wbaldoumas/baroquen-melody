@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Composers;
 using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Compositions.Ornamentation;
@@ -16,10 +17,10 @@ using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
 using System.Globalization;
 
+// proof of concept testing code...
 Console.WriteLine("Hit 'enter' to start composing...");
 Console.ReadLine();
 
-// proof of concept testing code...
 var phrasingConfiguration = new PhrasingConfiguration(
     PhraseLengths: [2, 4, 8],
     MaxPhraseRepetitions: 4,
@@ -36,9 +37,9 @@ var compositionConfiguration = new CompositionConfiguration(
         new(Voice.Bass, Notes.C2, Notes.C3)
     },
     phrasingConfiguration,
-    Scale.Parse("D dorian"),
+    BaroquenScale.Parse("C Minor"),
     Meter.FourFour,
-    100
+    25
 );
 
 var compositionRule = new AggregateCompositionRule(
@@ -59,8 +60,6 @@ var compositionStrategyFactory = new CompositionStrategyFactory(
 
 var compositionStrategy = compositionStrategyFactory.Create(compositionConfiguration);
 
-Console.WriteLine("Done creating composition strategy!");
-
 var compositionDecorator = new CompositionDecorator(
     new OrnamentationEngineBuilder(compositionConfiguration, new MusicalTimeSpanCalculator()).Build(),
     compositionConfiguration
@@ -77,9 +76,13 @@ var composer = new Composer(
 
 Console.WriteLine("Composing...");
 
+var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
 var composition = composer.Compose();
 
-Console.WriteLine("Done composing!");
+stopwatch.Stop();
+
+Console.WriteLine($"Done composing! Elapsed time: {stopwatch.Elapsed}.");
 Console.WriteLine("Creating MIDI file...");
 
 // just for testing purposes, we'll create a MIDI file with 3 tracks, one for each voice

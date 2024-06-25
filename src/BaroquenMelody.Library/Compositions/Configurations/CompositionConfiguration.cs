@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Enums;
+﻿using BaroquenMelody.Library.Compositions.Domain;
+using BaroquenMelody.Library.Compositions.Enums;
 using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Configurations;
@@ -15,7 +16,7 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 internal sealed record CompositionConfiguration(
     ISet<VoiceConfiguration> VoiceConfigurations,
     PhrasingConfiguration PhrasingConfiguration,
-    Scale Scale,
+    BaroquenScale Scale,
     Meter Meter,
     int CompositionLength,
     int CompositionContextSize = 8)
@@ -32,7 +33,7 @@ internal sealed record CompositionConfiguration(
 
     public CompositionConfiguration(
         ISet<VoiceConfiguration> VoiceConfigurations,
-        Scale Scale,
+        BaroquenScale Scale,
         Meter Meter,
         int CompositionLength,
         int CompositionContextSize = 4)

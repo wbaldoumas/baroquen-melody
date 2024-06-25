@@ -24,7 +24,7 @@ internal sealed class EnsureVoiceRangeTests
                 new(Voice.Tenor, Notes.C2, Notes.C3),
                 new(Voice.Bass, Notes.G1, Notes.G2)
             },
-            Scale.Parse("C Major"),
+            BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             CompositionLength: 100
         );

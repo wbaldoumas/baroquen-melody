@@ -34,7 +34,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildSixteenthNoteRunEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(),
+            new WantsToOrnament(90),
             new HasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, SixteenthNoteRunProcessor.Interval)
         )

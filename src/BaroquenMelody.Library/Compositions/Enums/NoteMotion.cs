@@ -3,7 +3,7 @@
 /// <summary>
 ///   Indicates the motion taken to arrive at a given note from the previous note.
 /// </summary>
-internal enum NoteMotion : byte
+public enum NoteMotion : byte
 {
     /// <summary>
     ///     Indicates that the note is arrived at by moving up from the previous note.
