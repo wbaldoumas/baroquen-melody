@@ -1,9 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Extensions;
 using FluentAssertions;
-using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -64,7 +64,7 @@ internal sealed class TrioChordChoiceRepositoryTests
                 new(Voice.Alto, 45.ToNote(), 80.ToNote()),
                 new(Voice.Tenor, 35.ToNote(), 70.ToNote())
             },
-            Scale.Parse("C Major"),
+            BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             CompositionLength: 100
         );
@@ -106,7 +106,7 @@ internal sealed class TrioChordChoiceRepositoryTests
                 new(Voice.Tenor, 35.ToNote(), 70.ToNote()),
                 new(Voice.Bass, 25.ToNote(), 60.ToNote())
             },
-            Scale.Parse("C Major"),
+            BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             CompositionLength: 100
         );
@@ -132,7 +132,7 @@ internal sealed class TrioChordChoiceRepositoryTests
                 new(Voice.Alto, 45.ToNote(), 80.ToNote()),
                 new(Voice.Tenor, 35.ToNote(), 70.ToNote())
             },
-            Scale.Parse("C Major"),
+            BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             CompositionLength: 100
         );

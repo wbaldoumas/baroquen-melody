@@ -22,9 +22,9 @@ internal sealed class CompositionStrategy(
     /// </summary>
     private readonly HashSet<NoteName> validStartingNoteNames =
     [
-        compositionConfiguration.Scale.GetDegree(ScaleDegree.Tonic),
-        compositionConfiguration.Scale.GetDegree(ScaleDegree.Mediant),
-        compositionConfiguration.Scale.GetDegree(ScaleDegree.Dominant)
+        compositionConfiguration.Scale.Raw.GetDegree(ScaleDegree.Tonic),
+        compositionConfiguration.Scale.Raw.GetDegree(ScaleDegree.Mediant),
+        compositionConfiguration.Scale.Raw.GetDegree(ScaleDegree.Dominant)
     ];
 
     public IReadOnlyList<ChordChoice> GetPossibleChordChoices(IReadOnlyList<BaroquenChord> precedingChords)

@@ -1,6 +1,5 @@
 ﻿using Atrea.PolicyEngine.Policies.Input;
 using BaroquenMelody.Library.Compositions.Configurations;
-using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies;
 

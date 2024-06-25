@@ -25,7 +25,7 @@ internal sealed class IsApplicableIntervalTests
                 new(Voice.Soprano, Notes.A4, Notes.A5),
                 new(Voice.Alto, Notes.C3, Notes.C4)
             },
-            Scale.Parse("C Major"),
+            BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             CompositionLength: 100
         );

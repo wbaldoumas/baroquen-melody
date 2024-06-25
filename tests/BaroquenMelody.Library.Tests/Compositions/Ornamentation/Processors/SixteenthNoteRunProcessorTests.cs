@@ -26,7 +26,7 @@ internal sealed class SixteenthNoteRunProcessorTests
                 new(Voice.Soprano, Notes.C3, Notes.C5),
                 new(Voice.Alto, Notes.C2, Notes.C4)
             },
-            Scale.Parse("C Major"),
+            BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             CompositionLength: 100
         );

@@ -1,7 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Extensions;
 
@@ -10,12 +9,12 @@ namespace BaroquenMelody.Library.Compositions.Extensions;
 /// </summary>
 internal static class BaroquenNoteExtensions
 {
-    public static BaroquenNote ApplyNoteChoice(this BaroquenNote note, Scale scale, NoteChoice noteChoice)
+    public static BaroquenNote ApplyNoteChoice(this BaroquenNote note, BaroquenScale scale, NoteChoice noteChoice)
     {
         var nextNote = noteChoice.Motion switch
         {
-            NoteMotion.Ascending => scale.GetAscendingNotes(note.Raw).ElementAt(noteChoice.ScaleStepChange),
-            NoteMotion.Descending => scale.GetDescendingNotes(note.Raw).ElementAt(noteChoice.ScaleStepChange),
+            NoteMotion.Ascending => scale.GetAscendingNotes(note.Raw)[noteChoice.ScaleStepChange],
+            NoteMotion.Descending => scale.GetDescendingNotes(note.Raw)[noteChoice.ScaleStepChange],
             NoteMotion.Oblique => note.Raw,
             _ => throw new ArgumentOutOfRangeException(nameof(noteChoice))
         };

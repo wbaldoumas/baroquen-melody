@@ -58,7 +58,7 @@ internal sealed class CompositionStrategyTests
                 new(Voice.Tenor, MinTenorPitch.ToNote(), MaxTenorPitch.ToNote()),
                 new(Voice.Bass, MinBassPitch.ToNote(), MaxBassPitch.ToNote())
             },
-            Scale.Parse("C Major"),
+            new BaroquenScale(Scale.Parse("C Major")),
             Meter.FourFour,
             CompositionLength: 100
         );

@@ -46,7 +46,7 @@ internal sealed class ComposerTests
                 new(Voice.Soprano, MinSopranoNote, MaxSopranoNote),
                 new(Voice.Alto, MinAltoNote, MaxAltoNote)
             },
-            Scale.Parse("C Major"),
+            BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             CompositionLength: 100
         );

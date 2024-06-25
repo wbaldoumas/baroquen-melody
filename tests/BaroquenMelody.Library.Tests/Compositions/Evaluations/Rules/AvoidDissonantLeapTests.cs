@@ -32,7 +32,7 @@ internal sealed class AvoidDissonantLeapsTests
                 new(Voice.Bass, Notes.C2, Notes.C3)
             },
             phrasingConfiguration,
-            Scale.Parse("C Major"),
+            BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             100
         );

@@ -16,7 +16,7 @@ internal sealed class BaroquenNoteExtensionsTests
     {
         // arrange
         var note = new BaroquenNote(Voice.Soprano, Notes.A4);
-        var scale = Scale.Parse("C Major");
+        var scale = BaroquenScale.Parse("C Major");
         var noteChoice = new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 2);
 
         // act
@@ -31,7 +31,7 @@ internal sealed class BaroquenNoteExtensionsTests
     {
         // arrange
         var note = new BaroquenNote(Voice.Soprano, Notes.C5);
-        var scale = Scale.Parse("C Major");
+        var scale = BaroquenScale.Parse("C Major");
         var noteChoice = new NoteChoice(Voice.Soprano, NoteMotion.Descending, 2);
 
         // act
@@ -46,7 +46,7 @@ internal sealed class BaroquenNoteExtensionsTests
     {
         // arrange
         var note = new BaroquenNote(Voice.Soprano, Notes.C5);
-        var scale = Scale.Parse("C Major");
+        var scale = BaroquenScale.Parse("C Major");
         var noteChoice = new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0);
 
         // act
@@ -61,7 +61,7 @@ internal sealed class BaroquenNoteExtensionsTests
     {
         // arrange
         var note = new BaroquenNote(Voice.Soprano, Notes.C5);
-        var scale = Scale.Parse("C Major");
+        var scale = BaroquenScale.Parse("C Major");
         var noteChoice = new NoteChoice(Voice.Soprano, (NoteMotion)99, 0);
 
         // act
