@@ -6,7 +6,11 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 
-internal class PassingToneProcessor(IMusicalTimeSpanCalculator musicalTimeSpanCalculator, CompositionConfiguration configuration) : IProcessor<OrnamentationItem>
+internal sealed class PassingToneProcessor(
+    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
+    CompositionConfiguration configuration,
+    OrnamentationType ornamentationType
+) : IProcessor<OrnamentationItem>
 {
     public const int Interval = 2;
 
@@ -23,11 +27,11 @@ internal class PassingToneProcessor(IMusicalTimeSpanCalculator musicalTimeSpanCa
         var passingToneScaleIndex = currentNoteScaleIndex > nextNoteScaleIndex ? currentNoteScaleIndex - 1 : currentNoteScaleIndex + 1;
         var passingTone = notes[passingToneScaleIndex];
 
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.PassingTone, configuration.Meter);
+        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, configuration.Meter);
 
         currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, passingTone)
         {
-            Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.PassingTone, configuration.Meter)
+            Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, configuration.Meter)
         });
     }
 }

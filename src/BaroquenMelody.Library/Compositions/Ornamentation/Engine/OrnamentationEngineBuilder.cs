@@ -3,6 +3,7 @@ using Atrea.PolicyEngine.Builders;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using System.Diagnostics.CodeAnalysis;
 
@@ -15,6 +16,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         .WithoutInputPolicies()
         .WithProcessors(
             BuildPassingToneEngine(),
+            BuildDelayedPassingToneEngine(),
             BuildSixteenthNoteRunEngine()
         )
         .WithoutOutputPolicies()
@@ -27,7 +29,19 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new IsApplicableInterval(compositionConfiguration, PassingToneProcessor.Interval)
         )
         .WithProcessors(
-            new PassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration)
+            new PassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.PassingTone)
+        )
+        .WithoutOutputPolicies()
+        .Build();
+
+    private IPolicyEngine<OrnamentationItem> BuildDelayedPassingToneEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+        .WithInputPolicies(
+            new WantsToOrnament(),
+            new HasNoOrnamentation(),
+            new IsApplicableInterval(compositionConfiguration, PassingToneProcessor.Interval)
+        )
+        .WithProcessors(
+            new PassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.DelayedPassingTone)
         )
         .WithoutOutputPolicies()
         .Build();

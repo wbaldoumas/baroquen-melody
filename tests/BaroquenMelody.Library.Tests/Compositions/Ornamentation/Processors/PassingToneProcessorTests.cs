@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using FluentAssertions;
@@ -31,7 +32,7 @@ internal sealed class PassingToneProcessorTests
             CompositionLength: 100
         );
 
-        _processor = new PassingToneProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
+        _processor = new PassingToneProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, OrnamentationType.PassingTone);
     }
 
     [Test]
