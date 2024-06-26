@@ -18,6 +18,6 @@ internal sealed class AvoidRepetition : ICompositionRule
 
         return nextChord.Notes
             .Select(note => note.Voice)
-            .All(voice => precedingChordsToCheck.Any(precedingChord => precedingChord[voice].Raw != nextChord[voice].Raw));
+            .All(voice => precedingChordsToCheck.Exists(precedingChord => precedingChord[voice].Raw != nextChord[voice].Raw));
     }
 }
