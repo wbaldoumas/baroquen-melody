@@ -40,6 +40,8 @@ internal sealed class MusicalTimeSpanCalculatorTests
 
             yield return new TestCaseData(OrnamentationType.SixteenthNoteRun, Meter.FourFour, MusicalTimeSpan.Sixteenth, MusicalTimeSpan.Sixteenth);
 
+            yield return new TestCaseData(OrnamentationType.DelayedPassingTone, Meter.FourFour, MusicalTimeSpan.Eighth.Dotted(1), MusicalTimeSpan.Sixteenth);
+
             // more test cases to come as more ornamentation types and meters are added...
         }
     }

@@ -10,5 +10,10 @@ internal enum OrnamentationType
     /// <summary>
     ///     A sixteenth note run between two notes.
     /// </summary>
-    SixteenthNoteRun
+    SixteenthNoteRun,
+
+    /// <summary>
+    ///    A delayed passing tone between two notes.
+    /// </summary>
+    DelayedPassingTone
 }
