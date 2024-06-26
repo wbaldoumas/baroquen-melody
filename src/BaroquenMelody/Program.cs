@@ -16,6 +16,7 @@ using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
 using System.Globalization;
+using Interval = BaroquenMelody.Library.Compositions.Enums.Interval;
 
 // proof of concept testing code...
 Console.WriteLine("Hit 'enter' to start composing...");
@@ -31,13 +32,13 @@ var phrasingConfiguration = new PhrasingConfiguration(
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
-        new(Voice.Soprano, Notes.G5, Notes.C6),
+        new(Voice.Soprano, Notes.G5, Notes.G6),
         new(Voice.Alto, Notes.C4, Notes.G5),
         new(Voice.Tenor, Notes.C3, Notes.C4),
-        new(Voice.Bass, Notes.C2, Notes.C3)
+        new(Voice.Bass, Notes.G1, Notes.C3)
     },
     phrasingConfiguration,
-    BaroquenScale.Parse("C Minor"),
+    BaroquenScale.Parse("D Dorian"),
     Meter.FourFour,
     25
 );
@@ -47,7 +48,10 @@ var compositionRule = new AggregateCompositionRule(
         new EnsureVoiceRange(compositionConfiguration),
         new AvoidDissonance(),
         new AvoidDissonantLeaps(compositionConfiguration),
-        new AvoidRepetition()
+        new AvoidRepetition(),
+        new AvoidParallelIntervals(Interval.PerfectFifth),
+        new AvoidParallelIntervals(Interval.PerfectFourth),
+        new AvoidParallelIntervals(Interval.Unison)
     ]
 );
 
