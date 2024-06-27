@@ -1,6 +1,6 @@
 ﻿namespace BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 
-internal enum OrnamentationType
+internal enum OrnamentationType : byte
 {
     /// <summary>
     ///     A passing tone between two notes.
@@ -15,5 +15,10 @@ internal enum OrnamentationType
     /// <summary>
     ///    A delayed passing tone between two notes.
     /// </summary>
-    DelayedPassingTone
+    DelayedPassingTone,
+
+    /// <summary>
+    ///    A turn between two notes.
+    /// </summary>
+    Turn
 }

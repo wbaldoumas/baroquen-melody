@@ -42,13 +42,15 @@ internal sealed class MusicalTimeSpanCalculatorTests
 
             yield return new TestCaseData(OrnamentationType.DelayedPassingTone, Meter.FourFour, MusicalTimeSpan.Eighth.Dotted(1), MusicalTimeSpan.Sixteenth);
 
+            yield return new TestCaseData(OrnamentationType.Turn, Meter.FourFour, MusicalTimeSpan.Sixteenth, MusicalTimeSpan.Sixteenth);
+
             // more test cases to come as more ornamentation types and meters are added...
         }
     }
 
     [Test]
     [TestCase(OrnamentationType.PassingTone, (Meter)9001)]
-    [TestCase((OrnamentationType)9001, Meter.FourFour)]
+    [TestCase((OrnamentationType)250, Meter.FourFour)]
     public void WhenOrnamentationOrMeterIsOutOfRange_ThenArgumentOutOfRangeExceptionIsThrown(OrnamentationType ornamentationType, Meter meter)
     {
         // act
