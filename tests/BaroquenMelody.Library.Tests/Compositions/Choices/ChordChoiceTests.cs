@@ -17,6 +17,8 @@ internal sealed class ChordChoiceTests
         var note4 = new NoteChoice(Voice.Bass, NoteMotion.Ascending, 5);
 
         var chordChoiceA = new ChordChoice([note1, note2, note3, note4]);
+
+        // ReSharper disable once InlineTemporaryVariable
         var chordChoiceB = chordChoiceA;
 
         chordChoiceA.Should().BeEquivalentTo(chordChoiceB);

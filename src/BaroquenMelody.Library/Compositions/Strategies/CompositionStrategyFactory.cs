@@ -1,6 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Evaluations.Rules;
+using BaroquenMelody.Library.Compositions.Rules;
 
 namespace BaroquenMelody.Library.Compositions.Strategies;
 

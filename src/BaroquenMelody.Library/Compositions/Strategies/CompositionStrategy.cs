@@ -1,8 +1,8 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Infrastructure.Random;
 using Melanchall.DryWetMidi.MusicTheory;
 
@@ -42,9 +42,9 @@ internal sealed class CompositionStrategy(
         foreach (var voiceConfiguration in compositionConfiguration.VoiceConfigurations)
         {
             var rawNote = ChooseStartingNote(voiceConfiguration, rawNotes, validStartingNoteNames, ref startingNoteCounts);
-            var contextualizedNote = new BaroquenNote(voiceConfiguration.Voice, rawNote);
+            var baroquenNote = new BaroquenNote(voiceConfiguration.Voice, rawNote);
 
-            notes.Add(contextualizedNote);
+            notes.Add(baroquenNote);
         }
 
         return new BaroquenChord(notes);

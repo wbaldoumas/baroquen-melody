@@ -2,8 +2,8 @@
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Strategies;
 using FluentAssertions;
 using NSubstitute;

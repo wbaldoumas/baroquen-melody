@@ -2,7 +2,7 @@
 using BaroquenMelody.Library.Compositions.Domain;
 using Melanchall.DryWetMidi.MusicTheory;
 
-namespace BaroquenMelody.Library.Compositions.Evaluations.Rules;
+namespace BaroquenMelody.Library.Compositions.Rules;
 
 /// <inheritdoc cref="ICompositionRule"/>
 internal sealed class HandleAscendingSeventh(CompositionConfiguration compositionConfiguration) : ICompositionRule
@@ -21,6 +21,7 @@ internal sealed class HandleAscendingSeventh(CompositionConfiguration compositio
         var nextToLastChord = precedingChords[^2];
         var lastChord = precedingChords[^1];
 
+        // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (var seventhNote in lastChord.Notes.Where(note => note.Raw.NoteName == _seventhScaleDegreeNoteName))
         {
             var nextToLastNote = nextToLastChord[seventhNote.Voice];

@@ -1,6 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 
-namespace BaroquenMelody.Library.Compositions.Evaluations.Rules;
+namespace BaroquenMelody.Library.Compositions.Rules;
 
 /// <inheritdoc cref="ICompositionRule"/>
 internal sealed class AggregateCompositionRule(IEnumerable<ICompositionRule> compositionRules) : ICompositionRule

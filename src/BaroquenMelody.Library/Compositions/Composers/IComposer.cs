@@ -11,5 +11,6 @@ internal interface IComposer
     ///    Composes a <see cref="Composition"/>.
     /// </summary>
     /// <returns> The composed <see cref="Composition"/>. </returns>
+    // ReSharper disable once UnusedMemberInSuper.Global
     Composition Compose();
 }

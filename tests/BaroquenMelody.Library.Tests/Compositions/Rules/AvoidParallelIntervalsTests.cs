@@ -1,12 +1,12 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Evaluations.Rules;
+using BaroquenMelody.Library.Compositions.Rules;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 using Interval = BaroquenMelody.Library.Compositions.Enums.Interval;
 
-namespace BaroquenMelody.Library.Tests.Compositions.Evaluations.Rules;
+namespace BaroquenMelody.Library.Tests.Compositions.Rules;
 
 [TestFixture]
 internal sealed class AvoidParallelIntervalsTests

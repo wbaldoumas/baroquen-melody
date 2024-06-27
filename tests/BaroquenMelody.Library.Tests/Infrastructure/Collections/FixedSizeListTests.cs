@@ -113,6 +113,7 @@ internal sealed class FixedSizeListTests
 
         var items = new List<int>();
 
+        // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (int item in (System.Collections.IEnumerable)list)
         {
             items.Add(item);

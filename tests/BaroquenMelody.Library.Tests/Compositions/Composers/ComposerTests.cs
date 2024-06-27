@@ -7,7 +7,6 @@ using BaroquenMelody.Library.Compositions.Enums.Extensions;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Strategies;
-using BaroquenMelody.Library.Tests.Compositions.Enums.Extensions;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
