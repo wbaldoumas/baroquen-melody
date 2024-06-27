@@ -15,6 +15,11 @@ internal sealed class BaroquenChord(IEnumerable<BaroquenNote> notes) : IEquatabl
 
     private readonly FrozenDictionary<Voice, BaroquenNote> _notes = notes.ToFrozenDictionary(note => note.Voice);
 
+    /// <summary>
+    ///     Determines if the <see cref="BaroquenChord"/> is equal to another <see cref="BaroquenChord"/>.
+    /// </summary>
+    /// <param name="other">The other <see cref="BaroquenChord"/> to compare against.</param>
+    /// <returns>Whether the <see cref="BaroquenChord"/> is equal to the other <see cref="BaroquenChord"/>.</returns>
     public bool Equals(BaroquenChord? other)
     {
         if (other is null)
@@ -25,6 +30,11 @@ internal sealed class BaroquenChord(IEnumerable<BaroquenNote> notes) : IEquatabl
         return ReferenceEquals(this, other) || Notes.SequenceEqual(other.Notes);
     }
 
+    /// <summary>
+    ///     Determines if the <see cref="BaroquenChord"/> is equal to another object.
+    /// </summary>
+    /// <param name="obj">The other object to compare against.</param>
+    /// <returns>Whether the <see cref="BaroquenChord"/> is equal to the other object.</returns>
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || (obj is BaroquenChord other && Equals(other));
 
     /// <summary>
@@ -35,6 +45,12 @@ internal sealed class BaroquenChord(IEnumerable<BaroquenNote> notes) : IEquatabl
     public override int GetHashCode() => throw new InvalidOperationException($"{nameof(BaroquenChord)} cannot be used as a hash key since it has mutable properties.");
 #pragma warning restore SA1615
 
+    /// <summary>
+    ///     Determines if the <see cref="BaroquenChord"/> is equal to another <see cref="BaroquenChord"/>.
+    /// </summary>
+    /// <param name="chord">The first <see cref="BaroquenChord"/> to compare.</param>
+    /// <param name="otherChord">The second <see cref="BaroquenChord"/> to compare.</param>
+    /// <returns>Whether the <see cref="BaroquenChord"/> is equal to the other <see cref="BaroquenChord"/>.</returns>
     public static bool operator ==(BaroquenChord? chord, BaroquenChord? otherChord)
     {
         if (ReferenceEquals(chord, otherChord))
@@ -50,5 +66,11 @@ internal sealed class BaroquenChord(IEnumerable<BaroquenNote> notes) : IEquatabl
         return chord.Equals(otherChord);
     }
 
+    /// <summary>
+    ///     Determines if the <see cref="BaroquenChord"/> is not equal to another <see cref="BaroquenChord"/>.
+    /// </summary>
+    /// <param name="chord">The first <see cref="BaroquenChord"/> to compare.</param>
+    /// <param name="otherChord">The second <see cref="BaroquenChord"/> to compare.</param>
+    /// <returns>Whether the <see cref="BaroquenChord"/> is not equal to the other <see cref="BaroquenChord"/>.</returns>
     public static bool operator !=(BaroquenChord? chord, BaroquenChord? otherChord) => !(chord == otherChord);
 }
