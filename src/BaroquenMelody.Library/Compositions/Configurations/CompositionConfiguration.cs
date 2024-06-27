@@ -21,15 +21,17 @@ internal sealed record CompositionConfiguration(
     int CompositionLength,
     int CompositionContextSize = 8)
 {
+    public IDictionary<Voice, VoiceConfiguration> VoiceConfigurationsByVoice => VoiceConfigurations.ToDictionary(
+        voiceConfiguration => voiceConfiguration.Voice
+    );
+
     /// <summary>
     ///     Determine if the given note is within the range of the given voice for the composition.
     /// </summary>
     /// <param name="voice">The voice to check the note against.</param>
     /// <param name="note">The note to check against the voice.</param>
     /// <returns>Whether the note is within the range of the voice.</returns>
-    public bool IsNoteInVoiceRange(Voice voice, Note note) => VoiceConfigurations.First(
-        voiceConfiguration => voiceConfiguration.Voice == voice
-    ).IsNoteWithinVoiceRange(note);
+    public bool IsNoteInVoiceRange(Voice voice, Note note) => VoiceConfigurationsByVoice[voice].IsNoteWithinVoiceRange(note);
 
     public CompositionConfiguration(
         ISet<VoiceConfiguration> VoiceConfigurations,

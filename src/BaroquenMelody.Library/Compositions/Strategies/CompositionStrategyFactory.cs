@@ -12,6 +12,7 @@ internal sealed class CompositionStrategyFactory(
     public ICompositionStrategy Create(CompositionConfiguration compositionConfiguration) => new CompositionStrategy(
         chordChoiceRepositoryFactory.Create(compositionConfiguration),
         compositionRule,
-        compositionConfiguration
+        compositionConfiguration,
+        maxLookAheadDepth: 1
     );
 }

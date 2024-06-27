@@ -32,10 +32,10 @@ var phrasingConfiguration = new PhrasingConfiguration(
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
-        new(Voice.Soprano, Notes.G5, Notes.G6),
-        new(Voice.Alto, Notes.C4, Notes.G5),
-        new(Voice.Tenor, Notes.C3, Notes.C4),
-        new(Voice.Bass, Notes.G1, Notes.C3)
+        new(Voice.Soprano, Notes.C5, Notes.C6),
+        new(Voice.Alto, Notes.C4, Notes.C5),
+        new(Voice.Tenor, Notes.C2, Notes.C3),
+        new(Voice.Bass, Notes.C1, Notes.C2)
     },
     phrasingConfiguration,
     BaroquenScale.Parse("D Dorian"),
@@ -45,6 +45,7 @@ var compositionConfiguration = new CompositionConfiguration(
 
 var compositionRule = new AggregateCompositionRule(
     [
+        new HandleAscendingSeventh(compositionConfiguration),
         new EnsureVoiceRange(compositionConfiguration),
         new AvoidDissonance(),
         new AvoidDissonantLeaps(compositionConfiguration),
@@ -89,15 +90,15 @@ stopwatch.Stop();
 Console.WriteLine($"Done composing! Elapsed time: {stopwatch.Elapsed}.");
 Console.WriteLine("Creating MIDI file...");
 
-// just for testing purposes, we'll create a MIDI file with 3 tracks, one for each voice
+// just for testing purposes, we'll create a MIDI file with 4 tracks, one for each voice
 var tempoMap = TempoMap.Create(Tempo.FromBeatsPerMinute(60));
 
 var patternBuildersByVoice = new Dictionary<Voice, PatternBuilder>
 {
-    { Voice.Soprano, new PatternBuilder().ProgramChange(GeneralMidiProgram.Harpsichord) },
-    { Voice.Alto, new PatternBuilder().ProgramChange(GeneralMidiProgram.Harpsichord) },
-    { Voice.Tenor, new PatternBuilder().ProgramChange(GeneralMidiProgram.Harpsichord) },
-    { Voice.Bass, new PatternBuilder().ProgramChange(GeneralMidiProgram.Harpsichord) }
+    { Voice.Soprano, new PatternBuilder().ProgramChange(GeneralMidiProgram.ChurchOrgan) },
+    { Voice.Alto, new PatternBuilder().ProgramChange(GeneralMidiProgram.ChurchOrgan) },
+    { Voice.Tenor, new PatternBuilder().ProgramChange(GeneralMidiProgram.ChurchOrgan) },
+    { Voice.Bass, new PatternBuilder().ProgramChange(GeneralMidiProgram.ChurchOrgan) }
 };
 
 // Use pattern builders to add notes to the pattern for each voice...
@@ -146,6 +147,8 @@ var midiFile = new MidiFile(
     patternBuildersByVoice[Voice.Tenor].Build().ToTrackChunk(tempoMap, (FourBitNumber)1),
     patternBuildersByVoice[Voice.Bass].Build().ToTrackChunk(tempoMap, (FourBitNumber)1)
 );
+
+midiFile.ReplaceTempoMap(tempoMap);
 
 // save the MIDI file with a timestamp in the filename to avoid overwriting on subsequent test runs...
 var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
