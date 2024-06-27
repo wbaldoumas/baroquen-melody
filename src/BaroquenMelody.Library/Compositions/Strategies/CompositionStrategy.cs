@@ -37,15 +37,10 @@ internal sealed class CompositionStrategy(
     {
         var startingNoteCounts = validStartingNoteNames.ToDictionary(noteName => noteName, _ => 0);
         var rawNotes = compositionConfiguration.Scale.GetNotes().ToList();
-        var notes = new HashSet<BaroquenNote>();
 
-        foreach (var voiceConfiguration in compositionConfiguration.VoiceConfigurations)
-        {
-            var rawNote = ChooseStartingNote(voiceConfiguration, rawNotes, validStartingNoteNames, ref startingNoteCounts);
-            var baroquenNote = new BaroquenNote(voiceConfiguration.Voice, rawNote);
-
-            notes.Add(baroquenNote);
-        }
+        var notes = compositionConfiguration.VoiceConfigurations
+            .Select(voiceConfiguration => new BaroquenNote(voiceConfiguration.Voice, ChooseStartingNote(voiceConfiguration, rawNotes, validStartingNoteNames, ref startingNoteCounts)))
+            .ToList();
 
         return new BaroquenChord(notes);
     }
