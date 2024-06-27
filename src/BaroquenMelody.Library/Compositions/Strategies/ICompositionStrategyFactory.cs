@@ -9,5 +9,6 @@ internal interface ICompositionStrategyFactory
     /// </summary>
     /// <param name="compositionConfiguration"> The composition configuration. </param>
     /// <returns> A configured composition strategy. </returns>
+    // ReSharper disable once UnusedMemberInSuper.Global
     ICompositionStrategy Create(CompositionConfiguration compositionConfiguration);
 }

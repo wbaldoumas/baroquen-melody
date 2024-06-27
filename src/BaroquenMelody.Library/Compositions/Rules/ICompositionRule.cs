@@ -1,6 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 
-namespace BaroquenMelody.Library.Compositions.Evaluations.Rules;
+namespace BaroquenMelody.Library.Compositions.Rules;
 
 /// <summary>
 ///     A composition rule to be checked against a chord progression in a composition.

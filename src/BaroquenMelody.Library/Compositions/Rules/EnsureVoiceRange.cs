@@ -1,7 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 
-namespace BaroquenMelody.Library.Compositions.Evaluations.Rules;
+namespace BaroquenMelody.Library.Compositions.Rules;
 
 internal sealed class EnsureVoiceRange(CompositionConfiguration configuration) : ICompositionRule
 {

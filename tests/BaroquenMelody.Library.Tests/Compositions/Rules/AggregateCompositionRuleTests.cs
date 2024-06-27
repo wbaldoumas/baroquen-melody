@@ -1,9 +1,9 @@
-﻿using BaroquenMelody.Library.Compositions.Evaluations.Rules;
+﻿using BaroquenMelody.Library.Compositions.Rules;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace BaroquenMelody.Library.Tests.Compositions.Evaluations.Rules;
+namespace BaroquenMelody.Library.Tests.Compositions.Rules;
 
 [TestFixture]
 internal sealed class AggregateCompositionRuleTests

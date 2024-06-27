@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using JetBrains.Annotations;
+using System.Collections;
 
 namespace BaroquenMelody.Library.Infrastructure.Collections;
 
@@ -36,8 +37,10 @@ internal sealed class FixedSizeList<T> : IFixedSizeList<T>
         _items.Add(item);
     }
 
+    [MustDisposeResource]
     public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();
 
+    [MustDisposeResource]
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public int Count => _items.Count;

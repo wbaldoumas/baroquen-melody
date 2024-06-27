@@ -2,8 +2,8 @@
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Evaluations.Rules;
 using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Strategies;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -85,9 +85,9 @@ internal sealed class CompositionStrategyTests
             // since there are four voices but only three unique notes in a C Major chord, there should be at least one voice with a repeated note
             chord.Notes.GroupBy(note => note.Raw.NoteName).Should().HaveCount(3).And.OnlyContain(grouping => grouping.Count() <= 2);
 
-            foreach (var contextualizedNote in chord.Notes)
+            foreach (var baroquenNote in chord.Notes)
             {
-                contextualizedNote.Raw.NoteName.Should().BeOneOf(
+                baroquenNote.Raw.NoteName.Should().BeOneOf(
                     NoteName.C,
                     NoteName.E,
                     NoteName.G
