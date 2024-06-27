@@ -11,11 +11,11 @@ internal sealed class BaroquenChordTests
 {
     [Test]
     [TestCaseSource(nameof(TestCases))]
-    public void Equality_methods_return_expected_results(BaroquenChord chord, BaroquenChord? otherChord, bool expectedEqualityResult)
+    public void Equality_methods_return_expected_results(BaroquenChord? chord, BaroquenChord? otherChord, bool expectedEqualityResult)
     {
         // act + assert
-        chord.Equals(otherChord).Should().Be(expectedEqualityResult);
-        chord.Equals((object?)otherChord).Should().Be(expectedEqualityResult);
+        chord?.Equals(otherChord).Should().Be(expectedEqualityResult);
+        chord?.Equals((object?)otherChord).Should().Be(expectedEqualityResult);
         (chord == otherChord).Should().Be(expectedEqualityResult);
         (chord != otherChord).Should().Be(!expectedEqualityResult);
     }
@@ -66,6 +66,8 @@ internal sealed class BaroquenChordTests
             yield return new TestCaseData(cMajor, cMajorWithOrnamentation, false).SetName("Chords with different ornamentations are not equal");
 
             yield return new TestCaseData(cMajor, nullChord, false).SetName("Null chord is not equal to any chord");
+
+            yield return new TestCaseData(nullChord, cMajor, false).SetName("Null chord is not equal to any chord");
         }
     }
 }

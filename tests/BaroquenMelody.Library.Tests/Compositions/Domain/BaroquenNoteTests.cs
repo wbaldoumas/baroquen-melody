@@ -11,11 +11,11 @@ internal sealed class BaroquenNoteTests
 {
     [Test]
     [TestCaseSource(nameof(TestCases))]
-    public void Equality_methods_return_expected_results(BaroquenNote note, BaroquenNote? otherNote, bool expectedEqualityResult)
+    public void Equality_methods_return_expected_results(BaroquenNote? note, BaroquenNote? otherNote, bool expectedEqualityResult)
     {
         // act + assert
-        note.Equals(otherNote).Should().Be(expectedEqualityResult);
-        note.Equals((object?)otherNote).Should().Be(expectedEqualityResult);
+        note?.Equals(otherNote).Should().Be(expectedEqualityResult);
+        note?.Equals((object?)otherNote).Should().Be(expectedEqualityResult);
         (note == otherNote).Should().Be(expectedEqualityResult);
         (note != otherNote).Should().Be(!expectedEqualityResult);
     }
@@ -67,6 +67,8 @@ internal sealed class BaroquenNoteTests
             yield return new TestCaseData(note, noteWithOrnamentation, false).SetName("Notes with different ornamentations are not equal");
 
             yield return new TestCaseData(note, nullNote, false).SetName("Null note is not equal to any note");
+
+            yield return new TestCaseData(nullNote, note, false).SetName("Null note is not equal to any note");
         }
     }
 }
