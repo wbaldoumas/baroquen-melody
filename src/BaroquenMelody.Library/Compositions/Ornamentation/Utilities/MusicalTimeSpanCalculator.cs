@@ -11,6 +11,7 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.PassingTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.SixteenthNoteRun when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DelayedPassingTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth.Dotted(1),
+        OrnamentationType.Turn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, null)
     };
 
@@ -19,6 +20,7 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.PassingTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.SixteenthNoteRun when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DelayedPassingTone when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Turn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, null)
     };
 }
