@@ -21,7 +21,7 @@ internal sealed class AvoidDissonantLeaps(CompositionConfiguration compositionCo
 
     private bool IsDissonantLeap(BaroquenChord lastChord, BaroquenChord nextChord)
     {
-        var notes = compositionConfiguration.Scale.GetNotes().ToList();
+        var notes = compositionConfiguration.Scale.GetNotes();
 
         return (
             from note in lastChord.Notes

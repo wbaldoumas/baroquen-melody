@@ -8,6 +8,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Engine;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Rules;
+using BaroquenMelody.Library.Compositions.Rules.Validators;
 using BaroquenMelody.Library.Compositions.Strategies;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Composing;
@@ -46,10 +47,12 @@ var compositionConfiguration = new CompositionConfiguration(
 var compositionRule = new AggregateCompositionRule(
     [
         new HandleAscendingSeventh(compositionConfiguration),
-        new EnsureVoiceRange(compositionConfiguration),
         new AvoidDissonance(),
+        new EnsureVoiceRange(compositionConfiguration),
         new AvoidDissonantLeaps(compositionConfiguration),
         new AvoidRepetition(),
+        new HandleLeap(compositionConfiguration, new AscendingLeapResolutionValidator()),
+        new HandleLeap(compositionConfiguration, new DescendingLeapResolutionValidator()),
         new AvoidParallelIntervals(Interval.PerfectFifth),
         new AvoidParallelIntervals(Interval.PerfectFourth),
         new AvoidParallelIntervals(Interval.Unison)
