@@ -88,6 +88,7 @@ internal sealed class Composer(
         var phrasedComposition = new Composition(phrasedMeasures);
 
         compositionDecorator.Decorate(phrasedComposition);
+        compositionDecorator.ApplySustain(phrasedComposition);
 
         return phrasedComposition;
     }

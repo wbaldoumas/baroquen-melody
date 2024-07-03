@@ -5,6 +5,7 @@ using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Rules;
@@ -25,22 +26,22 @@ Console.ReadLine();
 var phrasingConfiguration = new PhrasingConfiguration(
     PhraseLengths: [2, 4, 8],
     MaxPhraseRepetitions: 4,
-    MinPhraseRepetitionPoolSize: 10,
-    PhraseRepetitionProbability: 90
+    MinPhraseRepetitionPoolSize: 4,
+    PhraseRepetitionProbability: 100
 );
 
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
-        new(Voice.Soprano, Notes.C5, Notes.C6),
-        new(Voice.Alto, Notes.C4, Notes.C5),
+        new(Voice.Soprano, Notes.C4, Notes.C5),
+        new(Voice.Alto, Notes.C3, Notes.C4),
         new(Voice.Tenor, Notes.C2, Notes.C3),
         new(Voice.Bass, Notes.C1, Notes.C2)
     },
     phrasingConfiguration,
     BaroquenScale.Parse("D Dorian"),
     Meter.FourFour,
-    25
+    50
 );
 
 var compositionRule = new AggregateCompositionRule(
@@ -65,8 +66,11 @@ var compositionStrategyFactory = new CompositionStrategyFactory(
 
 var compositionStrategy = compositionStrategyFactory.Create(compositionConfiguration);
 
+var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, new MusicalTimeSpanCalculator());
+
 var compositionDecorator = new CompositionDecorator(
-    new OrnamentationEngineBuilder(compositionConfiguration, new MusicalTimeSpanCalculator()).Build(),
+    ornamentationEngineBuilder.BuildOrnamentationEngine(),
+    ornamentationEngineBuilder.BuildSustainedNoteEngine(),
     compositionConfiguration
 );
 
@@ -111,32 +115,44 @@ foreach (var measure in composition.Measures)
         var tenorNote = beat.Chord[Voice.Tenor];
         var bassNote = beat.Chord[Voice.Bass];
 
-        patternBuildersByVoice[Voice.Soprano].SetNoteLength(sopranoNote.Duration).Note(sopranoNote.Raw);
-
-        foreach (var ornamentation in sopranoNote.Ornamentations)
+        if (sopranoNote.OrnamentationType != OrnamentationType.Rest)
         {
-            patternBuildersByVoice[Voice.Soprano].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
+            patternBuildersByVoice[Voice.Soprano].SetNoteLength(sopranoNote.Duration).Note(sopranoNote.Raw);
+
+            foreach (var ornamentation in sopranoNote.Ornamentations)
+            {
+                patternBuildersByVoice[Voice.Soprano].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
+            }
         }
 
-        patternBuildersByVoice[Voice.Alto].SetNoteLength(altoNote.Duration).Note(altoNote.Raw);
-
-        foreach (var ornamentation in altoNote.Ornamentations)
+        if (altoNote.OrnamentationType != OrnamentationType.Rest)
         {
-            patternBuildersByVoice[Voice.Alto].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
+            patternBuildersByVoice[Voice.Alto].SetNoteLength(altoNote.Duration).Note(altoNote.Raw);
+
+            foreach (var ornamentation in altoNote.Ornamentations)
+            {
+                patternBuildersByVoice[Voice.Alto].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
+            }
         }
 
-        patternBuildersByVoice[Voice.Tenor].SetNoteLength(tenorNote.Duration).Note(tenorNote.Raw);
-
-        foreach (var ornamentation in tenorNote.Ornamentations)
+        if (tenorNote.OrnamentationType != OrnamentationType.Rest)
         {
-            patternBuildersByVoice[Voice.Tenor].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
+            patternBuildersByVoice[Voice.Tenor].SetNoteLength(tenorNote.Duration).Note(tenorNote.Raw);
+
+            foreach (var ornamentation in tenorNote.Ornamentations)
+            {
+                patternBuildersByVoice[Voice.Tenor].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
+            }
         }
 
-        patternBuildersByVoice[Voice.Bass].SetNoteLength(bassNote.Duration).Note(bassNote.Raw);
-
-        foreach (var ornamentation in bassNote.Ornamentations)
+        if (bassNote.OrnamentationType != OrnamentationType.Rest)
         {
-            patternBuildersByVoice[Voice.Bass].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
+            patternBuildersByVoice[Voice.Bass].SetNoteLength(bassNote.Duration).Note(bassNote.Raw);
+
+            foreach (var ornamentation in bassNote.Ornamentations)
+            {
+                patternBuildersByVoice[Voice.Bass].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
+            }
         }
     }
 }

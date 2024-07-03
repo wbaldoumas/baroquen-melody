@@ -6,9 +6,17 @@ using BaroquenMelody.Library.Infrastructure.Collections;
 namespace BaroquenMelody.Library.Compositions.Ornamentation;
 
 /// <inheritdoc cref="ICompositionDecorator"/>
-internal sealed class CompositionDecorator(IProcessor<OrnamentationItem> decorationEngine, CompositionConfiguration configuration) : ICompositionDecorator
+internal sealed class CompositionDecorator(
+    IProcessor<OrnamentationItem> ornamentationEngine,
+    IProcessor<OrnamentationItem> sustainEngine,
+    CompositionConfiguration configuration
+) : ICompositionDecorator
 {
-    public void Decorate(Composition composition)
+    public void Decorate(Composition composition) => Decorate(composition, ornamentationEngine);
+
+    public void ApplySustain(Composition composition) => Decorate(composition, sustainEngine);
+
+    private void Decorate(Composition composition, IProcessor<OrnamentationItem> processor)
     {
         var beats = composition.Measures.SelectMany(measure => measure.Beats).ToList();
         var compositionContext = new FixedSizeList<Beat>(configuration.CompositionContextSize);
@@ -28,7 +36,7 @@ internal sealed class CompositionDecorator(IProcessor<OrnamentationItem> decorat
                     nextBeat
                 );
 
-                decorationEngine.Process(ornamentationItem);
+                processor.Process(ornamentationItem);
 
                 compositionContext.Add(beats[i]);
             }

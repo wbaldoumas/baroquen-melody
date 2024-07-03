@@ -33,5 +33,7 @@ internal sealed class PassingToneProcessor(
         {
             Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, configuration.Meter)
         });
+
+        currentNote.OrnamentationType = ornamentationType;
     }
 }

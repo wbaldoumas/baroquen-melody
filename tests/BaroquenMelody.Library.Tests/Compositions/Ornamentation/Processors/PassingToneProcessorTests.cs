@@ -52,6 +52,7 @@ internal sealed class PassingToneProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.PassingTone);
         noteToAssert.Ornamentations.Should().ContainSingle();
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.G4);
         noteToAssert.Duration.Should().Be(MusicalTimeSpan.Eighth);
@@ -75,6 +76,7 @@ internal sealed class PassingToneProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.PassingTone);
         noteToAssert.Ornamentations.Should().ContainSingle();
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B4);
         noteToAssert.Duration.Should().Be(MusicalTimeSpan.Eighth);

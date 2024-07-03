@@ -32,7 +32,7 @@ internal sealed class CompositionDecoratorTests
 
         _mockOrnamentationEngine = Substitute.For<IPolicyEngine<OrnamentationItem>>();
 
-        _compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, compositionConfiguration);
+        _compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, _mockOrnamentationEngine, compositionConfiguration);
     }
 
     [Test]
