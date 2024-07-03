@@ -37,6 +37,26 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
     public bool HasOrnamentations => Ornamentations.Any();
 
     /// <summary>
+    ///     Initializes a new instance of the <see cref="BaroquenNote"/> class.
+    /// </summary>
+    /// <param name="note">The note to copy.</param>
+    public BaroquenNote(BaroquenNote note)
+        : this(note.Voice, note.Raw)
+    {
+        Duration = note.Duration;
+        Ornamentations = note.Ornamentations.Select(ornamentation => new BaroquenNote(ornamentation)).ToList();
+    }
+
+    /// <summary>
+    ///     Resets the ornamentation on this note.
+    /// </summary>
+    public void ResetOrnamentation()
+    {
+        Duration = MusicalTimeSpan.Quarter;
+        Ornamentations.Clear();
+    }
+
+    /// <summary>
     ///     Determines if the <see cref="BaroquenNote"/> is equal to another <see cref="BaroquenNote"/>.
     /// </summary>
     /// <param name="other">The other <see cref="BaroquenNote"/> to compare against.</param>

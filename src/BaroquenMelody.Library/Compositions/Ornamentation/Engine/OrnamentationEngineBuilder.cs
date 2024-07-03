@@ -17,8 +17,8 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         .WithProcessors(
             BuildPassingToneEngine(),
             BuildDelayedPassingToneEngine(),
-            BuildTurnEngine(),
-            BuildSixteenthNoteRunEngine()
+            BuildSixteenthNoteRunEngine(),
+            BuildTurnEngine()
         )
         .WithoutOutputPolicies()
         .Build();
@@ -29,9 +29,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new HasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, PassingToneProcessor.Interval)
         )
-        .WithProcessors(
-            new PassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.PassingTone)
-        )
+        .WithProcessors(new PassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.PassingTone))
         .WithoutOutputPolicies()
         .Build();
 
@@ -41,9 +39,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new HasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, PassingToneProcessor.Interval)
         )
-        .WithProcessors(
-            new PassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.DelayedPassingTone)
-        )
+        .WithProcessors(new PassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.DelayedPassingTone))
         .WithoutOutputPolicies()
         .Build();
 
@@ -51,11 +47,9 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         .WithInputPolicies(
             new WantsToOrnament(),
             new HasNoOrnamentation(),
-            new IsApplicableInterval(compositionConfiguration, PassingToneProcessor.Interval)
+            new IsApplicableInterval(compositionConfiguration, TurnProcessor.Interval)
         )
-        .WithProcessors(
-            new TurnProcessor(musicalTimeSpanCalculator, compositionConfiguration)
-        )
+        .WithProcessors(new TurnProcessor(musicalTimeSpanCalculator, compositionConfiguration))
         .WithoutOutputPolicies()
         .Build();
 
@@ -65,9 +59,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new HasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, SixteenthNoteRunProcessor.Interval)
         )
-        .WithProcessors(
-            new SixteenthNoteRunProcessor(musicalTimeSpanCalculator, compositionConfiguration)
-        )
+        .WithProcessors(new SixteenthNoteRunProcessor(musicalTimeSpanCalculator, compositionConfiguration))
         .WithoutOutputPolicies()
         .Build();
 }
