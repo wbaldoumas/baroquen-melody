@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using Melanchall.DryWetMidi.Interaction;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
@@ -34,7 +35,12 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
     /// <summary>
     ///     Whether or not this note has any ornamentations.
     /// </summary>
-    public bool HasOrnamentations => Ornamentations.Any();
+    public bool HasOrnamentations => OrnamentationType != OrnamentationType.None;
+
+    /// <summary>
+    ///     The type of ornamentation that is applied to this note.
+    /// </summary>
+    public OrnamentationType OrnamentationType { get; set; } = OrnamentationType.None;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BaroquenNote"/> class.
@@ -54,6 +60,7 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
     {
         Duration = MusicalTimeSpan.Quarter;
         Ornamentations.Clear();
+        OrnamentationType = OrnamentationType.None;
     }
 
     /// <summary>

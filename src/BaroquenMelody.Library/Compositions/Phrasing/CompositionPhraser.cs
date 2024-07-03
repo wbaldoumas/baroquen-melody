@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using BaroquenMelody.Library.Infrastructure.Random;
@@ -68,6 +69,14 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
             if (ThreadLocalRandom.Next(Threshold) > compositionConfiguration.PhrasingConfiguration.PhraseRepetitionProbability || !CanRepeatPhrase(measures, lastMeasures))
             {
                 continue;
+            }
+
+            foreach (var note in lastMeasures[0].Beats[0].Chord.Notes)
+            {
+                if (note.OrnamentationType == OrnamentationType.Rest)
+                {
+                    note.ResetOrnamentation();
+                }
             }
 
             var repeatedPhrase = new RepeatedPhrase

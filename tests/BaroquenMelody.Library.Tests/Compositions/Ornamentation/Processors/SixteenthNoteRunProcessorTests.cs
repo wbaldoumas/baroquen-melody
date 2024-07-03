@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using FluentAssertions;
@@ -51,6 +52,7 @@ internal sealed class SixteenthNoteRunProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.SixteenthNoteRun);
         noteToAssert.Ornamentations.Should().HaveCount(3);
 
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B3);
@@ -81,6 +83,7 @@ internal sealed class SixteenthNoteRunProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.SixteenthNoteRun);
         noteToAssert.Ornamentations.Should().HaveCount(3);
 
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.G3);

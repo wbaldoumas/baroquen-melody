@@ -3,6 +3,11 @@
 internal enum OrnamentationType : byte
 {
     /// <summary>
+    ///     No ornamentation.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
     ///     A passing tone between two notes.
     /// </summary>
     PassingTone,
@@ -13,12 +18,22 @@ internal enum OrnamentationType : byte
     SixteenthNoteRun,
 
     /// <summary>
-    ///    A delayed passing tone between two notes.
+    ///     A delayed passing tone between two notes.
     /// </summary>
     DelayedPassingTone,
 
     /// <summary>
-    ///    A turn between two notes.
+    ///     A turn between two notes.
     /// </summary>
-    Turn
+    Turn,
+
+    /// <summary>
+    ///     A sustained note over multiple beats.
+    /// </summary>
+    Sustain,
+
+    /// <summary>
+    ///     A rest over multiple beats.
+    /// </summary>
+    Rest
 }
