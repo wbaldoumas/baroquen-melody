@@ -9,11 +9,20 @@ namespace BaroquenMelody.Library.Compositions.Domain;
 /// <param name="notes">The notes that are played during the chord.</param>
 internal sealed class BaroquenChord(IEnumerable<BaroquenNote> notes) : IEquatable<BaroquenChord>
 {
-    public IEnumerable<BaroquenNote> Notes => _notes.Values;
+    public IEnumerable<BaroquenNote> Notes => _notesByVoice.Values;
 
-    public BaroquenNote this[Voice voice] => _notes[voice];
+    public BaroquenNote this[Voice voice] => _notesByVoice[voice];
 
-    private readonly FrozenDictionary<Voice, BaroquenNote> _notes = notes.ToFrozenDictionary(note => note.Voice);
+    private readonly FrozenDictionary<Voice, BaroquenNote> _notesByVoice = notes.ToFrozenDictionary(note => note.Voice);
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="BaroquenChord"/> class.
+    /// </summary>
+    /// <param name="chord">The chord to copy.</param>
+    public BaroquenChord(BaroquenChord chord)
+        : this(chord.Notes.Select(note => new BaroquenNote(note)))
+    {
+    }
 
     /// <summary>
     ///     Determines if the <see cref="BaroquenChord"/> is equal to another <see cref="BaroquenChord"/>.

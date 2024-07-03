@@ -9,6 +9,4 @@ internal sealed class RepeatedPhrase
     public int RepetitionCount { get; set; }
 
     public required IList<Measure> Phrase { get; init; }
-
-    public Guid Id { get; } = Guid.NewGuid();
 }

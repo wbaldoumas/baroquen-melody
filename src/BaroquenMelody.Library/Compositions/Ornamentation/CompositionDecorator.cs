@@ -5,6 +5,7 @@ using BaroquenMelody.Library.Infrastructure.Collections;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation;
 
+/// <inheritdoc cref="ICompositionDecorator"/>
 internal sealed class CompositionDecorator(IProcessor<OrnamentationItem> decorationEngine, CompositionConfiguration configuration) : ICompositionDecorator
 {
     public void Decorate(Composition composition)
@@ -15,18 +16,21 @@ internal sealed class CompositionDecorator(IProcessor<OrnamentationItem> decorat
 
         foreach (var voice in voices)
         {
-            foreach (var currentBeat in beats)
+            for (var i = 0; i < beats.Count; ++i)
             {
+                var currentBeat = beats[i];
+                var nextBeat = beats.ElementAtOrDefault(i + 1);
+
                 var ornamentationItem = new OrnamentationItem(
                     voice,
                     compositionContext,
                     currentBeat,
-                    beats.ElementAtOrDefault(beats.IndexOf(currentBeat) + 1)
+                    nextBeat
                 );
 
                 decorationEngine.Process(ornamentationItem);
 
-                compositionContext.Add(currentBeat);
+                compositionContext.Add(beats[i]);
             }
         }
     }
