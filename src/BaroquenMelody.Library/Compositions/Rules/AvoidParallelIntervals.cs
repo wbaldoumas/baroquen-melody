@@ -22,8 +22,7 @@ internal sealed class AvoidParallelIntervals(Interval targetInterval) : IComposi
         var parallelPerfectVoicePairs = lastChord.Notes
             .SelectMany(note => lastChord.Notes
                 .Where(otherNote => note != otherNote && IntervalExtensions.FromNotes(note, otherNote) == targetInterval)
-                .Select(otherNote => (note.Voice, otherNote.Voice)))
-            .ToList();
+                .Select(otherNote => (note.Voice, otherNote.Voice)));
 
         foreach (var (voiceA, voiceB) in parallelPerfectVoicePairs)
         {

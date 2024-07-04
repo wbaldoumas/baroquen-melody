@@ -7,9 +7,9 @@ namespace BaroquenMelody.Library.Compositions.Domain;
 ///    Represents a chord in a composition.
 /// </summary>
 /// <param name="notes">The notes that are played during the chord.</param>
-internal sealed class BaroquenChord(IEnumerable<BaroquenNote> notes) : IEquatable<BaroquenChord>
+internal sealed class BaroquenChord(List<BaroquenNote> notes) : IEquatable<BaroquenChord>
 {
-    public IEnumerable<BaroquenNote> Notes => _notesByVoice.Values;
+    public List<BaroquenNote> Notes => notes;
 
     public BaroquenNote this[Voice voice] => _notesByVoice[voice];
 
@@ -20,7 +20,7 @@ internal sealed class BaroquenChord(IEnumerable<BaroquenNote> notes) : IEquatabl
     /// </summary>
     /// <param name="chord">The chord to copy.</param>
     public BaroquenChord(BaroquenChord chord)
-        : this(chord.Notes.Select(note => new BaroquenNote(note)))
+        : this(chord.Notes.Select(note => new BaroquenNote(note)).ToList())
     {
     }
 

@@ -16,8 +16,15 @@ internal sealed class AvoidRepetition : ICompositionRule
 
         var precedingChordsToCheck = precedingChords.Skip(precedingChords.Count - MinimumPrecedingChords).ToList();
 
-        return nextChord.Notes
-            .Select(note => note.Voice)
-            .All(voice => precedingChordsToCheck.Exists(precedingChord => precedingChord[voice].Raw != nextChord[voice].Raw));
+        // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+        foreach (var note in nextChord.Notes)
+        {
+            if (!precedingChordsToCheck.Exists(precedingChord => precedingChord[note.Voice].Raw != nextChord[note.Voice].Raw))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

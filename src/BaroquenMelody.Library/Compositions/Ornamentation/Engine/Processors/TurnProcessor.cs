@@ -18,7 +18,7 @@ internal sealed class TurnProcessor(
         var currentNote = item.CurrentBeat[item.Voice];
         var nextNote = item.NextBeat![item.Voice];
 
-        var notes = compositionConfiguration.Scale.GetNotes().ToList();
+        var notes = compositionConfiguration.Scale.GetNotes();
 
         var currentNoteIndex = notes.IndexOf(currentNote.Raw);
         var nextNoteIndex = notes.IndexOf(nextNote.Raw);
