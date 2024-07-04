@@ -24,8 +24,8 @@ Console.WriteLine("Hit 'enter' to start composing...");
 Console.ReadLine();
 
 var phrasingConfiguration = new PhrasingConfiguration(
-    PhraseLengths: [2, 4, 8],
-    MaxPhraseRepetitions: 4,
+    PhraseLengths: [1, 2, 4, 8],
+    MaxPhraseRepetitions: 8,
     MinPhraseRepetitionPoolSize: 4,
     PhraseRepetitionProbability: 100
 );
@@ -33,15 +33,15 @@ var phrasingConfiguration = new PhrasingConfiguration(
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
-        new(Voice.Soprano, Notes.C4, Notes.C5),
-        new(Voice.Alto, Notes.C3, Notes.C4),
-        new(Voice.Tenor, Notes.C2, Notes.C3),
-        new(Voice.Bass, Notes.C1, Notes.C2)
+        new(Voice.Soprano, Notes.C5, Notes.G6),
+        new(Voice.Alto, Notes.G3, Notes.C5),
+        new(Voice.Tenor, Notes.C2, Notes.G3),
+        new(Voice.Bass, Notes.G0, Notes.C2)
     },
     phrasingConfiguration,
     BaroquenScale.Parse("D Dorian"),
     Meter.FourFour,
-    50
+    25
 );
 
 var compositionRule = new AggregateCompositionRule(

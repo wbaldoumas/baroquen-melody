@@ -4,6 +4,7 @@ using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Extensions;
 using FluentAssertions;
+using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -33,9 +34,7 @@ internal sealed class ChordChoiceRepositoryFactoryTests
     {
         // arrange
         var compositionConfiguration = new CompositionConfiguration(
-            Enumerable.Range(0, numberOfVoices)
-                .Select(index => new VoiceConfiguration(Voice.Soprano, index.ToNote(), (index + 1).ToNote()))
-                .ToHashSet(),
+            GenerateVoiceConfigurations(numberOfVoices),
             BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             CompositionLength: 100
@@ -69,4 +68,27 @@ internal sealed class ChordChoiceRepositoryFactoryTests
         // assert
         act.Should().Throw<ArgumentException>();
     }
+
+    private static HashSet<VoiceConfiguration> GenerateVoiceConfigurations(int numberOfVoices) => numberOfVoices switch
+    {
+        2 =>
+        [
+            new VoiceConfiguration(Voice.Soprano, Notes.C4, Notes.C5),
+            new VoiceConfiguration(Voice.Alto, Notes.C3, Notes.C4)
+        ],
+        3 =>
+        [
+            new VoiceConfiguration(Voice.Soprano, Notes.C4, Notes.C5),
+            new VoiceConfiguration(Voice.Alto, Notes.C3, Notes.C4),
+            new VoiceConfiguration(Voice.Tenor, Notes.C2, Notes.C3)
+        ],
+        4 =>
+        [
+            new VoiceConfiguration(Voice.Soprano, Notes.C4, Notes.C5),
+            new VoiceConfiguration(Voice.Alto, Notes.C3, Notes.C4),
+            new VoiceConfiguration(Voice.Tenor, Notes.C2, Notes.C3),
+            new VoiceConfiguration(Voice.Bass, Notes.C1, Notes.C2)
+        ],
+        _ => throw new ArgumentException("Invalid number of voices.")
+    };
 }

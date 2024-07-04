@@ -21,7 +21,7 @@ internal sealed record CompositionConfiguration(
     int CompositionLength,
     int CompositionContextSize = 8)
 {
-    public IDictionary<Voice, VoiceConfiguration> VoiceConfigurationsByVoice => VoiceConfigurations.ToDictionary(
+    public IDictionary<Voice, VoiceConfiguration> VoiceConfigurationsByVoice { get; } = VoiceConfigurations.ToDictionary(
         voiceConfiguration => voiceConfiguration.Voice
     );
 

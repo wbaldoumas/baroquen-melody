@@ -43,7 +43,7 @@ internal sealed class Composer(
         while (measures.Count < compositionConfiguration.CompositionLength)
         {
             var initialChord = ComposeNextChord(compositionContext);
-            var beats = new List<Beat> { new(initialChord) };
+            var beats = new List<Beat>(compositionConfiguration.Meter.BeatsPerMeasure()) { new(initialChord) };
 
             compositionContext.Add(initialChord);
 
@@ -96,7 +96,7 @@ internal sealed class Composer(
     private List<Measure> ComposeInitialMeasures()
     {
         var initialChord = compositionStrategy.GenerateInitialChord();
-        var beats = new List<Beat> { new(initialChord) };
+        var beats = new List<Beat>(compositionConfiguration.Meter.BeatsPerMeasure()) { new(initialChord) };
         var precedingChords = beats.Select(beat => beat.Chord).ToList();
 
         while (beats.Count < compositionConfiguration.Meter.BeatsPerMeasure())
@@ -107,7 +107,7 @@ internal sealed class Composer(
             beats.Add(new Beat(nextChord));
         }
 
-        return [new Measure(beats, compositionConfiguration.Meter)];
+        return new List<Measure>(compositionConfiguration.CompositionLength) { new(beats, compositionConfiguration.Meter) };
     }
 
     private BaroquenChord ComposeNextChord(IReadOnlyList<BaroquenChord> precedingChords)
