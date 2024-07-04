@@ -12,4 +12,10 @@ internal interface ICompositionDecorator
     /// </summary>
     /// <param name="composition">The composition to decorate.</param>
     void Decorate(Composition composition);
+
+    /// <summary>
+    ///    Apply sustain to the composition by identifying repeated notes and extending their duration.
+    /// </summary>
+    /// <param name="composition">The composition to apply sustain to.</param>
+    void ApplySustain(Composition composition);
 }

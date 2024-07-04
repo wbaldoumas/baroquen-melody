@@ -14,6 +14,8 @@ internal sealed class CompositionDecoratorTests
 {
     private IPolicyEngine<OrnamentationItem> _mockOrnamentationEngine = null!;
 
+    private IPolicyEngine<OrnamentationItem> _mockSustainEngine = null!;
+
     private CompositionDecorator _compositionDecorator = null!;
 
     [SetUp]
@@ -31,8 +33,9 @@ internal sealed class CompositionDecoratorTests
         );
 
         _mockOrnamentationEngine = Substitute.For<IPolicyEngine<OrnamentationItem>>();
+        _mockSustainEngine = Substitute.For<IPolicyEngine<OrnamentationItem>>();
 
-        _compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, compositionConfiguration);
+        _compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, _mockSustainEngine, compositionConfiguration);
     }
 
     [Test]
@@ -86,5 +89,60 @@ internal sealed class CompositionDecoratorTests
 
         // assert
         _mockOrnamentationEngine.ReceivedWithAnyArgs(8).Process(Arg.Any<OrnamentationItem>());
+        _mockSustainEngine.DidNotReceiveWithAnyArgs().Process(Arg.Any<OrnamentationItem>());
+    }
+
+    [Test]
+    public void WhenApplySustainIsInvoked_ThenSustainEngineIsInvoked_ForEachVoiceAndChord()
+    {
+        // arrange
+        var chordA = new BaroquenChord(
+            [
+                new BaroquenNote(Voice.Soprano, Notes.A4),
+                new BaroquenNote(Voice.Alto, Notes.C3)
+            ]
+        );
+
+        var chordB = new BaroquenChord(
+            [
+                new BaroquenNote(Voice.Soprano, Notes.A4),
+                new BaroquenNote(Voice.Alto, Notes.C3)
+            ]
+        );
+
+        var chordC = new BaroquenChord(
+            [
+                new BaroquenNote(Voice.Soprano, Notes.A4),
+                new BaroquenNote(Voice.Alto, Notes.C3)
+            ]
+        );
+
+        var chordD = new BaroquenChord(
+            [
+                new BaroquenNote(Voice.Soprano, Notes.A4),
+                new BaroquenNote(Voice.Alto, Notes.C3)
+            ]
+        );
+
+        var composition = new Composition(
+            [
+                new Measure(
+                    [
+                        new Beat(chordA),
+                        new Beat(chordB),
+                        new Beat(chordC),
+                        new Beat(chordD)
+                    ],
+                    Meter.FourFour
+                )
+            ]
+        );
+
+        // act
+        _compositionDecorator.ApplySustain(composition);
+
+        // assert
+        _mockSustainEngine.ReceivedWithAnyArgs(8).Process(Arg.Any<OrnamentationItem>());
+        _mockOrnamentationEngine.DidNotReceiveWithAnyArgs().Process(Arg.Any<OrnamentationItem>());
     }
 }

@@ -48,5 +48,7 @@ internal sealed class TurnProcessor(
         {
             Duration = duration
         });
+
+        currentNote.OrnamentationType = OrnamentationType.Turn;
     }
 }

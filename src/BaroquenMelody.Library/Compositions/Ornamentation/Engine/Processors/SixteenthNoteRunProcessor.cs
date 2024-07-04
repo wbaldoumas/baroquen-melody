@@ -46,5 +46,7 @@ internal sealed class SixteenthNoteRunProcessor(IMusicalTimeSpanCalculator music
         {
             Duration = duration
         });
+
+        currentNote.OrnamentationType = OrnamentationType.SixteenthNoteRun;
     }
 }
