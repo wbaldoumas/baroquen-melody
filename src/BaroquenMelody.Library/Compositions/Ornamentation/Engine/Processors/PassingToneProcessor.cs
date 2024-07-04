@@ -19,7 +19,7 @@ internal sealed class PassingToneProcessor(
         var currentNote = item.CurrentBeat[item.Voice];
         var nextNote = item.NextBeat![item.Voice];
 
-        var notes = configuration.Scale.GetNotes().ToList();
+        var notes = configuration.Scale.GetNotes();
 
         var currentNoteScaleIndex = notes.IndexOf(currentNote.Raw);
         var nextNoteScaleIndex = notes.IndexOf(nextNote.Raw);

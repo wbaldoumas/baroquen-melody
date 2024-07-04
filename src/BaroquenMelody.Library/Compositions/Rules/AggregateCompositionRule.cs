@@ -3,8 +3,8 @@
 namespace BaroquenMelody.Library.Compositions.Rules;
 
 /// <inheritdoc cref="ICompositionRule"/>
-internal sealed class AggregateCompositionRule(IEnumerable<ICompositionRule> compositionRules) : ICompositionRule
+internal sealed class AggregateCompositionRule(List<ICompositionRule> compositionRules) : ICompositionRule
 {
     public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord) =>
-        compositionRules.All(compositionRule => compositionRule.Evaluate(precedingChords, nextChord));
+        compositionRules.TrueForAll(compositionRule => compositionRule.Evaluate(precedingChords, nextChord));
 }

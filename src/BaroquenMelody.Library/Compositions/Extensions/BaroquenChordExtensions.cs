@@ -9,9 +9,11 @@ namespace BaroquenMelody.Library.Compositions.Extensions;
 internal static class BaroquenChordExtensions
 {
     public static BaroquenChord ApplyChordChoice(this BaroquenChord chord, BaroquenScale scale, ChordChoice chordChoice) => new(
-        from noteChoice in chordChoice.NoteChoices
-        let voice = noteChoice.Voice
-        let note = chord[voice]
-        select note.ApplyNoteChoice(scale, noteChoice)
+        (
+            from noteChoice in chordChoice.NoteChoices
+            let voice = noteChoice.Voice
+            let note = chord[voice]
+            select note.ApplyNoteChoice(scale, noteChoice)
+        ).ToList()
     );
 }

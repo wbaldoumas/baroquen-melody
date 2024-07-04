@@ -36,7 +36,7 @@ internal sealed class CompositionStrategy(
     public BaroquenChord GenerateInitialChord()
     {
         var startingNoteCounts = validStartingNoteNames.ToDictionary(noteName => noteName, _ => 0);
-        var rawNotes = compositionConfiguration.Scale.GetNotes().ToList();
+        var rawNotes = compositionConfiguration.Scale.GetNotes();
 
         var notes = compositionConfiguration.VoiceConfigurations
             .Select(voiceConfiguration => new BaroquenNote(voiceConfiguration.Voice, ChooseStartingNote(voiceConfiguration, rawNotes, validStartingNoteNames, ref startingNoteCounts)))

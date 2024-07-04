@@ -7,11 +7,11 @@ namespace BaroquenMelody.Library.Compositions.Domain;
 /// </summary>
 internal sealed class BaroquenScale
 {
-    private readonly IReadOnlyList<Note> _notes;
+    private readonly List<Note> _notes;
 
-    private readonly IDictionary<Note, IReadOnlyList<Note>> _ascendingNotes = new Dictionary<Note, IReadOnlyList<Note>>();
+    private readonly IDictionary<Note, List<Note>> _ascendingNotes = new Dictionary<Note, List<Note>>();
 
-    private readonly IDictionary<Note, IReadOnlyList<Note>> _descendingNotes = new Dictionary<Note, IReadOnlyList<Note>>();
+    private readonly IDictionary<Note, List<Note>> _descendingNotes = new Dictionary<Note, List<Note>>();
 
     /// <summary>
     ///     The raw scale that this Baroquen scale is based on.
@@ -41,19 +41,19 @@ internal sealed class BaroquenScale
     ///     Retrieve all notes in the scale.
     /// </summary>
     /// <returns>All notes in the scale.</returns>
-    public IReadOnlyList<Note> GetNotes() => _notes;
+    public List<Note> GetNotes() => _notes;
 
     /// <summary>
     ///     Retrieve the ascending notes from the given note.
     /// </summary>
     /// <param name="note">The note to retrieve the ascending notes from.</param>
     /// <returns>The ascending notes from the given note.</returns>
-    public IReadOnlyList<Note> GetAscendingNotes(Note note) => _ascendingNotes[note];
+    public List<Note> GetAscendingNotes(Note note) => _ascendingNotes[note];
 
     /// <summary>
     ///     Retrieve the descending notes from the given note.
     /// </summary>
     /// <param name="note">The note to retrieve the descending notes from.</param>
     /// <returns>The descending notes from the given note.</returns>
-    public IReadOnlyList<Note> GetDescendingNotes(Note note) => _descendingNotes[note];
+    public List<Note> GetDescendingNotes(Note note) => _descendingNotes[note];
 }

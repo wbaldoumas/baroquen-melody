@@ -24,7 +24,7 @@ internal sealed class BaroquenChordTests
     public void GetHashCode_throws_InvalidOperationException()
     {
         // arrange
-        var chord = new BaroquenChord(new[] { new BaroquenNote(Voice.Soprano, Notes.C1) });
+        var chord = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C1)]);
 
         // act
         var act = () => chord.GetHashCode();

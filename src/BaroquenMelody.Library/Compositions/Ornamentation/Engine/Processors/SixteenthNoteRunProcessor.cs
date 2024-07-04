@@ -15,7 +15,7 @@ internal sealed class SixteenthNoteRunProcessor(IMusicalTimeSpanCalculator music
         var currentNote = item.CurrentBeat[item.Voice];
         var nextNote = item.NextBeat![item.Voice];
 
-        var notes = configuration.Scale.GetNotes().ToList();
+        var notes = configuration.Scale.GetNotes();
 
         var currentNoteIndex = notes.IndexOf(currentNote.Raw);
         var nextNoteIndex = notes.IndexOf(nextNote.Raw);

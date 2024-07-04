@@ -77,7 +77,7 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
 
             phrasesToRepeat.Add(repeatedPhrase);
 
-            ResetPhraseEndOrnamentation(measures.Last());
+            ResetPhraseEndOrnamentation(measures[^1]);
 
             measures.AddRange(lastMeasures.Select(measure => new Measure(measure)));
 
@@ -106,7 +106,7 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
             return false;
         }
 
-        ResetPhraseEndOrnamentation(measures.Last());
+        ResetPhraseEndOrnamentation(measures[^1]);
 
         measures.AddRange(repeatedPhrase.Phrase.Select(measure => new Measure(measure)).ToList());
         repeatedPhrase.RepetitionCount++;
@@ -123,7 +123,7 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
             compositionContext.Add(beat.Chord);
         }
 
-        var firstChordOfRepeatedPhrase = measuresToRepeat.First().Beats.First().Chord;
+        var firstChordOfRepeatedPhrase = measuresToRepeat[0].Beats.First().Chord;
 
         return compositionRule.Evaluate(compositionContext, firstChordOfRepeatedPhrase);
     }

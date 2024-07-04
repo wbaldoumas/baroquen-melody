@@ -5,9 +5,11 @@ VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaroquenMelody", "BaroquenMelody\BaroquenMelody.csproj", "{88E0E299-4C51-46B9-BC0F-9DD4A7D23C0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaroquenMelody.Library", "BaroquenMelody.Library\BaroquenMelody.Library.csproj", "{9456BBA4-0D54-4D69-8C4B-582926E743F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaroquenMelody.Library", "BaroquenMelody.Library\BaroquenMelody.Library.csproj", "{9456BBA4-0D54-4D69-8C4B-582926E743F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaroquenMelody.Library.Tests", "..\tests\BaroquenMelody.Library.Tests\BaroquenMelody.Library.Tests.csproj", "{FCEFE589-8A4A-417A-A2BD-72B6AF1E7A6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaroquenMelody.Library.Tests", "..\tests\BaroquenMelody.Library.Tests\BaroquenMelody.Library.Tests.csproj", "{FCEFE589-8A4A-417A-A2BD-72B6AF1E7A6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaroquenMelody.Benchmarks", "..\benchmarks\BaroquenMelody.Benchmarks\BaroquenMelody.Benchmarks.csproj", "{5829D5BD-6AE1-4BDF-AB7E-4F4ACF12D652}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{FCEFE589-8A4A-417A-A2BD-72B6AF1E7A6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCEFE589-8A4A-417A-A2BD-72B6AF1E7A6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCEFE589-8A4A-417A-A2BD-72B6AF1E7A6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5829D5BD-6AE1-4BDF-AB7E-4F4ACF12D652}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5829D5BD-6AE1-4BDF-AB7E-4F4ACF12D652}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5829D5BD-6AE1-4BDF-AB7E-4F4ACF12D652}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5829D5BD-6AE1-4BDF-AB7E-4F4ACF12D652}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
