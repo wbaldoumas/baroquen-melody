@@ -71,14 +71,6 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
                 continue;
             }
 
-            foreach (var note in lastMeasures[0].Beats[0].Chord.Notes)
-            {
-                if (note.OrnamentationType == OrnamentationType.Rest)
-                {
-                    note.ResetOrnamentation();
-                }
-            }
-
             var repeatedPhrase = new RepeatedPhrase
             {
                 Phrase = lastMeasures,
@@ -87,15 +79,23 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
 
             phrasesToRepeat.Add(repeatedPhrase);
 
-            // Clear the ornamentations to ensure smooth transitions between repetitions.
-            foreach (var note in measures[^1].Beats[^1].Chord.Notes)
-            {
-                note.ResetOrnamentation();
-            }
+            ResetPhraseEndOrnamentation(measures.Last());
 
             measures.AddRange(lastMeasures.Select(measure => new Measure(measure)));
 
             return;
+        }
+    }
+
+    /// <summary>
+    ///     Resets the ornamentation on the last note of the last measure in the phrase if it is not a rest.
+    /// </summary>
+    /// <param name="measure">The measure to reset the ornamentation on.</param>
+    private static void ResetPhraseEndOrnamentation(Measure measure)
+    {
+        foreach (var note in measure.Beats.Last().Chord.Notes.Where(note => note.OrnamentationType != OrnamentationType.Rest))
+        {
+            note.ResetOrnamentation();
         }
     }
 
@@ -108,19 +108,17 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
             return false;
         }
 
-        // Clear the ornamentations to ensure smooth transitions between repetitions.
-        foreach (var note in measures[^1].Beats[^1].Chord.Notes)
-        {
-            note.ResetOrnamentation();
-        }
+        ResetPhraseEndOrnamentation(measures.Last());
 
-        measures.AddRange(repeatedPhrase.Phrase.Select(measure => new Measure(measure)));
+        var repeatedMeasures = repeatedPhrase.Phrase.Select(measure => new Measure(measure)).ToList();
+
+        measures.AddRange(repeatedMeasures);
         repeatedPhrase.RepetitionCount++;
 
         return true;
     }
 
-    private bool CanRepeatPhrase(IEnumerable<Measure> measures, IEnumerable<Measure> measuresToRepeat)
+    private bool CanRepeatPhrase(List<Measure> measures, List<Measure> measuresToRepeat)
     {
         var compositionContext = new FixedSizeList<BaroquenChord>(compositionConfiguration.CompositionContextSize);
 

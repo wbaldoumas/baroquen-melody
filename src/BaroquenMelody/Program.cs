@@ -26,22 +26,22 @@ Console.ReadLine();
 var phrasingConfiguration = new PhrasingConfiguration(
     PhraseLengths: [2, 4, 8],
     MaxPhraseRepetitions: 4,
-    MinPhraseRepetitionPoolSize: 10,
-    PhraseRepetitionProbability: 90
+    MinPhraseRepetitionPoolSize: 4,
+    PhraseRepetitionProbability: 100
 );
 
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
         new(Voice.Soprano, Notes.C4, Notes.C5),
-        new(Voice.Alto, Notes.C4, Notes.C5),
-        new(Voice.Tenor, Notes.C4, Notes.C5),
-        new(Voice.Bass, Notes.C4, Notes.C5)
+        new(Voice.Alto, Notes.C3, Notes.C4),
+        new(Voice.Tenor, Notes.C2, Notes.C3),
+        new(Voice.Bass, Notes.C1, Notes.C2)
     },
     phrasingConfiguration,
     BaroquenScale.Parse("D Dorian"),
     Meter.FourFour,
-    25
+    50
 );
 
 var compositionRule = new AggregateCompositionRule(
@@ -66,8 +66,11 @@ var compositionStrategyFactory = new CompositionStrategyFactory(
 
 var compositionStrategy = compositionStrategyFactory.Create(compositionConfiguration);
 
+var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, new MusicalTimeSpanCalculator());
+
 var compositionDecorator = new CompositionDecorator(
-    new OrnamentationEngineBuilder(compositionConfiguration, new MusicalTimeSpanCalculator()).Build(),
+    ornamentationEngineBuilder.BuildOrnamentationEngine(),
+    ornamentationEngineBuilder.BuildSustainedNoteEngine(),
     compositionConfiguration
 );
 

@@ -12,15 +12,25 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine;
 [ExcludeFromCodeCoverage(Justification = "Trivial builder methods.")]
 internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compositionConfiguration, IMusicalTimeSpanCalculator musicalTimeSpanCalculator)
 {
-    public IPolicyEngine<OrnamentationItem> Build() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+    public IPolicyEngine<OrnamentationItem> BuildOrnamentationEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithoutInputPolicies()
         .WithProcessors(
             BuildPassingToneEngine(),
             BuildDelayedPassingToneEngine(),
             BuildSixteenthNoteRunEngine(),
-            BuildTurnEngine(),
-            BuildSustainedNoteEngine()
+            BuildTurnEngine()
         )
+        .WithoutOutputPolicies()
+        .Build();
+
+    public IPolicyEngine<OrnamentationItem> BuildSustainedNoteEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+        .WithInputPolicies(
+            new WantsToOrnament(),
+            new IsRepeatedNote(),
+            new HasNoOrnamentation(),
+            new IsApplicableInterval(compositionConfiguration, SustainedNoteProcessor.Interval)
+        )
+        .WithProcessors(new SustainedNoteProcessor(musicalTimeSpanCalculator, compositionConfiguration))
         .WithoutOutputPolicies()
         .Build();
 
@@ -56,22 +66,11 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildSixteenthNoteRunEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(90),
+            new WantsToOrnament(),
             new HasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, SixteenthNoteRunProcessor.Interval)
         )
         .WithProcessors(new SixteenthNoteRunProcessor(musicalTimeSpanCalculator, compositionConfiguration))
-        .WithoutOutputPolicies()
-        .Build();
-
-    private IPolicyEngine<OrnamentationItem> BuildSustainedNoteEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
-        .WithInputPolicies(
-            new WantsToOrnament(),
-            new IsRepeatedNote(),
-            new HasNoOrnamentation(),
-            new IsApplicableInterval(compositionConfiguration, SustainedNoteProcessor.Interval)
-        )
-        .WithProcessors(new SustainedNoteProcessor(musicalTimeSpanCalculator, compositionConfiguration))
         .WithoutOutputPolicies()
         .Build();
 }

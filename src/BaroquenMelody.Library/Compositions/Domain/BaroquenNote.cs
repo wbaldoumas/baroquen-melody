@@ -35,7 +35,7 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
     /// <summary>
     ///     Whether or not this note has any ornamentations.
     /// </summary>
-    public bool HasOrnamentations => OrnamentationType != OrnamentationType.None;
+    public bool HasOrnamentations => Ornamentations.Any() || OrnamentationType != OrnamentationType.None;
 
     /// <summary>
     ///     The type of ornamentation that is applied to this note.
@@ -51,6 +51,7 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
     {
         Duration = note.Duration;
         Ornamentations = note.Ornamentations.Select(ornamentation => new BaroquenNote(ornamentation)).ToList();
+        OrnamentationType = note.OrnamentationType;
     }
 
     /// <summary>
