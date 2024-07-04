@@ -12,10 +12,10 @@ namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Policies;
 internal sealed class WantsToOrnamentTests
 {
     [Test]
-    public void ShouldProcess_WhenRandomNumberIsGreaterThanThreshold_ReturnsContinue()
+    public void ShouldProcess_WhenProbabilityHigherThanRandomNumber_ReturnsContinue()
     {
         // arrange
-        var policy = new WantsToOrnament(-1);
+        var policy = new WantsToOrnament(101);
 
         var ornamentationItem = new OrnamentationItem(Voice.Soprano, [], new Beat(new BaroquenChord([])), null);
 
@@ -27,10 +27,10 @@ internal sealed class WantsToOrnamentTests
     }
 
     [Test]
-    public void ShouldProcess_WhenRandomNumberIsLessThanOrEqualToThreshold_ReturnsReject()
+    public void ShouldProcess_WhenProbabilityLowerThanRandomNumber_ReturnsReject()
     {
         // arrange
-        var policy = new WantsToOrnament(101);
+        var policy = new WantsToOrnament(-1);
 
         var ornamentationItem = new OrnamentationItem(Voice.Soprano, [], new Beat(new BaroquenChord([])), null);
 

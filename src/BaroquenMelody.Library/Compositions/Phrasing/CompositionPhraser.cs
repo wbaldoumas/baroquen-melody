@@ -9,8 +9,6 @@ namespace BaroquenMelody.Library.Compositions.Phrasing;
 
 internal sealed class CompositionPhraser(ICompositionRule compositionRule, CompositionConfiguration compositionConfiguration) : ICompositionPhraser
 {
-    private const int Threshold = 100;
-
     private readonly List<RepeatedPhrase> phrasesToRepeat = [];
 
     private readonly Queue<RepeatedPhrase> coolOffPhrases = new();
@@ -34,7 +32,7 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
             return false;
         }
 
-        foreach (var repeatedPhrase in phrasesToRepeat.OrderBy(_ => ThreadLocalRandom.Next()).ToList().Where(repeatedPhrase => TryRepeatPhrase(measures, repeatedPhrase)))
+        foreach (var repeatedPhrase in phrasesToRepeat.OrderBy(_ => ThreadLocalRandom.Next()).Where(repeatedPhrase => TryRepeatPhrase(measures, repeatedPhrase)))
         {
             phrasesToRepeat.Remove(repeatedPhrase);
 
@@ -66,7 +64,7 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
 
             var lastMeasures = measures.Skip(measures.Count - phraseLength).Take(phraseLength).Select(measure => new Measure(measure)).ToList();
 
-            if (ThreadLocalRandom.Next(Threshold) > compositionConfiguration.PhrasingConfiguration.PhraseRepetitionProbability || !CanRepeatPhrase(measures, lastMeasures))
+            if (!WeightedRandomBooleanGenerator.Generate(compositionConfiguration.PhrasingConfiguration.PhraseRepetitionProbability) || !CanRepeatPhrase(measures, lastMeasures))
             {
                 continue;
             }
@@ -102,7 +100,7 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
     private bool TryRepeatPhrase(List<Measure> measures, RepeatedPhrase repeatedPhrase)
     {
         if (repeatedPhrase.RepetitionCount >= compositionConfiguration.PhrasingConfiguration.MaxPhraseRepetitions ||
-            ThreadLocalRandom.Next(Threshold) > compositionConfiguration.PhrasingConfiguration.PhraseRepetitionProbability ||
+            !WeightedRandomBooleanGenerator.Generate(compositionConfiguration.PhrasingConfiguration.PhraseRepetitionProbability) ||
             !CanRepeatPhrase(measures, repeatedPhrase.Phrase))
         {
             return false;
@@ -110,9 +108,7 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
 
         ResetPhraseEndOrnamentation(measures.Last());
 
-        var repeatedMeasures = repeatedPhrase.Phrase.Select(measure => new Measure(measure)).ToList();
-
-        measures.AddRange(repeatedMeasures);
+        measures.AddRange(repeatedPhrase.Phrase.Select(measure => new Measure(measure)).ToList());
         repeatedPhrase.RepetitionCount++;
 
         return true;
@@ -122,12 +118,9 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
     {
         var compositionContext = new FixedSizeList<BaroquenChord>(compositionConfiguration.CompositionContextSize);
 
-        foreach (var measure in measures)
+        foreach (var beat in measures.SelectMany(measure => measure.Beats))
         {
-            foreach (var beat in measure.Beats)
-            {
-                compositionContext.Add(beat.Chord);
-            }
+            compositionContext.Add(beat.Chord);
         }
 
         var firstChordOfRepeatedPhrase = measuresToRepeat.First().Beats.First().Chord;

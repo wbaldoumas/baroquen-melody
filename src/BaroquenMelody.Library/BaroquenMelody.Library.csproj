@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Atrea.PolicyEngine" Version="3.0.0" />
+    <PackageReference Include="Atrea.PolicyEngine" Version="4.0.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
     <PackageReference Include="LazyCart" Version="0.4.5" />
     <PackageReference Include="Melanchall.DryWetMidi" Version="7.1.0" />
@@ -29,6 +29,12 @@
 
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    <InternalsVisibleTo Include="baroquen-melody" />
   </ItemGroup>
 
 </Project>
