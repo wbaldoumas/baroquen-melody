@@ -1,6 +1,6 @@
 ﻿using Atrea.PolicyEngine.Policies.Input;
 
-namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies;
+namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 
 /// <inheritdoc cref="IInputPolicy{T}"/>
 internal sealed class IsRepeatedNote : IInputPolicy<OrnamentationItem>

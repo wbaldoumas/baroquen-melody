@@ -2,11 +2,11 @@
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
-using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies;
+using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Policies;
+namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Policies.Input;
 
 [TestFixture]
 internal sealed class WantsToOrnamentTests

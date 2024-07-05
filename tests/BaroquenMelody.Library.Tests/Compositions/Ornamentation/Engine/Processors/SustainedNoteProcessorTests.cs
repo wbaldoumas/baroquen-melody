@@ -11,7 +11,7 @@ using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
-namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Processors;
+namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Processors;
 
 [TestFixture]
 internal sealed class SustainedNoteProcessorTests

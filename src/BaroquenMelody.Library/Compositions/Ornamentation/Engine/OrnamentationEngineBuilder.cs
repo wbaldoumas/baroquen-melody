@@ -1,7 +1,9 @@
 ﻿using Atrea.PolicyEngine;
 using Atrea.PolicyEngine.Builders;
 using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaners;
+using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
+using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Output;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
@@ -20,7 +22,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             BuildSixteenthNoteRunEngine(),
             BuildTurnEngine()
         )
-        .WithoutOutputPolicies()
+        .WithOutputPolicies(new CleanConflictingOrnamentations(new OrnamentationCleanerFactory()))
         .Build();
 
     public IPolicyEngine<OrnamentationItem> BuildSustainedNoteEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
