@@ -1,7 +1,7 @@
 ﻿using Atrea.PolicyEngine.Policies.Input;
 using BaroquenMelody.Library.Compositions.Configurations;
 
-namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies;
+namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 
 internal sealed class IsApplicableInterval(CompositionConfiguration configuration, int Interval) : IInputPolicy<OrnamentationItem>
 {

@@ -25,6 +25,8 @@ internal sealed record CompositionConfiguration(
         voiceConfiguration => voiceConfiguration.Voice
     );
 
+    public List<Voice> Voices => VoiceConfigurations.Select(voiceConfiguration => voiceConfiguration.Voice).ToList();
+
     /// <summary>
     ///     Determine if the given note is within the range of the given voice for the composition.
     /// </summary>

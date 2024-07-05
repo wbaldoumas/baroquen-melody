@@ -1,7 +1,7 @@
 ﻿using Atrea.PolicyEngine.Policies.Input;
 using BaroquenMelody.Library.Infrastructure.Random;
 
-namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies;
+namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 
 /// <inheritdoc cref="IInputPolicy{T}"/>
 internal sealed class WantsToOrnament(int Probability = 50) : IInputPolicy<OrnamentationItem>

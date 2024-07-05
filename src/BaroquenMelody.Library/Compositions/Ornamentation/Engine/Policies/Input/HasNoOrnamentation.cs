@@ -1,6 +1,6 @@
 ﻿using Atrea.PolicyEngine.Policies.Input;
 
-namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies;
+namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 
 internal sealed class HasNoOrnamentation : IInputPolicy<OrnamentationItem>
 {
