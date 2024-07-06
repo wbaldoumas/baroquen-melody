@@ -93,9 +93,15 @@ internal sealed class MusicalTimeSpanCalculatorTests
 
             yield return new TestCaseData(OrnamentationType.Turn, Meter.FourFour, MusicalTimeSpan.Sixteenth);
 
+            yield return new TestCaseData(OrnamentationType.AlternateTurn, Meter.FourFour, MusicalTimeSpan.Sixteenth);
+
             yield return new TestCaseData(OrnamentationType.Sustain, Meter.FourFour, MusicalTimeSpan.Half);
 
             yield return new TestCaseData(OrnamentationType.Rest, Meter.FourFour, new MusicalTimeSpan());
+
+            yield return new TestCaseData(OrnamentationType.DoubleTurn, Meter.FourFour, MusicalTimeSpan.ThirtySecond);
+
+            yield return new TestCaseData(OrnamentationType.DelayedThirtySecondNoteRun, Meter.FourFour, MusicalTimeSpan.Eighth);
 
             // more test cases to come as more ornamentation types and meters are added...
         }
@@ -113,7 +119,13 @@ internal sealed class MusicalTimeSpanCalculatorTests
 
             yield return new TestCaseData(OrnamentationType.Turn, Meter.FourFour, MusicalTimeSpan.Sixteenth);
 
+            yield return new TestCaseData(OrnamentationType.AlternateTurn, Meter.FourFour, MusicalTimeSpan.Sixteenth);
+
             yield return new TestCaseData(OrnamentationType.Rest, Meter.FourFour, new MusicalTimeSpan());
+
+            yield return new TestCaseData(OrnamentationType.DoubleTurn, Meter.FourFour, MusicalTimeSpan.ThirtySecond);
+
+            yield return new TestCaseData(OrnamentationType.DelayedThirtySecondNoteRun, Meter.FourFour, MusicalTimeSpan.ThirtySecond);
 
             // more test cases to come as more ornamentation types and meters are added...
         }

@@ -14,9 +14,9 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Processors;
 
 [TestFixture]
-internal sealed class TurnProcessorTests
+internal sealed class DelayedThirtySecondNoteRunProcessorTests
 {
-    private TurnProcessor _processor = null!;
+    private DelayedThirtySecondNoteRunProcessor _processor = null!;
 
     [SetUp]
     public void SetUp()
@@ -32,18 +32,18 @@ internal sealed class TurnProcessorTests
             CompositionLength: 100
         );
 
-        _processor = new TurnProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
+        _processor = new DelayedThirtySecondNoteRunProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
     }
 
     [Test]
-    public void Process_applies_ascending_turn_as_expected()
+    public void Process_applies_ascending_thirty_second_note_run_as_expected()
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
             new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)]))
         );
 
         // act
@@ -52,30 +52,31 @@ internal sealed class TurnProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
-        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Turn);
-        noteToAssert.Ornamentations.Should().HaveCount(3);
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.DelayedThirtySecondNoteRun);
+        noteToAssert.Ornamentations.Should().HaveCount(4);
 
-        noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B3);
-        noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.C4);
-        noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.D4);
+        noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.D4);
+        noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.E4);
+        noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.F4);
+        noteToAssert.Ornamentations[3].Raw.Should().Be(Notes.G4);
 
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Eighth);
 
         foreach (var baroquenNote in noteToAssert.Ornamentations)
         {
-            baroquenNote.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+            baroquenNote.Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
         }
     }
 
     [Test]
-    public void Process_applies_descending_turn_as_expected()
+    public void Process_applies_descending_thirty_second_note_run_as_expected()
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A3)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)]))
         );
 
         // act
@@ -84,18 +85,19 @@ internal sealed class TurnProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
-        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Turn);
-        noteToAssert.Ornamentations.Should().HaveCount(3);
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.DelayedThirtySecondNoteRun);
+        noteToAssert.Ornamentations.Should().HaveCount(4);
 
-        noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.D4);
-        noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.C4);
-        noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.B3);
+        noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.G4);
+        noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.F4);
+        noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.E4);
+        noteToAssert.Ornamentations[3].Raw.Should().Be(Notes.D4);
 
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Eighth);
 
         foreach (var baroquenNote in noteToAssert.Ornamentations)
         {
-            baroquenNote.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+            baroquenNote.Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
         }
     }
 }

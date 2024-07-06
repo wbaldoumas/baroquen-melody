@@ -18,9 +18,12 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         .WithoutInputPolicies()
         .WithProcessors(
             BuildPassingToneEngine(),
+            BuildDoubleTurnEngine(),
             BuildDelayedPassingToneEngine(),
             BuildSixteenthNoteRunEngine(),
-            BuildTurnEngine()
+            BuildTurnEngine(),
+            BuildAlternateTurnEngine(),
+            BuildDelayedThirtySecondNoteRunEngine()
         )
         .WithOutputPolicies(new CleanConflictingOrnamentations(new OrnamentationCleanerFactory()))
         .Build();
@@ -66,6 +69,16 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         .WithoutOutputPolicies()
         .Build();
 
+    private IPolicyEngine<OrnamentationItem> BuildAlternateTurnEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+        .WithInputPolicies(
+            new WantsToOrnament(),
+            new HasNoOrnamentation(),
+            new IsApplicableInterval(compositionConfiguration, AlternateTurnProcessor.Interval)
+        )
+        .WithProcessors(new AlternateTurnProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithoutOutputPolicies()
+        .Build();
+
     private IPolicyEngine<OrnamentationItem> BuildSixteenthNoteRunEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
             new WantsToOrnament(),
@@ -73,6 +86,26 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new IsApplicableInterval(compositionConfiguration, SixteenthNoteRunProcessor.Interval)
         )
         .WithProcessors(new SixteenthNoteRunProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithoutOutputPolicies()
+        .Build();
+
+    private IPolicyEngine<OrnamentationItem> BuildDelayedThirtySecondNoteRunEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+        .WithInputPolicies(
+            new WantsToOrnament(10),
+            new HasNoOrnamentation(),
+            new IsApplicableInterval(compositionConfiguration, DelayedThirtySecondNoteRunProcessor.Interval)
+        )
+        .WithProcessors(new DelayedThirtySecondNoteRunProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithoutOutputPolicies()
+        .Build();
+
+    private IPolicyEngine<OrnamentationItem> BuildDoubleTurnEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+        .WithInputPolicies(
+            new WantsToOrnament(25),
+            new HasNoOrnamentation(),
+            new IsApplicableInterval(compositionConfiguration, DoubleTurnProcessor.Interval)
+        )
+        .WithProcessors(new DoubleTurnProcessor(musicalTimeSpanCalculator, compositionConfiguration))
         .WithoutOutputPolicies()
         .Build();
 }

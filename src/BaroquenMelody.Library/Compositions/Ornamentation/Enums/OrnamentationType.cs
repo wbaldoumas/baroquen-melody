@@ -28,6 +28,11 @@ internal enum OrnamentationType : byte
     Turn,
 
     /// <summary>
+    ///     A turn between two notes.
+    /// </summary>
+    AlternateTurn,
+
+    /// <summary>
     ///     A sustained note over multiple beats.
     /// </summary>
     Sustain,
@@ -35,5 +40,15 @@ internal enum OrnamentationType : byte
     /// <summary>
     ///     A rest over multiple beats.
     /// </summary>
-    Rest
+    Rest,
+
+    /// <summary>
+    ///    A delayed thirty-second note run between two notes.
+    /// </summary>
+    DelayedThirtySecondNoteRun,
+
+    /// <summary>
+    ///    A double turn between two notes.
+    /// </summary>
+    DoubleTurn
 }

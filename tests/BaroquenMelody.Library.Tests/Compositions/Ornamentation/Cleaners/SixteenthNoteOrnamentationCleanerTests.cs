@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaners;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
@@ -44,6 +45,7 @@ internal sealed class SixteenthNoteOrnamentationCleanerTests
 
             var sopranoC4WithAscendingSixteenthNotes = new BaroquenNote(sopranoC4)
             {
+                OrnamentationType = OrnamentationType.SixteenthNoteRun,
                 Ornamentations =
                 {
                     new BaroquenNote(sopranoD4),
@@ -54,6 +56,7 @@ internal sealed class SixteenthNoteOrnamentationCleanerTests
 
             var altoF3WithDescendingSixteenthNotes = new BaroquenNote(altoF3)
             {
+                OrnamentationType = OrnamentationType.SixteenthNoteRun,
                 Ornamentations =
                 {
                     new BaroquenNote(altoE3),
@@ -64,6 +67,7 @@ internal sealed class SixteenthNoteOrnamentationCleanerTests
 
             var altoG3WithDescendingSixteenthNotes = new BaroquenNote(altoG3)
             {
+                OrnamentationType = OrnamentationType.SixteenthNoteRun,
                 Ornamentations =
                 {
                     new BaroquenNote(altoF3),

@@ -16,9 +16,12 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.SixteenthNoteRun when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DelayedPassingTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth.Dotted(1),
         OrnamentationType.Turn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.AlternateTurn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.Sustain when meter == Meter.FourFour => MusicalTimeSpan.Half,
+        OrnamentationType.DoubleTurn when meter == Meter.FourFour => MusicalTimeSpan.ThirtySecond,
+        OrnamentationType.DelayedThirtySecondNoteRun when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.Rest => Zero,
-        _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, null)
+        _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, $"Invalid {nameof(OrnamentationType)}")
     };
 
     public MusicalTimeSpan CalculateOrnamentationTimeSpan(OrnamentationType ornamentationType, Meter meter) => ornamentationType switch
@@ -28,7 +31,10 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.SixteenthNoteRun when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DelayedPassingTone when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.Turn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.AlternateTurn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.Sustain => throw new NotSupportedException($"{nameof(OrnamentationType.Sustain)} cannot be applied to an ornamentation."),
+        OrnamentationType.DoubleTurn when meter == Meter.FourFour => MusicalTimeSpan.ThirtySecond,
+        OrnamentationType.DelayedThirtySecondNoteRun when meter == Meter.FourFour => MusicalTimeSpan.ThirtySecond,
         OrnamentationType.Rest => Zero,
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, $"Invalid {nameof(OrnamentationType)}")
     };
