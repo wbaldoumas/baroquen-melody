@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaners;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
@@ -38,9 +39,23 @@ internal sealed class PassingToneOrnamentationCleanerTests
             var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3);
             var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3);
 
-            var sopranoC4WithAscendingPassingTone = new BaroquenNote(sopranoC4) { Ornamentations = { new BaroquenNote(sopranoD4) } };
-            var sopranoD4WithAscendingPassingTone = new BaroquenNote(sopranoD4) { Ornamentations = { new BaroquenNote(sopranoE4) } };
-            var altoF3WithDescendingPassingTone = new BaroquenNote(altoF3) { Ornamentations = { new BaroquenNote(altoE3) } };
+            var sopranoC4WithAscendingPassingTone = new BaroquenNote(sopranoC4)
+            {
+                OrnamentationType = OrnamentationType.PassingTone,
+                Ornamentations = { new BaroquenNote(sopranoD4) }
+            };
+
+            var sopranoD4WithAscendingPassingTone = new BaroquenNote(sopranoD4)
+            {
+                OrnamentationType = OrnamentationType.PassingTone,
+                Ornamentations = { new BaroquenNote(sopranoE4) }
+            };
+
+            var altoF3WithDescendingPassingTone = new BaroquenNote(altoF3)
+            {
+                OrnamentationType = OrnamentationType.PassingTone,
+                Ornamentations = { new BaroquenNote(altoE3) }
+            };
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoC4WithAscendingPassingTone),

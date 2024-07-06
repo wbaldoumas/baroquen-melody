@@ -6,12 +6,12 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 
-internal sealed class TurnProcessor(
+internal sealed class AlternateTurnProcessor(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     CompositionConfiguration compositionConfiguration
 ) : IProcessor<OrnamentationItem>
 {
-    public const int Interval = 2;
+    public const int Interval = 1;
 
     public void Process(OrnamentationItem item)
     {
@@ -23,16 +23,16 @@ internal sealed class TurnProcessor(
         var currentNoteIndex = notes.IndexOf(currentNote.Raw);
         var nextNoteIndex = notes.IndexOf(nextNote.Raw);
 
-        var firstNoteIndex = currentNoteIndex > nextNoteIndex ? currentNoteIndex + 1 : currentNoteIndex - 1;
-        var thirdNoteIndex = currentNoteIndex > nextNoteIndex ? currentNoteIndex - 1 : currentNoteIndex + 1;
+        var firstNoteIndex = currentNoteIndex > nextNoteIndex ? currentNoteIndex - 1 : currentNoteIndex + 1;
+        var secondNoteIndex = currentNoteIndex > nextNoteIndex ? currentNoteIndex + 1 : currentNoteIndex - 1;
 
         var firstNote = notes[firstNoteIndex];
-        var secondNote = notes[currentNoteIndex];
-        var thirdNote = notes[thirdNoteIndex];
+        var secondNote = notes[secondNoteIndex];
+        var thirdNote = notes[currentNoteIndex];
 
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Turn, compositionConfiguration.Meter);
+        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.AlternateTurn, compositionConfiguration.Meter);
 
-        var duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Turn, compositionConfiguration.Meter);
+        var duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.AlternateTurn, compositionConfiguration.Meter);
 
         currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, firstNote)
         {
@@ -49,6 +49,6 @@ internal sealed class TurnProcessor(
             Duration = duration
         });
 
-        currentNote.OrnamentationType = OrnamentationType.Turn;
+        currentNote.OrnamentationType = OrnamentationType.AlternateTurn;
     }
 }

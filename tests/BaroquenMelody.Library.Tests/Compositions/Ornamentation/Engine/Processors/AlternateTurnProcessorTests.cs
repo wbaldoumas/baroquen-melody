@@ -14,9 +14,9 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Processors;
 
 [TestFixture]
-internal sealed class TurnProcessorTests
+internal sealed class AlternateTurnProcessorTests
 {
-    private TurnProcessor _processor = null!;
+    private AlternateTurnProcessor _processor = null!;
 
     [SetUp]
     public void SetUp()
@@ -32,7 +32,7 @@ internal sealed class TurnProcessorTests
             CompositionLength: 100
         );
 
-        _processor = new TurnProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
+        _processor = new AlternateTurnProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
     }
 
     [Test]
@@ -43,7 +43,7 @@ internal sealed class TurnProcessorTests
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
             new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.D4)]))
         );
 
         // act
@@ -52,12 +52,12 @@ internal sealed class TurnProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
-        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Turn);
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.AlternateTurn);
         noteToAssert.Ornamentations.Should().HaveCount(3);
 
-        noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B3);
-        noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.C4);
-        noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.D4);
+        noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.D4);
+        noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.B3);
+        noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.C4);
 
         noteToAssert.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
 
@@ -75,7 +75,7 @@ internal sealed class TurnProcessorTests
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
             new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A3)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.B3)]))
         );
 
         // act
@@ -84,12 +84,12 @@ internal sealed class TurnProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
-        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Turn);
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.AlternateTurn);
         noteToAssert.Ornamentations.Should().HaveCount(3);
 
-        noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.D4);
-        noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.C4);
-        noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.B3);
+        noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B3);
+        noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.D4);
+        noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.C4);
 
         noteToAssert.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
 

@@ -56,6 +56,8 @@ internal sealed class Composer(
             }
 
             measures.Add(new Measure(beats, compositionConfiguration.Meter));
+
+            Console.WriteLine($"Composed measure {measures.Count} of {compositionConfiguration.CompositionLength}");
         }
 
         var composition = new Composition(measures);

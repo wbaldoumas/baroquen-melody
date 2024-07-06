@@ -3,7 +3,7 @@
 namespace BaroquenMelody.Library.Compositions.Choices;
 
 /// <inheritdoc cref="INoteChoiceGenerator"/>
-internal sealed class NoteChoiceGenerator(byte minScaleStepChange = 1, byte maxScaleStepChange = 4) : INoteChoiceGenerator
+internal sealed class NoteChoiceGenerator(byte minScaleStepChange = 1, byte maxScaleStepChange = 5) : INoteChoiceGenerator
 {
     private readonly NoteMotion[] noteMotions = [NoteMotion.Ascending, NoteMotion.Descending];
 
