@@ -18,7 +18,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         .WithoutInputPolicies()
         .WithProcessors(
             BuildPassingToneEngine(),
-            BuildDoubleTurnProcessor(),
+            BuildDoubleTurnEngine(),
             BuildDelayedPassingToneEngine(),
             BuildSixteenthNoteRunEngine(),
             BuildTurnEngine(),
@@ -99,7 +99,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         .WithoutOutputPolicies()
         .Build();
 
-    private IPolicyEngine<OrnamentationItem> BuildDoubleTurnProcessor() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+    private IPolicyEngine<OrnamentationItem> BuildDoubleTurnEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
             new WantsToOrnament(25),
             new HasNoOrnamentation(),
