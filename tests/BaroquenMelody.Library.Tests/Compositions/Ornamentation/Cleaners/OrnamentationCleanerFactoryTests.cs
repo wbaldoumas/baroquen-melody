@@ -40,6 +40,7 @@ internal sealed class OrnamentationCleanerFactoryTests
     [TestCase(OrnamentationType.PassingTone, OrnamentationType.AlternateTurn, typeof(PassingToneSixteenthNoteOrnamentationCleaner))]
     [TestCase(OrnamentationType.DoublePassingTone, OrnamentationType.AlternateTurn, typeof(PassingToneSixteenthNoteOrnamentationCleaner))]
     [TestCase(OrnamentationType.AlternateTurn, OrnamentationType.PassingTone, typeof(PassingToneSixteenthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.AlternateTurn, OrnamentationType.DoublePassingTone, typeof(PassingToneSixteenthNoteOrnamentationCleaner))]
     [TestCase(OrnamentationType.Turn, OrnamentationType.AlternateTurn, typeof(TurnAlternateTurnOrnamentationCleaner))]
     [TestCase(OrnamentationType.AlternateTurn, OrnamentationType.Turn, typeof(TurnAlternateTurnOrnamentationCleaner))]
     [TestCase(OrnamentationType.Sustain, OrnamentationType.Rest, typeof(NoOpOrnamentationCleaner))]
