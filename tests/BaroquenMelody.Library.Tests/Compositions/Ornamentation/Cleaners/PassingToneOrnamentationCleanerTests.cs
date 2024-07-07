@@ -60,7 +60,7 @@ internal sealed class PassingToneOrnamentationCleanerTests
 
             var sopranoC4WithAscendingDelayedDoublePassingTone = new BaroquenNote(sopranoC4)
             {
-                OrnamentationType = OrnamentationType.DoublePassingTone,
+                OrnamentationType = OrnamentationType.DelayedDoublePassingTone,
                 Ornamentations = { new BaroquenNote(sopranoD4), new BaroquenNote(sopranoE4) }
             };
 
@@ -90,7 +90,7 @@ internal sealed class PassingToneOrnamentationCleanerTests
 
             var altoF3WithDescendingDelayedDoublePassingTone = new BaroquenNote(altoF3)
             {
-                OrnamentationType = OrnamentationType.DoublePassingTone,
+                OrnamentationType = OrnamentationType.DelayedDoublePassingTone,
                 Ornamentations = { new BaroquenNote(altoE3), new BaroquenNote(altoD3) }
             };
 
