@@ -34,6 +34,7 @@ internal sealed class PassingToneSixteenthNoteOrnamentationCleanerTests
         {
             var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4);
             var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4);
+            var sopranoE4 = new BaroquenNote(Voice.Soprano, Notes.E4);
 
             var altoG3 = new BaroquenNote(Voice.Alto, Notes.G3);
             var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3);
@@ -47,6 +48,16 @@ internal sealed class PassingToneSixteenthNoteOrnamentationCleanerTests
                 Ornamentations =
                 {
                     new BaroquenNote(sopranoD4)
+                }
+            };
+
+            var sopranoC4WithAscendingDoublePassingTone = new BaroquenNote(sopranoC4)
+            {
+                OrnamentationType = OrnamentationType.DoublePassingTone,
+                Ornamentations =
+                {
+                    new BaroquenNote(sopranoD4),
+                    new BaroquenNote(sopranoE4)
                 }
             };
 
@@ -85,6 +96,20 @@ internal sealed class PassingToneSixteenthNoteOrnamentationCleanerTests
                 new BaroquenNote(altoG3WithDescendingSixteenthNotes),
                 new BaroquenNote(sopranoC4)
             ).SetName("When soprano has ascending passing tone and alto has descending sixteenth notes, then passing tone is cleaned.");
+
+            yield return new TestCaseData(
+                new BaroquenNote(sopranoC4WithAscendingDoublePassingTone),
+                new BaroquenNote(altoG3WithDescendingSixteenthNotes),
+                new BaroquenNote(sopranoC4),
+                new BaroquenNote(altoG3WithDescendingSixteenthNotes)
+            ).SetName("When soprano has ascending double passing tone and alto has descending sixteenth notes, then passing tone is cleaned.");
+
+            yield return new TestCaseData(
+                new BaroquenNote(altoG3WithDescendingSixteenthNotes),
+                new BaroquenNote(sopranoC4WithAscendingDoublePassingTone),
+                new BaroquenNote(altoG3WithDescendingSixteenthNotes),
+                new BaroquenNote(sopranoC4)
+            ).SetName("When soprano has ascending double passing tone and alto has descending sixteenth notes, then passing tone is cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoC4WithAscendingPassingTone),

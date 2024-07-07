@@ -18,7 +18,13 @@ internal sealed class OrnamentationCleanerFactory : IOrnamentationCleanerFactory
     public IOrnamentationCleaner Get(OrnamentationType ornamentationTypeA, OrnamentationType ornamentationTypeB) => (ornamentationTypeA, ornamentationTypeB) switch
     {
         (OrnamentationType.PassingTone, OrnamentationType.PassingTone) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.DoublePassingTone, OrnamentationType.DoublePassingTone) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.PassingTone, OrnamentationType.DoublePassingTone) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.DoublePassingTone, OrnamentationType.PassingTone) => _passingToneOrnamentationCleaner.Value,
         (OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedPassingTone) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedDoublePassingTone) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedPassingTone) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedDoublePassingTone) => _passingToneOrnamentationCleaner.Value,
         (OrnamentationType.SixteenthNoteRun, OrnamentationType.SixteenthNoteRun) => _sixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.SixteenthNoteRun, OrnamentationType.AlternateTurn) => _sixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.SixteenthNoteRun, OrnamentationType.Turn) => _sixteenthNoteOrnamentationCleaner.Value,
@@ -32,6 +38,12 @@ internal sealed class OrnamentationCleanerFactory : IOrnamentationCleanerFactory
         (OrnamentationType.SixteenthNoteRun, OrnamentationType.PassingTone) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.Turn, OrnamentationType.PassingTone) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.AlternateTurn, OrnamentationType.PassingTone) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DoublePassingTone, OrnamentationType.SixteenthNoteRun) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DoublePassingTone, OrnamentationType.Turn) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DoublePassingTone, OrnamentationType.AlternateTurn) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.SixteenthNoteRun, OrnamentationType.DoublePassingTone) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Turn, OrnamentationType.DoublePassingTone) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.AlternateTurn, OrnamentationType.DoublePassingTone) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.Turn, OrnamentationType.AlternateTurn) => _turnAlternateTurnOrnamentationCleaner.Value,
         (OrnamentationType.AlternateTurn, OrnamentationType.Turn) => _turnAlternateTurnOrnamentationCleaner.Value,
         _ => _noOpOrnamentationCleaner.Value
