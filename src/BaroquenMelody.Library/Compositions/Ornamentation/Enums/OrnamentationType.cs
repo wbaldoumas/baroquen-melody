@@ -50,5 +50,15 @@ internal enum OrnamentationType : byte
     /// <summary>
     ///    A double turn between two notes.
     /// </summary>
-    DoubleTurn
+    DoubleTurn,
+
+    /// <summary>
+    ///    Two passing tones between two notes.
+    /// </summary>
+    DoublePassingTone,
+
+    /// <summary>
+    ///    A delayed double passing tone between two notes.
+    /// </summary>
+    DelayedDoublePassingTone
 }

@@ -12,7 +12,7 @@ internal sealed class PassingToneSixteenthNoteOrnamentationCleaner : IOrnamentat
 {
     public void Clean(BaroquenNote noteA, BaroquenNote noteB)
     {
-        if (noteA.OrnamentationType == OrnamentationType.PassingTone)
+        if (noteA.OrnamentationType is OrnamentationType.PassingTone or OrnamentationType.DoublePassingTone)
         {
             CleanTargetedNotes(noteA, noteB);
         }
