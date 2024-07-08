@@ -16,10 +16,10 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine;
 [ExcludeFromCodeCoverage(Justification = "Trivial builder methods.")]
 internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compositionConfiguration, IMusicalTimeSpanCalculator musicalTimeSpanCalculator)
 {
-    private const int SupertonicDecorateDominantSeventhAboveInterval = 3;
-    private const int SupertonicDecorateDominantSeventhBelowInterval = -4;
-    private const int LeadingToneDecorateDominantSeventhAboveInterval = 5;
-    private const int LeadingToneDecorateDominantSeventhBelowInterval = -2;
+    private const int DecorateDominantSeventhAboveSupertonicInterval = 3;
+    private const int DecorateDominantSeventhBelowSupertonicInterval = -4;
+    private const int DecorateDominantSeventhAboveLeadingToneInterval = 5;
+    private const int DecorateDominantSeventhBelowLeadingToneInterval = -2;
 
     public IPolicyEngine<OrnamentationItem> BuildOrnamentationEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithoutInputPolicies()
@@ -30,13 +30,14 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             BuildDoubleTurnEngine(),
             BuildDelayedPassingToneEngine(),
             BuildSixteenthNoteRunEngine(),
+            BuildDoubleThirtySecondNoteRunProcessor(),
             BuildTurnEngine(),
             BuildAlternateTurnEngine(),
             BuildDelayedThirtySecondNoteRunEngine(),
-            BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.Supertonic, SupertonicDecorateDominantSeventhBelowInterval),
-            BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.Supertonic, SupertonicDecorateDominantSeventhAboveInterval),
-            BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.LeadingTone, LeadingToneDecorateDominantSeventhAboveInterval),
-            BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.LeadingTone, LeadingToneDecorateDominantSeventhBelowInterval)
+            BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.Supertonic, DecorateDominantSeventhBelowSupertonicInterval),
+            BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.Supertonic, DecorateDominantSeventhAboveSupertonicInterval),
+            BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.LeadingTone, DecorateDominantSeventhAboveLeadingToneInterval),
+            BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.LeadingTone, DecorateDominantSeventhBelowLeadingToneInterval)
         )
         .WithOutputPolicies(new CleanConflictingOrnamentations(new OrnamentationCleanerFactory()))
         .Build();
@@ -154,6 +155,16 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new IsIntervalWithinVoiceRange(compositionConfiguration, intervalChange)
         )
         .WithProcessors(new DecorateIntervalProcessor(musicalTimeSpanCalculator, compositionConfiguration, intervalChange))
+        .WithoutOutputPolicies()
+        .Build();
+
+    private IPolicyEngine<OrnamentationItem> BuildDoubleThirtySecondNoteRunProcessor() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+        .WithInputPolicies(
+            new WantsToOrnament(10),
+            new NoteHasNoOrnamentation(),
+            new IsApplicableInterval(compositionConfiguration, ThirtySecondNoteRunProcessor.Interval)
+        )
+        .WithProcessors(new ThirtySecondNoteRunProcessor(musicalTimeSpanCalculator, compositionConfiguration))
         .WithoutOutputPolicies()
         .Build();
 }

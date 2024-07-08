@@ -65,5 +65,10 @@ internal enum OrnamentationType : byte
     /// <summary>
     ///     Outline the dominant seventh chord.
     /// </summary>
-    DecorateInterval
+    DecorateInterval,
+
+    /// <summary>
+    ///    Two thirty-second note runs between two notes.
+    /// </summary>
+    ThirtySecondNoteRun
 }
