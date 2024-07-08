@@ -11,19 +11,19 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Policies.Input;
 
 [TestFixture]
-internal sealed class HasNoOrnamentationTests
+internal sealed class NextBeatContainsTargetNotesTests
 {
-    private HasNoOrnamentation _hasNoOrnamentation = null!;
+    private NextBeatContainsTargetNotes _nextBeatContainsTargetNotes;
 
     [SetUp]
-    public void SetUp() => _hasNoOrnamentation = new HasNoOrnamentation();
+    public void SetUp() => _nextBeatContainsTargetNotes = new NextBeatContainsTargetNotes([NoteName.G, NoteName.B, NoteName.D]);
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
     public void ShouldProcess(OrnamentationItem ornamentationItem, InputPolicyResult expectedInputPolicyResult)
     {
         // act
-        var result = _hasNoOrnamentation.ShouldProcess(ornamentationItem);
+        var result = _nextBeatContainsTargetNotes.ShouldProcess(ornamentationItem);
 
         // assert
         result.Should().Be(expectedInputPolicyResult);
@@ -39,21 +39,21 @@ internal sealed class HasNoOrnamentationTests
                 new OrnamentationItem(
                     Voice.Soprano,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
-                    null
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4), new BaroquenNote(Voice.Alto, Notes.B4), new BaroquenNote(Voice.Bass, Notes.D4)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4), new BaroquenNote(Voice.Alto, Notes.B4), new BaroquenNote(Voice.Bass, Notes.D4)]))
                 ),
                 InputPolicyResult.Continue
-            ).SetName($"When note has no ornamentation, then {nameof(InputPolicyResult.Continue)} is returned.");
+            ).SetName($"When notes are G, B, and D, then {nameof(InputPolicyResult.Continue)} is returned.");
 
             yield return new TestCaseData(
                 new OrnamentationItem(
                     Voice.Soprano,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4) { Ornamentations = { new BaroquenNote(Voice.Soprano, Notes.G2) } }])),
-                    null
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4), new BaroquenNote(Voice.Alto, Notes.B4), new BaroquenNote(Voice.Tenor, Notes.E4)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4), new BaroquenNote(Voice.Alto, Notes.B4), new BaroquenNote(Voice.Tenor, Notes.E4)]))
                 ),
                 InputPolicyResult.Reject
-            ).SetName($"When note has ornamentation, then {nameof(InputPolicyResult.Reject)} is returned.");
+            ).SetName($"When notes are G, B, and E, then {nameof(InputPolicyResult.Reject)} is returned.");
         }
     }
 }
