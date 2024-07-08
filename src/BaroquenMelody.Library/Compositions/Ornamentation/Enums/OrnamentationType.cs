@@ -43,22 +43,27 @@ internal enum OrnamentationType : byte
     Rest,
 
     /// <summary>
-    ///    A delayed thirty-second note run between two notes.
+    ///     A delayed thirty-second note run between two notes.
     /// </summary>
     DelayedThirtySecondNoteRun,
 
     /// <summary>
-    ///    A double turn between two notes.
+    ///     A double turn between two notes.
     /// </summary>
     DoubleTurn,
 
     /// <summary>
-    ///    Two passing tones between two notes.
+    ///     Two passing tones between two notes.
     /// </summary>
     DoublePassingTone,
 
     /// <summary>
-    ///    A delayed double passing tone between two notes.
+    ///     A delayed double passing tone between two notes.
     /// </summary>
-    DelayedDoublePassingTone
+    DelayedDoublePassingTone,
+
+    /// <summary>
+    ///     Outline the dominant seventh chord.
+    /// </summary>
+    DecorateInterval
 }

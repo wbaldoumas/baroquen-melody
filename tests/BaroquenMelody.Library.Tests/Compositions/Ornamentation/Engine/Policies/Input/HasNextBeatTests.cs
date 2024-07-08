@@ -11,19 +11,19 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Policies.Input;
 
 [TestFixture]
-internal sealed class HasNoOrnamentationTests
+internal sealed class HasNextBeatTests
 {
-    private HasNoOrnamentation _hasNoOrnamentation = null!;
+    private HasNextBeat _hasNextBeat = null!;
 
     [SetUp]
-    public void SetUp() => _hasNoOrnamentation = new HasNoOrnamentation();
+    public void SetUp() => _hasNextBeat = new HasNextBeat();
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
     public void ShouldProcess(OrnamentationItem ornamentationItem, InputPolicyResult expectedInputPolicyResult)
     {
         // act
-        var result = _hasNoOrnamentation.ShouldProcess(ornamentationItem);
+        var result = _hasNextBeat.ShouldProcess(ornamentationItem);
 
         // assert
         result.Should().Be(expectedInputPolicyResult);
@@ -42,18 +42,18 @@ internal sealed class HasNoOrnamentationTests
                     new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
                     null
                 ),
-                InputPolicyResult.Continue
-            ).SetName($"When note has no ornamentation, then {nameof(InputPolicyResult.Continue)} is returned.");
+                InputPolicyResult.Reject
+            ).SetName($"When next beat is null, then {nameof(InputPolicyResult.Reject)} is returned.");
 
             yield return new TestCaseData(
                 new OrnamentationItem(
                     Voice.Soprano,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4) { Ornamentations = { new BaroquenNote(Voice.Soprano, Notes.G2) } }])),
-                    null
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)]))
                 ),
-                InputPolicyResult.Reject
-            ).SetName($"When note has ornamentation, then {nameof(InputPolicyResult.Reject)} is returned.");
+                InputPolicyResult.Continue
+            ).SetName($"When next beat is not null, then {nameof(InputPolicyResult.Continue)} is returned.");
         }
     }
 }
