@@ -15,6 +15,11 @@ internal sealed class OrnamentationCleanerFactory : IOrnamentationCleanerFactory
 
     private readonly Lazy<IOrnamentationCleaner> _noOpOrnamentationCleaner = new(() => new NoOpOrnamentationCleaner());
 
+    private readonly Lazy<IOrnamentationCleaner> _thirtySecondNoteOrnamentationCleaner = new(() => new ThirtySecondNoteOrnamentationCleaner());
+
+    private readonly Lazy<IOrnamentationCleaner> _thirtySecondSixteenthNoteOrnamentationCleaner = new(() => new ThirtySecondSixteenthNoteOrnamentationCleaner());
+
+#pragma warning disable MA0051
     public IOrnamentationCleaner Get(OrnamentationType ornamentationTypeA, OrnamentationType ornamentationTypeB) => (ornamentationTypeA, ornamentationTypeB) switch
     {
         (OrnamentationType.PassingTone, OrnamentationType.PassingTone) => _passingToneOrnamentationCleaner.Value,
@@ -57,6 +62,28 @@ internal sealed class OrnamentationCleanerFactory : IOrnamentationCleanerFactory
         (OrnamentationType.DecorateInterval, OrnamentationType.DoublePassingTone) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.Turn, OrnamentationType.AlternateTurn) => _turnAlternateTurnOrnamentationCleaner.Value,
         (OrnamentationType.AlternateTurn, OrnamentationType.Turn) => _turnAlternateTurnOrnamentationCleaner.Value,
+        (OrnamentationType.ThirtySecondNoteRun, OrnamentationType.ThirtySecondNoteRun) => _thirtySecondNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DoubleTurn, OrnamentationType.DoubleTurn) => _thirtySecondNoteOrnamentationCleaner.Value,
+        (OrnamentationType.ThirtySecondNoteRun, OrnamentationType.DoubleTurn) => _thirtySecondNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DoubleTurn, OrnamentationType.ThirtySecondNoteRun) => _thirtySecondNoteOrnamentationCleaner.Value,
+        (OrnamentationType.ThirtySecondNoteRun, OrnamentationType.SixteenthNoteRun) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.SixteenthNoteRun, OrnamentationType.ThirtySecondNoteRun) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.ThirtySecondNoteRun, OrnamentationType.Turn) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Turn, OrnamentationType.ThirtySecondNoteRun) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.ThirtySecondNoteRun, OrnamentationType.AlternateTurn) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.AlternateTurn, OrnamentationType.ThirtySecondNoteRun) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.ThirtySecondNoteRun, OrnamentationType.DecorateInterval) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DecorateInterval, OrnamentationType.ThirtySecondNoteRun) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DoubleTurn, OrnamentationType.SixteenthNoteRun) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.SixteenthNoteRun, OrnamentationType.DoubleTurn) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DoubleTurn, OrnamentationType.Turn) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Turn, OrnamentationType.DoubleTurn) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DoubleTurn, OrnamentationType.AlternateTurn) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.AlternateTurn, OrnamentationType.DoubleTurn) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DoubleTurn, OrnamentationType.DecorateInterval) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DecorateInterval, OrnamentationType.DoubleTurn) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+
         _ => _noOpOrnamentationCleaner.Value
     };
+#pragma warning restore MA0051 // Method is too long
 }

@@ -23,6 +23,7 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DoublePassingTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.DelayedDoublePassingTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth.Dotted(1),
         OrnamentationType.DecorateInterval when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.ThirtySecondNoteRun when meter == Meter.FourFour => MusicalTimeSpan.ThirtySecond,
         OrnamentationType.Rest => Zero,
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, $"Invalid {nameof(OrnamentationType)}")
     };
@@ -41,6 +42,7 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DoublePassingTone when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DelayedDoublePassingTone when meter == Meter.FourFour => MusicalTimeSpan.ThirtySecond,
         OrnamentationType.DecorateInterval when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.ThirtySecondNoteRun when meter == Meter.FourFour => MusicalTimeSpan.ThirtySecond,
         OrnamentationType.Rest => Zero,
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, $"Invalid {nameof(OrnamentationType)}")
     };
