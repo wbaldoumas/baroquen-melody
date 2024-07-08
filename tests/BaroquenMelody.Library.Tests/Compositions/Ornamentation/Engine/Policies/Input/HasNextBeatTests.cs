@@ -11,19 +11,19 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Policies.Input;
 
 [TestFixture]
-internal sealed class CurrentNoteIsTargetNoteTests
+internal sealed class HasNextBeatTests
 {
-    private CurrentNoteIsTargetNote _currentNoteIsTargetNote = null!;
+    private HasNextBeat _hasNextBeat = null!;
 
     [SetUp]
-    public void SetUp() => _currentNoteIsTargetNote = new CurrentNoteIsTargetNote(NoteName.A);
+    public void SetUp() => _hasNextBeat = new HasNextBeat();
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
     public void ShouldProcess(OrnamentationItem ornamentationItem, InputPolicyResult expectedInputPolicyResult)
     {
         // act
-        var result = _currentNoteIsTargetNote.ShouldProcess(ornamentationItem);
+        var result = _hasNextBeat.ShouldProcess(ornamentationItem);
 
         // assert
         result.Should().Be(expectedInputPolicyResult);
@@ -35,30 +35,25 @@ internal sealed class CurrentNoteIsTargetNoteTests
         {
             var testCompositionContext = new FixedSizeList<Beat>(1);
 
-            var sopranoNoteWithTargetNoteName = new BaroquenNote(Voice.Soprano, Notes.A4);
-            var altoNoteWithTargetNoteName = new BaroquenNote(Voice.Alto, Notes.A4);
-            var sopranoNoteWithoutNoteName = new BaroquenNote(Voice.Soprano, Notes.G4);
-            var altoNoteWithoutNoteName = new BaroquenNote(Voice.Alto, Notes.G4);
-
             yield return new TestCaseData(
                 new OrnamentationItem(
                     Voice.Soprano,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([sopranoNoteWithTargetNoteName, altoNoteWithoutNoteName])),
-                    null
-                ),
-                InputPolicyResult.Continue
-            );
-
-            yield return new TestCaseData(
-                new OrnamentationItem(
-                    Voice.Soprano,
-                    testCompositionContext,
-                    new Beat(new BaroquenChord([sopranoNoteWithoutNoteName, altoNoteWithTargetNoteName])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
                     null
                 ),
                 InputPolicyResult.Reject
-            );
+            ).SetName($"When next beat is null, then {nameof(InputPolicyResult.Reject)} is returned.");
+
+            yield return new TestCaseData(
+                new OrnamentationItem(
+                    Voice.Soprano,
+                    testCompositionContext,
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)]))
+                ),
+                InputPolicyResult.Continue
+            ).SetName($"When next beat is not null, then {nameof(InputPolicyResult.Continue)} is returned.");
         }
     }
 }

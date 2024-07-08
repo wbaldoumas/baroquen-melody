@@ -147,7 +147,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new HasNextBeat(),
             new WantsToOrnament(25),
             new NoteHasNoOrnamentation(),
-            new CurrentNoteIsTargetNote(targetNote),
+            new NoteIsTargetNote(targetNote),
             new BeatContainsTargetNotes([compositionConfiguration.Scale.Dominant, compositionConfiguration.Scale.LeadingTone, compositionConfiguration.Scale.Supertonic]),
             new NextBeatContainsTargetNotes([compositionConfiguration.Scale.Tonic, compositionConfiguration.Scale.Mediant, compositionConfiguration.Scale.Dominant]),
             new Not<OrnamentationItem>(new BeatContainsTargetOrnamentation(OrnamentationType.DecorateInterval)),
