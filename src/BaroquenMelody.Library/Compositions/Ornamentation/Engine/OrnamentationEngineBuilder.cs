@@ -2,6 +2,7 @@
 using Atrea.PolicyEngine.Builders;
 using Atrea.PolicyEngine.Policies.Input;
 using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaners;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Output;
@@ -21,6 +22,8 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
     private const int DecorateDominantSeventhAboveLeadingToneInterval = 5;
     private const int DecorateDominantSeventhBelowLeadingToneInterval = -2;
 
+    private readonly IChordNumberIdentifier _chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
+
     public IPolicyEngine<OrnamentationItem> BuildOrnamentationEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithoutInputPolicies()
         .WithProcessors(
@@ -37,7 +40,10 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.Supertonic, DecorateDominantSeventhBelowSupertonicInterval),
             BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.Supertonic, DecorateDominantSeventhAboveSupertonicInterval),
             BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.LeadingTone, DecorateDominantSeventhAboveLeadingToneInterval),
-            BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.LeadingTone, DecorateDominantSeventhBelowLeadingToneInterval)
+            BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.LeadingTone, DecorateDominantSeventhBelowLeadingToneInterval),
+            BuildPedalProcessor(new IsRootOfChord(_chordNumberIdentifier, compositionConfiguration), PedalProcessor.RootPedalInterval),
+            BuildPedalProcessor(new IsThirdOfChord(_chordNumberIdentifier, compositionConfiguration), PedalProcessor.ThirdPedalInterval),
+            BuildPedalProcessor(new IsFifthOfChord(_chordNumberIdentifier, compositionConfiguration), PedalProcessor.FifthPedalInterval)
         )
         .WithOutputPolicies(new CleanConflictingOrnamentations(new OrnamentationCleanerFactory()))
         .Build();
@@ -165,6 +171,19 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new IsApplicableInterval(compositionConfiguration, ThirtySecondNoteRunProcessor.Interval)
         )
         .WithProcessors(new ThirtySecondNoteRunProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithoutOutputPolicies()
+        .Build();
+
+    private IPolicyEngine<OrnamentationItem> BuildPedalProcessor(IInputPolicy<OrnamentationItem> scaleDegreePolicy, int pedalInterval) => PolicyEngineBuilder<OrnamentationItem>.Configure()
+        .WithInputPolicies(
+            new WantsToOrnament(),
+            new NoteHasNoOrnamentation(),
+            scaleDegreePolicy,
+            new IsApplicableInterval(compositionConfiguration, PedalProcessor.Interval),
+            new Not<OrnamentationItem>(new BeatContainsTargetOrnamentation(OrnamentationType.Pedal)),
+            new IsIntervalWithinVoiceRange(compositionConfiguration, pedalInterval)
+        )
+        .WithProcessors(new PedalProcessor(musicalTimeSpanCalculator, compositionConfiguration, pedalInterval))
         .WithoutOutputPolicies()
         .Build();
 }

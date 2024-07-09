@@ -44,6 +44,15 @@ internal sealed class OrnamentationCleanerFactory : IOrnamentationCleanerFactory
         (OrnamentationType.SixteenthNoteRun, OrnamentationType.DecorateInterval) => _sixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.Turn, OrnamentationType.DecorateInterval) => _sixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.AlternateTurn, OrnamentationType.DecorateInterval) => _sixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Pedal, OrnamentationType.Pedal) => _sixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Pedal, OrnamentationType.SixteenthNoteRun) => _sixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Pedal, OrnamentationType.Turn) => _sixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Pedal, OrnamentationType.AlternateTurn) => _sixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Pedal, OrnamentationType.DecorateInterval) => _sixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.SixteenthNoteRun, OrnamentationType.Pedal) => _sixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Turn, OrnamentationType.Pedal) => _sixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.AlternateTurn, OrnamentationType.Pedal) => _sixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DecorateInterval, OrnamentationType.Pedal) => _sixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.PassingTone, OrnamentationType.SixteenthNoteRun) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.PassingTone, OrnamentationType.Turn) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.PassingTone, OrnamentationType.AlternateTurn) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
@@ -60,6 +69,10 @@ internal sealed class OrnamentationCleanerFactory : IOrnamentationCleanerFactory
         (OrnamentationType.DecorateInterval, OrnamentationType.PassingTone) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.DoublePassingTone, OrnamentationType.DecorateInterval) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.DecorateInterval, OrnamentationType.DoublePassingTone) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Pedal, OrnamentationType.PassingTone) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.PassingTone, OrnamentationType.Pedal) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Pedal, OrnamentationType.DoublePassingTone) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DoublePassingTone, OrnamentationType.Pedal) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.Turn, OrnamentationType.AlternateTurn) => _turnAlternateTurnOrnamentationCleaner.Value,
         (OrnamentationType.AlternateTurn, OrnamentationType.Turn) => _turnAlternateTurnOrnamentationCleaner.Value,
         (OrnamentationType.ThirtySecondNoteRun, OrnamentationType.ThirtySecondNoteRun) => _thirtySecondNoteOrnamentationCleaner.Value,
@@ -82,7 +95,10 @@ internal sealed class OrnamentationCleanerFactory : IOrnamentationCleanerFactory
         (OrnamentationType.AlternateTurn, OrnamentationType.DoubleTurn) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.DoubleTurn, OrnamentationType.DecorateInterval) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.DecorateInterval, OrnamentationType.DoubleTurn) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
-
+        (OrnamentationType.Pedal, OrnamentationType.ThirtySecondNoteRun) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.ThirtySecondNoteRun, OrnamentationType.Pedal) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Pedal, OrnamentationType.DoubleTurn) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DoubleTurn, OrnamentationType.Pedal) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
         _ => _noOpOrnamentationCleaner.Value
     };
 #pragma warning restore MA0051 // Method is too long

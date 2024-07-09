@@ -1,6 +1,8 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Enums.Extensions;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums.Extensions;
 
 namespace BaroquenMelody.Library.Compositions.Rules;
 

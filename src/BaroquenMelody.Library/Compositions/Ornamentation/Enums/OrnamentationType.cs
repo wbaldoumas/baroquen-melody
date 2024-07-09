@@ -70,5 +70,10 @@ internal enum OrnamentationType : byte
     /// <summary>
     ///    Two thirty-second note runs between two notes.
     /// </summary>
-    ThirtySecondNoteRun
+    ThirtySecondNoteRun,
+
+    /// <summary>
+    ///     A pedal below a passing tone.
+    /// </summary>
+    Pedal
 }

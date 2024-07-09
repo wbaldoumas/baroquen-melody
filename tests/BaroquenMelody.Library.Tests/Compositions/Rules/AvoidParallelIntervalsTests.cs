@@ -4,7 +4,7 @@ using BaroquenMelody.Library.Compositions.Rules;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
-using Interval = BaroquenMelody.Library.Compositions.Enums.Interval;
+using Interval = BaroquenMelody.Library.Compositions.MusicTheory.Enums.Interval;
 
 namespace BaroquenMelody.Library.Tests.Compositions.Rules;
 

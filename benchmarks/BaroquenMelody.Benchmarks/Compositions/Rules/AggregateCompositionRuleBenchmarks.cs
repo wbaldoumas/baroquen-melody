@@ -1,5 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using BenchmarkDotNet.Attributes;
