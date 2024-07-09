@@ -46,6 +46,8 @@ internal sealed class AvoidOverDoublingTests
         var quartetChordWithDuplicateNotes = new BaroquenChord([sopranoC4, altoC3, tenorC2, bassC1]);
         var quartetChordWithDifferingNotes = new BaroquenChord([sopranoC4, altoE3, tenorD2, bassF1]);
 
+        var soloChord = new BaroquenChord([sopranoC4]);
+
         yield return new TestCaseData(new List<BaroquenChord>(), duetChordWithDuplicateNotes, false);
 
         yield return new TestCaseData(new List<BaroquenChord>(), duetChordWithDifferingNotes, true);
@@ -57,5 +59,7 @@ internal sealed class AvoidOverDoublingTests
         yield return new TestCaseData(new List<BaroquenChord>(), quartetChordWithDuplicateNotes, false);
 
         yield return new TestCaseData(new List<BaroquenChord>(), quartetChordWithDifferingNotes, true);
+
+        yield return new TestCaseData(new List<BaroquenChord>(), soloChord, true);
     }
 }
