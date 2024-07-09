@@ -1,12 +1,12 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Enums.Extensions;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums.Extensions;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
-using Interval = BaroquenMelody.Library.Compositions.Enums.Interval;
+using Interval = BaroquenMelody.Library.Compositions.MusicTheory.Enums.Interval;
 
-namespace BaroquenMelody.Library.Tests.Compositions.Enums.Extensions;
+namespace BaroquenMelody.Library.Tests.Compositions.MusicTheory.Enums.Extensions;
 
 [TestFixture]
 internal sealed class IntervalExtensionsTests

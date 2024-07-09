@@ -1,7 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using Melanchall.DryWetMidi.MusicTheory;
 
-namespace BaroquenMelody.Library.Compositions.Enums.Extensions;
+namespace BaroquenMelody.Library.Compositions.MusicTheory.Enums.Extensions;
 
 /// <summary>
 ///     A home for extensions and utilities for the <see cref="Interval"/> enum.

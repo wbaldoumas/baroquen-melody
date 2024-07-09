@@ -1,6 +1,6 @@
-﻿using BaroquenMelody.Library.Compositions.Enums.Extensions;
+﻿using BaroquenMelody.Library.Compositions.MusicTheory.Enums.Extensions;
 using Melanchall.DryWetMidi.MusicTheory;
-using Interval = BaroquenMelody.Library.Compositions.Enums.Interval;
+using Interval = BaroquenMelody.Library.Compositions.MusicTheory.Enums.Interval;
 
 namespace BaroquenMelody.Library.Compositions.Extensions;
 

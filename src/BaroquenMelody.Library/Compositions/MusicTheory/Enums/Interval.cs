@@ -1,4 +1,4 @@
-﻿namespace BaroquenMelody.Library.Compositions.Enums;
+﻿namespace BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 
 /// <summary>
 ///    Represents the distance between two notes, normalized to a single octave.

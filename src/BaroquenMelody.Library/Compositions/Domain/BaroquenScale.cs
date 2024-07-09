@@ -49,6 +49,41 @@ internal sealed class BaroquenScale
     public NoteName LeadingTone { get; }
 
     /// <summary>
+    ///     The one chord of the scale.
+    /// </summary>
+    public HashSet<NoteName> I { get; }
+
+    /// <summary>
+    ///     The two chord of the scale.
+    /// </summary>
+    public HashSet<NoteName> II { get; }
+
+    /// <summary>
+    ///     The three chord of the scale.
+    /// </summary>
+    public HashSet<NoteName> III { get; }
+
+    /// <summary>
+    ///     The four chord of the scale.
+    /// </summary>
+    public HashSet<NoteName> IV { get; }
+
+    /// <summary>
+    ///     The five chord of the scale.
+    /// </summary>
+    public HashSet<NoteName> V { get; }
+
+    /// <summary>
+    ///     The six chord of the scale.
+    /// </summary>
+    public HashSet<NoteName> VI { get; }
+
+    /// <summary>
+    ///     The seven chord of the scale.
+    /// </summary>
+    public HashSet<NoteName> VII { get; }
+
+    /// <summary>
     ///     The raw scale that this Baroquen scale is based on.
     /// </summary>
     public Scale Raw { get; }
@@ -71,6 +106,14 @@ internal sealed class BaroquenScale
         Dominant = raw.GetDegree(ScaleDegree.Dominant);
         Submediant = raw.GetDegree(ScaleDegree.Submediant);
         LeadingTone = raw.GetDegree(ScaleDegree.LeadingTone);
+
+        I = [Tonic, Mediant, Dominant];
+        II = [Supertonic, Subdominant, Submediant];
+        III = [Mediant, Dominant, LeadingTone];
+        IV = [Subdominant, Submediant, Tonic];
+        V = [Dominant, LeadingTone, Supertonic];
+        VI = [Submediant, Tonic, Mediant];
+        VII = [LeadingTone, Supertonic, Subdominant];
     }
 
     /// <summary>

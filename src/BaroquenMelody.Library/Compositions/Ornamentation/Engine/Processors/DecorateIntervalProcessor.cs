@@ -14,8 +14,6 @@ internal sealed class DecorateIntervalProcessor(
 {
     public void Process(OrnamentationItem item)
     {
-        Console.WriteLine("DecorateIntervalProcessor.Process");
-
         var currentNote = item.CurrentBeat[item.Voice];
         var notes = compositionConfiguration.Scale.GetNotes();
         var noteIndex = notes.IndexOf(currentNote.Raw);
