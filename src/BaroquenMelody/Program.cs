@@ -53,7 +53,8 @@ var compositionRule = new AggregateCompositionRule(
         new AvoidRepetition(),
         new AvoidParallelIntervals(Interval.PerfectFifth),
         new AvoidParallelIntervals(Interval.PerfectFourth),
-        new AvoidParallelIntervals(Interval.Unison)
+        new AvoidParallelIntervals(Interval.Unison),
+        new AvoidOverDoubling()
     ]
 );
 
