@@ -1,5 +1,4 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
-using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Rules;
 
