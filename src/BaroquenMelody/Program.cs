@@ -39,7 +39,7 @@ var compositionConfiguration = new CompositionConfiguration(
         new(Voice.Bass, Notes.G0, Notes.C2)
     },
     phrasingConfiguration,
-    BaroquenScale.Parse("C Major"),
+    BaroquenScale.Parse("D Dorian"),
     Meter.FourFour,
     25
 );
@@ -54,7 +54,8 @@ var compositionRule = new AggregateCompositionRule(
         new AvoidParallelIntervals(Interval.PerfectFifth),
         new AvoidParallelIntervals(Interval.PerfectFourth),
         new AvoidParallelIntervals(Interval.Unison),
-        new AvoidOverDoubling()
+        new AvoidOverDoubling(),
+        new FollowsStandardProgression(compositionConfiguration)
     ]
 );
 
