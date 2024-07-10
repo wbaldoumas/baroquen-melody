@@ -75,5 +75,10 @@ internal enum OrnamentationType : byte
     /// <summary>
     ///     A pedal below a passing tone.
     /// </summary>
-    Pedal
+    Pedal,
+
+    /// <summary>
+    ///     A mordent accentuating a note.
+    /// </summary>
+    Mordent
 }

@@ -22,6 +22,7 @@ internal interface IMusicalTimeSpanCalculator
     /// </summary>
     /// <param name="ornamentationType">The type of ornamentation to calculate the time span for.</param>
     /// <param name="meter">The meter of the composition. This can impact the time span, especially for non-common meters.</param>
+    /// <param name="ornamentationStep">The step of the ornamentation to calculate the time span for.</param>
     /// <returns>The time span of the ornamentation.</returns>
-    MusicalTimeSpan CalculateOrnamentationTimeSpan(OrnamentationType ornamentationType, Meter meter);
+    MusicalTimeSpan CalculateOrnamentationTimeSpan(OrnamentationType ornamentationType, Meter meter, int ornamentationStep = 1);
 }

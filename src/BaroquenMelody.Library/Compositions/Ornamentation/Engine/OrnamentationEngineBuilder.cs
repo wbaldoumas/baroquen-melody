@@ -37,6 +37,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             BuildTurnEngine(),
             BuildAlternateTurnEngine(),
             BuildDelayedThirtySecondNoteRunEngine(),
+            BuildMordentProcessor(),
             BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.Supertonic, DecorateDominantSeventhBelowSupertonicInterval),
             BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.Supertonic, DecorateDominantSeventhAboveSupertonicInterval),
             BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.LeadingTone, DecorateDominantSeventhAboveLeadingToneInterval),
@@ -184,6 +185,17 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new IsIntervalWithinVoiceRange(compositionConfiguration, pedalInterval)
         )
         .WithProcessors(new PedalProcessor(musicalTimeSpanCalculator, compositionConfiguration, pedalInterval))
+        .WithoutOutputPolicies()
+        .Build();
+
+    private IPolicyEngine<OrnamentationItem> BuildMordentProcessor() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+        .WithInputPolicies(
+            new WantsToOrnament(5),
+            new NoteHasNoOrnamentation(),
+            new Not<OrnamentationItem>(new BeatContainsTargetOrnamentation(OrnamentationType.Mordent)),
+            new IsIntervalWithinVoiceRange(compositionConfiguration, 1).And(new IsIntervalWithinVoiceRange(compositionConfiguration, -1))
+        )
+        .WithProcessors(new MordentProcessor(musicalTimeSpanCalculator, compositionConfiguration))
         .WithoutOutputPolicies()
         .Build();
 }
