@@ -21,6 +21,7 @@ internal sealed class MordentProcessor(
         var currentNoteIndex = notes.IndexOf(currentNote.Raw);
 
         var firstNoteIndex = WeightedRandomBooleanGenerator.Generate() ? currentNoteIndex + 1 : currentNoteIndex - 1;
+        // ReSharper disable once InlineTemporaryVariable
         var secondNoteIndex = currentNoteIndex;
 
         var firstNote = notes[firstNoteIndex];
