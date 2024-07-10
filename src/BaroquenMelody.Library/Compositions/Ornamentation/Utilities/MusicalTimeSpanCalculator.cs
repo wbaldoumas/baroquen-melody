@@ -25,11 +25,12 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DecorateInterval when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.ThirtySecondNoteRun when meter == Meter.FourFour => MusicalTimeSpan.ThirtySecond,
         OrnamentationType.Pedal when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Mordent when meter == Meter.FourFour => MusicalTimeSpan.ThirtySecond,
         OrnamentationType.Rest => Zero,
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, $"Invalid {nameof(OrnamentationType)}")
     };
 
-    public MusicalTimeSpan CalculateOrnamentationTimeSpan(OrnamentationType ornamentationType, Meter meter) => ornamentationType switch
+    public MusicalTimeSpan CalculateOrnamentationTimeSpan(OrnamentationType ornamentationType, Meter meter, int ornamentationStep = 1) => ornamentationType switch
     {
         OrnamentationType.None => throw new NotSupportedException($"{nameof(OrnamentationType.None)} cannot be applied to an ornamentation."),
         OrnamentationType.PassingTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
@@ -45,6 +46,8 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DecorateInterval when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.ThirtySecondNoteRun when meter == Meter.FourFour => MusicalTimeSpan.ThirtySecond,
         OrnamentationType.Pedal when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Mordent when meter == Meter.FourFour && ornamentationStep == 1 => MusicalTimeSpan.ThirtySecond,
+        OrnamentationType.Mordent when meter == Meter.FourFour && ornamentationStep == 2 => MusicalTimeSpan.Eighth.Dotted(1),
         OrnamentationType.Rest => Zero,
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, $"Invalid {nameof(OrnamentationType)}")
     };

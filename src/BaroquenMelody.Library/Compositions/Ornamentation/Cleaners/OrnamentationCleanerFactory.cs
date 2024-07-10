@@ -19,6 +19,8 @@ internal sealed class OrnamentationCleanerFactory : IOrnamentationCleanerFactory
 
     private readonly Lazy<IOrnamentationCleaner> _thirtySecondSixteenthNoteOrnamentationCleaner = new(() => new ThirtySecondSixteenthNoteOrnamentationCleaner());
 
+    private readonly Lazy<IOrnamentationCleaner> _mordentSixteenthNoteOrnamentationCleaner = new(() => new MordentSixteenthNoteOrnamentationCleaner());
+
 #pragma warning disable MA0051
     public IOrnamentationCleaner Get(OrnamentationType ornamentationTypeA, OrnamentationType ornamentationTypeB) => (ornamentationTypeA, ornamentationTypeB) switch
     {
@@ -99,6 +101,17 @@ internal sealed class OrnamentationCleanerFactory : IOrnamentationCleanerFactory
         (OrnamentationType.ThirtySecondNoteRun, OrnamentationType.Pedal) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.Pedal, OrnamentationType.DoubleTurn) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.DoubleTurn, OrnamentationType.Pedal) => _thirtySecondSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Mordent, OrnamentationType.SixteenthNoteRun) => _mordentSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.SixteenthNoteRun, OrnamentationType.Mordent) => _mordentSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Mordent, OrnamentationType.Turn) => _mordentSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Turn, OrnamentationType.Mordent) => _mordentSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Mordent, OrnamentationType.AlternateTurn) => _mordentSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.AlternateTurn, OrnamentationType.Mordent) => _mordentSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Mordent, OrnamentationType.DecorateInterval) => _mordentSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DecorateInterval, OrnamentationType.Mordent) => _mordentSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Mordent, OrnamentationType.Pedal) => _mordentSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Pedal, OrnamentationType.Mordent) => _mordentSixteenthNoteOrnamentationCleaner.Value,
+
         _ => _noOpOrnamentationCleaner.Value
     };
 #pragma warning restore MA0051 // Method is too long

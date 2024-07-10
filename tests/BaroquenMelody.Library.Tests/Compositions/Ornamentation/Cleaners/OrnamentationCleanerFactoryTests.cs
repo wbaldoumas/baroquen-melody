@@ -91,6 +91,16 @@ internal sealed class OrnamentationCleanerFactoryTests
     [TestCase(OrnamentationType.Pedal, OrnamentationType.ThirtySecondNoteRun, typeof(ThirtySecondSixteenthNoteOrnamentationCleaner))]
     [TestCase(OrnamentationType.DoubleTurn, OrnamentationType.Pedal, typeof(ThirtySecondSixteenthNoteOrnamentationCleaner))]
     [TestCase(OrnamentationType.Pedal, OrnamentationType.DoubleTurn, typeof(ThirtySecondSixteenthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.Mordent, OrnamentationType.SixteenthNoteRun, typeof(MordentSixteenthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.SixteenthNoteRun, OrnamentationType.Mordent, typeof(MordentSixteenthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.Mordent, OrnamentationType.Turn, typeof(MordentSixteenthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.Turn, OrnamentationType.Mordent, typeof(MordentSixteenthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.Mordent, OrnamentationType.AlternateTurn, typeof(MordentSixteenthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.AlternateTurn, OrnamentationType.Mordent, typeof(MordentSixteenthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.Mordent, OrnamentationType.DecorateInterval, typeof(MordentSixteenthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DecorateInterval, OrnamentationType.Mordent, typeof(MordentSixteenthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.Mordent, OrnamentationType.Pedal, typeof(MordentSixteenthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.Pedal, OrnamentationType.Mordent, typeof(MordentSixteenthNoteOrnamentationCleaner))]
     [TestCase(OrnamentationType.Sustain, OrnamentationType.Rest, typeof(NoOpOrnamentationCleaner))]
     public void Get_Returns_Expected_OrnamentationCleaner(OrnamentationType ornamentationTypeA, OrnamentationType ornamentationTypeB, Type expectedType)
     {
