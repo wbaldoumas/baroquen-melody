@@ -1,7 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.Enums;
-using System.Collections.Generic;
 
 namespace BaroquenMelody.Library.Compositions.Strategies;
 

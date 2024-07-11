@@ -112,7 +112,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildDelayedThirtySecondNoteRunEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(10),
+            new WantsToOrnament(15),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, DelayedThirtySecondNoteRunProcessor.Interval)
         )
@@ -122,7 +122,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildDoubleTurnEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(25),
+            new WantsToOrnament(30),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, DoubleTurnProcessor.Interval)
         )
@@ -153,7 +153,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
     private IPolicyEngine<OrnamentationItem> BuildDecorateDominantSeventhIntervalEngine(NoteName targetNote, int intervalChange) => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
             new HasNextBeat(),
-            new WantsToOrnament(25),
+            new WantsToOrnament(30),
             new NoteHasNoOrnamentation(),
             new NoteIsTargetNote(targetNote),
             new BeatContainsTargetNotes([compositionConfiguration.Scale.Dominant, compositionConfiguration.Scale.LeadingTone, compositionConfiguration.Scale.Supertonic]),
@@ -167,7 +167,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildDoubleThirtySecondNoteRunProcessor() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(10),
+            new WantsToOrnament(15),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, ThirtySecondNoteRunProcessor.Interval)
         )
@@ -190,7 +190,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildMordentProcessor() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(5),
+            new WantsToOrnament(1),
             new NoteHasNoOrnamentation(),
             new Not<OrnamentationItem>(new BeatContainsTargetOrnamentation(OrnamentationType.Mordent)),
             new IsIntervalWithinVoiceRange(compositionConfiguration, 1).And(new IsIntervalWithinVoiceRange(compositionConfiguration, -1))

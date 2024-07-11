@@ -38,7 +38,7 @@ internal enum OrnamentationType : byte
     Sustain,
 
     /// <summary>
-    ///     A rest over multiple beats.
+    ///     A note that is part of another sustained note.
     /// </summary>
     MidSustain,
 

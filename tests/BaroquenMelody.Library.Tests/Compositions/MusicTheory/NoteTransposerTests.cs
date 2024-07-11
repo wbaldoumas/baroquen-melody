@@ -22,7 +22,7 @@ internal sealed class NoteTransposerTests
             new HashSet<VoiceConfiguration>
             {
                 new(Voice.Soprano, Notes.C4, Notes.C6),
-                new(Voice.Alto, Notes.G2, Notes.G4),
+                new(Voice.Alto, Notes.G2, Notes.G4)
             },
             BaroquenScale.Parse("C Major"),
             Meter.FourFour,

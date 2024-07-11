@@ -40,7 +40,7 @@ var compositionConfiguration = new CompositionConfiguration(
         new(Voice.Bass, Notes.C0, Notes.G1)
     },
     phrasingConfiguration,
-    BaroquenScale.Parse("C Minor"),
+    BaroquenScale.Parse("D Dorian"),
     Meter.FourFour,
     25
 );

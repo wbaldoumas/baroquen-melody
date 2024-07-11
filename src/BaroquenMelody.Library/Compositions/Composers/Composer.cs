@@ -30,36 +30,29 @@ internal sealed class Composer(
 {
     public Composition Compose()
     {
-        var composition = ComposeInitialComposition();
-
-        return composition;
-    }
-
-    private Composition ComposeInitialComposition()
-    {
-        List<Measure> fugueMeasures;
+        List<Measure> openingMeasures;
 
         while (true)
         {
             try
             {
-                fugueMeasures = ComposeInitialFugue();
+                openingMeasures = ComposeFugueSubject();
                 break;
             }
             catch (Exception)
             {
-                Console.WriteLine("Failed to compose initial fugue. Retrying...");
+                Console.WriteLine("Failed to compose suitable fugue subject. Retrying...");
             }
         }
 
         var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
-            fugueMeasures.SelectMany(measure => measure.Beats.Select(beat => beat.Chord))
+            openingMeasures.SelectMany(measure => measure.Beats.Select(beat => beat.Chord))
         );
 
-        var postFugueMeasures = new List<Measure>();
+        var continuationMeasures = new List<Measure>();
 
-        while (postFugueMeasures.Count < compositionConfiguration.CompositionLength)
+        while (continuationMeasures.Count < compositionConfiguration.CompositionLength)
         {
             var initialChord = ComposeNextChord(compositionContext);
             var beats = new List<Beat>(compositionConfiguration.Meter.BeatsPerMeasure()) { new(initialChord) };
@@ -74,16 +67,16 @@ internal sealed class Composer(
                 beats.Add(new Beat(nextChord));
             }
 
-            postFugueMeasures.Add(new Measure(beats, compositionConfiguration.Meter));
+            continuationMeasures.Add(new Measure(beats, compositionConfiguration.Meter));
         }
 
-        var postFugueComposition = new Composition(postFugueMeasures);
+        var continuationComposition = new Composition(continuationMeasures);
 
-        compositionDecorator.Decorate(postFugueComposition);
+        compositionDecorator.Decorate(continuationComposition);
 
-        var phrasedComposition = PhraseComposition(postFugueComposition);
+        var phrasedComposition = PhraseComposition(continuationComposition);
 
-        return new Composition([.. fugueMeasures, .. phrasedComposition.Measures]);
+        return new Composition([.. openingMeasures, .. phrasedComposition.Measures]);
     }
 
     private Composition PhraseComposition(Composition initialComposition)
@@ -134,9 +127,7 @@ internal sealed class Composer(
         };
     }
 
-#pragma warning disable MA0051
-    private List<Measure> ComposeInitialFugue()
-#pragma warning restore MA0051
+    private List<Measure> ComposeFugueSubject()
     {
         var initialMeasures = ComposeInitialMeasures();
         var initialComposition = new Composition(initialMeasures);
@@ -156,6 +147,14 @@ internal sealed class Composer(
             .ToList();
 
         var workingChords = initialComposition.Measures.SelectMany(measure => measure.Beats.Select(beat => beat.Chord)).ToList();
+
+        ContinueFugueSubject(fugueSubject, fugueSubjectVoice, workingChords, voices);
+
+        return StripVoicesFromFugueSubject(workingChords, voices);
+    }
+
+    private void ContinueFugueSubject(List<BaroquenNote> fugueSubject, Voice fugueSubjectVoice, List<BaroquenChord> workingChords, List<Voice> voices)
+    {
         var processedVoices = new List<Voice> { fugueSubjectVoice };
 
         foreach (var voice in voices.Where(voice => voice != fugueSubjectVoice))
@@ -167,6 +166,7 @@ internal sealed class Composer(
                 .Select(note => new BaroquenChord([note]))
                 .ToList();
 
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (var transposedSubjectChord in transposedSubjectChords)
             {
                 var nextChord = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChord], transposedSubjectChord).OrderBy(_ => ThreadLocalRandom.Next()).First();
@@ -189,7 +189,10 @@ internal sealed class Composer(
             workingChords.AddRange(nextChords);
             processedVoices.Add(voice);
         }
+    }
 
+    private List<Measure> StripVoicesFromFugueSubject(List<BaroquenChord> workingChords, List<Voice> voices)
+    {
         var beatIndex = 0;
         var measures = new List<Measure>();
         var inProcessVoices = new List<Voice>();

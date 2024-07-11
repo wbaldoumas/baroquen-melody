@@ -6,58 +6,58 @@ namespace BaroquenMelody.Library.Compositions.MusicTheory;
 
 internal sealed class NoteTransposer(CompositionConfiguration compositionConfiguration) : INoteTransposer
 {
-    public IEnumerable<BaroquenNote> TransposeToVoice(IEnumerable<BaroquenNote> notesToTranspose, Voice oldVoice, Voice newVoice)
+    public IEnumerable<BaroquenNote> TransposeToVoice(IEnumerable<BaroquenNote> notesToTranspose, Voice currentVoice, Voice targetVoice)
     {
-        var oldVoiceConfiguration = compositionConfiguration.VoiceConfigurationsByVoice[oldVoice];
-        var newVoiceConfiguration = compositionConfiguration.VoiceConfigurationsByVoice[newVoice];
+        var currentVoiceConfiguration = compositionConfiguration.VoiceConfigurationsByVoice[currentVoice];
+        var targetVoiceConfiguration = compositionConfiguration.VoiceConfigurationsByVoice[targetVoice];
 
         var notes = compositionConfiguration.Scale.GetNotes();
 
-        var oldVoiceMin = notes.IndexOf(oldVoiceConfiguration.MinNote);
-        var oldVoiceMax = notes.IndexOf(oldVoiceConfiguration.MaxNote);
-        var newVoiceMin = notes.IndexOf(newVoiceConfiguration.MinNote);
-        var newVoiceMax = notes.IndexOf(newVoiceConfiguration.MaxNote);
+        var currentVoiceMinNoteIndex = notes.IndexOf(currentVoiceConfiguration.MinNote);
+        var currentVoiceMaxNoteIndex = notes.IndexOf(currentVoiceConfiguration.MaxNote);
+        var targetVoiceMinNoteIndex = notes.IndexOf(targetVoiceConfiguration.MinNote);
+        var targetVoiceMaxNoteIndex = notes.IndexOf(targetVoiceConfiguration.MaxNote);
 
-        var result = new List<BaroquenNote>();
+        var transposedNotes = new List<BaroquenNote>();
 
-        foreach (var note in notesToTranspose)
+        foreach (var noteToTranspose in notesToTranspose)
         {
-            var noteIndex = notes.IndexOf(note.Raw);
-            var newNoteIndex = Transpose(oldVoiceMin, oldVoiceMax, newVoiceMin, newVoiceMax, noteIndex);
+            var noteToTransposeNoteIndex = notes.IndexOf(noteToTranspose.Raw);
+            var transposedNoteIndex = Transpose(currentVoiceMinNoteIndex, currentVoiceMaxNoteIndex, targetVoiceMinNoteIndex, targetVoiceMaxNoteIndex, noteToTransposeNoteIndex);
 
-            var newNote = new BaroquenNote(newVoice, notes[newNoteIndex])
+            var transposedNote = new BaroquenNote(targetVoice, notes[transposedNoteIndex])
             {
-                OrnamentationType = note.OrnamentationType,
-                Duration = note.Duration
+                OrnamentationType = noteToTranspose.OrnamentationType,
+                Duration = noteToTranspose.Duration
             };
 
-            foreach (var ornamentedNote in note.Ornamentations)
+            foreach (var ornamentedNote in noteToTranspose.Ornamentations)
             {
                 var ornamentedNoteIndex = notes.IndexOf(ornamentedNote.Raw);
-                var newOrnamentedNoteIndex = Transpose(oldVoiceMin, oldVoiceMax, newVoiceMin, newVoiceMax, ornamentedNoteIndex);
+                var transposedOrnamentedNoteIndex = Transpose(currentVoiceMinNoteIndex, currentVoiceMaxNoteIndex, targetVoiceMinNoteIndex, targetVoiceMaxNoteIndex, ornamentedNoteIndex);
 
-                var newOrnamentedNote = new BaroquenNote(newVoice, notes[newOrnamentedNoteIndex])
+                var newOrnamentedNote = new BaroquenNote(targetVoice, notes[transposedOrnamentedNoteIndex])
                 {
                     OrnamentationType = ornamentedNote.OrnamentationType,
                     Duration = ornamentedNote.Duration
                 };
 
-                newNote.Ornamentations.Add(newOrnamentedNote);
+                transposedNote.Ornamentations.Add(newOrnamentedNote);
             }
 
-            result.Add(newNote);
+            transposedNotes.Add(transposedNote);
         }
 
-        return result;
+        return transposedNotes;
     }
 
-    public static int Transpose(int oldMin, int oldMax, int newMin, int newMax, int numberToTranspose)
+    public static int Transpose(int currentMin, int currentMax, int targetMin, int targetMax, int noteIndexToTranspose)
     {
-        var oldMiddle = (oldMin + oldMax) / 2.0;
-        var newMiddle = (newMin + newMax) / 2.0;
+        var oldMiddle = (currentMin + currentMax) / 2.0;
+        var newMiddle = (targetMin + targetMax) / 2.0;
 
         var middleDifference = (int)Math.Round(newMiddle - oldMiddle, MidpointRounding.ToZero);
 
-        return numberToTranspose + middleDifference;
+        return noteIndexToTranspose + middleDifference;
     }
 }
