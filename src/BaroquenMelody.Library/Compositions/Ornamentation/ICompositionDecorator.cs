@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
+using BaroquenMelody.Library.Compositions.Enums;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation;
 
@@ -12,6 +13,13 @@ internal interface ICompositionDecorator
     /// </summary>
     /// <param name="composition">The composition to decorate.</param>
     void Decorate(Composition composition);
+
+    /// <summary>
+    ///     Decorate the given voice in the composition.
+    /// </summary>
+    /// <param name="composition">The composition to decorate.</param>
+    /// <param name="voice">The voice to decorate.</param>
+    void Decorate(Composition composition, Voice voice);
 
     /// <summary>
     ///    Apply sustain to the composition by identifying repeated notes and extending their duration.

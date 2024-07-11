@@ -20,4 +20,9 @@ internal interface ICompositionStrategy
     /// <param name="precedingChords">The chords which precede the proposed next chord.</param>
     /// <returns>The possible chord choices for the given preceding chords.</returns>
     public IReadOnlyList<ChordChoice> GetPossibleChordChoices(IReadOnlyList<BaroquenChord> precedingChords);
+
+    public IReadOnlyList<BaroquenChord> GetPossibleChordsForPartiallyVoicedChords(
+        IReadOnlyList<BaroquenChord> precedingChords,
+        BaroquenChord nextChord
+    );
 }

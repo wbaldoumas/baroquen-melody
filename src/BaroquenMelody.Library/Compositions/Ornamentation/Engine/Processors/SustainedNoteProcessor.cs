@@ -16,9 +16,9 @@ internal sealed class SustainedNoteProcessor(IMusicalTimeSpanCalculator musicalT
         var nextNote = item.NextBeat![item.Voice];
 
         currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Sustain, configuration.Meter);
-        nextNote.Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Rest, configuration.Meter);
+        nextNote.Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.MidSustain, configuration.Meter);
 
         currentNote.OrnamentationType = OrnamentationType.Sustain;
-        nextNote.OrnamentationType = OrnamentationType.Rest;
+        nextNote.OrnamentationType = OrnamentationType.MidSustain;
     }
 }

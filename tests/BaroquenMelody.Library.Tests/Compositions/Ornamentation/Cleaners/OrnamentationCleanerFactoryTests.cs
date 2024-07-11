@@ -101,7 +101,7 @@ internal sealed class OrnamentationCleanerFactoryTests
     [TestCase(OrnamentationType.DecorateInterval, OrnamentationType.Mordent, typeof(MordentSixteenthNoteOrnamentationCleaner))]
     [TestCase(OrnamentationType.Mordent, OrnamentationType.Pedal, typeof(MordentSixteenthNoteOrnamentationCleaner))]
     [TestCase(OrnamentationType.Pedal, OrnamentationType.Mordent, typeof(MordentSixteenthNoteOrnamentationCleaner))]
-    [TestCase(OrnamentationType.Sustain, OrnamentationType.Rest, typeof(NoOpOrnamentationCleaner))]
+    [TestCase(OrnamentationType.Sustain, OrnamentationType.MidSustain, typeof(NoOpOrnamentationCleaner))]
     public void Get_Returns_Expected_OrnamentationCleaner(OrnamentationType ornamentationTypeA, OrnamentationType ornamentationTypeB, Type expectedType)
     {
         // act

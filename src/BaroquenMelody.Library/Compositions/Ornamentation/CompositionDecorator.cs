@@ -1,6 +1,7 @@
 ﻿using Atrea.PolicyEngine.Processors;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
+using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Infrastructure.Collections;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation;
@@ -14,32 +15,45 @@ internal sealed class CompositionDecorator(
 {
     public void Decorate(Composition composition) => Decorate(composition, ornamentationEngine);
 
+    public void Decorate(Composition composition, Voice voice)
+    {
+        var compositionContext = new FixedSizeList<Beat>(configuration.CompositionContextSize);
+        var beats = composition.Measures.SelectMany(measure => measure.Beats).ToList();
+
+        Decorate(voice, beats, compositionContext, ornamentationEngine);
+    }
+
     public void ApplySustain(Composition composition) => Decorate(composition, sustainEngine);
 
     private void Decorate(Composition composition, IProcessor<OrnamentationItem> processor)
     {
-        var beats = composition.Measures.SelectMany(measure => measure.Beats).ToList();
         var compositionContext = new FixedSizeList<Beat>(configuration.CompositionContextSize);
         var voices = configuration.VoiceConfigurations.Select(voiceConfiguration => voiceConfiguration.Voice);
+        var beats = composition.Measures.SelectMany(measure => measure.Beats).ToList();
 
         foreach (var voice in voices)
         {
-            for (var i = 0; i < beats.Count; ++i)
-            {
-                var currentBeat = beats[i];
-                var nextBeat = beats.ElementAtOrDefault(i + 1);
+            Decorate(voice, beats, compositionContext, processor);
+        }
+    }
 
-                var ornamentationItem = new OrnamentationItem(
-                    voice,
-                    compositionContext,
-                    currentBeat,
-                    nextBeat
-                );
+    private static void Decorate(Voice voice, List<Beat> beats, FixedSizeList<Beat> compositionContext, IProcessor<OrnamentationItem> processor)
+    {
+        for (var i = 0; i < beats.Count; ++i)
+        {
+            var currentBeat = beats[i];
+            var nextBeat = beats.ElementAtOrDefault(i + 1);
 
-                processor.Process(ornamentationItem);
+            var ornamentationItem = new OrnamentationItem(
+                voice,
+                compositionContext,
+                currentBeat,
+                nextBeat
+            );
 
-                compositionContext.Add(beats[i]);
-            }
+            processor.Process(ornamentationItem);
+
+            compositionContext.Add(beats[i]);
         }
     }
 }
