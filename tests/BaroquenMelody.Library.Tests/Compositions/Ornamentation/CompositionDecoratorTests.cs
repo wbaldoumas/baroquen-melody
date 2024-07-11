@@ -93,6 +93,60 @@ internal sealed class CompositionDecoratorTests
     }
 
     [Test]
+    public void WhenDecorateIsInvokedForSpecificVoice_ThenOrnamentationEngineIsInvokedForVoice()
+    {
+        // arrange
+        var chordA = new BaroquenChord(
+            [
+                new BaroquenNote(Voice.Soprano, Notes.A4),
+                new BaroquenNote(Voice.Alto, Notes.C3)
+            ]
+        );
+
+        var chordB = new BaroquenChord(
+            [
+                new BaroquenNote(Voice.Soprano, Notes.A4),
+                new BaroquenNote(Voice.Alto, Notes.C3)
+            ]
+        );
+
+        var chordC = new BaroquenChord(
+            [
+                new BaroquenNote(Voice.Soprano, Notes.A4),
+                new BaroquenNote(Voice.Alto, Notes.C3)
+            ]
+        );
+
+        var chordD = new BaroquenChord(
+            [
+                new BaroquenNote(Voice.Soprano, Notes.A4),
+                new BaroquenNote(Voice.Alto, Notes.C3)
+            ]
+        );
+
+        var composition = new Composition(
+            [
+                new Measure(
+                    [
+                        new Beat(chordA),
+                        new Beat(chordB),
+                        new Beat(chordC),
+                        new Beat(chordD)
+                    ],
+                    Meter.FourFour
+                )
+            ]
+        );
+
+        // act
+        _compositionDecorator.Decorate(composition, Voice.Soprano);
+
+        // assert
+        _mockOrnamentationEngine.ReceivedWithAnyArgs(4).Process(Arg.Any<OrnamentationItem>());
+        _mockSustainEngine.DidNotReceiveWithAnyArgs().Process(Arg.Any<OrnamentationItem>());
+    }
+
+    [Test]
     public void WhenApplySustainIsInvoked_ThenSustainEngineIsInvoked_ForEachVoiceAndChord()
     {
         // arrange

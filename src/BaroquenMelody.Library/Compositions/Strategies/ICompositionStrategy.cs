@@ -1,5 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Domain;
+using BaroquenMelody.Library.Compositions.Enums;
+using System.Collections.Generic;
 
 namespace BaroquenMelody.Library.Compositions.Strategies;
 
@@ -20,4 +22,9 @@ internal interface ICompositionStrategy
     /// <param name="precedingChords">The chords which precede the proposed next chord.</param>
     /// <returns>The possible chord choices for the given preceding chords.</returns>
     public IReadOnlyList<ChordChoice> GetPossibleChordChoices(IReadOnlyList<BaroquenChord> precedingChords);
+
+    public IReadOnlyList<BaroquenChord> GetPossibleChordsForPartiallyVoicedChords(
+        IReadOnlyList<BaroquenChord> precedingChords,
+        BaroquenChord nextChord
+    );
 }

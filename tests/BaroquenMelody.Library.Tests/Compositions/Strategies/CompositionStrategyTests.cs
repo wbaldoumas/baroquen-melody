@@ -201,4 +201,115 @@ internal sealed class CompositionStrategyTests
             .And.Contain(otherGoodChordChoice)
             .And.NotContain(badChordChoice);
     }
+
+    [Test]
+    public void GetPossibleChordsForPartiallyVoicedChords_returns_expected_chords()
+    {
+        // arrange
+        var precedingChords = new List<BaroquenChord>
+        {
+            new([
+                new BaroquenNote(Voice.Soprano, Notes.C4),
+                new BaroquenNote(Voice.Alto, Notes.E3),
+                new BaroquenNote(Voice.Tenor, Notes.G2),
+                new BaroquenNote(Voice.Bass, Notes.C2)
+            ])
+        };
+
+        var nextChord = new BaroquenChord([
+                new BaroquenNote(Voice.Soprano, Notes.C4),
+                new BaroquenNote(Voice.Alto, Notes.E3),
+                new BaroquenNote(Voice.Tenor, Notes.G2),
+                new BaroquenNote(Voice.Bass, Notes.C2)
+            ]
+        );
+
+        var goodChordChoice = new ChordChoice([
+            new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
+            new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0),
+            new NoteChoice(Voice.Tenor, NoteMotion.Oblique, 0),
+            new NoteChoice(Voice.Bass, NoteMotion.Oblique, 0)
+        ]);
+
+        var otherGoodChordChoice = new ChordChoice([
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Alto, NoteMotion.Descending, 1),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Bass, NoteMotion.Descending, 1)
+        ]);
+
+        var badChordChoice = new ChordChoice([
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Alto, NoteMotion.Descending, 5),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Bass, NoteMotion.Descending, 5)
+        ]);
+
+        var mockChordChoices = new List<ChordChoice>
+        {
+            goodChordChoice,
+            badChordChoice,
+            otherGoodChordChoice
+        };
+
+        _mockChordChoiceRepository.Count.Returns(mockChordChoices.Count);
+
+        var mockChordChoiceRepositoryReturn = new List<ChordChoice>();
+
+        // Some fun times mocking here and below to account for recursion and look-ahead depth
+        foreach (var outerChordChoice in mockChordChoices)
+        {
+            mockChordChoiceRepositoryReturn.Add(outerChordChoice);
+
+            foreach (var innerChordChoice in mockChordChoices)
+            {
+                mockChordChoiceRepositoryReturn.Add(innerChordChoice);
+                mockChordChoiceRepositoryReturn.AddRange(mockChordChoices);
+            }
+        }
+
+        _mockChordChoiceRepository
+            .GetChordChoice(Arg.Any<BigInteger>())
+            .Returns(
+                mockChordChoiceRepositoryReturn[0],
+                mockChordChoiceRepositoryReturn.ToArray()[1..]
+            );
+
+        const bool goodChordChoiceResult = true;
+
+        const bool otherGoodChordChoiceResult = true;
+
+        const bool badChordChoiceResult = false;
+
+        var mockChordChoiceEvaluationResults = new List<bool>
+        {
+            goodChordChoiceResult,
+            badChordChoiceResult,
+            otherGoodChordChoiceResult
+        };
+
+        var mockCompositionRuleReturns = new List<bool>();
+
+        foreach (var outerChordChoiceEvaluationResult in mockChordChoiceEvaluationResults)
+        {
+            mockCompositionRuleReturns.Add(outerChordChoiceEvaluationResult);
+
+            foreach (var innerChordChoiceEvaluationResult in mockChordChoiceEvaluationResults)
+            {
+                mockCompositionRuleReturns.Add(innerChordChoiceEvaluationResult);
+                mockCompositionRuleReturns.AddRange(mockChordChoiceEvaluationResults);
+            }
+        }
+
+        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(
+            mockCompositionRuleReturns[0],
+            mockCompositionRuleReturns.ToArray()[1..]
+        );
+
+        // act
+        var possibleChords = _compositionStrategy.GetPossibleChordsForPartiallyVoicedChords(precedingChords, nextChord).ToList();
+
+        // Assert
+        possibleChords.Should().ContainSingle();
+    }
 }

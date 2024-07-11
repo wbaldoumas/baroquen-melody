@@ -40,7 +40,7 @@ internal enum OrnamentationType : byte
     /// <summary>
     ///     A rest over multiple beats.
     /// </summary>
-    Rest,
+    MidSustain,
 
     /// <summary>
     ///     A delayed thirty-second note run between two notes.
@@ -80,5 +80,10 @@ internal enum OrnamentationType : byte
     /// <summary>
     ///     A mordent accentuating a note.
     /// </summary>
-    Mordent
+    Mordent,
+
+    /// <summary>
+    ///     A rest.
+    /// </summary>
+    Rest
 }

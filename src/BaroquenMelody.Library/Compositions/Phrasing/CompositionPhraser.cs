@@ -91,7 +91,7 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
     /// <param name="measure">The measure to reset the ornamentation on.</param>
     private static void ResetPhraseEndOrnamentation(Measure measure)
     {
-        foreach (var note in measure.Beats.Last().Chord.Notes.Where(note => note.OrnamentationType != OrnamentationType.Rest))
+        foreach (var note in measure.Beats.Last().Chord.Notes.Where(note => note.OrnamentationType != OrnamentationType.MidSustain))
         {
             note.ResetOrnamentation();
         }

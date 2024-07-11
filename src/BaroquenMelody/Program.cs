@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Compositions.Composers;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
@@ -33,13 +34,13 @@ var phrasingConfiguration = new PhrasingConfiguration(
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
-        new(Voice.Soprano, Notes.C5, Notes.G6),
-        new(Voice.Alto, Notes.G3, Notes.C5),
-        new(Voice.Tenor, Notes.C2, Notes.G3),
-        new(Voice.Bass, Notes.G0, Notes.C2)
+        new(Voice.Soprano, Notes.G4, Notes.C6),
+        new(Voice.Alto, Notes.C3, Notes.G4),
+        new(Voice.Tenor, Notes.G1, Notes.C3),
+        new(Voice.Bass, Notes.C0, Notes.G1)
     },
     phrasingConfiguration,
-    BaroquenScale.Parse("C Major"),
+    BaroquenScale.Parse("C Minor"),
     Meter.FourFour,
     25
 );
@@ -80,11 +81,13 @@ var compositionDecorator = new CompositionDecorator(
 );
 
 var compositionPhraser = new CompositionPhraser(compositionRule, compositionConfiguration);
+var noteTransposer = new NoteTransposer(compositionConfiguration);
 
 var composer = new Composer(
     compositionStrategy,
     compositionDecorator,
     compositionPhraser,
+    noteTransposer,
     compositionConfiguration
 );
 
@@ -117,10 +120,24 @@ foreach (var measure in composition.Measures)
     {
         foreach (var voice in compositionConfiguration.VoiceConfigurations.Select(vc => vc.Voice))
         {
+            if (beat.Chord.Notes.TrueForAll(note => note.Voice != voice))
+            {
+                patternBuildersByVoice[voice].StepForward(MusicalTimeSpan.Quarter);
+
+                continue;
+            }
+
             var note = beat[voice];
 
-            if (note.OrnamentationType != OrnamentationType.Rest)
+            if (note.OrnamentationType != OrnamentationType.MidSustain)
             {
+                if (note.OrnamentationType == OrnamentationType.Rest)
+                {
+                    patternBuildersByVoice[voice].StepForward(MusicalTimeSpan.Quarter);
+
+                    continue;
+                }
+
                 patternBuildersByVoice[voice].SetNoteLength(note.Duration).Note(note.Raw);
 
                 foreach (var ornamentation in note.Ornamentations)

@@ -33,6 +33,18 @@ internal sealed class CompositionStrategy(
         .Select(chordChoiceAndChord => chordChoiceAndChord.ChordChoice)
         .ToList();
 
+    public IReadOnlyList<BaroquenChord> GetPossibleChordsForPartiallyVoicedChords(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
+    {
+        var currentChord = precedingChords[^1];
+        var nextChordVoices = nextChord.Notes.Select(note => note.Voice).ToList();
+        var possibleChordChoices = GetPossibleChordChoices(precedingChords);
+
+        return possibleChordChoices
+            .Select(chordChoice => currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice))
+            .Where(possibleChord => nextChordVoices.TrueForAll(voice => possibleChord[voice].Raw == nextChord[voice].Raw))
+            .ToList();
+    }
+
     public BaroquenChord GenerateInitialChord()
     {
         var startingNoteCounts = validStartingNoteNames.ToDictionary(noteName => noteName, _ => 0);
