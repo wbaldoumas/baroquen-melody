@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="Atrea.PolicyEngine" Version="4.0.1" />
-    <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2024.2.0" />
     <PackageReference Include="LazyCart" Version="0.4.5" />
     <PackageReference Include="Melanchall.DryWetMidi" Version="7.1.0" />
     <PackageReference Include="Meziantou.Analyzer" Version="2.0.159">
