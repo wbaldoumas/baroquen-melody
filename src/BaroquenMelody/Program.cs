@@ -40,7 +40,7 @@ var compositionConfiguration = new CompositionConfiguration(
         new(Voice.Bass, Notes.C0, Notes.G1)
     },
     phrasingConfiguration,
-    BaroquenScale.Parse("D Dorian"),
+    BaroquenScale.Parse("C Major"),
     Meter.FourFour,
     25
 );
@@ -82,12 +82,21 @@ var compositionDecorator = new CompositionDecorator(
 
 var compositionPhraser = new CompositionPhraser(compositionRule, compositionConfiguration);
 var noteTransposer = new NoteTransposer(compositionConfiguration);
+var chordComposer = new ChordComposer(compositionStrategy, compositionConfiguration);
 
-var composer = new Composer(
+var themeComposer = new ThemeComposer(
     compositionStrategy,
     compositionDecorator,
-    compositionPhraser,
+    chordComposer,
     noteTransposer,
+    compositionConfiguration
+);
+
+var composer = new Composer(
+    compositionDecorator,
+    compositionPhraser,
+    chordComposer,
+    themeComposer,
     compositionConfiguration
 );
 
@@ -118,7 +127,7 @@ foreach (var measure in composition.Measures)
 {
     foreach (var beat in measure.Beats)
     {
-        foreach (var voice in compositionConfiguration.VoiceConfigurations.Select(vc => vc.Voice))
+        foreach (var voice in compositionConfiguration.Voices)
         {
             if (beat.Chord.Notes.TrueForAll(note => note.Voice != voice))
             {

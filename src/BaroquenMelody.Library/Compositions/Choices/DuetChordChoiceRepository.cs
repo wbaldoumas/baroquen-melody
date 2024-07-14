@@ -14,7 +14,7 @@ internal sealed class DuetChordChoiceRepository : IChordChoiceRepository
 
     public DuetChordChoiceRepository(CompositionConfiguration compositionConfiguration, INoteChoiceGenerator noteChoiceGenerator)
     {
-        if (compositionConfiguration.VoiceConfigurations.Count != NumberOfVoices)
+        if (compositionConfiguration.Voices.Count != NumberOfVoices)
         {
             throw new ArgumentException(
                 "The composition configuration must contain exactly two voice configurations.",
@@ -22,9 +22,9 @@ internal sealed class DuetChordChoiceRepository : IChordChoiceRepository
             );
         }
 
-        var noteChoicesForVoices = compositionConfiguration.VoiceConfigurations
-            .OrderBy(voiceConfiguration => voiceConfiguration.Voice)
-            .Select(voiceConfiguration => noteChoiceGenerator.GenerateNoteChoices(voiceConfiguration.Voice))
+        var noteChoicesForVoices = compositionConfiguration.Voices
+            .OrderBy(voice => voice)
+            .Select(noteChoiceGenerator.GenerateNoteChoices)
             .ToList();
 
         _noteChoices = new LazyCartesianProduct<NoteChoice, NoteChoice>(

@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Enums.Extensions;
 using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Configurations;
@@ -24,6 +25,10 @@ internal sealed record CompositionConfiguration(
     public IDictionary<Voice, VoiceConfiguration> VoiceConfigurationsByVoice { get; } = VoiceConfigurations.ToDictionary(
         voiceConfiguration => voiceConfiguration.Voice
     );
+
+    public List<Voice> Voices { get; } = VoiceConfigurations.Select(voiceConfiguration => voiceConfiguration.Voice).ToList();
+
+    public int BeatsPerMeasure => Meter.BeatsPerMeasure();
 
     /// <summary>
     ///     Determine if the given note is within the range of the given voice for the composition.

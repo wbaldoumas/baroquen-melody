@@ -3,7 +3,6 @@ using BaroquenMelody.Library.Compositions.Composers;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Enums.Extensions;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Phrasing;
@@ -32,6 +31,10 @@ internal sealed class ComposerTests
 
     private INoteTransposer _noteTransposer = null!;
 
+    private IChordComposer _chordComposer = null!;
+
+    private IThemeComposer _themeComposer = null!;
+
     private CompositionConfiguration _compositionConfiguration = null!;
 
     private Composer _composer = null!;
@@ -55,8 +58,10 @@ internal sealed class ComposerTests
         );
 
         _noteTransposer = new NoteTransposer(_compositionConfiguration);
+        _chordComposer = new ChordComposer(_mockCompositionStrategy, _compositionConfiguration);
+        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _noteTransposer, _compositionConfiguration);
 
-        _composer = new Composer(_mockCompositionStrategy, _mockCompositionDecorator, _mockCompositionPhraser, _noteTransposer, _compositionConfiguration);
+        _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, _themeComposer, _compositionConfiguration);
     }
 
     [Test]
@@ -97,13 +102,13 @@ internal sealed class ComposerTests
 
         foreach (var measure in composition.Measures)
         {
-            measure.Beats.Should().HaveCount(_compositionConfiguration.Meter.BeatsPerMeasure());
+            measure.Beats.Should().HaveCount(_compositionConfiguration.BeatsPerMeasure);
         }
 
         _mockCompositionStrategy.Received(1).GenerateInitialChord();
 
         _mockCompositionStrategy
-            .Received(_compositionConfiguration.CompositionLength * _compositionConfiguration.Meter.BeatsPerMeasure() + 3) // 3 more to account for fugue subjects
+            .Received(_compositionConfiguration.CompositionLength * _compositionConfiguration.BeatsPerMeasure + 3) // 3 more to account for fugue subjects
             .GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>());
 
         _mockCompositionDecorator.Received(2).Decorate(Arg.Any<Composition>());
