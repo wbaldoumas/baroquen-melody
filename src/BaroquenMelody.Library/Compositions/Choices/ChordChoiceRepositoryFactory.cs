@@ -5,7 +5,7 @@ namespace BaroquenMelody.Library.Compositions.Choices;
 /// <inheritdoc cref="IChordChoiceRepository"/>
 internal sealed class ChordChoiceRepositoryFactory(INoteChoiceGenerator noteChoiceGenerator) : IChordChoiceRepositoryFactory
 {
-    public IChordChoiceRepository Create(CompositionConfiguration compositionConfiguration) => compositionConfiguration.VoiceConfigurations.Count switch
+    public IChordChoiceRepository Create(CompositionConfiguration compositionConfiguration) => compositionConfiguration.Voices.Count switch
     {
         DuetChordChoiceRepository.NumberOfVoices => new DuetChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),
         TrioChordChoiceRepository.NumberOfVoices => new TrioChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),

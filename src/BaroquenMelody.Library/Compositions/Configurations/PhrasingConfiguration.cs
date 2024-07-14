@@ -15,4 +15,6 @@ internal sealed record PhrasingConfiguration(
 )
 {
     public static PhrasingConfiguration Default => new(PhraseLengths: [1, 2, 4]);
+
+    public int MinPhraseLength { get; } = PhraseLengths.Min();
 }
