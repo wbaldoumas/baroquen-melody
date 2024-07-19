@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Strategies;
 using FluentAssertions;
@@ -18,6 +19,8 @@ internal sealed class CompositionStrategyFactoryTests
 
     private ICompositionRule _mockCompositionRule = null!;
 
+    private IChordNumberIdentifier _mockChordNumberIdentifier = null!;
+
     private CompositionStrategyFactory _compositionStrategyFactory = null!;
 
     [SetUp]
@@ -25,8 +28,9 @@ internal sealed class CompositionStrategyFactoryTests
     {
         _mockChordChoiceRepositoryFactory = Substitute.For<IChordChoiceRepositoryFactory>();
         _mockCompositionRule = Substitute.For<ICompositionRule>();
+        _mockChordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
 
-        _compositionStrategyFactory = new CompositionStrategyFactory(_mockChordChoiceRepositoryFactory, _mockCompositionRule);
+        _compositionStrategyFactory = new CompositionStrategyFactory(_mockChordChoiceRepositoryFactory, _mockCompositionRule, _mockChordNumberIdentifier);
     }
 
     [Test]

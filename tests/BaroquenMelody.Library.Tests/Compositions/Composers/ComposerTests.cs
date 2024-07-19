@@ -35,6 +35,8 @@ internal sealed class ComposerTests
 
     private IThemeComposer _themeComposer = null!;
 
+    private IEndingComposer _endingComposer = null!;
+
     private CompositionConfiguration _compositionConfiguration = null!;
 
     private Composer _composer = null!;
@@ -60,8 +62,9 @@ internal sealed class ComposerTests
         _noteTransposer = new NoteTransposer(_compositionConfiguration);
         _chordComposer = new ChordComposer(_mockCompositionStrategy, _compositionConfiguration);
         _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _noteTransposer, _compositionConfiguration);
+        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _compositionConfiguration);
 
-        _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, _themeComposer, _compositionConfiguration);
+        _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, _themeComposer, _endingComposer, _compositionConfiguration);
     }
 
     [Test]
@@ -111,6 +114,6 @@ internal sealed class ComposerTests
             .Received(_compositionConfiguration.CompositionLength * _compositionConfiguration.BeatsPerMeasure + 3) // 3 more to account for fugue subjects
             .GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>());
 
-        _mockCompositionDecorator.Received(2).Decorate(Arg.Any<Composition>());
+        _mockCompositionDecorator.Received(3).Decorate(Arg.Any<Composition>());
     }
 }

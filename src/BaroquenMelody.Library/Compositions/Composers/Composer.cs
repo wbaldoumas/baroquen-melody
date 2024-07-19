@@ -13,12 +13,14 @@ namespace BaroquenMelody.Library.Compositions.Composers;
 /// <param name="compositionPhraser"> The phraser that the composer should use to phrase the composition. </param>
 /// <param name="chordComposer"> The chord composer that the composer should use to compose chords. </param>
 /// <param name="themeComposer"> The theme composer that the composer should use to compose themes. </param>
+/// <param name="endingComposer"> The ending composer that the composer should use to compose endings. </param>
 /// <param name="compositionConfiguration"> The configuration to use to generate the composition. </param>
 internal sealed class Composer(
     ICompositionDecorator compositionDecorator,
     ICompositionPhraser compositionPhraser,
     IChordComposer chordComposer,
     IThemeComposer themeComposer,
+    IEndingComposer endingComposer,
     CompositionConfiguration compositionConfiguration
 ) : IComposer
 {
@@ -28,7 +30,7 @@ internal sealed class Composer(
 
         var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
-            theme.Exposition.SelectMany(measure => measure.Beats.Select(beat => beat.Chord))
+            theme.Exposition.SelectMany(measure => measure.Beats.Select(beat => new BaroquenChord(beat.Chord)))
         );
 
         var continuationMeasures = new List<Measure>();
@@ -57,7 +59,11 @@ internal sealed class Composer(
 
         var phrasedComposition = ApplyPhrasing(continuationComposition);
 
-        return new Composition([.. theme.Exposition, .. phrasedComposition.Measures]);
+        var compositionWithEnding = endingComposer.Compose(phrasedComposition, theme);
+
+        compositionDecorator.ApplySustain(compositionWithEnding);
+
+        return new Composition([.. theme.Exposition, .. compositionWithEnding.Measures]);
     }
 
     private Composition ApplyPhrasing(Composition initialComposition)
@@ -83,7 +89,6 @@ internal sealed class Composer(
         var phrasedComposition = new Composition(phrasedMeasures);
 
         compositionDecorator.Decorate(phrasedComposition);
-        compositionDecorator.ApplySustain(phrasedComposition);
 
         return phrasedComposition;
     }

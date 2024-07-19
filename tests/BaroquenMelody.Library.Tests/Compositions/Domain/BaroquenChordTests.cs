@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
@@ -10,7 +11,7 @@ namespace BaroquenMelody.Library.Tests.Compositions.Domain;
 internal sealed class BaroquenChordTests
 {
     [Test]
-    [TestCaseSource(nameof(TestCases))]
+    [TestCaseSource(nameof(EqualityTestCases))]
     public void Equality_methods_return_expected_results(BaroquenChord? chord, BaroquenChord? otherChord, bool expectedEqualityResult)
     {
         // act + assert
@@ -33,7 +34,59 @@ internal sealed class BaroquenChordTests
         act.Should().Throw<InvalidOperationException>();
     }
 
-    private static IEnumerable<TestCaseData> TestCases
+    [Test]
+    [TestCaseSource(nameof(ContainsVoiceTestCases))]
+    public void ContainsVoice_returns_expected_result(BaroquenChord chord, Voice voice, bool expectedContainsVoice)
+    {
+        // act
+        var containsVoice = chord.ContainsVoice(voice);
+
+        // assert
+        containsVoice.Should().Be(expectedContainsVoice);
+    }
+
+    [Test]
+    public void ResetOrnamentation_resets_ornamentation()
+    {
+        // arrange
+        var sopranoC1 = new BaroquenNote(Voice.Soprano, Notes.C1)
+        {
+            OrnamentationType = OrnamentationType.PassingTone,
+            Ornamentations = { new BaroquenNote(Voice.Soprano, Notes.C2) }
+        };
+
+        var altoE1 = new BaroquenNote(Voice.Alto, Notes.E1);
+        var cMajor = new BaroquenChord([sopranoC1, altoE1]);
+
+        // act
+        cMajor.ResetOrnamentation();
+
+        // assert
+        cMajor.Notes.Should().BeEquivalentTo(new[]
+        {
+            new BaroquenNote(Voice.Soprano, Notes.C1),
+            new BaroquenNote(Voice.Alto, Notes.E1)
+        });
+    }
+
+    private static IEnumerable<TestCaseData> ContainsVoiceTestCases
+    {
+        get
+        {
+            var sopranoC1 = new BaroquenNote(Voice.Soprano, Notes.C1);
+            var altoE1 = new BaroquenNote(Voice.Alto, Notes.E1);
+
+            var cMajor = new BaroquenChord([sopranoC1, altoE1]);
+
+            yield return new TestCaseData(cMajor, Voice.Soprano, true).SetName("Chord contains soprano voice");
+
+            yield return new TestCaseData(cMajor, Voice.Alto, true).SetName("Chord contains alto voice");
+
+            yield return new TestCaseData(cMajor, Voice.Tenor, false).SetName("Chord does not contain tenor voice");
+        }
+    }
+
+    private static IEnumerable<TestCaseData> EqualityTestCases
     {
         get
         {
