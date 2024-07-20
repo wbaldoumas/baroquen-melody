@@ -55,6 +55,16 @@ internal sealed class IsRepeatedNoteTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
+                    Voice.Tenor,
+                    new FixedSizeList<Beat>(1),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.D4)]))
+                ),
+                InputPolicyResult.Reject
+            ).SetName("When voice is not present, policy rejects.");
+
+            yield return new TestCaseData(
+                new OrnamentationItem(
                     Voice.Soprano,
                     new FixedSizeList<Beat>(1),
                     new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),

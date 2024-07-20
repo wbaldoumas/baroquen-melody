@@ -2,6 +2,8 @@
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Compositions.MusicTheory;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Infrastructure.Random;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -12,6 +14,7 @@ namespace BaroquenMelody.Library.Compositions.Strategies;
 internal sealed class CompositionStrategy(
     IChordChoiceRepository chordChoiceRepository,
     ICompositionRule compositionRule,
+    IChordNumberIdentifier chordNumberIdentifier,
     CompositionConfiguration compositionConfiguration,
     int maxRepeatedNotes = 2,
     int maxLookAheadDepth = 2,
@@ -35,15 +38,16 @@ internal sealed class CompositionStrategy(
 
     public IReadOnlyList<BaroquenChord> GetPossibleChordsForPartiallyVoicedChords(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
     {
-        var currentChord = precedingChords[^1];
         var nextChordVoices = nextChord.Notes.Select(note => note.Voice).ToList();
-        var possibleChordChoices = GetPossibleChordChoices(precedingChords);
 
-        return possibleChordChoices
-            .Select(chordChoice => currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice))
+        return GetPossibleChords(precedingChords)
             .Where(possibleChord => nextChordVoices.TrueForAll(voice => possibleChord[voice].Raw == nextChord[voice].Raw))
             .ToList();
     }
+
+    public IReadOnlyList<BaroquenChord> GetPossibleChordsForChordNumber(IReadOnlyList<BaroquenChord> precedingChords, ChordNumber chordNumber) => GetPossibleChords(precedingChords)
+        .Where(possibleChord => chordNumberIdentifier.IdentifyChordNumber(possibleChord) == chordNumber)
+        .ToList();
 
     public BaroquenChord GenerateInitialChord()
     {
@@ -55,6 +59,16 @@ internal sealed class CompositionStrategy(
             .ToList();
 
         return new BaroquenChord(notes);
+    }
+
+    private List<BaroquenChord> GetPossibleChords(IReadOnlyList<BaroquenChord> precedingChords)
+    {
+        var currentChord = precedingChords[^1];
+        var possibleChordChoices = GetPossibleChordChoices(precedingChords);
+
+        return possibleChordChoices
+            .Select(chordChoice => currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice))
+            .ToList();
     }
 
     private Note ChooseStartingNote(

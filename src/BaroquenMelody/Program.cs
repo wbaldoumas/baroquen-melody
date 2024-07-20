@@ -25,22 +25,22 @@ Console.WriteLine("Hit 'enter' to start composing...");
 Console.ReadLine();
 
 var phrasingConfiguration = new PhrasingConfiguration(
-    PhraseLengths: [1, 2, 4, 8],
+    PhraseLengths: [1, 2, 3, 4, 5, 6, 7, 8],
     MaxPhraseRepetitions: 8,
-    MinPhraseRepetitionPoolSize: 4,
+    MinPhraseRepetitionPoolSize: 2,
     PhraseRepetitionProbability: 100
 );
 
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
-        new(Voice.Soprano, Notes.G4, Notes.C6),
+        new(Voice.Soprano, Notes.C4, Notes.G5),
         new(Voice.Alto, Notes.C3, Notes.G4),
-        new(Voice.Tenor, Notes.G1, Notes.C3),
-        new(Voice.Bass, Notes.C0, Notes.G1)
+        new(Voice.Tenor, Notes.C2, Notes.G3),
+        new(Voice.Bass, Notes.C1, Notes.G2)
     },
     phrasingConfiguration,
-    BaroquenScale.Parse("C Major"),
+    BaroquenScale.Parse("D Dorian"),
     Meter.FourFour,
     25
 );
@@ -67,7 +67,8 @@ var compositionStrategyFactory = new CompositionStrategyFactory(
     new ChordChoiceRepositoryFactory(
         new NoteChoiceGenerator()
     ),
-    compositionRule
+    compositionRule,
+    new ChordNumberIdentifier(compositionConfiguration)
 );
 
 var compositionStrategy = compositionStrategyFactory.Create(compositionConfiguration);
@@ -92,11 +93,18 @@ var themeComposer = new ThemeComposer(
     compositionConfiguration
 );
 
+var endingComposer = new EndingComposer(
+    compositionStrategy,
+    compositionDecorator,
+    compositionConfiguration
+);
+
 var composer = new Composer(
     compositionDecorator,
     compositionPhraser,
     chordComposer,
     themeComposer,
+    endingComposer,
     compositionConfiguration
 );
 

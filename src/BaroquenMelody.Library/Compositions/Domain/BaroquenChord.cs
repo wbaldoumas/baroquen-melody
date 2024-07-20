@@ -13,6 +13,8 @@ internal sealed class BaroquenChord(List<BaroquenNote> notes) : IEquatable<Baroq
 
     public BaroquenNote this[Voice voice] => _notesByVoice[voice];
 
+    public bool ContainsVoice(Voice voice) => _notesByVoice.ContainsKey(voice);
+
     private readonly FrozenDictionary<Voice, BaroquenNote> _notesByVoice = notes.ToFrozenDictionary(note => note.Voice);
 
     /// <summary>
@@ -22,6 +24,17 @@ internal sealed class BaroquenChord(List<BaroquenNote> notes) : IEquatable<Baroq
     public BaroquenChord(BaroquenChord chord)
         : this(chord.Notes.Select(note => new BaroquenNote(note)).ToList())
     {
+    }
+
+    /// <summary>
+    ///     Resets the ornamentation of the notes in the <see cref="BaroquenChord"/>.
+    /// </summary>
+    public void ResetOrnamentation()
+    {
+        foreach (var note in Notes)
+        {
+            note.ResetOrnamentation();
+        }
     }
 
     /// <summary>

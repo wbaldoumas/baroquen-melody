@@ -3,6 +3,8 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Compositions.MusicTheory;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Strategies;
 using FluentAssertions;
@@ -38,6 +40,8 @@ internal sealed class CompositionStrategyTests
 
     private ICompositionRule _mockCompositionRule = default!;
 
+    private IChordNumberIdentifier _chordNumberIdentifier = default!;
+
     private CompositionStrategy _compositionStrategy = default!;
 
     private CompositionConfiguration _compositionConfiguration = default!;
@@ -63,9 +67,12 @@ internal sealed class CompositionStrategyTests
             CompositionLength: 100
         );
 
+        _chordNumberIdentifier = new ChordNumberIdentifier(_compositionConfiguration);
+
         _compositionStrategy = new CompositionStrategy(
             _mockChordChoiceRepository,
             _mockCompositionRule,
+            _chordNumberIdentifier,
             _compositionConfiguration
         );
     }
@@ -311,5 +318,45 @@ internal sealed class CompositionStrategyTests
 
         // Assert
         possibleChords.Should().ContainSingle();
+    }
+
+    [Test]
+    public void GetPossibleChordsForChordNumber_returns_expected_chords()
+    {
+        // arrange
+        var precedingChords = new List<BaroquenChord>
+        {
+            new([
+                new BaroquenNote(Voice.Soprano, Notes.C4),
+                new BaroquenNote(Voice.Alto, Notes.E3),
+                new BaroquenNote(Voice.Tenor, Notes.G2),
+                new BaroquenNote(Voice.Bass, Notes.C2)
+            ])
+        };
+
+        _mockChordChoiceRepository.Count.Returns(2);
+
+        _mockChordChoiceRepository.GetChordChoice(Arg.Any<BigInteger>()).Returns(
+            new ChordChoice([
+                new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
+                new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0),
+                new NoteChoice(Voice.Tenor, NoteMotion.Oblique, 0),
+                new NoteChoice(Voice.Bass, NoteMotion.Oblique, 0)
+            ]),
+            new ChordChoice([
+                new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 1),
+                new NoteChoice(Voice.Alto, NoteMotion.Ascending, 1),
+                new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 1),
+                new NoteChoice(Voice.Bass, NoteMotion.Ascending, 1)
+            ])
+        );
+
+        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(true);
+
+        // act
+        var possibleChordsForChordNumber = _compositionStrategy.GetPossibleChordsForChordNumber(precedingChords, ChordNumber.I).ToList();
+
+        // assert
+        possibleChordsForChordNumber.Should().HaveCount(1);
     }
 }

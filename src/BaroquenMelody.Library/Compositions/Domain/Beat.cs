@@ -10,6 +10,8 @@ internal sealed record Beat(BaroquenChord Chord)
 {
     public BaroquenNote this[Voice voice] => Chord[voice];
 
+    public bool ContainsVoice(Voice voice) => Chord.ContainsVoice(voice);
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="Beat"/> class.
     /// </summary>
