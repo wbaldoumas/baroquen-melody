@@ -84,6 +84,7 @@ var compositionDecorator = new CompositionDecorator(
 var compositionPhraser = new CompositionPhraser(compositionRule, compositionConfiguration);
 var noteTransposer = new NoteTransposer(compositionConfiguration);
 var chordComposer = new ChordComposer(compositionStrategy, compositionConfiguration);
+var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
 
 var themeComposer = new ThemeComposer(
     compositionStrategy,
@@ -96,6 +97,7 @@ var themeComposer = new ThemeComposer(
 var endingComposer = new EndingComposer(
     compositionStrategy,
     compositionDecorator,
+    chordNumberIdentifier,
     compositionConfiguration
 );
 

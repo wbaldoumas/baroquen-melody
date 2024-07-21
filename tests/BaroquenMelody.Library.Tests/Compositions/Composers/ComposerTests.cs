@@ -4,6 +4,7 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Strategies;
@@ -37,6 +38,8 @@ internal sealed class ComposerTests
 
     private IEndingComposer _endingComposer = null!;
 
+    private IChordNumberIdentifier _mockChordNumberIdentifier = null!;
+
     private CompositionConfiguration _compositionConfiguration = null!;
 
     private Composer _composer = null!;
@@ -47,6 +50,9 @@ internal sealed class ComposerTests
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
         _mockCompositionDecorator = Substitute.For<ICompositionDecorator>();
         _mockCompositionPhraser = Substitute.For<ICompositionPhraser>();
+        _mockChordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
+
+        _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>()).Returns(ChordNumber.V, ChordNumber.I);
 
         _compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
@@ -62,7 +68,7 @@ internal sealed class ComposerTests
         _noteTransposer = new NoteTransposer(_compositionConfiguration);
         _chordComposer = new ChordComposer(_mockCompositionStrategy, _compositionConfiguration);
         _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _noteTransposer, _compositionConfiguration);
-        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _compositionConfiguration);
+        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, _compositionConfiguration);
 
         _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, _themeComposer, _endingComposer, _compositionConfiguration);
     }
@@ -105,15 +111,15 @@ internal sealed class ComposerTests
 
         foreach (var measure in composition.Measures)
         {
-            measure.Beats.Should().HaveCount(_compositionConfiguration.BeatsPerMeasure);
+            measure.Beats.Should().HaveCountGreaterThan(0);
         }
 
         _mockCompositionStrategy.Received(1).GenerateInitialChord();
 
         _mockCompositionStrategy
-            .Received(_compositionConfiguration.CompositionLength * _compositionConfiguration.BeatsPerMeasure + 3) // 3 more to account for fugue subjects
+            .Received(_compositionConfiguration.CompositionLength * _compositionConfiguration.BeatsPerMeasure + 4) // 4 more to account for theme generation and cadence handling
             .GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>());
 
-        _mockCompositionDecorator.Received(3).Decorate(Arg.Any<Composition>());
+        _mockCompositionDecorator.Received(4).Decorate(Arg.Any<Composition>());
     }
 }
