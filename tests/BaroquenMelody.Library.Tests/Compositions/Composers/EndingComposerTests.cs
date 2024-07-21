@@ -67,7 +67,7 @@ internal sealed class EndingComposerTests
             .Returns([new ChordChoice([new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 1)])]);
 
         _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>())
-            .Returns(ChordNumber.V, ChordNumber.I);
+            .Returns(ChordNumber.V, ChordNumber.V, ChordNumber.V, ChordNumber.I);
 
         // act
         var result = _endingComposer.Compose(composition, theme);
@@ -94,6 +94,9 @@ internal sealed class EndingComposerTests
 
         _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>())
             .Returns(ChordNumber.V, ChordNumber.I);
+
+        _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>())
+            .Returns(ChordNumber.V, ChordNumber.V, ChordNumber.V, ChordNumber.I);
 
         var fallbackChordChoice = new ChordChoice(
         [
