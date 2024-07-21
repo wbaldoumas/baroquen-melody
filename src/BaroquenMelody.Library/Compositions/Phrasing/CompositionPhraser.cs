@@ -7,20 +7,51 @@ using BaroquenMelody.Library.Infrastructure.Random;
 
 namespace BaroquenMelody.Library.Compositions.Phrasing;
 
-internal sealed class CompositionPhraser(ICompositionRule compositionRule, CompositionConfiguration compositionConfiguration) : ICompositionPhraser
+internal sealed class CompositionPhraser(ICompositionRule compositionRule, IThemeSplitter themeSplitter, CompositionConfiguration compositionConfiguration) : ICompositionPhraser
 {
     private readonly List<RepeatedPhrase> phrasesToRepeat = [];
 
     private readonly Queue<RepeatedPhrase> coolOffPhrases = new();
 
+    private List<RepeatedPhrase> themePhrasesToRepeat = [];
+
+    private RepeatedPhrase? themeCoolOffPhrase;
+
     public void AttemptPhraseRepetition(List<Measure> measures)
     {
-        if (AttemptToRepeatExistingPhrase(measures))
+        if (AttemptToRepeatExistingThemePhrase(measures) || AttemptToRepeatExistingPhrase(measures))
         {
             return;
         }
 
         AttemptToCreateAndRepeatNewPhrase(measures);
+    }
+
+    public void AddTheme(BaroquenTheme theme)
+    {
+        themePhrasesToRepeat = themeSplitter.SplitThemeIntoPhrases(theme);
+
+        foreach (var themePhraseToRepeat in themePhrasesToRepeat.ToList())
+        {
+            ResetPhraseEndOrnamentation(themePhraseToRepeat.Phrase[^1]);
+        }
+    }
+
+    private bool AttemptToRepeatExistingThemePhrase(List<Measure> measures)
+    {
+        foreach (var themePhraseToRepeat in themePhrasesToRepeat.Where(themePhraseToRepeat => themePhraseToRepeat != themeCoolOffPhrase).OrderBy(_ => ThreadLocalRandom.Next()))
+        {
+            if (!TryRepeatPhrase(measures, themePhraseToRepeat))
+            {
+                continue;
+            }
+
+            themeCoolOffPhrase = themePhraseToRepeat;
+
+            return true;
+        }
+
+        return false;
     }
 
     private bool AttemptToRepeatExistingPhrase(List<Measure> measures)
@@ -123,7 +154,7 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, Compo
             compositionContext.Add(beat.Chord);
         }
 
-        var firstChordOfRepeatedPhrase = measuresToRepeat[0].Beats.First().Chord;
+        var firstChordOfRepeatedPhrase = measuresToRepeat[0].Beats[0].Chord;
 
         return compositionRule.Evaluate(compositionContext, firstChordOfRepeatedPhrase);
     }

@@ -15,8 +15,15 @@ internal sealed class CompositionPhraserTests
 {
     private ICompositionRule _mockCompositionRule = null!;
 
+    private IThemeSplitter _mockThemeSplitter = null!;
+
     [SetUp]
-    public void SetUp() => _mockCompositionRule = Substitute.For<ICompositionRule>();
+    public void SetUp()
+    {
+        _mockCompositionRule = Substitute.For<ICompositionRule>();
+        _mockThemeSplitter = Substitute.For<IThemeSplitter>();
+        _mockThemeSplitter.SplitThemeIntoPhrases(Arg.Any<BaroquenTheme>()).Returns([]);
+    }
 
     [Test]
     public void AttemptPhraseRepetition_ExistingRepeatablePhrase_ShouldRepeat()
@@ -31,7 +38,32 @@ internal sealed class CompositionPhraserTests
         phraser.AttemptPhraseRepetition(measures);
 
         // assert
-        measures.Count.Should().Be(12, because: "a phrase of 4 measures should have been repeated");
+        measures.Should().HaveCount(12, because: "a phrase of 4 measures should have been repeated");
+    }
+
+    [Test]
+    public void AttemptPhraseRepetition_ExistingRepeatableThemePhrase_ShouldRepeat()
+    {
+        // arrange
+        var phraser = CreatePhraser(new PhrasingConfiguration([4], 2, 1, 100));
+        var measures = CreateMeasures(8);
+
+        _mockThemeSplitter.SplitThemeIntoPhrases(Arg.Any<BaroquenTheme>()).Returns([
+            new RepeatedPhrase { Phrase = measures.Take(4).ToList() }
+        ]);
+
+        phraser.AddTheme(new BaroquenTheme
+        {
+            Recapitulation = measures.Take(4).ToList()
+        });
+
+        SetRuleEvaluationOutcome(_mockCompositionRule, true);
+
+        // act
+        phraser.AttemptPhraseRepetition(measures);
+
+        // assert
+        measures.Should().HaveCount(12, because: "a theme phrase of 4 measures should have been repeated");
     }
 
     [Test]
@@ -54,7 +86,7 @@ internal sealed class CompositionPhraserTests
         phraser.AttemptPhraseRepetition(measures);
 
         // assert
-        measures.Count.Should().Be(12, "the phrase should not be repeated more than once");
+        measures.Should().HaveCount(12, "the phrase should not be repeated more than once");
     }
 
     [Test]
@@ -71,7 +103,7 @@ internal sealed class CompositionPhraserTests
         phraser.AttemptPhraseRepetition(measures);
 
         // assert
-        measures.Count.Should().Be(8, "a new phrase of 2 measures should be added");
+        measures.Should().HaveCount(8, "a new phrase of 2 measures should be added");
     }
 
     [Test]
@@ -87,7 +119,7 @@ internal sealed class CompositionPhraserTests
         phraser.AttemptPhraseRepetition(measures);
 
         // assert
-        measures.Count.Should().Be(4, "no phrases should be repeated due to min pool size requirement");
+        measures.Should().HaveCount(4, "no phrases should be repeated due to min pool size requirement");
     }
 
     [Test]
@@ -103,7 +135,7 @@ internal sealed class CompositionPhraserTests
         phraser.AttemptPhraseRepetition(measures);
 
         // assert
-        measures.Count.Should().Be(8, "no phrases should be repeated due to 0% repetition probability");
+        measures.Should().HaveCount(8, "no phrases should be repeated due to 0% repetition probability");
     }
 
     [Test]
@@ -120,7 +152,7 @@ internal sealed class CompositionPhraserTests
         phraser.AttemptPhraseRepetition(measures);
 
         // assert
-        measures.Count.Should().Be(8);
+        measures.Should().HaveCount(8);
     }
 
     [Test]
@@ -136,7 +168,20 @@ internal sealed class CompositionPhraserTests
         phraser.AttemptPhraseRepetition(measures);
 
         // assert
-        measures.Count.Should().Be(4, "no new phrase should be created or repeated due to measures count being less than the phrase length");
+        measures.Should().HaveCount(4, "no new phrase should be created or repeated due to measures count being less than the phrase length");
+    }
+
+    [Test]
+    public void AddTheme_invokes_ThemeSplitter()
+    {
+        // arrange
+        var phraser = CreatePhraser(new PhrasingConfiguration([4], 2, 1, 100));
+
+        // act
+        phraser.AddTheme(new BaroquenTheme());
+
+        // assert
+        _mockThemeSplitter.Received(1).SplitThemeIntoPhrases(Arg.Any<BaroquenTheme>());
     }
 
     private static List<Measure> CreateMeasures(int count, int beatsPerMeasure = 4)
@@ -152,10 +197,7 @@ internal sealed class CompositionPhraserTests
         return measures;
     }
 
-    private static void SetRuleEvaluationOutcome(ICompositionRule rule, bool outcome)
-    {
-        rule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(outcome);
-    }
+    private static void SetRuleEvaluationOutcome(ICompositionRule rule, bool outcome) => rule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(outcome);
 
     private CompositionPhraser CreatePhraser(PhrasingConfiguration phrasingConfiguration)
     {
@@ -167,6 +209,6 @@ internal sealed class CompositionPhraserTests
             16
         );
 
-        return new CompositionPhraser(_mockCompositionRule, compositionConfiguration);
+        return new CompositionPhraser(_mockCompositionRule, _mockThemeSplitter, compositionConfiguration);
     }
 }

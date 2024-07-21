@@ -34,15 +34,15 @@ var phrasingConfiguration = new PhrasingConfiguration(
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
-        new(Voice.Soprano, Notes.C4, Notes.G5),
-        new(Voice.Alto, Notes.C3, Notes.G4),
-        new(Voice.Tenor, Notes.C2, Notes.G3),
-        new(Voice.Bass, Notes.C1, Notes.G2)
+        new(Voice.Soprano, Notes.C6, Notes.E7),
+        new(Voice.Alto, Notes.G4, Notes.B5),
+        new(Voice.Tenor, Notes.F3, Notes.A4),
+        new(Voice.Bass, Notes.C2, Notes.E3)
     },
     phrasingConfiguration,
     BaroquenScale.Parse("D Dorian"),
     Meter.FourFour,
-    25
+    30
 );
 
 var compositionRule = new AggregateCompositionRule(
@@ -81,7 +81,8 @@ var compositionDecorator = new CompositionDecorator(
     compositionConfiguration
 );
 
-var compositionPhraser = new CompositionPhraser(compositionRule, compositionConfiguration);
+var themeSplitter = new ThemeSplitter();
+var compositionPhraser = new CompositionPhraser(compositionRule, themeSplitter, compositionConfiguration);
 var noteTransposer = new NoteTransposer(compositionConfiguration);
 var chordComposer = new ChordComposer(compositionStrategy, compositionConfiguration);
 var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
