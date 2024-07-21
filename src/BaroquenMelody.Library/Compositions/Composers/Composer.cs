@@ -57,7 +57,7 @@ internal sealed class Composer(
 
         compositionDecorator.Decorate(continuationComposition);
 
-        var phrasedComposition = ApplyPhrasing(continuationComposition);
+        var phrasedComposition = ApplyPhrasing(continuationComposition, theme);
 
         var compositionWithEnding = endingComposer.Compose(phrasedComposition, theme);
 
@@ -66,8 +66,10 @@ internal sealed class Composer(
         return new Composition([.. theme.Exposition, .. compositionWithEnding.Measures]);
     }
 
-    private Composition ApplyPhrasing(Composition initialComposition)
+    private Composition ApplyPhrasing(Composition initialComposition, BaroquenTheme theme)
     {
+        compositionPhraser.AddTheme(theme);
+
         var currentMeasureIndex = 0;
         var phrasedMeasures = new List<Measure>();
 
