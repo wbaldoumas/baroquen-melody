@@ -5,14 +5,14 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaners;
 
 /// <summary>
-///     A cleaner that removes conflicting ornamentations across two <see cref="BaroquenNote"/> objects, one with a
-///     passing tone and the other with a sixteenth note run.
+///     A cleaner that removes conflicting ornamentations across two <see cref="BaroquenNote"/> objects, one with
+///     eighth notes and the other with a sixteenth note run.
 /// </summary>
-internal sealed class PassingToneSixteenthNoteOrnamentationCleaner : IOrnamentationCleaner
+internal sealed class EighthSixteenthNoteOrnamentationCleaner : IOrnamentationCleaner
 {
     public void Clean(BaroquenNote noteA, BaroquenNote noteB)
     {
-        if (noteA.OrnamentationType is OrnamentationType.PassingTone or OrnamentationType.DoublePassingTone)
+        if (noteA.OrnamentationType is OrnamentationType.PassingTone or OrnamentationType.DoublePassingTone or OrnamentationType.RepeatedEighthNote)
         {
             CleanTargetedNotes(noteA, noteB);
         }

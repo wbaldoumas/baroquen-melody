@@ -44,7 +44,9 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             BuildDecorateDominantSeventhIntervalEngine(compositionConfiguration.Scale.LeadingTone, DecorateDominantSeventhBelowLeadingToneInterval),
             BuildPedalProcessor(new IsRootOfChord(_chordNumberIdentifier, compositionConfiguration), PedalProcessor.RootPedalInterval),
             BuildPedalProcessor(new IsThirdOfChord(_chordNumberIdentifier, compositionConfiguration), PedalProcessor.ThirdPedalInterval),
-            BuildPedalProcessor(new IsFifthOfChord(_chordNumberIdentifier, compositionConfiguration), PedalProcessor.FifthPedalInterval)
+            BuildPedalProcessor(new IsFifthOfChord(_chordNumberIdentifier, compositionConfiguration), PedalProcessor.FifthPedalInterval),
+            BuildRepeatedNoteProcessor(OrnamentationType.RepeatedEighthNote),
+            BuildRepeatedNoteProcessor(OrnamentationType.RepeatedDottedEighthSixteenth)
         )
         .WithOutputPolicies(new CleanConflictingOrnamentations(new OrnamentationCleanerFactory()))
         .Build();
@@ -196,6 +198,15 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new IsIntervalWithinVoiceRange(compositionConfiguration, 1).And(new IsIntervalWithinVoiceRange(compositionConfiguration, -1))
         )
         .WithProcessors(new MordentProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithoutOutputPolicies()
+        .Build();
+
+    private IPolicyEngine<OrnamentationItem> BuildRepeatedNoteProcessor(OrnamentationType ornamentationType) => PolicyEngineBuilder<OrnamentationItem>.Configure()
+        .WithInputPolicies(
+            new WantsToOrnament(5),
+            new NoteHasNoOrnamentation()
+        )
+        .WithProcessors(new RepeatedNoteProcessor(musicalTimeSpanCalculator, compositionConfiguration, ornamentationType))
         .WithoutOutputPolicies()
         .Build();
 }
