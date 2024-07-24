@@ -10,6 +10,7 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 /// <inheritdoc cref="IProcessor{T}"/>
 internal sealed class NeighborToneProcessor(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
+    IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
     CompositionConfiguration compositionConfiguration
 ) : IProcessor<OrnamentationItem>
 {
@@ -19,7 +20,7 @@ internal sealed class NeighborToneProcessor(
         var notes = compositionConfiguration.Scale.GetNotes();
         var currentNoteScaleIndex = notes.IndexOf(currentNote.Raw);
 
-        var nextNoteScaleIndex = WeightedRandomBooleanGenerator.Generate() ? currentNoteScaleIndex + 1 : currentNoteScaleIndex - 1;
+        var nextNoteScaleIndex = weightedRandomBooleanGenerator.IsTrue() ? currentNoteScaleIndex + 1 : currentNoteScaleIndex - 1;
 
         var nextNote = notes[nextNoteScaleIndex];
 

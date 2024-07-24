@@ -11,6 +11,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Strategies;
+using BaroquenMelody.Library.Infrastructure.Random;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Composing;
 using Melanchall.DryWetMidi.Core;
@@ -81,8 +82,9 @@ var compositionDecorator = new CompositionDecorator(
     compositionConfiguration
 );
 
+var weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
 var themeSplitter = new ThemeSplitter();
-var compositionPhraser = new CompositionPhraser(compositionRule, themeSplitter, compositionConfiguration);
+var compositionPhraser = new CompositionPhraser(compositionRule, themeSplitter, weightedRandomBooleanGenerator, compositionConfiguration);
 var noteTransposer = new NoteTransposer(compositionConfiguration);
 var chordComposer = new ChordComposer(compositionStrategy, compositionConfiguration);
 var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);

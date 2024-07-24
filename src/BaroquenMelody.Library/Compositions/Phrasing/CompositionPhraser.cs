@@ -7,7 +7,12 @@ using BaroquenMelody.Library.Infrastructure.Random;
 
 namespace BaroquenMelody.Library.Compositions.Phrasing;
 
-internal sealed class CompositionPhraser(ICompositionRule compositionRule, IThemeSplitter themeSplitter, CompositionConfiguration compositionConfiguration) : ICompositionPhraser
+internal sealed class CompositionPhraser(
+    ICompositionRule compositionRule,
+    IThemeSplitter themeSplitter,
+    IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
+    CompositionConfiguration compositionConfiguration
+) : ICompositionPhraser
 {
     private readonly List<RepeatedPhrase> phrasesToRepeat = [];
 
@@ -95,7 +100,7 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, IThem
 
             var lastMeasures = measures.Skip(measures.Count - phraseLength).Take(phraseLength).Select(measure => new Measure(measure)).ToList();
 
-            if (!WeightedRandomBooleanGenerator.Generate(compositionConfiguration.PhrasingConfiguration.PhraseRepetitionProbability) || !CanRepeatPhrase(measures, lastMeasures))
+            if (!weightedRandomBooleanGenerator.IsTrue(compositionConfiguration.PhrasingConfiguration.PhraseRepetitionProbability) || !CanRepeatPhrase(measures, lastMeasures))
             {
                 continue;
             }
@@ -131,7 +136,7 @@ internal sealed class CompositionPhraser(ICompositionRule compositionRule, IThem
     private bool TryRepeatPhrase(List<Measure> measures, RepeatedPhrase repeatedPhrase)
     {
         if (repeatedPhrase.RepetitionCount >= compositionConfiguration.PhrasingConfiguration.MaxPhraseRepetitions ||
-            !WeightedRandomBooleanGenerator.Generate(compositionConfiguration.PhrasingConfiguration.PhraseRepetitionProbability) ||
+            !weightedRandomBooleanGenerator.IsTrue(compositionConfiguration.PhrasingConfiguration.PhraseRepetitionProbability) ||
             !CanRepeatPhrase(measures, repeatedPhrase.Phrase))
         {
             return false;
