@@ -32,6 +32,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             BuildDelayedDoublePassingToneEngine(),
             BuildDoubleTurnEngine(),
             BuildDelayedPassingToneEngine(),
+            BuildNeighborToneProcessor(),
             BuildSixteenthNoteRunEngine(),
             BuildDoubleThirtySecondNoteRunProcessor(),
             BuildTurnEngine(),
@@ -207,6 +208,16 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new NoteHasNoOrnamentation()
         )
         .WithProcessors(new RepeatedNoteProcessor(musicalTimeSpanCalculator, compositionConfiguration, ornamentationType))
+        .WithoutOutputPolicies()
+        .Build();
+
+    private IPolicyEngine<OrnamentationItem> BuildNeighborToneProcessor() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+        .WithInputPolicies(
+            new WantsToOrnament(25),
+            new NoteHasNoOrnamentation(),
+            new IsRepeatedNote()
+        )
+        .WithProcessors(new NeighborToneProcessor(musicalTimeSpanCalculator, compositionConfiguration))
         .WithoutOutputPolicies()
         .Build();
 }

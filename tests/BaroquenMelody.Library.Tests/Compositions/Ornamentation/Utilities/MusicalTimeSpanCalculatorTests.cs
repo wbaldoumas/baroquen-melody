@@ -122,6 +122,8 @@ internal sealed class MusicalTimeSpanCalculatorTests
 
             yield return new TestCaseData(OrnamentationType.RepeatedDottedEighthSixteenth, Meter.FourFour, MusicalTimeSpan.Eighth.Dotted(1));
 
+            yield return new TestCaseData(OrnamentationType.NeighborTone, Meter.FourFour, MusicalTimeSpan.Eighth.Dotted(1));
+
             // more test cases to come as more ornamentation types and meters are added...
         }
     }
@@ -165,6 +167,8 @@ internal sealed class MusicalTimeSpanCalculatorTests
             yield return new TestCaseData(OrnamentationType.RepeatedEighthNote, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
 
             yield return new TestCaseData(OrnamentationType.RepeatedDottedEighthSixteenth, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
+
+            yield return new TestCaseData(OrnamentationType.NeighborTone, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
 
             // more test cases to come as more ornamentation types and meters are added...
         }
