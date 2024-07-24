@@ -9,6 +9,7 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 
 internal sealed class MordentProcessor(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
+    IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
     CompositionConfiguration compositionConfiguration
 ) : IProcessor<OrnamentationItem>
 {
@@ -20,7 +21,7 @@ internal sealed class MordentProcessor(
 
         var currentNoteIndex = notes.IndexOf(currentNote.Raw);
 
-        var firstNoteIndex = WeightedRandomBooleanGenerator.Generate() ? currentNoteIndex + 1 : currentNoteIndex - 1;
+        var firstNoteIndex = weightedRandomBooleanGenerator.IsTrue() ? currentNoteIndex + 1 : currentNoteIndex - 1;
 
         // ReSharper disable once InlineTemporaryVariable
         var secondNoteIndex = currentNoteIndex;

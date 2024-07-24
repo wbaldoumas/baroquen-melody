@@ -6,17 +6,20 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Infrastructure.Collections;
+using BaroquenMelody.Library.Infrastructure.Random;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using NSubstitute;
 using NUnit.Framework;
-using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Processors;
 
 [TestFixture]
 internal sealed class MordentProcessorTests
 {
+    private IWeightedRandomBooleanGenerator _mockWeightedRandomBooleanGenerator;
+
     private MordentProcessor _mordentProcessor = null!;
 
     [SetUp]
@@ -33,11 +36,13 @@ internal sealed class MordentProcessorTests
             CompositionLength: 100
         );
 
-        _mordentProcessor = new MordentProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
+        _mockWeightedRandomBooleanGenerator = Substitute.For<IWeightedRandomBooleanGenerator>();
+
+        _mordentProcessor = new MordentProcessor(new MusicalTimeSpanCalculator(), _mockWeightedRandomBooleanGenerator, compositionConfiguration);
     }
 
     [Test]
-    public void Process_ShouldAddOrnamentationsToCurrentNote()
+    public void Process_applies_upper_mordent_as_expected()
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
@@ -46,6 +51,8 @@ internal sealed class MordentProcessorTests
             new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
             new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F4)]))
         );
+
+        _mockWeightedRandomBooleanGenerator.IsTrue().Returns(true);
 
         // act
         _mordentProcessor.Process(ornamentationItem);
@@ -58,7 +65,37 @@ internal sealed class MordentProcessorTests
 
         ornamentationItem.CurrentBeat[0].Ornamentations.Should().HaveCount(2);
 
-        noteToAssert.Ornamentations[0].Raw.Should().Match<Note>(note => note == Notes.B4 || note == Notes.G4);
+        noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B4);
+        noteToAssert.Ornamentations[0].Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
+        noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.A4);
+        noteToAssert.Ornamentations[1].Duration.Should().Be(MusicalTimeSpan.Eighth.Dotted(1));
+    }
+
+    [Test]
+    public void Process_applies_lower_mordent_as_expected()
+    {
+        // arrange
+        var ornamentationItem = new OrnamentationItem(
+            Voice.Soprano,
+            new FixedSizeList<Beat>(1),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F4)]))
+        );
+
+        _mockWeightedRandomBooleanGenerator.IsTrue().Returns(false);
+
+        // act
+        _mordentProcessor.Process(ornamentationItem);
+
+        // assert
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
+
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Mordent);
+        noteToAssert.Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
+
+        ornamentationItem.CurrentBeat[0].Ornamentations.Should().HaveCount(2);
+
+        noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.G4);
         noteToAssert.Ornamentations[0].Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.A4);
         noteToAssert.Ornamentations[1].Duration.Should().Be(MusicalTimeSpan.Eighth.Dotted(1));

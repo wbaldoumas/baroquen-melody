@@ -9,6 +9,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Output;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
+using BaroquenMelody.Library.Infrastructure.Random;
 using Melanchall.DryWetMidi.MusicTheory;
 using System.Diagnostics.CodeAnalysis;
 
@@ -23,6 +24,8 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
     private const int DecorateDominantSeventhBelowLeadingToneInterval = -2;
 
     private readonly IChordNumberIdentifier _chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
+
+    private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
 
     public IPolicyEngine<OrnamentationItem> BuildOrnamentationEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithoutInputPolicies()
@@ -54,7 +57,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     public IPolicyEngine<OrnamentationItem> BuildSustainedNoteEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(),
+            new WantsToOrnament(_weightedRandomBooleanGenerator),
             new IsRepeatedNote(),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, SustainedNoteProcessor.Interval)
@@ -65,7 +68,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildPassingToneEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(),
+            new WantsToOrnament(_weightedRandomBooleanGenerator),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, PassingToneProcessor.Interval)
         )
@@ -75,7 +78,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildDelayedPassingToneEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(),
+            new WantsToOrnament(_weightedRandomBooleanGenerator),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, PassingToneProcessor.Interval)
         )
@@ -85,7 +88,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildTurnEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(),
+            new WantsToOrnament(_weightedRandomBooleanGenerator),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, TurnProcessor.Interval)
         )
@@ -95,7 +98,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildAlternateTurnEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(),
+            new WantsToOrnament(_weightedRandomBooleanGenerator),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, AlternateTurnProcessor.Interval)
         )
@@ -105,7 +108,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildSixteenthNoteRunEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(),
+            new WantsToOrnament(_weightedRandomBooleanGenerator),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, SixteenthNoteRunProcessor.Interval)
         )
@@ -115,7 +118,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildDelayedThirtySecondNoteRunEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(15),
+            new WantsToOrnament(_weightedRandomBooleanGenerator, 15),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, DelayedThirtySecondNoteRunProcessor.Interval)
         )
@@ -125,7 +128,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildDoubleTurnEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(30),
+            new WantsToOrnament(_weightedRandomBooleanGenerator, 30),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, DoubleTurnProcessor.Interval)
         )
@@ -135,7 +138,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildDoublePassingToneEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(),
+            new WantsToOrnament(_weightedRandomBooleanGenerator),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, DoublePassingToneProcessor.Interval)
         )
@@ -145,7 +148,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildDelayedDoublePassingToneEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(),
+            new WantsToOrnament(_weightedRandomBooleanGenerator),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, DoublePassingToneProcessor.Interval)
         )
@@ -156,7 +159,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
     private IPolicyEngine<OrnamentationItem> BuildDecorateDominantSeventhIntervalEngine(NoteName targetNote, int intervalChange) => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
             new HasNextBeat(),
-            new WantsToOrnament(30),
+            new WantsToOrnament(_weightedRandomBooleanGenerator, 30),
             new NoteHasNoOrnamentation(),
             new NoteIsTargetNote(targetNote),
             new BeatContainsTargetNotes([compositionConfiguration.Scale.Dominant, compositionConfiguration.Scale.LeadingTone, compositionConfiguration.Scale.Supertonic]),
@@ -170,7 +173,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildDoubleThirtySecondNoteRunProcessor() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(15),
+            new WantsToOrnament(_weightedRandomBooleanGenerator, 15),
             new NoteHasNoOrnamentation(),
             new IsApplicableInterval(compositionConfiguration, ThirtySecondNoteRunProcessor.Interval)
         )
@@ -180,7 +183,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildPedalProcessor(IInputPolicy<OrnamentationItem> scaleDegreePolicy, int pedalInterval) => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(),
+            new WantsToOrnament(_weightedRandomBooleanGenerator),
             new NoteHasNoOrnamentation(),
             scaleDegreePolicy,
             new IsApplicableInterval(compositionConfiguration, PedalProcessor.Interval),
@@ -193,18 +196,18 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildMordentProcessor() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(1),
+            new WantsToOrnament(_weightedRandomBooleanGenerator, 1),
             new NoteHasNoOrnamentation(),
             new Not<OrnamentationItem>(new BeatContainsTargetOrnamentation(OrnamentationType.Mordent)),
             new IsIntervalWithinVoiceRange(compositionConfiguration, 1).And(new IsIntervalWithinVoiceRange(compositionConfiguration, -1))
         )
-        .WithProcessors(new MordentProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithProcessors(new MordentProcessor(musicalTimeSpanCalculator, _weightedRandomBooleanGenerator, compositionConfiguration))
         .WithoutOutputPolicies()
         .Build();
 
     private IPolicyEngine<OrnamentationItem> BuildRepeatedNoteProcessor(OrnamentationType ornamentationType) => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(5),
+            new WantsToOrnament(_weightedRandomBooleanGenerator, 5),
             new NoteHasNoOrnamentation()
         )
         .WithProcessors(new RepeatedNoteProcessor(musicalTimeSpanCalculator, compositionConfiguration, ornamentationType))
@@ -213,11 +216,11 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private IPolicyEngine<OrnamentationItem> BuildNeighborToneProcessor() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(25),
+            new WantsToOrnament(_weightedRandomBooleanGenerator, 25),
             new NoteHasNoOrnamentation(),
             new IsRepeatedNote()
         )
-        .WithProcessors(new NeighborToneProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithProcessors(new NeighborToneProcessor(musicalTimeSpanCalculator, _weightedRandomBooleanGenerator, compositionConfiguration))
         .WithoutOutputPolicies()
         .Build();
 }
