@@ -17,40 +17,28 @@ internal sealed class PassingToneOrnamentationCleaner : IOrnamentationCleaner
         switch (noteA.OrnamentationType, noteB.OrnamentationType)
         {
             case (OrnamentationType.PassingTone, OrnamentationType.PassingTone) when noteA.Raw.NoteNumber > noteB.Raw.NoteNumber:
+            case (OrnamentationType.DoublePassingTone, OrnamentationType.DoublePassingTone) when noteA.Raw.NoteNumber > noteB.Raw.NoteNumber:
+            case (OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedPassingTone) when noteA.Raw.NoteNumber > noteB.Raw.NoteNumber:
+            case (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedDoublePassingTone) when noteA.Raw.NoteNumber > noteB.Raw.NoteNumber:
+            case (OrnamentationType.DoublePassingTone, OrnamentationType.PassingTone):
+            case (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedPassingTone):
+            case (OrnamentationType.PassingTone, OrnamentationType.RepeatedEighthNote):
+            case (OrnamentationType.DoublePassingTone, OrnamentationType.RepeatedEighthNote):
+            case (OrnamentationType.DelayedPassingTone, OrnamentationType.RepeatedDottedEighthSixteenth):
+            case (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.RepeatedDottedEighthSixteenth):
                 noteB.ResetOrnamentation();
                 break;
             case (OrnamentationType.PassingTone, OrnamentationType.PassingTone) when noteA.Raw.NoteNumber < noteB.Raw.NoteNumber:
-                noteA.ResetOrnamentation();
-                break;
-            case (OrnamentationType.DoublePassingTone, OrnamentationType.DoublePassingTone) when noteA.Raw.NoteNumber > noteB.Raw.NoteNumber:
-                noteB.ResetOrnamentation();
-                break;
             case (OrnamentationType.DoublePassingTone, OrnamentationType.DoublePassingTone) when noteA.Raw.NoteNumber < noteB.Raw.NoteNumber:
-                noteA.ResetOrnamentation();
-                break;
             case (OrnamentationType.PassingTone, OrnamentationType.DoublePassingTone):
-                noteA.ResetOrnamentation();
-                break;
-            case (OrnamentationType.DoublePassingTone, OrnamentationType.PassingTone):
-                noteB.ResetOrnamentation();
-                break;
-            case (OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedPassingTone) when noteA.Raw.NoteNumber > noteB.Raw.NoteNumber:
-                noteB.ResetOrnamentation();
-                break;
             case (OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedPassingTone) when noteA.Raw.NoteNumber < noteB.Raw.NoteNumber:
-                noteA.ResetOrnamentation();
-                break;
-            case (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedDoublePassingTone) when noteA.Raw.NoteNumber > noteB.Raw.NoteNumber:
-                noteB.ResetOrnamentation();
-                break;
             case (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedDoublePassingTone) when noteA.Raw.NoteNumber < noteB.Raw.NoteNumber:
-                noteA.ResetOrnamentation();
-                break;
             case (OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedDoublePassingTone):
+            case (OrnamentationType.RepeatedEighthNote, OrnamentationType.PassingTone):
+            case (OrnamentationType.RepeatedEighthNote, OrnamentationType.DoublePassingTone):
+            case (OrnamentationType.RepeatedDottedEighthSixteenth, OrnamentationType.DelayedPassingTone):
+            case (OrnamentationType.RepeatedDottedEighthSixteenth, OrnamentationType.DelayedDoublePassingTone):
                 noteA.ResetOrnamentation();
-                break;
-            case (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedPassingTone):
-                noteB.ResetOrnamentation();
                 break;
             default:
                 if (noteA.Raw.NoteNumber > noteB.Raw.NoteNumber)

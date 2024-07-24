@@ -9,12 +9,12 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Cleaners;
 
 [TestFixture]
-internal sealed class PassingToneSixteenthNoteOrnamentationCleanerTests
+internal sealed class EighthSixteenthNoteOrnamentationCleanerTests
 {
-    private PassingToneSixteenthNoteOrnamentationCleaner _cleaner = null!;
+    private EighthSixteenthNoteOrnamentationCleaner _cleaner = null!;
 
     [SetUp]
-    public void SetUp() => _cleaner = new PassingToneSixteenthNoteOrnamentationCleaner();
+    public void SetUp() => _cleaner = new EighthSixteenthNoteOrnamentationCleaner();
 
     [Test]
     [TestCaseSource(nameof(TestCases))]

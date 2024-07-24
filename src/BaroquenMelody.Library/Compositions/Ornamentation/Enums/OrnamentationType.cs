@@ -85,5 +85,15 @@ internal enum OrnamentationType : byte
     /// <summary>
     ///     A rest.
     /// </summary>
-    Rest
+    Rest,
+
+    /// <summary>
+    ///     A note which is repeated across two eighth notes.
+    /// </summary>
+    RepeatedEighthNote,
+
+    /// <summary>
+    ///     A note which is repeated across one dotted eighth note followed by a sixteenth note.
+    /// </summary>
+    RepeatedDottedEighthSixteenth
 }

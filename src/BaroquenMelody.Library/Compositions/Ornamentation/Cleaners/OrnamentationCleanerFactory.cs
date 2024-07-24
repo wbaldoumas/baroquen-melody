@@ -9,7 +9,7 @@ internal sealed class OrnamentationCleanerFactory : IOrnamentationCleanerFactory
 
     private readonly Lazy<IOrnamentationCleaner> _sixteenthNoteOrnamentationCleaner = new(() => new SixteenthNoteOrnamentationCleaner());
 
-    private readonly Lazy<IOrnamentationCleaner> _passingToneSixteenthNoteOrnamentationCleaner = new(() => new PassingToneSixteenthNoteOrnamentationCleaner());
+    private readonly Lazy<IOrnamentationCleaner> _passingToneSixteenthNoteOrnamentationCleaner = new(() => new EighthSixteenthNoteOrnamentationCleaner());
 
     private readonly Lazy<IOrnamentationCleaner> _turnAlternateTurnOrnamentationCleaner = new(() => new TurnAlternateTurnOrnamentationCleaner());
 
@@ -32,6 +32,14 @@ internal sealed class OrnamentationCleanerFactory : IOrnamentationCleanerFactory
         (OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedDoublePassingTone) => _passingToneOrnamentationCleaner.Value,
         (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedPassingTone) => _passingToneOrnamentationCleaner.Value,
         (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedDoublePassingTone) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.PassingTone, OrnamentationType.RepeatedEighthNote) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.DoublePassingTone, OrnamentationType.RepeatedEighthNote) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.DelayedPassingTone, OrnamentationType.RepeatedDottedEighthSixteenth) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.RepeatedDottedEighthSixteenth) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.RepeatedEighthNote, OrnamentationType.PassingTone) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.RepeatedEighthNote, OrnamentationType.DoublePassingTone) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.RepeatedDottedEighthSixteenth, OrnamentationType.DelayedPassingTone) => _passingToneOrnamentationCleaner.Value,
+        (OrnamentationType.RepeatedDottedEighthSixteenth, OrnamentationType.DelayedDoublePassingTone) => _passingToneOrnamentationCleaner.Value,
         (OrnamentationType.SixteenthNoteRun, OrnamentationType.SixteenthNoteRun) => _sixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.SixteenthNoteRun, OrnamentationType.AlternateTurn) => _sixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.SixteenthNoteRun, OrnamentationType.Turn) => _sixteenthNoteOrnamentationCleaner.Value,
@@ -75,6 +83,16 @@ internal sealed class OrnamentationCleanerFactory : IOrnamentationCleanerFactory
         (OrnamentationType.PassingTone, OrnamentationType.Pedal) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.Pedal, OrnamentationType.DoublePassingTone) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.DoublePassingTone, OrnamentationType.Pedal) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Pedal, OrnamentationType.RepeatedEighthNote) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.DecorateInterval, OrnamentationType.RepeatedEighthNote) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.AlternateTurn, OrnamentationType.RepeatedEighthNote) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.Turn, OrnamentationType.RepeatedEighthNote) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.SixteenthNoteRun, OrnamentationType.RepeatedEighthNote) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.RepeatedEighthNote, OrnamentationType.Pedal) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.RepeatedEighthNote, OrnamentationType.DecorateInterval) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.RepeatedEighthNote, OrnamentationType.AlternateTurn) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.RepeatedEighthNote, OrnamentationType.Turn) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
+        (OrnamentationType.RepeatedEighthNote, OrnamentationType.SixteenthNoteRun) => _passingToneSixteenthNoteOrnamentationCleaner.Value,
         (OrnamentationType.Turn, OrnamentationType.AlternateTurn) => _turnAlternateTurnOrnamentationCleaner.Value,
         (OrnamentationType.AlternateTurn, OrnamentationType.Turn) => _turnAlternateTurnOrnamentationCleaner.Value,
         (OrnamentationType.ThirtySecondNoteRun, OrnamentationType.ThirtySecondNoteRun) => _thirtySecondNoteOrnamentationCleaner.Value,
