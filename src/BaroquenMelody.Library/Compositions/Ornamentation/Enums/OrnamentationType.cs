@@ -95,5 +95,10 @@ internal enum OrnamentationType : byte
     /// <summary>
     ///     A note which is repeated across one dotted eighth note followed by a sixteenth note.
     /// </summary>
-    RepeatedDottedEighthSixteenth
+    RepeatedDottedEighthSixteenth,
+
+    /// <summary>
+    ///     A neighbor tone to ornament an existing note.
+    /// </summary>
+    NeighborTone
 }

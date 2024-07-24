@@ -28,6 +28,7 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.Mordent when meter == Meter.FourFour => MusicalTimeSpan.ThirtySecond,
         OrnamentationType.RepeatedEighthNote when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.RepeatedDottedEighthSixteenth when meter == Meter.FourFour => MusicalTimeSpan.Eighth.Dotted(1),
+        OrnamentationType.NeighborTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth.Dotted(1),
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, $"Invalid {nameof(OrnamentationType)}")
@@ -53,6 +54,7 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.Mordent when meter == Meter.FourFour && ornamentationStep == 2 => MusicalTimeSpan.Eighth.Dotted(1),
         OrnamentationType.RepeatedEighthNote when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.RepeatedDottedEighthSixteenth when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.NeighborTone when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, $"Invalid {nameof(OrnamentationType)}")
