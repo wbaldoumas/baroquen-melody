@@ -1,7 +1,8 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
+﻿using Atrea.PolicyEngine;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
-using BaroquenMelody.Library.Compositions.Ornamentation.Cleaners;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Output;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Infrastructure.Collections;
@@ -16,13 +17,13 @@ internal sealed class CleanConflictingOrnamentationsTests
 {
     private CleanConflictingOrnamentations _cleanConflictingOrnamentations = null!;
 
-    private IOrnamentationCleanerFactory _mockOrnamentationCleanerFactory = null!;
+    private IPolicyEngine<OrnamentationCleaningItem> _mockOrnamentationCleaningEngine = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _mockOrnamentationCleanerFactory = Substitute.For<IOrnamentationCleanerFactory>();
-        _cleanConflictingOrnamentations = new CleanConflictingOrnamentations(_mockOrnamentationCleanerFactory);
+        _mockOrnamentationCleaningEngine = Substitute.For<IPolicyEngine<OrnamentationCleaningItem>>();
+        _cleanConflictingOrnamentations = new CleanConflictingOrnamentations(_mockOrnamentationCleaningEngine);
     }
 
     [Test]
@@ -48,15 +49,10 @@ internal sealed class CleanConflictingOrnamentationsTests
             null
         );
 
-        var mockOrnamentationCleaner = Substitute.For<IOrnamentationCleaner>();
-
-        _mockOrnamentationCleanerFactory.Get(Arg.Any<OrnamentationType>(), Arg.Any<OrnamentationType>()).Returns(mockOrnamentationCleaner);
-
         // act
         _cleanConflictingOrnamentations.Apply(ornamentationItem);
 
         // assert
-        _mockOrnamentationCleanerFactory.Received(6).Get(Arg.Any<OrnamentationType>(), Arg.Any<OrnamentationType>());
-        mockOrnamentationCleaner.Received(6).Clean(Arg.Any<BaroquenNote>(), Arg.Any<BaroquenNote>());
+        _mockOrnamentationCleaningEngine.Received(6).Process(Arg.Any<OrnamentationCleaningItem>());
     }
 }

@@ -1,12 +1,13 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Cleaners;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
-namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Cleaners;
+namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Cleaning.Engine.Processors;
 
 [TestFixture]
 internal sealed class MordentSixteenthNoteOrnamentationCleanerTests
@@ -20,8 +21,11 @@ internal sealed class MordentSixteenthNoteOrnamentationCleanerTests
     [TestCaseSource(nameof(TestCases))]
     public void Clean_WhenCalled_CleansOrnamentation(BaroquenNote noteA, BaroquenNote noteB, BaroquenNote expectedNoteA, BaroquenNote expectedNoteB)
     {
+        // arrange
+        var ornamentationCleaningItem = new OrnamentationCleaningItem(noteA, noteB);
+
         // act
-        _mordentSixteenthNoteOrnamentationCleaner.Clean(noteA, noteB);
+        _mordentSixteenthNoteOrnamentationCleaner.Process(ornamentationCleaningItem);
 
         // assert
         noteA.Should().BeEquivalentTo(expectedNoteA);

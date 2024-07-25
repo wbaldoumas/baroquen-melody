@@ -3,7 +3,8 @@ using Atrea.PolicyEngine.Builders;
 using Atrea.PolicyEngine.Policies.Input;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.MusicTheory;
-using BaroquenMelody.Library.Compositions.Ornamentation.Cleaners;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Output;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
@@ -26,6 +27,16 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
     private readonly IChordNumberIdentifier _chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
 
     private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
+
+    private readonly OrnamentationCleaningEngineBuilder _ornamentationCleaningEngineBuilder = new(
+        new PassingToneOrnamentationCleaner(),
+        new SixteenthNoteOrnamentationCleaner(),
+        new EighthSixteenthNoteOrnamentationCleaner(),
+        new TurnAlternateTurnOrnamentationCleaner(),
+        new ThirtySecondNoteOrnamentationCleaner(),
+        new ThirtySecondSixteenthNoteOrnamentationCleaner(),
+        new MordentSixteenthNoteOrnamentationCleaner()
+    );
 
     public IPolicyEngine<OrnamentationItem> BuildOrnamentationEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithoutInputPolicies()
@@ -52,7 +63,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             BuildRepeatedNoteProcessor(OrnamentationType.RepeatedEighthNote),
             BuildRepeatedNoteProcessor(OrnamentationType.RepeatedDottedEighthSixteenth)
         )
-        .WithOutputPolicies(new CleanConflictingOrnamentations(new OrnamentationCleanerFactory()))
+        .WithOutputPolicies(new CleanConflictingOrnamentations(_ornamentationCleaningEngineBuilder.Build()))
         .Build();
 
     public IPolicyEngine<OrnamentationItem> BuildSustainedNoteEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
