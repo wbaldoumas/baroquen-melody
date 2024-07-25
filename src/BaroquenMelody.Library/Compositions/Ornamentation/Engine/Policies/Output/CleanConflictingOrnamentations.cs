@@ -1,6 +1,7 @@
-﻿using Atrea.PolicyEngine.Policies.Output;
+﻿using Atrea.PolicyEngine;
+using Atrea.PolicyEngine.Policies.Output;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Cleaners;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
 using LazyCart;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Output;
@@ -8,7 +9,7 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Outp
 /// <summary>
 ///     Identifies ornamentations that conflict with each other and removes them.
 /// </summary>
-internal sealed class CleanConflictingOrnamentations(IOrnamentationCleanerFactory ornamentationCleanerFactory) : IOutputPolicy<OrnamentationItem>
+internal sealed class CleanConflictingOrnamentations(IPolicyEngine<OrnamentationCleaningItem> ornamentationCleaningEngine) : IOutputPolicy<OrnamentationItem>
 {
     public void Apply(OrnamentationItem item)
     {
@@ -28,9 +29,7 @@ internal sealed class CleanConflictingOrnamentations(IOrnamentationCleanerFactor
             var noteA = item.CurrentBeat[voiceA];
             var noteB = item.CurrentBeat[voiceB];
 
-            var cleaner = ornamentationCleanerFactory.Get(noteA.OrnamentationType, noteB.OrnamentationType);
-
-            cleaner.Clean(noteA, noteB);
+            ornamentationCleaningEngine.Process(new OrnamentationCleaningItem(noteA, noteB));
 
             processedVoiceCombinations.Add((voiceA, voiceB));
             processedVoiceCombinations.Add((voiceB, voiceA));
