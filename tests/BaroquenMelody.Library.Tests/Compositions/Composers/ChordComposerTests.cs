@@ -4,8 +4,10 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Strategies;
+using BaroquenMelody.Library.Infrastructure.Exceptions;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -16,6 +18,8 @@ internal sealed class ChordComposerTests
 {
     private ICompositionStrategy _mockCompositionStrategy = null!;
 
+    private ILogger _mockLogger = null!;
+
     private CompositionConfiguration _compositionConfiguration = null!;
 
     private ChordComposer _chordComposer = null!;
@@ -24,6 +28,7 @@ internal sealed class ChordComposerTests
     public void SetUp()
     {
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
+        _mockLogger = Substitute.For<ILogger>();
 
         _compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
@@ -36,7 +41,7 @@ internal sealed class ChordComposerTests
             CompositionLength: 100
         );
 
-        _chordComposer = new ChordComposer(_mockCompositionStrategy, _compositionConfiguration);
+        _chordComposer = new ChordComposer(_mockCompositionStrategy, _compositionConfiguration, _mockLogger);
     }
 
     [Test]
@@ -84,5 +89,27 @@ internal sealed class ChordComposerTests
         // assert
         resultChord.Should().NotBeNull();
         resultChord.Should().Match<BaroquenChord>(actualChord => actualChord == expectedChordA || actualChord == expectedChordB);
+    }
+
+    [Test]
+    public void WhenComposeIsInvoked_AndNoValidChordChoicesAreAvailable_ThenNoValidChordChoicesAvailableExceptionIsThrown()
+    {
+        // arrange
+        _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns(new List<ChordChoice>());
+
+        var precedingChords = new List<BaroquenChord>
+        {
+            new(
+            [
+                new BaroquenNote(Voice.Soprano, Notes.A4),
+                new BaroquenNote(Voice.Alto, Notes.C3)
+            ])
+        };
+
+        // act
+        var act = () => _chordComposer.Compose(precedingChords);
+
+        // assert
+        act.Should().Throw<NoValidChordChoicesAvailableException>();
     }
 }

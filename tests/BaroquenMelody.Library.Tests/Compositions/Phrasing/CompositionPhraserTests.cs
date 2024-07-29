@@ -6,6 +6,7 @@ using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Infrastructure.Random;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -20,11 +21,14 @@ internal sealed class CompositionPhraserTests
 
     private IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = null!;
 
+    private ILogger _mockLogger = null!;
+
     [SetUp]
     public void SetUp()
     {
         _mockCompositionRule = Substitute.For<ICompositionRule>();
         _mockThemeSplitter = Substitute.For<IThemeSplitter>();
+        _mockLogger = Substitute.For<ILogger>();
         _mockThemeSplitter.SplitThemeIntoPhrases(Arg.Any<BaroquenTheme>()).Returns([]);
         _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
     }
@@ -213,6 +217,6 @@ internal sealed class CompositionPhraserTests
             16
         );
 
-        return new CompositionPhraser(_mockCompositionRule, _mockThemeSplitter, _weightedRandomBooleanGenerator, compositionConfiguration);
+        return new CompositionPhraser(_mockCompositionRule, _mockThemeSplitter, _weightedRandomBooleanGenerator, _mockLogger, compositionConfiguration);
     }
 }

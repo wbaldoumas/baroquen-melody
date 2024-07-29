@@ -2,11 +2,12 @@
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Extensions;
-using BaroquenMelody.Library.Compositions.MusicTheory;
-using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
+using BaroquenMelody.Library.Infrastructure.Exceptions;
+using BaroquenMelody.Library.Infrastructure.Logging;
 using BaroquenMelody.Library.Infrastructure.Random;
 using Melanchall.DryWetMidi.MusicTheory;
+using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library.Compositions.Strategies;
 
@@ -14,7 +15,7 @@ namespace BaroquenMelody.Library.Compositions.Strategies;
 internal sealed class CompositionStrategy(
     IChordChoiceRepository chordChoiceRepository,
     ICompositionRule compositionRule,
-    IChordNumberIdentifier chordNumberIdentifier,
+    ILogger logger,
     CompositionConfiguration compositionConfiguration,
     int maxRepeatedNotes = 2,
     int maxLookAheadDepth = 2,
@@ -44,10 +45,6 @@ internal sealed class CompositionStrategy(
             .Where(possibleChord => nextChordVoices.TrueForAll(voice => possibleChord[voice].Raw == nextChord[voice].Raw))
             .ToList();
     }
-
-    public IReadOnlyList<BaroquenChord> GetPossibleChordsForChordNumber(IReadOnlyList<BaroquenChord> precedingChords, ChordNumber chordNumber) => GetPossibleChords(precedingChords)
-        .Where(possibleChord => chordNumberIdentifier.IdentifyChordNumber(possibleChord) == chordNumber)
-        .ToList();
 
     public BaroquenChord GenerateInitialChord()
     {
@@ -90,8 +87,16 @@ internal sealed class CompositionStrategy(
                 .Where(note => compositionConfiguration.IsNoteInVoiceRange(voiceConfiguration.Voice, note) && unChosenNotes.Contains(note.NoteName))
                 .MinBy(_ => ThreadLocalRandom.Next()) ?? notes
                 .Where(note => compositionConfiguration.IsNoteInVoiceRange(voiceConfiguration.Voice, note) && startingNoteNames.Contains(note.NoteName))
-                .OrderBy(_ => ThreadLocalRandom.Next())
-                .First();
+                .MinBy(_ => ThreadLocalRandom.Next());
+
+            if (chosenNote is not null)
+            {
+                continue;
+            }
+
+            logger.CouldNotFindStartingNoteForVoice(voiceConfiguration.Voice);
+
+            throw new CouldNotFindStartingNoteForVoiceException(voiceConfiguration.Voice);
         }
         while (startingNoteCounts.TryGetValue(chosenNote.NoteName, out var count) && count >= maxRepeatedNotes);
 

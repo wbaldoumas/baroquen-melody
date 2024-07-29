@@ -9,6 +9,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Strategies;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -25,6 +26,8 @@ internal sealed class EndingComposerTests
 
     private IChordNumberIdentifier _mockChordNumberIdentifier = null!;
 
+    private ILogger _mockLogger = null!;
+
     private CompositionConfiguration _compositionConfiguration = null!;
 
     [SetUp]
@@ -33,6 +36,7 @@ internal sealed class EndingComposerTests
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
         _mockCompositionDecorator = Substitute.For<ICompositionDecorator>();
         _mockChordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
+        _mockLogger = Substitute.For<ILogger>();
 
         _compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
@@ -49,7 +53,7 @@ internal sealed class EndingComposerTests
 
         _mockChordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
 
-        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, _compositionConfiguration);
+        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, _mockLogger, _compositionConfiguration);
     }
 
     [Test]
@@ -116,6 +120,29 @@ internal sealed class EndingComposerTests
         result.Should().NotBeNull();
         result.Measures.Should().NotBeEmpty();
         _mockCompositionDecorator.Received(2).Decorate(Arg.Any<Composition>());
+    }
+
+    [Test]
+    public void WhenMaxBridgingChordsAndMaxChordsToTonicAreReached_ThenCompositionIsStillReturned()
+    {
+        // arrange
+        var composition = CreateTestComposition();
+        var theme = CreateTestTheme();
+
+        _mockCompositionStrategy.GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns([]);
+
+        _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns([new ChordChoice([new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0)])]);
+
+        _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>())
+            .Returns(ChordNumber.V, ChordNumber.V);
+
+        // act
+        var result = _endingComposer.Compose(composition, theme);
+
+        // assert
+        result.Should().NotBeNull();
     }
 
     private static Composition CreateTestComposition()
