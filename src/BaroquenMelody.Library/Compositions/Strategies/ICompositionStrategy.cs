@@ -1,6 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 
 namespace BaroquenMelody.Library.Compositions.Strategies;
 
@@ -29,12 +28,4 @@ internal interface ICompositionStrategy
     /// <param name="nextChord">The proposed next chord.</param>
     /// <returns>All the possible next chords for the given partially voiced chord.</returns>
     public IReadOnlyList<BaroquenChord> GetPossibleChordsForPartiallyVoicedChords(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord);
-
-    /// <summary>
-    ///     Gets the possible chords for the given <paramref name="chordNumber"/>.
-    /// </summary>
-    /// <param name="precedingChords">The chords which precede the proposed next chord.</param>
-    /// <param name="chordNumber">The chord number for which to get possible chords.</param>
-    /// <returns>All the possible next chords for the given chord number.</returns>
-    public IReadOnlyList<BaroquenChord> GetPossibleChordsForChordNumber(IReadOnlyList<BaroquenChord> precedingChords, ChordNumber chordNumber);
 }

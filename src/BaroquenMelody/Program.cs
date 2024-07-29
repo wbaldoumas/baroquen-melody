@@ -18,12 +18,14 @@ using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 using Interval = BaroquenMelody.Library.Compositions.MusicTheory.Enums.Interval;
 
 // proof of concept testing code...
 Console.WriteLine("Hit 'enter' to start composing...");
 Console.ReadLine();
+Console.WriteLine();
 
 var phrasingConfiguration = new PhrasingConfiguration(
     PhraseLengths: [1, 2, 3, 4, 5, 6, 7, 8],
@@ -41,10 +43,13 @@ var compositionConfiguration = new CompositionConfiguration(
         new(Voice.Bass, Notes.C2, Notes.E3)
     },
     phrasingConfiguration,
-    BaroquenScale.Parse("D Dorian"),
+    BaroquenScale.Parse("C Major"),
     Meter.FourFour,
     30
 );
+
+using var factory = LoggerFactory.Create(builder => builder.AddConsole());
+var logger = factory.CreateLogger<Composer>();
 
 var compositionRule = new AggregateCompositionRule(
     [
@@ -69,12 +74,12 @@ var compositionStrategyFactory = new CompositionStrategyFactory(
         new NoteChoiceGenerator()
     ),
     compositionRule,
-    new ChordNumberIdentifier(compositionConfiguration)
+    logger
 );
 
 var compositionStrategy = compositionStrategyFactory.Create(compositionConfiguration);
 
-var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, new MusicalTimeSpanCalculator());
+var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, new MusicalTimeSpanCalculator(), logger);
 
 var compositionDecorator = new CompositionDecorator(
     ornamentationEngineBuilder.BuildOrnamentationEngine(),
@@ -84,9 +89,9 @@ var compositionDecorator = new CompositionDecorator(
 
 var weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
 var themeSplitter = new ThemeSplitter();
-var compositionPhraser = new CompositionPhraser(compositionRule, themeSplitter, weightedRandomBooleanGenerator, compositionConfiguration);
+var compositionPhraser = new CompositionPhraser(compositionRule, themeSplitter, weightedRandomBooleanGenerator, logger, compositionConfiguration);
 var noteTransposer = new NoteTransposer(compositionConfiguration);
-var chordComposer = new ChordComposer(compositionStrategy, compositionConfiguration);
+var chordComposer = new ChordComposer(compositionStrategy, compositionConfiguration, logger);
 var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
 
 var themeComposer = new ThemeComposer(
@@ -94,6 +99,7 @@ var themeComposer = new ThemeComposer(
     compositionDecorator,
     chordComposer,
     noteTransposer,
+    logger,
     compositionConfiguration
 );
 
@@ -101,6 +107,7 @@ var endingComposer = new EndingComposer(
     compositionStrategy,
     compositionDecorator,
     chordNumberIdentifier,
+    logger,
     compositionConfiguration
 );
 
@@ -110,10 +117,9 @@ var composer = new Composer(
     chordComposer,
     themeComposer,
     endingComposer,
+    logger,
     compositionConfiguration
 );
-
-Console.WriteLine("Composing...");
 
 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -121,6 +127,7 @@ var composition = composer.Compose();
 
 stopwatch.Stop();
 
+Console.WriteLine();
 Console.WriteLine($"Done composing! Elapsed time: {stopwatch.Elapsed}.");
 Console.WriteLine("Creating MIDI file...");
 
@@ -186,6 +193,5 @@ var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCul
 midiFile.Write($"test-{timestamp}.mid");
 
 Console.WriteLine("Done creating MIDI file!");
-
 Console.WriteLine("Press any key to exit...");
 Console.ReadLine();

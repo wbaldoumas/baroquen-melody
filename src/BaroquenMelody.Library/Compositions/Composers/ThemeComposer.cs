@@ -4,7 +4,9 @@ using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Strategies;
+using BaroquenMelody.Library.Infrastructure.Logging;
 using BaroquenMelody.Library.Infrastructure.Random;
+using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library.Compositions.Composers;
 
@@ -14,23 +16,34 @@ internal sealed class ThemeComposer(
     ICompositionDecorator compositionDecorator,
     IChordComposer chordComposer,
     INoteTransposer noteTransposer,
+    ILogger logger,
     CompositionConfiguration compositionConfiguration
 ) : IThemeComposer
 {
+    private const int MaxFugueCompositionAttempts = 50;
+
     public BaroquenTheme Compose()
     {
-        while (true)
+        var attempt = 0;
+
+        while (attempt++ < MaxFugueCompositionAttempts)
         {
-            if (TryComposeFugueSubject(out var fugueSubject))
+            if (TryComposeFugalTheme(out var fugueSubject))
             {
                 return fugueSubject!;
             }
 
-            Console.WriteLine("Failed to compose suitable fugue subject. Retrying...");
+            logger.FailedToComposeFugalThemeAttempt(attempt, MaxFugueCompositionAttempts);
         }
+
+        logger.FailedToComposeFugalTheme(MaxFugueCompositionAttempts);
+
+        var initialMeasures = ComposeInitialMeasures();
+
+        return new BaroquenTheme(initialMeasures, initialMeasures);
     }
 
-    private bool TryComposeFugueSubject(out BaroquenTheme? theme)
+    private bool TryComposeFugalTheme(out BaroquenTheme? theme)
     {
         var initialMeasures = ComposeInitialMeasures();
         var initialComposition = new Composition(initialMeasures);

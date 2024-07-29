@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
+﻿using BaroquenMelody.Library.Compositions.Choices;
+using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.MusicTheory;
@@ -8,7 +9,10 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using BaroquenMelody.Library.Infrastructure.Collections.Extensions;
+using BaroquenMelody.Library.Infrastructure.Exceptions;
+using BaroquenMelody.Library.Infrastructure.Logging;
 using BaroquenMelody.Library.Infrastructure.Random;
+using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library.Compositions.Composers;
 
@@ -17,9 +21,14 @@ internal sealed class EndingComposer(
     ICompositionStrategy compositionStrategy,
     ICompositionDecorator compositionDecorator,
     IChordNumberIdentifier chordNumberIdentifier,
+    ILogger logger,
     CompositionConfiguration compositionConfiguration
 ) : IEndingComposer
 {
+    private const int MaxBridgingChords = 100;
+
+    private const int MaxChordsToTonic = 100;
+
     public Composition Compose(Composition composition, BaroquenTheme theme)
     {
         var bridgingComposition = GetBridgingComposition(composition, theme);
@@ -87,6 +96,15 @@ internal sealed class EndingComposer(
 
             compositionContext.Add(nextChord);
             chords.Add(nextChord);
+
+            if (chords.Count < MaxBridgingChords)
+            {
+                continue;
+            }
+
+            logger.CouldNotFindSuitableBridgingChord(MaxBridgingChords);
+
+            break;
         }
 
         return chords;
@@ -119,9 +137,7 @@ internal sealed class EndingComposer(
             return possibleChord;
         }
 
-        var fallbackChordChoice = possibleChordChoices.OrderBy(_ => ThreadLocalRandom.Next()).First();
-
-        return compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, fallbackChordChoice);
+        return GetNextChord(possibleChordChoices, compositionContext);
     }
 
     private void ApplyFinalCadence(Composition composition)
@@ -149,7 +165,7 @@ internal sealed class EndingComposer(
 
         foreach (var note in finalChordOfComposition.Notes)
         {
-            note.Duration *= 2;
+            note.Duration *= 4;
         }
 
         var restingChord = new BaroquenChord(finalChordOfComposition);
@@ -162,7 +178,9 @@ internal sealed class EndingComposer(
         composition.Measures[^1].Beats.Add(new Beat(restingChord));
     }
 
+#pragma warning disable MA0051 // Method is too long
     private Composition GetCompositionWithTonicFinalChord(Composition composition)
+#pragma warning restore MA0051 // Method is too long
     {
         var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
@@ -170,7 +188,6 @@ internal sealed class EndingComposer(
         );
 
         var lastChordOfComposition = compositionContext[^1];
-
         var chords = new List<BaroquenChord> { lastChordOfComposition };
 
         while (true)
@@ -198,11 +215,19 @@ internal sealed class EndingComposer(
                 break;
             }
 
-            var chordChoice = possibleChordChoices.OrderBy(_ => ThreadLocalRandom.Next()).First();
-            var nextChord = compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, chordChoice);
+            var nextChord = GetNextChord(possibleChordChoices, compositionContext);
 
             chords.Add(nextChord);
             compositionContext.Add(nextChord);
+
+            if (chords.Count < MaxChordsToTonic)
+            {
+                continue;
+            }
+
+            logger.CouldNotFindTonicChord(MaxChordsToTonic);
+
+            break;
         }
 
         var compositionWithTonicFinalChord = new Composition(ConvertChordsToMeasures(chords));
@@ -210,6 +235,20 @@ internal sealed class EndingComposer(
         compositionDecorator.Decorate(compositionWithTonicFinalChord);
 
         return compositionWithTonicFinalChord;
+    }
+
+    private BaroquenChord GetNextChord(IReadOnlyList<ChordChoice> possibleChordChoices, IReadOnlyList<BaroquenChord> compositionContext)
+    {
+        var chordChoice = possibleChordChoices.MinBy(_ => ThreadLocalRandom.Next());
+
+        if (chordChoice is not null)
+        {
+            return compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, chordChoice);
+        }
+
+        logger.NoValidChordChoicesAvailable();
+
+        throw new NoValidChordChoicesAvailableException();
     }
 
     private List<Measure> ConvertChordsToMeasures(IEnumerable<BaroquenChord> chords)

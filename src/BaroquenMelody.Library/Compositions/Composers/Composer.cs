@@ -3,6 +3,8 @@ using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Infrastructure.Collections;
+using BaroquenMelody.Library.Infrastructure.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library.Compositions.Composers;
 
@@ -14,6 +16,7 @@ namespace BaroquenMelody.Library.Compositions.Composers;
 /// <param name="chordComposer"> The chord composer that the composer should use to compose chords. </param>
 /// <param name="themeComposer"> The theme composer that the composer should use to compose themes. </param>
 /// <param name="endingComposer"> The ending composer that the composer should use to compose endings. </param>
+/// <param name="logger"> The logger that the composer should use to log messages. </param>
 /// <param name="compositionConfiguration"> The configuration to use to generate the composition. </param>
 internal sealed class Composer(
     ICompositionDecorator compositionDecorator,
@@ -21,12 +24,17 @@ internal sealed class Composer(
     IChordComposer chordComposer,
     IThemeComposer themeComposer,
     IEndingComposer endingComposer,
+    ILogger logger,
     CompositionConfiguration compositionConfiguration
 ) : IComposer
 {
     public Composition Compose()
     {
+        logger.Composing();
+
         var theme = themeComposer.Compose();
+
+        logger.ComposedMainTheme();
 
         var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
@@ -51,17 +59,25 @@ internal sealed class Composer(
             }
 
             continuationMeasures.Add(new Measure(beats, compositionConfiguration.Meter));
+
+            logger.ComposedMeasure(continuationMeasures.Count, compositionConfiguration.CompositionLength);
         }
 
         var continuationComposition = new Composition(continuationMeasures);
 
         compositionDecorator.Decorate(continuationComposition);
 
+        logger.ComposedContinuation();
+
         var phrasedComposition = ApplyPhrasing(continuationComposition, theme);
+
+        logger.PhrasedComposition();
 
         var compositionWithEnding = endingComposer.Compose(phrasedComposition, theme);
 
         compositionDecorator.ApplySustain(compositionWithEnding);
+
+        logger.ComposedEnding();
 
         return new Composition([.. theme.Exposition, .. compositionWithEnding.Measures]);
     }

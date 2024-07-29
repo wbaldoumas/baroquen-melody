@@ -3,7 +3,9 @@ using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Infrastructure.Collections;
+using BaroquenMelody.Library.Infrastructure.Logging;
 using BaroquenMelody.Library.Infrastructure.Random;
+using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library.Compositions.Phrasing;
 
@@ -11,6 +13,7 @@ internal sealed class CompositionPhraser(
     ICompositionRule compositionRule,
     IThemeSplitter themeSplitter,
     IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
+    ILogger logger,
     CompositionConfiguration compositionConfiguration
 ) : ICompositionPhraser
 {
@@ -53,6 +56,8 @@ internal sealed class CompositionPhraser(
 
             themeCoolOffPhrase = themePhraseToRepeat;
 
+            logger.RepeatedThemePhrase();
+
             return true;
         }
 
@@ -82,6 +87,8 @@ internal sealed class CompositionPhraser(
             {
                 coolOffPhrases.Enqueue(repeatedPhrase);
             }
+
+            logger.RepeatedNonThemePhrase();
 
             return true;
         }
