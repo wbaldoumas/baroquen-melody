@@ -170,6 +170,8 @@ internal sealed class EndingComposer(
 
         var restingChord = new BaroquenChord(finalChordOfComposition);
 
+        restingChord.ResetOrnamentation();
+
         foreach (var note in restingChord.Notes)
         {
             note.OrnamentationType = OrnamentationType.Rest;

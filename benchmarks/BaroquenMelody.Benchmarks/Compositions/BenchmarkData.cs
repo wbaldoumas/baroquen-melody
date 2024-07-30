@@ -21,6 +21,7 @@ internal static class BenchmarkData
             MinPhraseRepetitionPoolSize: 4,
             PhraseRepetitionProbability: 100
         ),
+        AggregateCompositionRuleConfiguration.Default,
         BaroquenScale.Parse("D Dorian"),
         Meter.FourFour,
         25
