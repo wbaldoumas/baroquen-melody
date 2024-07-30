@@ -6,23 +6,18 @@ using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine;
-using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Infrastructure.Random;
-using Melanchall.DryWetMidi.Common;
-using Melanchall.DryWetMidi.Composing;
-using Melanchall.DryWetMidi.Core;
-using Melanchall.DryWetMidi.Interaction;
+using BaroquenMelody.Library.Midi;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using Interval = BaroquenMelody.Library.Compositions.MusicTheory.Enums.Interval;
 
-// proof of concept testing code...
 Console.WriteLine("Hit 'enter' to start composing...");
 Console.ReadLine();
 Console.WriteLine();
@@ -37,15 +32,15 @@ var phrasingConfiguration = new PhrasingConfiguration(
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
-        new(Voice.Soprano, Notes.C6, Notes.E7),
-        new(Voice.Alto, Notes.G4, Notes.B5),
-        new(Voice.Tenor, Notes.F3, Notes.A4),
-        new(Voice.Bass, Notes.C2, Notes.E3)
+        new(Voice.Soprano, Notes.C6, Notes.E7, GeneralMidi2Program.ChurchOrganOctaveMix),
+        new(Voice.Alto, Notes.G4, Notes.B5, GeneralMidi2Program.ChurchOrganOctaveMix),
+        new(Voice.Tenor, Notes.F3, Notes.A4, GeneralMidi2Program.ChurchOrganOctaveMix),
+        new(Voice.Bass, Notes.C2, Notes.E3, GeneralMidi2Program.ChurchOrganOctaveMix)
     },
     phrasingConfiguration,
     BaroquenScale.Parse("C Major"),
     Meter.FourFour,
-    30
+    25
 );
 
 using var factory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -131,63 +126,8 @@ Console.WriteLine();
 Console.WriteLine($"Done composing! Elapsed time: {stopwatch.Elapsed}.");
 Console.WriteLine("Creating MIDI file...");
 
-// just for testing purposes, we'll create a MIDI file with 4 tracks, one for each voice
-var tempoMap = TempoMap.Create(Tempo.FromBeatsPerMinute(60));
-
-var patternBuildersByVoice = new Dictionary<Voice, PatternBuilder>
-{
-    { Voice.Soprano, new PatternBuilder().ProgramChange(GeneralMidiProgram.ChurchOrgan) },
-    { Voice.Alto, new PatternBuilder().ProgramChange(GeneralMidiProgram.ChurchOrgan) },
-    { Voice.Tenor, new PatternBuilder().ProgramChange(GeneralMidiProgram.ChurchOrgan) },
-    { Voice.Bass, new PatternBuilder().ProgramChange(GeneralMidiProgram.ChurchOrgan) }
-};
-
-// Use pattern builders to add notes to the pattern for each voice...
-foreach (var measure in composition.Measures)
-{
-    foreach (var beat in measure.Beats)
-    {
-        foreach (var voice in compositionConfiguration.Voices)
-        {
-            if (beat.Chord.Notes.TrueForAll(note => note.Voice != voice))
-            {
-                patternBuildersByVoice[voice].StepForward(MusicalTimeSpan.Quarter);
-
-                continue;
-            }
-
-            var note = beat[voice];
-
-            if (note.OrnamentationType != OrnamentationType.MidSustain)
-            {
-                if (note.OrnamentationType == OrnamentationType.Rest)
-                {
-                    patternBuildersByVoice[voice].StepForward(MusicalTimeSpan.Quarter);
-
-                    continue;
-                }
-
-                patternBuildersByVoice[voice].SetNoteLength(note.Duration).Note(note.Raw);
-
-                foreach (var ornamentation in note.Ornamentations)
-                {
-                    patternBuildersByVoice[voice].SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
-                }
-            }
-        }
-    }
-}
-
-var midiFile = new MidiFile(
-    patternBuildersByVoice[Voice.Soprano].Build().ToTrackChunk(tempoMap, (FourBitNumber)1),
-    patternBuildersByVoice[Voice.Alto].Build().ToTrackChunk(tempoMap, (FourBitNumber)1),
-    patternBuildersByVoice[Voice.Tenor].Build().ToTrackChunk(tempoMap, (FourBitNumber)1),
-    patternBuildersByVoice[Voice.Bass].Build().ToTrackChunk(tempoMap, (FourBitNumber)1)
-);
-
-midiFile.ReplaceTempoMap(tempoMap);
-
-// save the MIDI file with a timestamp in the filename to avoid overwriting on subsequent test runs...
+var midiGenerator = new MidiGenerator(compositionConfiguration);
+var midiFile = midiGenerator.Generate(composition);
 var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
 
 midiFile.Write($"test-{timestamp}.mid");

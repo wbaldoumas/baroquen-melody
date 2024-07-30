@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Enums;
 using Melanchall.DryWetMidi.MusicTheory;
+using Melanchall.DryWetMidi.Standards;
 
 namespace BaroquenMelody.Library.Compositions.Configurations;
 
@@ -9,10 +10,12 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 /// <param name="Voice"> The voice to be configured. </param>
 /// <param name="MinNote"> The voice's minimum note value. </param>
 /// <param name="MaxNote"> The voice's maximum note value. </param>
+/// <param name="Instrument"> The voice's instrument. </param>
 internal sealed record VoiceConfiguration(
     Voice Voice,
     Note MinNote,
-    Note MaxNote)
+    Note MaxNote,
+    GeneralMidi2Program Instrument = GeneralMidi2Program.AcousticGrandPiano)
 {
     public bool IsNoteWithinVoiceRange(Note note) => note.NoteNumber >= MinNote.NoteNumber &&
                                                      note.NoteNumber <= MaxNote.NoteNumber;
