@@ -14,13 +14,15 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 /// <param name="CompositionLength"> The length of the composition in measures. </param>
 /// <param name="Meter"> The meter to be used in the composition. </param>
 /// <param name="CompositionContextSize"> The size of the context to be used in the composition. </param>
+/// <param name="Tempo"> The tempo of the composition, in beats per minute. </param>
 internal sealed record CompositionConfiguration(
     ISet<VoiceConfiguration> VoiceConfigurations,
     PhrasingConfiguration PhrasingConfiguration,
     BaroquenScale Scale,
     Meter Meter,
     int CompositionLength,
-    int CompositionContextSize = 8)
+    int CompositionContextSize = 8,
+    int Tempo = 60)
 {
     public IDictionary<Voice, VoiceConfiguration> VoiceConfigurationsByVoice { get; } = VoiceConfigurations.ToDictionary(
         voiceConfiguration => voiceConfiguration.Voice
