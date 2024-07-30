@@ -212,6 +212,7 @@ internal sealed class CompositionPhraserTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>(),
             phrasingConfiguration,
+            AggregateCompositionRuleConfiguration.Default,
             BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             16

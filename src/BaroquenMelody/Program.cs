@@ -16,7 +16,6 @@ using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
-using Interval = BaroquenMelody.Library.Compositions.MusicTheory.Enums.Interval;
 
 Console.WriteLine("Hit 'enter' to start composing...");
 Console.ReadLine();
@@ -38,6 +37,7 @@ var compositionConfiguration = new CompositionConfiguration(
         new(Voice.Bass, Notes.C2, Notes.E3, GeneralMidi2Program.ChurchOrganOctaveMix)
     },
     phrasingConfiguration,
+    AggregateCompositionRuleConfiguration.Default,
     BaroquenScale.Parse("C Major"),
     Meter.FourFour,
     25
@@ -46,23 +46,8 @@ var compositionConfiguration = new CompositionConfiguration(
 using var factory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = factory.CreateLogger<Composer>();
 
-var compositionRule = new AggregateCompositionRule(
-    [
-        new HandleAscendingSeventh(compositionConfiguration),
-        new EnsureVoiceRange(compositionConfiguration),
-        new AvoidDissonance(),
-        new AvoidDissonantLeaps(compositionConfiguration),
-        new AvoidRepetition(),
-        new AvoidParallelIntervals(Interval.PerfectFifth),
-        new AvoidParallelIntervals(Interval.PerfectFourth),
-        new AvoidParallelIntervals(Interval.Unison),
-        new AvoidOverDoubling(),
-        new FollowsStandardProgression(compositionConfiguration),
-        new AvoidDirectIntervals(Interval.PerfectFifth),
-        new AvoidDirectIntervals(Interval.PerfectFourth),
-        new AvoidDirectIntervals(Interval.Unison)
-    ]
-);
+var compositionRuleFactory = new CompositionRuleFactory(compositionConfiguration, new WeightedRandomBooleanGenerator());
+var compositionRule = compositionRuleFactory.CreateAggregate(compositionConfiguration.AggregateCompositionRuleConfiguration);
 
 var compositionStrategyFactory = new CompositionStrategyFactory(
     new ChordChoiceRepositoryFactory(
@@ -73,7 +58,6 @@ var compositionStrategyFactory = new CompositionStrategyFactory(
 );
 
 var compositionStrategy = compositionStrategyFactory.Create(compositionConfiguration);
-
 var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, new MusicalTimeSpanCalculator(), logger);
 
 var compositionDecorator = new CompositionDecorator(

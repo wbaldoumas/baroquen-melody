@@ -10,6 +10,7 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 /// </summary>
 /// <param name="VoiceConfigurations"> The voice configurations to be used in the composition. </param>
 /// <param name="PhrasingConfiguration"> The phrasing configuration to be used in the composition. </param>
+/// <param name="AggregateCompositionRuleConfiguration"> The configuration of the composition rules to use in the composition. </param>
 /// <param name="Scale"> The scale to be used in the composition. </param>
 /// <param name="CompositionLength"> The length of the composition in measures. </param>
 /// <param name="Meter"> The meter to be used in the composition. </param>
@@ -18,6 +19,7 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 internal sealed record CompositionConfiguration(
     ISet<VoiceConfiguration> VoiceConfigurations,
     PhrasingConfiguration PhrasingConfiguration,
+    AggregateCompositionRuleConfiguration AggregateCompositionRuleConfiguration,
     BaroquenScale Scale,
     Meter Meter,
     int CompositionLength,
@@ -49,6 +51,7 @@ internal sealed record CompositionConfiguration(
         : this(
             VoiceConfigurations,
             PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
             Scale,
             Meter,
             CompositionLength,

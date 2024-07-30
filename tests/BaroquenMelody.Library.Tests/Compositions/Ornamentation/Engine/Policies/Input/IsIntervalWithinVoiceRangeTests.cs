@@ -28,6 +28,7 @@ internal sealed class IsIntervalWithinVoiceRangeTests
                 new(Voice.Bass, Notes.G0, Notes.C2)
             },
             PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
             BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             25
