@@ -437,10 +437,10 @@ internal sealed class EighthNoteOrnamentationCleanerTests
             ).SetName("When unknown ornamentation, lower note is cleaned.");
 
             yield return new TestCaseData(
+                new BaroquenNote(sopranoC4WithAscendingPassingTone),
                 new BaroquenNote(altoF3WithUnknownOrnamentation),
                 new BaroquenNote(sopranoC4WithAscendingPassingTone),
-                new BaroquenNote(altoF3),
-                new BaroquenNote(sopranoC4WithAscendingPassingTone)
+                new BaroquenNote(altoF3)
             ).SetName("When unknown ornamentation, lower note is cleaned.");
 
             yield return new TestCaseData(
