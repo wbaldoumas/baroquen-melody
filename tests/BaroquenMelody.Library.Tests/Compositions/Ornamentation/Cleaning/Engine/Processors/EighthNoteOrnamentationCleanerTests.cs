@@ -135,6 +135,12 @@ internal sealed class EighthNoteOrnamentationCleanerTests
                 Ornamentations = { new BaroquenNote(altoD3) }
             };
 
+            var altoE3WithLowerNeighborTone = new BaroquenNote(altoE3)
+            {
+                OrnamentationType = OrnamentationType.NeighborTone,
+                Ornamentations = { new BaroquenNote(altoD3) }
+            };
+
             var altoE3WithDescendingDoublePassingTone = new BaroquenNote(altoE3)
             {
                 OrnamentationType = OrnamentationType.DoublePassingTone,
@@ -411,15 +417,15 @@ internal sealed class EighthNoteOrnamentationCleanerTests
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoC4WithRepeatedEighthNote),
-                new BaroquenNote(altoE3WithDescendingPassingTone),
+                new BaroquenNote(altoE3WithLowerNeighborTone),
                 new BaroquenNote(sopranoC4),
-                new BaroquenNote(altoE3WithDescendingPassingTone)
+                new BaroquenNote(altoE3WithLowerNeighborTone)
             ).SetName("When neighbor tone conflicts with repeated eighth, repeated eighth note is cleaned.");
 
             yield return new TestCaseData(
-                new BaroquenNote(altoE3WithDescendingPassingTone),
+                new BaroquenNote(altoE3WithLowerNeighborTone),
                 new BaroquenNote(sopranoC4WithRepeatedEighthNote),
-                new BaroquenNote(altoE3WithDescendingPassingTone),
+                new BaroquenNote(altoE3WithLowerNeighborTone),
                 new BaroquenNote(sopranoC4)
             ).SetName("When neighbor tone conflicts with repeated eighth, repeated eighth note is cleaned.");
 
