@@ -12,6 +12,7 @@ using BaroquenMelody.Library.Infrastructure.Collections.Extensions;
 using BaroquenMelody.Library.Infrastructure.Exceptions;
 using BaroquenMelody.Library.Infrastructure.Logging;
 using BaroquenMelody.Library.Infrastructure.Random;
+using Melanchall.DryWetMidi.Interaction;
 using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library.Compositions.Composers;
@@ -165,7 +166,7 @@ internal sealed class EndingComposer(
 
         foreach (var note in finalChordOfComposition.Notes)
         {
-            note.Duration *= 4;
+            note.Duration = MusicalTimeSpan.Half;
         }
 
         var restingChord = new BaroquenChord(finalChordOfComposition);

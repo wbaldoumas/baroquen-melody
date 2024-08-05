@@ -11,6 +11,7 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 internal sealed class NeighborToneProcessor(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
+    OrnamentationType ornamentationType,
     CompositionConfiguration compositionConfiguration
 ) : IProcessor<OrnamentationItem>
 {
@@ -26,11 +27,11 @@ internal sealed class NeighborToneProcessor(
 
         var ornamentationNote = new BaroquenNote(item.Voice, nextNote)
         {
-            Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.NeighborTone, compositionConfiguration.Meter)
+            Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter)
         };
 
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.NeighborTone, compositionConfiguration.Meter);
-        currentNote.OrnamentationType = OrnamentationType.NeighborTone;
+        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, compositionConfiguration.Meter);
+        currentNote.OrnamentationType = ornamentationType;
         currentNote.Ornamentations.Add(ornamentationNote);
     }
 }

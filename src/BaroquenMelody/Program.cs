@@ -31,14 +31,14 @@ var phrasingConfiguration = new PhrasingConfiguration(
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
-        new(Voice.Soprano, Notes.C6, Notes.E7, GeneralMidi2Program.ChurchOrganOctaveMix),
-        new(Voice.Alto, Notes.G4, Notes.B5, GeneralMidi2Program.ChurchOrganOctaveMix),
-        new(Voice.Tenor, Notes.F3, Notes.A4, GeneralMidi2Program.ChurchOrganOctaveMix),
-        new(Voice.Bass, Notes.C2, Notes.E3, GeneralMidi2Program.ChurchOrganOctaveMix)
+        new(Voice.Soprano, Notes.C5, Notes.E6, GeneralMidi2Program.ChurchOrganOctaveMix),
+        new(Voice.Alto, Notes.G3, Notes.B4, GeneralMidi2Program.ChurchOrganOctaveMix),
+        new(Voice.Tenor, Notes.F2, Notes.A3, GeneralMidi2Program.ChurchOrganOctaveMix),
+        new(Voice.Bass, Notes.C1, Notes.E2, GeneralMidi2Program.ChurchOrganOctaveMix)
     },
     phrasingConfiguration,
     AggregateCompositionRuleConfiguration.Default,
-    BaroquenScale.Parse("C Major"),
+    BaroquenScale.Parse("C Ionian"),
     Meter.FourFour,
     25
 );
