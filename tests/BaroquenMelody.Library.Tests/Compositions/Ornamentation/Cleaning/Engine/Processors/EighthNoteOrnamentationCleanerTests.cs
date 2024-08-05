@@ -10,12 +10,12 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Cleaning.Engine.Processors;
 
 [TestFixture]
-internal sealed class PassingToneOrnamentationCleanerTests
+internal sealed class EighthNoteOrnamentationCleanerTests
 {
-    private PassingToneOrnamentationCleaner _cleaner = null!;
+    private EighthNoteOrnamentationCleaner _cleaner = null!;
 
     [SetUp]
-    public void SetUp() => _cleaner = new PassingToneOrnamentationCleaner();
+    public void SetUp() => _cleaner = new EighthNoteOrnamentationCleaner();
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
@@ -48,6 +48,12 @@ internal sealed class PassingToneOrnamentationCleanerTests
             var sopranoC4WithAscendingPassingTone = new BaroquenNote(sopranoC4)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
+                Ornamentations = { new BaroquenNote(sopranoD4) }
+            };
+
+            var sopranoC4WithUpperDelayedNeighborTone = new BaroquenNote(sopranoC4)
+            {
+                OrnamentationType = OrnamentationType.DelayedNeighborTone,
                 Ornamentations = { new BaroquenNote(sopranoD4) }
             };
 
@@ -129,6 +135,12 @@ internal sealed class PassingToneOrnamentationCleanerTests
                 Ornamentations = { new BaroquenNote(altoD3) }
             };
 
+            var altoE3WithLowerNeighborTone = new BaroquenNote(altoE3)
+            {
+                OrnamentationType = OrnamentationType.NeighborTone,
+                Ornamentations = { new BaroquenNote(altoD3) }
+            };
+
             var altoE3WithDescendingDoublePassingTone = new BaroquenNote(altoE3)
             {
                 OrnamentationType = OrnamentationType.DoublePassingTone,
@@ -150,6 +162,12 @@ internal sealed class PassingToneOrnamentationCleanerTests
             var altoE3WithRepeatedDottedEighthSixteenthNote = new BaroquenNote(altoE3)
             {
                 OrnamentationType = OrnamentationType.RepeatedDottedEighthSixteenth,
+                Ornamentations = { new BaroquenNote(altoE3) }
+            };
+
+            var altoF3WithLowerDelayedNeighborTone = new BaroquenNote(altoF3)
+            {
+                OrnamentationType = OrnamentationType.DelayedNeighborTone,
                 Ornamentations = { new BaroquenNote(altoE3) }
             };
 
@@ -300,46 +318,60 @@ internal sealed class PassingToneOrnamentationCleanerTests
             ).SetName("When repeated eighth conflicts with delayed double passing tone, repeated eighth is cleaned.");
 
             yield return new TestCaseData(
-                new BaroquenNote(sopranoC4WithUpperNeighborTone),
+                new BaroquenNote(sopranoC4WithUpperDelayedNeighborTone),
                 new BaroquenNote(altoF3WithDescendingDelayedPassingTone),
                 new BaroquenNote(sopranoC4),
                 new BaroquenNote(altoF3WithDescendingDelayedPassingTone)
-            ).SetName("When neighbor tone conflicts with delayed passing tone, neighbor tone is cleaned.");
+            ).SetName("When delayed neighbor tone conflicts with delayed passing tone, neighbor tone is cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(altoF3WithDescendingDelayedPassingTone),
-                new BaroquenNote(sopranoC4WithUpperNeighborTone),
+                new BaroquenNote(sopranoC4WithUpperDelayedNeighborTone),
                 new BaroquenNote(altoF3WithDescendingDelayedPassingTone),
                 new BaroquenNote(sopranoC4)
-            ).SetName("When neighbor tone conflicts with delayed passing tone, neighbor tone is cleaned.");
+            ).SetName("When delayed neighbor tone conflicts with delayed passing tone, neighbor tone is cleaned.");
 
             yield return new TestCaseData(
-                new BaroquenNote(sopranoC4WithUpperNeighborTone),
+                new BaroquenNote(sopranoC4WithUpperDelayedNeighborTone),
                 new BaroquenNote(altoF3WithDescendingDelayedDoublePassingTone),
                 new BaroquenNote(sopranoC4),
                 new BaroquenNote(altoF3WithDescendingDelayedDoublePassingTone)
-            ).SetName("When neighbor tone conflicts with delayed double passing tone, neighbor tone is cleaned.");
+            ).SetName("When delayed neighbor tone conflicts with delayed double passing tone, neighbor tone is cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(altoF3WithDescendingDelayedDoublePassingTone),
-                new BaroquenNote(sopranoC4WithUpperNeighborTone),
+                new BaroquenNote(sopranoC4WithUpperDelayedNeighborTone),
                 new BaroquenNote(altoF3WithDescendingDelayedDoublePassingTone),
                 new BaroquenNote(sopranoC4)
-            ).SetName("When neighbor tone conflicts with delayed double passing tone, neighbor tone is cleaned.");
+            ).SetName("When delayed neighbor tone conflicts with delayed double passing tone, neighbor tone is cleaned.");
 
             yield return new TestCaseData(
-                new BaroquenNote(sopranoC4WithUpperNeighborTone),
+                new BaroquenNote(sopranoC4WithUpperDelayedNeighborTone),
                 new BaroquenNote(altoE3WithRepeatedDottedEighthSixteenthNote),
-                new BaroquenNote(sopranoC4WithUpperNeighborTone),
+                new BaroquenNote(sopranoC4WithUpperDelayedNeighborTone),
                 new BaroquenNote(altoE3)
-            ).SetName("When neighbor tone conflicts with repeated dotted eighth sixteenth, repeated note is cleaned.");
+            ).SetName("When delayed neighbor tone conflicts with repeated dotted eighth sixteenth, repeated note is cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(altoE3WithRepeatedDottedEighthSixteenthNote),
-                new BaroquenNote(sopranoC4WithUpperNeighborTone),
+                new BaroquenNote(sopranoC4WithUpperDelayedNeighborTone),
                 new BaroquenNote(altoE3),
-                new BaroquenNote(sopranoC4WithUpperNeighborTone)
-            ).SetName("When neighbor tone conflicts with repeated dotted eighth sixteenth, repeated note is cleaned.");
+                new BaroquenNote(sopranoC4WithUpperDelayedNeighborTone)
+            ).SetName("When delayed neighbor tone conflicts with repeated dotted eighth sixteenth, repeated note is cleaned.");
+
+            yield return new TestCaseData(
+                new BaroquenNote(sopranoC4WithUpperDelayedNeighborTone),
+                new BaroquenNote(altoF3WithLowerDelayedNeighborTone),
+                new BaroquenNote(sopranoC4WithUpperDelayedNeighborTone),
+                new BaroquenNote(altoF3)
+            ).SetName("When delayed neighbor tone conflicts with neighbor tone, lower note is cleaned.");
+
+            yield return new TestCaseData(
+                new BaroquenNote(sopranoC4WithUpperDelayedNeighborTone),
+                new BaroquenNote(altoF3WithLowerDelayedNeighborTone),
+                new BaroquenNote(sopranoC4WithUpperDelayedNeighborTone),
+                new BaroquenNote(altoF3)
+            ).SetName("When delayed neighbor tone conflicts with delayed neighbor tone, lower note is cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoC4WithUpperNeighborTone),
@@ -354,6 +386,48 @@ internal sealed class PassingToneOrnamentationCleanerTests
                 new BaroquenNote(sopranoC4WithUpperNeighborTone),
                 new BaroquenNote(altoF3)
             ).SetName("When neighbor tone conflicts with neighbor tone, lower note is cleaned.");
+
+            yield return new TestCaseData(
+                new BaroquenNote(sopranoC4WithUpperNeighborTone),
+                new BaroquenNote(altoF3WithDescendingPassingTone),
+                new BaroquenNote(sopranoC4),
+                new BaroquenNote(altoF3WithDescendingPassingTone)
+            ).SetName("When neighbor tone conflicts with passing tone, neighbor tone note is cleaned.");
+
+            yield return new TestCaseData(
+                new BaroquenNote(altoF3WithDescendingPassingTone),
+                new BaroquenNote(sopranoC4WithUpperNeighborTone),
+                new BaroquenNote(altoF3WithDescendingPassingTone),
+                new BaroquenNote(sopranoC4)
+            ).SetName("When neighbor tone conflicts with passing tone, neighbor tone note is cleaned.");
+
+            yield return new TestCaseData(
+                new BaroquenNote(sopranoC4WithUpperNeighborTone),
+                new BaroquenNote(altoF3WithDescendingDoublePassingTone),
+                new BaroquenNote(sopranoC4),
+                new BaroquenNote(altoF3WithDescendingDoublePassingTone)
+            ).SetName("When neighbor tone conflicts with double passing tone, neighbor tone note is cleaned.");
+
+            yield return new TestCaseData(
+                new BaroquenNote(altoF3WithDescendingDoublePassingTone),
+                new BaroquenNote(sopranoC4WithUpperNeighborTone),
+                new BaroquenNote(altoF3WithDescendingDoublePassingTone),
+                new BaroquenNote(sopranoC4)
+            ).SetName("When neighbor tone conflicts with double passing tone, neighbor tone note is cleaned.");
+
+            yield return new TestCaseData(
+                new BaroquenNote(sopranoC4WithRepeatedEighthNote),
+                new BaroquenNote(altoE3WithLowerNeighborTone),
+                new BaroquenNote(sopranoC4),
+                new BaroquenNote(altoE3WithLowerNeighborTone)
+            ).SetName("When neighbor tone conflicts with repeated eighth, repeated eighth note is cleaned.");
+
+            yield return new TestCaseData(
+                new BaroquenNote(altoE3WithLowerNeighborTone),
+                new BaroquenNote(sopranoC4WithRepeatedEighthNote),
+                new BaroquenNote(altoE3WithLowerNeighborTone),
+                new BaroquenNote(sopranoC4)
+            ).SetName("When neighbor tone conflicts with repeated eighth, repeated eighth note is cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(altoF3WithUnknownOrnamentation),
@@ -363,10 +437,10 @@ internal sealed class PassingToneOrnamentationCleanerTests
             ).SetName("When unknown ornamentation, lower note is cleaned.");
 
             yield return new TestCaseData(
+                new BaroquenNote(sopranoC4WithAscendingPassingTone),
                 new BaroquenNote(altoF3WithUnknownOrnamentation),
                 new BaroquenNote(sopranoC4WithAscendingPassingTone),
-                new BaroquenNote(altoF3),
-                new BaroquenNote(sopranoC4WithAscendingPassingTone)
+                new BaroquenNote(altoF3)
             ).SetName("When unknown ornamentation, lower note is cleaned.");
 
             yield return new TestCaseData(

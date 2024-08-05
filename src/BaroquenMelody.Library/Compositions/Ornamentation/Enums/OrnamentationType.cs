@@ -100,5 +100,10 @@ internal enum OrnamentationType : byte
     /// <summary>
     ///     A neighbor tone to ornament an existing note.
     /// </summary>
-    NeighborTone
+    NeighborTone,
+
+    /// <summary>
+    ///     A delayed neighbor tone to ornament an existing note.
+    /// </summary>
+    DelayedNeighborTone
 }

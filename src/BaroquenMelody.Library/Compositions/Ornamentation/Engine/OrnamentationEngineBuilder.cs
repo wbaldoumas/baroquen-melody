@@ -30,7 +30,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
     private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
 
     private readonly OrnamentationCleaningEngineBuilder _ornamentationCleaningEngineBuilder = new(
-        new PassingToneOrnamentationCleaner(),
+        new EighthNoteOrnamentationCleaner(),
         new SixteenthNoteOrnamentationCleaner(),
         new EighthSixteenthNoteOrnamentationCleaner(),
         new TurnAlternateTurnOrnamentationCleaner(),
@@ -47,7 +47,8 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             BuildDelayedDoublePassingToneEngine(),
             BuildDoubleTurnEngine(),
             BuildDelayedPassingToneEngine(),
-            BuildNeighborToneProcessor(),
+            BuildNeighborToneProcessor(OrnamentationType.DelayedNeighborTone),
+            BuildNeighborToneProcessor(OrnamentationType.NeighborTone),
             BuildSixteenthNoteRunEngine(),
             BuildDoubleThirtySecondNoteRunProcessor(),
             BuildTurnEngine(),
@@ -226,13 +227,13 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         .WithOutputPolicies(new LogOrnamentation(ornamentationType, logger))
         .Build();
 
-    private IPolicyEngine<OrnamentationItem> BuildNeighborToneProcessor() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+    private IPolicyEngine<OrnamentationItem> BuildNeighborToneProcessor(OrnamentationType ornamentationType) => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
             new WantsToOrnament(_weightedRandomBooleanGenerator, 25),
             new NoteHasNoOrnamentation(),
             new IsRepeatedNote()
         )
-        .WithProcessors(new NeighborToneProcessor(musicalTimeSpanCalculator, _weightedRandomBooleanGenerator, compositionConfiguration))
-        .WithOutputPolicies(new LogOrnamentation(OrnamentationType.NeighborTone, logger))
+        .WithProcessors(new NeighborToneProcessor(musicalTimeSpanCalculator, _weightedRandomBooleanGenerator, ornamentationType, compositionConfiguration))
+        .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DelayedNeighborTone, logger))
         .Build();
 }

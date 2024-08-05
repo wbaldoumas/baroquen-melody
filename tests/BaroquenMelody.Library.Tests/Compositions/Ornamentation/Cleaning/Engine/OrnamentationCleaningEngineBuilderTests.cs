@@ -45,7 +45,7 @@ internal sealed class OrnamentationCleaningEngineBuilderTests
 
         _processorsByName = new Dictionary<string, IProcessor<OrnamentationCleaningItem>>
         {
-            { nameof(PassingToneOrnamentationCleaner), _mockPassingToneOrnamentationCleaner },
+            { nameof(EighthNoteOrnamentationCleaner), _mockPassingToneOrnamentationCleaner },
             { nameof(SixteenthNoteOrnamentationCleaner), _mockSixteenthNoteOrnamentationCleaner },
             { nameof(EighthSixteenthNoteOrnamentationCleaner), _mockPassingToneSixteenthNoteOrnamentationCleaner },
             { nameof(TurnAlternateTurnOrnamentationCleaner), _mockTurnAlternateTurnOrnamentationCleaner },
@@ -66,29 +66,29 @@ internal sealed class OrnamentationCleaningEngineBuilderTests
     }
 
     [Test]
-    [TestCase(OrnamentationType.PassingTone, OrnamentationType.PassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.DoublePassingTone, OrnamentationType.DoublePassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.PassingTone, OrnamentationType.DoublePassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.DoublePassingTone, OrnamentationType.PassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.PassingTone, OrnamentationType.RepeatedEighthNote, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.RepeatedEighthNote, OrnamentationType.PassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.RepeatedEighthNote, OrnamentationType.DoublePassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.DoublePassingTone, OrnamentationType.RepeatedEighthNote, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedPassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedDoublePassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedPassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedDoublePassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.RepeatedDottedEighthSixteenth, OrnamentationType.DelayedPassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.RepeatedDottedEighthSixteenth, OrnamentationType.DelayedDoublePassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.DelayedDoublePassingTone, OrnamentationType.RepeatedDottedEighthSixteenth, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.DelayedPassingTone, OrnamentationType.RepeatedDottedEighthSixteenth, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.NeighborTone, OrnamentationType.NeighborTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.NeighborTone, OrnamentationType.DelayedPassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.NeighborTone, OrnamentationType.DelayedDoublePassingTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.NeighborTone, OrnamentationType.RepeatedDottedEighthSixteenth, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.DelayedPassingTone, OrnamentationType.NeighborTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.DelayedDoublePassingTone, OrnamentationType.NeighborTone, nameof(PassingToneOrnamentationCleaner))]
-    [TestCase(OrnamentationType.RepeatedDottedEighthSixteenth, OrnamentationType.NeighborTone, nameof(PassingToneOrnamentationCleaner))]
+    [TestCase(OrnamentationType.PassingTone, OrnamentationType.PassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DoublePassingTone, OrnamentationType.DoublePassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.PassingTone, OrnamentationType.DoublePassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DoublePassingTone, OrnamentationType.PassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.PassingTone, OrnamentationType.RepeatedEighthNote, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.RepeatedEighthNote, OrnamentationType.PassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.RepeatedEighthNote, OrnamentationType.DoublePassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DoublePassingTone, OrnamentationType.RepeatedEighthNote, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedPassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedDoublePassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedPassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedDoublePassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.RepeatedDottedEighthSixteenth, OrnamentationType.DelayedPassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.RepeatedDottedEighthSixteenth, OrnamentationType.DelayedDoublePassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DelayedDoublePassingTone, OrnamentationType.RepeatedDottedEighthSixteenth, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DelayedPassingTone, OrnamentationType.RepeatedDottedEighthSixteenth, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DelayedNeighborTone, OrnamentationType.DelayedNeighborTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DelayedNeighborTone, OrnamentationType.DelayedPassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DelayedNeighborTone, OrnamentationType.DelayedDoublePassingTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DelayedNeighborTone, OrnamentationType.RepeatedDottedEighthSixteenth, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedNeighborTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedNeighborTone, nameof(EighthNoteOrnamentationCleaner))]
+    [TestCase(OrnamentationType.RepeatedDottedEighthSixteenth, OrnamentationType.DelayedNeighborTone, nameof(EighthNoteOrnamentationCleaner))]
     [TestCase(OrnamentationType.SixteenthNoteRun, OrnamentationType.SixteenthNoteRun, nameof(SixteenthNoteOrnamentationCleaner))]
     [TestCase(OrnamentationType.SixteenthNoteRun, OrnamentationType.Turn, nameof(SixteenthNoteOrnamentationCleaner))]
     [TestCase(OrnamentationType.Turn, OrnamentationType.SixteenthNoteRun, nameof(SixteenthNoteOrnamentationCleaner))]
