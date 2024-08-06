@@ -18,36 +18,30 @@ internal sealed class TurnProcessor(
         var currentNote = item.CurrentBeat[item.Voice];
         var nextNote = item.NextBeat![item.Voice];
 
+        var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
+        var nextNoteIndex = compositionConfiguration.Scale.IndexOf(nextNote);
+
+        var isDescending = currentNoteIndex > nextNoteIndex;
         var notes = compositionConfiguration.Scale.GetNotes();
 
-        var currentNoteIndex = notes.IndexOf(currentNote.Raw);
-        var nextNoteIndex = notes.IndexOf(nextNote.Raw);
-
-        var firstNoteIndex = currentNoteIndex > nextNoteIndex ? currentNoteIndex + 1 : currentNoteIndex - 1;
-        var thirdNoteIndex = currentNoteIndex > nextNoteIndex ? currentNoteIndex - 1 : currentNoteIndex + 1;
-
-        var firstNote = notes[firstNoteIndex];
-        var secondNote = notes[currentNoteIndex];
-        var thirdNote = notes[thirdNoteIndex];
-
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Turn, compositionConfiguration.Meter);
-
-        var duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Turn, compositionConfiguration.Meter);
-
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, firstNote)
+        var ornamentationNotes = new[]
         {
-            Duration = duration
-        });
+            notes[isDescending ? currentNoteIndex + 1 : currentNoteIndex - 1],
+            notes[currentNoteIndex],
+            notes[isDescending ? currentNoteIndex - 1 : currentNoteIndex + 1]
+        };
 
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, secondNote)
-        {
-            Duration = duration
-        });
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Turn, compositionConfiguration.Meter);
 
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, thirdNote)
+        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Turn, compositionConfiguration.Meter);
+
+        foreach (var note in ornamentationNotes)
         {
-            Duration = duration
-        });
+            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, note)
+            {
+                MusicalTimeSpan = ornamentationTimeSpan
+            });
+        }
 
         currentNote.OrnamentationType = OrnamentationType.Turn;
     }

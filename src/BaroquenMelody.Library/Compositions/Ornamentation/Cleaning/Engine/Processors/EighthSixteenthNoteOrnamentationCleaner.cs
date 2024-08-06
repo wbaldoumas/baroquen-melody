@@ -7,6 +7,10 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Proc
 
 internal sealed class EighthSixteenthNoteOrnamentationCleaner : IProcessor<OrnamentationCleaningItem>
 {
+    private const int PassingToneIndexToCheck = 0;
+
+    private const int SixteenthNoteIndexToCheck = 1;
+
     public void Process(OrnamentationCleaningItem item)
     {
         if (item.Note.OrnamentationType is OrnamentationType.PassingTone or OrnamentationType.DoublePassingTone or OrnamentationType.RepeatedEighthNote)
@@ -21,7 +25,7 @@ internal sealed class EighthSixteenthNoteOrnamentationCleaner : IProcessor<Ornam
 
     private static void CleanTargetedNotes(BaroquenNote noteWithPassingToneOrnamentation, BaroquenNote noteWithSixteenthNoteOrnamentation)
     {
-        if (noteWithPassingToneOrnamentation.Ornamentations[0].IsDissonantWith(noteWithSixteenthNoteOrnamentation.Ornamentations[1]))
+        if (noteWithPassingToneOrnamentation.Ornamentations[PassingToneIndexToCheck].IsDissonantWith(noteWithSixteenthNoteOrnamentation.Ornamentations[SixteenthNoteIndexToCheck]))
         {
             noteWithPassingToneOrnamentation.ResetOrnamentation();
         }

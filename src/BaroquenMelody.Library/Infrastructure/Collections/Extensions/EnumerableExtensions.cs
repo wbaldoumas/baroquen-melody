@@ -1,7 +1,7 @@
 ﻿namespace BaroquenMelody.Library.Infrastructure.Collections.Extensions;
 
 /// <summary>
-///     The <see cref="EnumerableExtensions"/> class provides extension methods for <see cref="IEnumerable{T}"/> objects.
+///     A home for extension methods for <see cref="IEnumerable{T}"/>.
 /// </summary>
 internal static class EnumerableExtensions
 {

@@ -17,6 +17,5 @@ internal sealed record VoiceConfiguration(
     Note MaxNote,
     GeneralMidi2Program Instrument = GeneralMidi2Program.AcousticGrandPiano)
 {
-    public bool IsNoteWithinVoiceRange(Note note) => note.NoteNumber >= MinNote.NoteNumber &&
-                                                     note.NoteNumber <= MaxNote.NoteNumber;
+    public bool IsNoteWithinVoiceRange(Note note) => MinNote.NoteNumber <= note.NoteNumber && note.NoteNumber <= MaxNote.NoteNumber;
 }

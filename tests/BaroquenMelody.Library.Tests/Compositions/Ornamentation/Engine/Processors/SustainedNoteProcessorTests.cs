@@ -55,9 +55,9 @@ internal sealed class SustainedNoteProcessorTests
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Sustain);
         noteToAssert.Ornamentations.Should().BeEmpty();
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Half);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Half);
         nextNoteToAssert.OrnamentationType.Should().Be(OrnamentationType.MidSustain);
         nextNoteToAssert.Ornamentations.Should().BeEmpty();
-        nextNoteToAssert.Duration.Should().Be(new MusicalTimeSpan());
+        nextNoteToAssert.MusicalTimeSpan.Should().Be(new MusicalTimeSpan());
     }
 }

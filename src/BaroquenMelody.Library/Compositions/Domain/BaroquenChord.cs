@@ -22,7 +22,7 @@ internal sealed class BaroquenChord(List<BaroquenNote> notes) : IEquatable<Baroq
     /// </summary>
     /// <param name="chord">The chord to copy.</param>
     public BaroquenChord(BaroquenChord chord)
-        : this(chord.Notes.Select(note => new BaroquenNote(note)).ToList())
+        : this(chord.Notes.Select(static note => new BaroquenNote(note)).ToList())
     {
     }
 

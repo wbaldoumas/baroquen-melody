@@ -62,8 +62,8 @@ internal sealed class RepeatedNoteProcessorTests
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.RepeatedEighthNote);
         noteToAssert.Ornamentations.Should().ContainSingle();
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.C4);
-        noteToAssert.Ornamentations[0].Duration.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
     }
 }

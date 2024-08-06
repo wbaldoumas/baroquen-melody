@@ -5,16 +5,11 @@
 /// </summary>
 internal static class ThreadLocalRandom
 {
-    private static readonly ThreadLocal<System.Random> ThreadLocalRandomStorage = new(
-        () => new System.Random(Interlocked.Increment(ref _seed))
-    );
+    private static readonly ThreadLocal<System.Random> ThreadLocalRandomStorage = new(() => new System.Random(Interlocked.Increment(ref _seed)));
+
+    private static System.Random Instance => ThreadLocalRandomStorage.Value!;
 
     private static int _seed = Environment.TickCount;
-
-    /// <summary>
-    ///    Gets the thread-local random number generator.
-    /// </summary>
-    public static System.Random Instance => ThreadLocalRandomStorage.Value!;
 
     /// <summary>
     ///    Generates a random <see cref="int"/> within the specified range.

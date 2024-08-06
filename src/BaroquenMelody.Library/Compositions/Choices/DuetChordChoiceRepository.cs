@@ -23,7 +23,7 @@ internal sealed class DuetChordChoiceRepository : IChordChoiceRepository
         }
 
         var noteChoicesForVoices = compositionConfiguration.Voices
-            .OrderBy(voice => voice)
+            .OrderBy(static voice => voice)
             .Select(noteChoiceGenerator.GenerateNoteChoices)
             .ToList();
 

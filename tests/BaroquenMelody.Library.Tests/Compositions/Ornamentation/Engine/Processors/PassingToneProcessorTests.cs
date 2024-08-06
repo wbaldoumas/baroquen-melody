@@ -55,8 +55,8 @@ internal sealed class PassingToneProcessorTests
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.PassingTone);
         noteToAssert.Ornamentations.Should().ContainSingle();
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.G4);
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Eighth);
-        noteToAssert.Ornamentations[0].Duration.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
     }
 
     [Test]
@@ -79,7 +79,7 @@ internal sealed class PassingToneProcessorTests
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.PassingTone);
         noteToAssert.Ornamentations.Should().ContainSingle();
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B4);
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Eighth);
-        noteToAssert.Ornamentations[0].Duration.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
     }
 }

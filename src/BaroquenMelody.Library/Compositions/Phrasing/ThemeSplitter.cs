@@ -15,7 +15,7 @@ internal sealed class ThemeSplitter : IThemeSplitter
     public List<RepeatedPhrase> SplitThemeIntoPhrases(BaroquenTheme theme)
     {
         var themePhrasesToRepeat = theme.Recapitulation
-            .Select(measure => new RepeatedPhrase { Phrase = [new Measure(measure)] })
+            .Select(static measure => new RepeatedPhrase { Phrase = [new Measure(measure)] })
             .ToList();
 
         foreach (var (phraseLength, maxStartIndex) in _phraseSplits)
@@ -32,7 +32,7 @@ internal sealed class ThemeSplitter : IThemeSplitter
                 themePhrasesToRepeat.Add(
                     new RepeatedPhrase
                     {
-                        Phrase = theme.Recapitulation[startIndex..endIndex].Select(measure => new Measure(measure)).ToList()
+                        Phrase = theme.Recapitulation[startIndex..endIndex].Select(static measure => new Measure(measure)).ToList()
                     }
                 );
             }

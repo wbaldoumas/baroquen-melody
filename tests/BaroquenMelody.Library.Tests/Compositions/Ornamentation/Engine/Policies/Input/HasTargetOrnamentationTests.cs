@@ -12,19 +12,19 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Policies.Input;
 
 [TestFixture]
-internal sealed class BeatContainsTargetOrnamentationTests
+internal sealed class HasTargetOrnamentationTests
 {
-    private BeatContainsTargetOrnamentation _beatContainsTargetOrnamentation = null!;
+    private HasTargetOrnamentation _hasTargetOrnamentation = null!;
 
     [SetUp]
-    public void SetUp() => _beatContainsTargetOrnamentation = new BeatContainsTargetOrnamentation(OrnamentationType.PassingTone);
+    public void SetUp() => _hasTargetOrnamentation = new HasTargetOrnamentation(OrnamentationType.PassingTone);
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
     public void ShouldProcess(OrnamentationItem ornamentationItem, InputPolicyResult expectedInputPolicyResult)
     {
         // act
-        var result = _beatContainsTargetOrnamentation.ShouldProcess(ornamentationItem);
+        var result = _hasTargetOrnamentation.ShouldProcess(ornamentationItem);
 
         // assert
         result.Should().Be(expectedInputPolicyResult);

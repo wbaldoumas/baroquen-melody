@@ -10,7 +10,7 @@ namespace BaroquenMelody.Library.Tests.Compositions.Domain;
 internal sealed class BaroquenNoteTests
 {
     [Test]
-    [TestCaseSource(nameof(TestCases))]
+    [TestCaseSource(nameof(EqualityTestCases))]
     public void Equality_methods_return_expected_results(BaroquenNote? note, BaroquenNote? otherNote, bool expectedEqualityResult)
     {
         // act + assert
@@ -33,7 +33,32 @@ internal sealed class BaroquenNoteTests
         act.Should().Throw<InvalidOperationException>();
     }
 
-    private static IEnumerable<TestCaseData> TestCases
+    [Test]
+    [TestCaseSource(nameof(ComparisonTestCases))]
+    public void Comparison_operators_should_correctly_compare_notes(BaroquenNote note, BaroquenNote otherNote, bool expectedIsGreaterThan)
+    {
+        // act + assert
+        (note > otherNote).Should().Be(expectedIsGreaterThan);
+        (note < otherNote).Should().Be(!expectedIsGreaterThan);
+    }
+
+    private static IEnumerable<TestCaseData> ComparisonTestCases
+    {
+        get
+        {
+            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4);
+            var sopranoC3 = new BaroquenNote(Voice.Soprano, Notes.C3);
+            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4);
+
+            yield return new TestCaseData(sopranoC4, sopranoD4, false).SetName("C4 is less than D4");
+
+            yield return new TestCaseData(sopranoD4, sopranoC4, true).SetName("D4 is greater than C4");
+
+            yield return new TestCaseData(sopranoC4, sopranoC3, true).SetName("C4 is greater than C3");
+        }
+    }
+
+    private static IEnumerable<TestCaseData> EqualityTestCases
     {
         get
         {
@@ -44,7 +69,7 @@ internal sealed class BaroquenNoteTests
 
             var noteWithDifferentDuration = new BaroquenNote(Voice.Soprano, Notes.C1)
             {
-                Duration = note.Duration.Triplet()
+                MusicalTimeSpan = note.MusicalTimeSpan.Triplet()
             };
 
             var noteWithOrnamentation = new BaroquenNote(Voice.Soprano, Notes.C1)

@@ -63,11 +63,11 @@ internal sealed class ThirtySecondNoteRunProcessorTests
         noteToAssert.Ornamentations[5].Raw.Should().Be(Notes.G3);
         noteToAssert.Ornamentations[6].Raw.Should().Be(Notes.F3);
 
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.ThirtySecond);
 
         foreach (var baroquenNote in noteToAssert.Ornamentations)
         {
-            baroquenNote.Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
+            baroquenNote.MusicalTimeSpan.Should().Be(MusicalTimeSpan.ThirtySecond);
         }
     }
 
@@ -99,11 +99,11 @@ internal sealed class ThirtySecondNoteRunProcessorTests
         noteToAssert.Ornamentations[5].Raw.Should().Be(Notes.F4);
         noteToAssert.Ornamentations[6].Raw.Should().Be(Notes.G4);
 
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.ThirtySecond);
 
         foreach (var baroquenNote in noteToAssert.Ornamentations)
         {
-            baroquenNote.Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
+            baroquenNote.MusicalTimeSpan.Should().Be(MusicalTimeSpan.ThirtySecond);
         }
     }
 }

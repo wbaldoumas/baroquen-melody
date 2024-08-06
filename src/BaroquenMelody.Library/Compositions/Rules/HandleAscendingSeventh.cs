@@ -1,19 +1,16 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
-using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Rules;
 
 /// <inheritdoc cref="ICompositionRule"/>
 internal sealed class HandleAscendingSeventh(CompositionConfiguration compositionConfiguration) : ICompositionRule
 {
-    private const int SeventhScaleDegree = 6;
-
-    private readonly NoteName _seventhScaleDegreeNoteName = compositionConfiguration.Scale.Raw.GetStep(SeventhScaleDegree);
+    private const int MinimumPrecedingChords = 2;
 
     public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
     {
-        if (precedingChords.Count < 2)
+        if (precedingChords.Count < MinimumPrecedingChords)
         {
             return true;
         }
@@ -21,19 +18,18 @@ internal sealed class HandleAscendingSeventh(CompositionConfiguration compositio
         var nextToLastChord = precedingChords[^2];
         var lastChord = precedingChords[^1];
 
-        // ReSharper disable once LoopCanBeConvertedToQuery
-        foreach (var seventhNote in lastChord.Notes.Where(note => note.Raw.NoteName == _seventhScaleDegreeNoteName))
+        foreach (var seventhNote in lastChord.Notes.Where(note => note.NoteName == compositionConfiguration.Scale.LeadingTone))
         {
             var nextToLastNote = nextToLastChord[seventhNote.Voice];
 
-            if (nextToLastNote.Raw.NoteNumber >= seventhNote.Raw.NoteNumber)
+            if (nextToLastNote.NoteNumber >= seventhNote.NoteNumber)
             {
                 continue;
             }
 
             var nextNote = nextChord[seventhNote.Voice];
 
-            if (nextNote.Raw.NoteNumber <= seventhNote.Raw.NoteNumber)
+            if (nextNote.NoteNumber <= seventhNote.NoteNumber)
             {
                 return false;
             }

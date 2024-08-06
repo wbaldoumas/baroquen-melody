@@ -10,12 +10,12 @@ internal sealed record ChordChoice
     private readonly IList<NoteChoice> _noteChoices;
 
     public ChordChoice(IEnumerable<NoteChoice> noteChoices) =>
-        _noteChoices = [.. noteChoices.OrderBy(noteChoice => noteChoice.Voice)];
+        _noteChoices = [.. noteChoices.OrderBy(static noteChoice => noteChoice.Voice)];
 
     public IList<NoteChoice> NoteChoices
     {
         get => _noteChoices;
-        init { _noteChoices = [.. value.OrderBy(noteChoice => noteChoice.Voice)]; }
+        init { _noteChoices = [.. value.OrderBy(static noteChoice => noteChoice.Voice)]; }
     }
 
     public bool Equals(ChordChoice? other)
@@ -33,7 +33,7 @@ internal sealed record ChordChoice
         unchecked
         {
             return NoteChoices.Aggregate(
-                HashCodeGeneration.InitialValue,
+                HashCodeGeneration.Seed,
                 (current, noteChoice) => current * HashCodeGeneration.Multiplier ^ noteChoice.GetHashCode());
         }
     }

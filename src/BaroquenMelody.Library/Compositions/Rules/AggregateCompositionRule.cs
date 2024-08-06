@@ -5,6 +5,16 @@ namespace BaroquenMelody.Library.Compositions.Rules;
 /// <inheritdoc cref="ICompositionRule"/>
 internal sealed class AggregateCompositionRule(List<ICompositionRule> compositionRules) : ICompositionRule
 {
-    public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord) =>
-        compositionRules.TrueForAll(compositionRule => compositionRule.Evaluate(precedingChords, nextChord));
+    public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
+    {
+        foreach (var compositionRule in compositionRules)
+        {
+            if (!compositionRule.Evaluate(precedingChords, nextChord))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

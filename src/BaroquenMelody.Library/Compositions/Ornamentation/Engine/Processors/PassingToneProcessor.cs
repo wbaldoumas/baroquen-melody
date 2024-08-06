@@ -8,7 +8,7 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 
 internal sealed class PassingToneProcessor(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
-    CompositionConfiguration configuration,
+    CompositionConfiguration compositionConfiguration,
     OrnamentationType ornamentationType
 ) : IProcessor<OrnamentationItem>
 {
@@ -19,19 +19,17 @@ internal sealed class PassingToneProcessor(
         var currentNote = item.CurrentBeat[item.Voice];
         var nextNote = item.NextBeat![item.Voice];
 
-        var notes = configuration.Scale.GetNotes();
+        var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
+        var nextNoteIndex = compositionConfiguration.Scale.IndexOf(nextNote);
 
-        var currentNoteScaleIndex = notes.IndexOf(currentNote.Raw);
-        var nextNoteScaleIndex = notes.IndexOf(nextNote.Raw);
+        var notes = compositionConfiguration.Scale.GetNotes();
+        var passingTone = notes[currentNoteIndex > nextNoteIndex ? currentNoteIndex - 1 : currentNoteIndex + 1];
 
-        var passingToneScaleIndex = currentNoteScaleIndex > nextNoteScaleIndex ? currentNoteScaleIndex - 1 : currentNoteScaleIndex + 1;
-        var passingTone = notes[passingToneScaleIndex];
-
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, configuration.Meter);
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, compositionConfiguration.Meter);
 
         currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, passingTone)
         {
-            Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, configuration.Meter)
+            MusicalTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter)
         });
 
         currentNote.OrnamentationType = ornamentationType;

@@ -8,7 +8,7 @@ public interface IWeightedRandomBooleanGenerator
     /// <summary>
     ///     Generates a random boolean value.
     /// </summary>
-    /// <param name="weight">The probability of generating a true value. Default is 50.</param>
+    /// <param name="weight">The probability of generating a true value.</param>
     /// <returns>A random boolean value.</returns>
     bool IsTrue(int weight = 50);
 }

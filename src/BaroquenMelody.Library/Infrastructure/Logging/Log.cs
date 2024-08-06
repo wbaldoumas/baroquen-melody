@@ -48,54 +48,72 @@ internal static partial class Log
     [LoggerMessage(
         EventId = 6,
         Level = LogLevel.Information,
+        Message = "Composing composition ending...")]
+    public static partial void ComposingEnding(this ILogger logger);
+
+    [LoggerMessage(
+        EventId = 7,
+        Level = LogLevel.Information,
         Message = "Composed composition ending...")]
     public static partial void ComposedEnding(this ILogger logger);
 
     [LoggerMessage(
-        EventId = 7,
+        EventId = 8,
         Level = LogLevel.Warning,
         Message = "Could not find a suitable bridging chord after {MaxAttempts} attempts.")]
     public static partial void CouldNotFindSuitableBridgingChord(this ILogger logger, int maxAttempts);
 
     [LoggerMessage(
-        EventId = 8,
+        EventId = 9,
         Level = LogLevel.Warning,
         Message = "Could not find a tonic chord after {MaxAttempts} attempts.")]
     public static partial void CouldNotFindTonicChord(this ILogger logger, int maxAttempts);
 
     [LoggerMessage(
-        EventId = 9,
+        EventId = 10,
         Level = LogLevel.Warning,
         Message = "Failed to compose a fugue theme after {Attempt} attempts. Maximum attempts: {MaxAttempts}.")]
     public static partial void FailedToComposeFugalThemeAttempt(this ILogger logger, int attempt, int maxAttempts);
 
     [LoggerMessage(
-        EventId = 10,
+        EventId = 11,
         Level = LogLevel.Warning,
         Message = "Failed to compose a fugue theme after {MaxAttempts} attempts.")]
     public static partial void FailedToComposeFugalTheme(this ILogger logger, int maxAttempts);
 
     [LoggerMessage(
-        EventId = 11,
+        EventId = 12,
         Level = LogLevel.Critical,
         Message = "Could not find a starting note for voice {Voice}.")]
     public static partial void CouldNotFindStartingNoteForVoice(this ILogger logger, Voice voice);
 
     [LoggerMessage(
-        EventId = 12,
-        Level = LogLevel.Information,
+        EventId = 13,
+        Level = LogLevel.Debug,
         Message = "Applied ornamentation {Ornamentation} to voice {Voice}.")]
     public static partial void AppliedOrnamentation(this ILogger logger, OrnamentationType ornamentation, Voice voice);
 
     [LoggerMessage(
-        EventId = 13,
-        Level = LogLevel.Information,
+        EventId = 14,
+        Level = LogLevel.Debug,
         Message = "Repeated theme phrase.")]
     public static partial void RepeatedThemePhrase(this ILogger logger);
 
     [LoggerMessage(
-        EventId = 14,
-        Level = LogLevel.Information,
+        EventId = 15,
+        Level = LogLevel.Debug,
         Message = "Repeated non-theme phrase.")]
     public static partial void RepeatedNonThemePhrase(this ILogger logger);
+
+    [LoggerMessage(
+        EventId = 16,
+        Level = LogLevel.Debug,
+        Message = "Composed bridging chord {ChordNumber} of {MaxBridgingChords}.")]
+    public static partial void ComposedBridgingChord(this ILogger logger, int chordNumber, int maxBridgingChords);
+
+    [LoggerMessage(
+        EventId = 17,
+        Level = LogLevel.Debug,
+        Message = "Composed chord {ChordNumber} to tonic of {MaxChordsToTonic}.")]
+    public static partial void ComposedChordToTonic(this ILogger logger, int chordNumber, int maxChordsToTonic);
 }

@@ -16,29 +16,25 @@ internal sealed class MordentProcessor(
     public void Process(OrnamentationItem item)
     {
         var currentNote = item.CurrentBeat[item.Voice];
-
-        var notes = compositionConfiguration.Scale.GetNotes();
-
-        var currentNoteIndex = notes.IndexOf(currentNote.Raw);
+        var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
 
         var firstNoteIndex = weightedRandomBooleanGenerator.IsTrue() ? currentNoteIndex + 1 : currentNoteIndex - 1;
 
-        // ReSharper disable once InlineTemporaryVariable
-        var secondNoteIndex = currentNoteIndex;
+        var notes = compositionConfiguration.Scale.GetNotes();
 
         var firstNote = notes[firstNoteIndex];
-        var secondNote = notes[secondNoteIndex];
+        var secondNote = notes[currentNoteIndex];
 
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter);
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter);
 
         currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, firstNote)
         {
-            Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter)
+            MusicalTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter)
         });
 
         currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, secondNote)
         {
-            Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter, 2)
+            MusicalTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter, 2)
         });
 
         currentNote.OrnamentationType = OrnamentationType.Mordent;

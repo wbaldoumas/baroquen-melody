@@ -22,19 +22,9 @@ internal sealed class CompositionStrategy(
     int minLookAheadChordChoices = 2
 ) : ICompositionStrategy
 {
-    /// <summary>
-    ///     Hardcoded for now, but this might be configurable in the future and also encompass multiple different chords.
-    /// </summary>
-    private readonly HashSet<NoteName> validStartingNoteNames =
-    [
-        compositionConfiguration.Scale.Raw.GetDegree(ScaleDegree.Tonic),
-        compositionConfiguration.Scale.Raw.GetDegree(ScaleDegree.Mediant),
-        compositionConfiguration.Scale.Raw.GetDegree(ScaleDegree.Dominant)
-    ];
-
     public IReadOnlyList<ChordChoice> GetPossibleChordChoices(IReadOnlyList<BaroquenChord> precedingChords) => GetValidChordChoicesAndChords(precedingChords)
         .Where(chordChoiceAndChord => HasSubsequentChordChoices([.. precedingChords, chordChoiceAndChord.Chord]))
-        .Select(chordChoiceAndChord => chordChoiceAndChord.ChordChoice)
+        .Select(static chordChoiceAndChord => chordChoiceAndChord.ChordChoice)
         .ToList();
 
     public IReadOnlyList<BaroquenChord> GetPossibleChordsForPartiallyVoicedChords(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
@@ -48,11 +38,11 @@ internal sealed class CompositionStrategy(
 
     public BaroquenChord GenerateInitialChord()
     {
-        var startingNoteCounts = validStartingNoteNames.ToDictionary(noteName => noteName, _ => 0);
+        var startingNoteCounts = compositionConfiguration.Scale.I.ToDictionary(noteName => noteName, _ => 0);
         var rawNotes = compositionConfiguration.Scale.GetNotes();
 
         var notes = compositionConfiguration.VoiceConfigurations
-            .Select(voiceConfiguration => new BaroquenNote(voiceConfiguration.Voice, ChooseStartingNote(voiceConfiguration, rawNotes, validStartingNoteNames, ref startingNoteCounts)))
+            .Select(voiceConfiguration => new BaroquenNote(voiceConfiguration.Voice, ChooseStartingNote(voiceConfiguration, rawNotes, compositionConfiguration.Scale.I, ref startingNoteCounts)))
             .ToList();
 
         return new BaroquenChord(notes);
@@ -79,15 +69,15 @@ internal sealed class CompositionStrategy(
         do
         {
             // try to first choose a note that hasn't been chosen at all, then only choose a note that has not already been doubled...
-            var unChosenNotes = startingNoteCounts.Where(startingNoteCount => startingNoteCount.Value == 0)
-                .Select(startingNoteCount => startingNoteCount.Key)
+            var unChosenNotes = startingNoteCounts.Where(static startingNoteCount => startingNoteCount.Value == 0)
+                .Select(static startingNoteCount => startingNoteCount.Key)
                 .ToHashSet();
 
             chosenNote = notes
                 .Where(note => compositionConfiguration.IsNoteInVoiceRange(voiceConfiguration.Voice, note) && unChosenNotes.Contains(note.NoteName))
-                .MinBy(_ => ThreadLocalRandom.Next()) ?? notes
+                .MinBy(static _ => ThreadLocalRandom.Next()) ?? notes
                 .Where(note => compositionConfiguration.IsNoteInVoiceRange(voiceConfiguration.Voice, note) && startingNoteNames.Contains(note.NoteName))
-                .MinBy(_ => ThreadLocalRandom.Next());
+                .MinBy(static _ => ThreadLocalRandom.Next());
 
             if (chosenNote is not null)
             {

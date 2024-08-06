@@ -30,7 +30,7 @@ internal sealed record CompositionConfiguration(
         voiceConfiguration => voiceConfiguration.Voice
     );
 
-    public List<Voice> Voices { get; } = VoiceConfigurations.Select(voiceConfiguration => voiceConfiguration.Voice).ToList();
+    public List<Voice> Voices { get; } = VoiceConfigurations.Select(static voiceConfiguration => voiceConfiguration.Voice).ToList();
 
     public int BeatsPerMeasure => Meter.BeatsPerMeasure();
 

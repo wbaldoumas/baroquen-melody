@@ -84,7 +84,7 @@ internal sealed class PedalProcessorTests
 
         foreach (var ornamentation in noteToAssert.Ornamentations)
         {
-            ornamentation.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
         }
     }
 
@@ -114,7 +114,7 @@ internal sealed class PedalProcessorTests
 
         foreach (var ornamentation in noteToAssert.Ornamentations)
         {
-            ornamentation.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
         }
     }
 
@@ -144,7 +144,7 @@ internal sealed class PedalProcessorTests
 
         foreach (var ornamentation in noteToAssert.Ornamentations)
         {
-            ornamentation.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
         }
     }
 
@@ -174,7 +174,7 @@ internal sealed class PedalProcessorTests
 
         foreach (var ornamentation in noteToAssert.Ornamentations)
         {
-            ornamentation.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
         }
     }
 
@@ -204,7 +204,7 @@ internal sealed class PedalProcessorTests
 
         foreach (var ornamentation in noteToAssert.Ornamentations)
         {
-            ornamentation.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
         }
     }
 
@@ -234,7 +234,7 @@ internal sealed class PedalProcessorTests
 
         foreach (var ornamentation in noteToAssert.Ornamentations)
         {
-            ornamentation.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
         }
     }
 }

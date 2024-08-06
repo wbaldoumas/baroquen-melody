@@ -38,7 +38,7 @@ internal sealed class Composer(
 
         var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
-            theme.Exposition.SelectMany(measure => measure.Beats.Select(beat => new BaroquenChord(beat.Chord)))
+            theme.Exposition.SelectMany(static measure => measure.Beats.Select(static beat => new BaroquenChord(beat.Chord)))
         );
 
         var continuationMeasures = new List<Measure>();

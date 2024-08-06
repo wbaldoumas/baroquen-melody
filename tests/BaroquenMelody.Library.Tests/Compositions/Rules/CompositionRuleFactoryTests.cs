@@ -34,20 +34,20 @@ internal sealed class CompositionRuleFactoryTests
     }
 
     [Test]
-    [TestCase(ConfigurableCompositionRule.AvoidDissonance, int.MaxValue, typeof(AvoidDissonance))]
-    [TestCase(ConfigurableCompositionRule.AvoidDissonantLeaps, int.MaxValue, typeof(AvoidDissonantLeaps))]
-    [TestCase(ConfigurableCompositionRule.HandleAscendingSeventh, int.MaxValue, typeof(HandleAscendingSeventh))]
-    [TestCase(ConfigurableCompositionRule.AvoidRepetition, int.MaxValue, typeof(AvoidRepetition))]
-    [TestCase(ConfigurableCompositionRule.AvoidParallelFourths, int.MaxValue, typeof(AvoidParallelIntervals))]
-    [TestCase(ConfigurableCompositionRule.AvoidParallelFifths, int.MaxValue, typeof(AvoidParallelIntervals))]
-    [TestCase(ConfigurableCompositionRule.AvoidParallelOctaves, int.MaxValue, typeof(AvoidParallelIntervals))]
-    [TestCase(ConfigurableCompositionRule.AvoidDirectFourths, int.MaxValue, typeof(AvoidDirectIntervals))]
-    [TestCase(ConfigurableCompositionRule.AvoidDirectFifths, int.MaxValue, typeof(AvoidDirectIntervals))]
-    [TestCase(ConfigurableCompositionRule.AvoidDirectOctaves, int.MaxValue, typeof(AvoidDirectIntervals))]
-    [TestCase(ConfigurableCompositionRule.AvoidOverDoubling, int.MaxValue, typeof(AvoidOverDoubling))]
-    [TestCase(ConfigurableCompositionRule.FollowStandardChordProgression, int.MaxValue, typeof(FollowsStandardProgression))]
-    [TestCase(ConfigurableCompositionRule.AvoidDissonance, int.MinValue, typeof(CompositionRuleBypass))]
-    public void Create_returns_expected_rule(ConfigurableCompositionRule rule, int strictness, Type expectedRuleType)
+    [TestCase(CompositionRule.AvoidDissonance, int.MaxValue, typeof(AvoidDissonance))]
+    [TestCase(CompositionRule.AvoidDissonantLeaps, int.MaxValue, typeof(AvoidDissonantLeaps))]
+    [TestCase(CompositionRule.HandleAscendingSeventh, int.MaxValue, typeof(HandleAscendingSeventh))]
+    [TestCase(CompositionRule.AvoidRepetition, int.MaxValue, typeof(AvoidRepetition))]
+    [TestCase(CompositionRule.AvoidParallelFourths, int.MaxValue, typeof(AvoidParallelIntervals))]
+    [TestCase(CompositionRule.AvoidParallelFifths, int.MaxValue, typeof(AvoidParallelIntervals))]
+    [TestCase(CompositionRule.AvoidParallelOctaves, int.MaxValue, typeof(AvoidParallelIntervals))]
+    [TestCase(CompositionRule.AvoidDirectFourths, int.MaxValue, typeof(AvoidDirectIntervals))]
+    [TestCase(CompositionRule.AvoidDirectFifths, int.MaxValue, typeof(AvoidDirectIntervals))]
+    [TestCase(CompositionRule.AvoidDirectOctaves, int.MaxValue, typeof(AvoidDirectIntervals))]
+    [TestCase(CompositionRule.AvoidOverDoubling, int.MaxValue, typeof(AvoidOverDoubling))]
+    [TestCase(CompositionRule.FollowStandardChordProgression, int.MaxValue, typeof(FollowsStandardProgression))]
+    [TestCase(CompositionRule.AvoidDissonance, int.MinValue, typeof(CompositionRuleBypass))]
+    public void Create_returns_expected_rule(CompositionRule rule, int strictness, Type expectedRuleType)
     {
         // arrange
         var configuration = new CompositionRuleConfiguration(rule, strictness);
@@ -63,7 +63,7 @@ internal sealed class CompositionRuleFactoryTests
     public void Create_WhenCompositionRuleIsUnsupported_ThrowsArgumentOutOfRangeException()
     {
         // arrange
-        var configuration = new CompositionRuleConfiguration((ConfigurableCompositionRule)byte.MaxValue);
+        var configuration = new CompositionRuleConfiguration((CompositionRule)byte.MaxValue);
 
         // act
         var act = () => _factory.Create(configuration);

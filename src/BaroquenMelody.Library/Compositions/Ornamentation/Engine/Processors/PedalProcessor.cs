@@ -8,7 +8,7 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 
 internal sealed class PedalProcessor(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
-    CompositionConfiguration configuration,
+    CompositionConfiguration compositionConfiguration,
     int pedalInterval
 ) : IProcessor<OrnamentationItem>
 {
@@ -25,12 +25,11 @@ internal sealed class PedalProcessor(
         var currentNote = item.CurrentBeat[item.Voice];
         var nextNote = item.NextBeat![item.Voice];
 
-        var notes = configuration.Scale.GetNotes();
-
-        var currentNoteIndex = notes.IndexOf(currentNote.Raw);
-        var nextNoteIndex = notes.IndexOf(nextNote.Raw);
+        var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
+        var nextNoteIndex = compositionConfiguration.Scale.IndexOf(nextNote);
 
         var isDescending = currentNoteIndex > nextNoteIndex;
+        var notes = compositionConfiguration.Scale.GetNotes();
 
         var ornamentationNotes = new[]
         {
@@ -39,15 +38,15 @@ internal sealed class PedalProcessor(
             notes[currentNoteIndex + pedalInterval]
         };
 
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Pedal, configuration.Meter);
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Pedal, compositionConfiguration.Meter);
 
-        var ornamentationDuration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Pedal, configuration.Meter);
+        var ornamentationDuration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Pedal, compositionConfiguration.Meter);
 
         foreach (var note in ornamentationNotes)
         {
             currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, note)
             {
-                Duration = ornamentationDuration
+                MusicalTimeSpan = ornamentationDuration
             });
         }
 

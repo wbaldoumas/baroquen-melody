@@ -15,21 +15,21 @@ internal sealed class CompositionDecorator(
 {
     public void Decorate(Composition composition) => Decorate(composition, ornamentationEngine);
 
+    public void ApplySustain(Composition composition) => Decorate(composition, sustainEngine);
+
     public void Decorate(Composition composition, Voice voice)
     {
         var compositionContext = new FixedSizeList<Beat>(configuration.CompositionContextSize);
-        var beats = composition.Measures.SelectMany(measure => measure.Beats).ToList();
+        var beats = composition.Measures.SelectMany(static measure => measure.Beats).ToList();
 
         Decorate(voice, beats, compositionContext, ornamentationEngine);
     }
 
-    public void ApplySustain(Composition composition) => Decorate(composition, sustainEngine);
-
     private void Decorate(Composition composition, IProcessor<OrnamentationItem> processor)
     {
         var compositionContext = new FixedSizeList<Beat>(configuration.CompositionContextSize);
-        var voices = configuration.VoiceConfigurations.Select(voiceConfiguration => voiceConfiguration.Voice);
-        var beats = composition.Measures.SelectMany(measure => measure.Beats).ToList();
+        var voices = configuration.VoiceConfigurations.Select(static voiceConfiguration => voiceConfiguration.Voice);
+        var beats = composition.Measures.SelectMany(static measure => measure.Beats).ToList();
 
         foreach (var voice in voices)
         {

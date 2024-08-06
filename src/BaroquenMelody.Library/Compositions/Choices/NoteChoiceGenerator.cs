@@ -9,7 +9,7 @@ internal sealed class NoteChoiceGenerator(byte minScaleStepChange = 1, byte maxS
 
     public ISet<NoteChoice> GenerateNoteChoices(Voice voice) => Enumerable
         .Range(minScaleStepChange, maxScaleStepChange - minScaleStepChange + 1)
-        .Select(scaleStepChange => (byte)scaleStepChange)
+        .Select(static scaleStepChange => (byte)scaleStepChange)
         .SelectMany(scaleStepChange => noteMotions.Select(noteMotion => new NoteChoice(voice, noteMotion, scaleStepChange)))
         .Append(new NoteChoice(voice, NoteMotion.Oblique, 0))
         .ToHashSet();

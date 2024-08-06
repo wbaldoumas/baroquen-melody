@@ -6,9 +6,9 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 internal sealed record AggregateCompositionRuleConfiguration(ISet<CompositionRuleConfiguration> Configurations)
 {
     public static AggregateCompositionRuleConfiguration Default { get; } = new(
-        EnumUtils<ConfigurableCompositionRule>
+        EnumUtils<CompositionRule>
             .AsEnumerable()
-            .Select(compositionRule => new CompositionRuleConfiguration(compositionRule))
+            .Select(static compositionRule => new CompositionRuleConfiguration(compositionRule))
             .ToHashSet()
     );
 }

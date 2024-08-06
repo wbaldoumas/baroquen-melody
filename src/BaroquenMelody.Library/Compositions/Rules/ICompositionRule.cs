@@ -8,7 +8,7 @@ namespace BaroquenMelody.Library.Compositions.Rules;
 internal interface ICompositionRule
 {
     /// <summary>
-    ///   Checks if the given chords are valid according to the implemented rule.
+    ///   Checks if the given chords are valid according to the rule.
     /// </summary>
     /// <param name="precedingChords">The chords which precede the proposed next chord.</param>
     /// <param name="nextChord">The proposed next chord.</param>

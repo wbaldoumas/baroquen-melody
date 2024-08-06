@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library.Compositions.Strategies;
 
+/// <inheritdoc cref="ICompositionStrategyFactory"/>
 internal sealed class CompositionStrategyFactory(
     IChordChoiceRepositoryFactory chordChoiceRepositoryFactory,
     ICompositionRule compositionRule,

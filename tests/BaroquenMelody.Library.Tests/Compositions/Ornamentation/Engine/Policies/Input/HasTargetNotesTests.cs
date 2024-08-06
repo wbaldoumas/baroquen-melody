@@ -11,19 +11,19 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Policies.Input;
 
 [TestFixture]
-internal sealed class BeatContainsTargetNotesTests
+internal sealed class HasTargetNotesTests
 {
-    private BeatContainsTargetNotes _beatContainsTargetNotes = null!;
+    private HasTargetNotes _hasTargetNotes = null!;
 
     [SetUp]
-    public void SetUp() => _beatContainsTargetNotes = new BeatContainsTargetNotes([NoteName.G, NoteName.B, NoteName.D]);
+    public void SetUp() => _hasTargetNotes = new HasTargetNotes([NoteName.G, NoteName.B, NoteName.D]);
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
     public void ShouldProcess(OrnamentationItem ornamentationItem, InputPolicyResult expectedInputPolicyResult)
     {
         // act
-        var result = _beatContainsTargetNotes.ShouldProcess(ornamentationItem);
+        var result = _hasTargetNotes.ShouldProcess(ornamentationItem);
 
         // assert
         result.Should().Be(expectedInputPolicyResult);

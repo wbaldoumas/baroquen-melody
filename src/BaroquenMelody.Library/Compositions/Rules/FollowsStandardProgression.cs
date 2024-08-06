@@ -4,9 +4,10 @@ using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Rules;
 
+/// <inheritdoc cref="ICompositionRule"/>
 internal sealed class FollowsStandardProgression(CompositionConfiguration compositionConfiguration) : ICompositionRule
 {
-    private readonly List<(HashSet<NoteName>, HashSet<NoteName>)> _validMajorProgressions =
+    private readonly List<(HashSet<NoteName>, HashSet<NoteName>)> _validProgressions =
     [
         (compositionConfiguration.Scale.I, compositionConfiguration.Scale.I),
         (compositionConfiguration.Scale.I, compositionConfiguration.Scale.II),
@@ -55,15 +56,15 @@ internal sealed class FollowsStandardProgression(CompositionConfiguration compos
             return true;
         }
 
-        var precedingChordNoteNames = precedingChords[^1].Notes.Select(note => note.Raw.NoteName).ToHashSet();
-        var nextChordNoteNames = nextChord.Notes.Select(note => note.Raw.NoteName).ToHashSet();
+        var precedingChordNoteNames = precedingChords[^1].Notes.Select(note => note.NoteName).ToHashSet();
+        var nextChordNoteNames = nextChord.Notes.Select(note => note.NoteName).ToHashSet();
 
         return IsValidProgression(precedingChordNoteNames, nextChordNoteNames);
     }
 
     private bool IsValidProgression(HashSet<NoteName> precedingChordNoteNames, HashSet<NoteName> nextChordNoteNames)
     {
-        foreach (var (validPrecedingChordNoteNames, validNextChordNoteNames) in _validMajorProgressions)
+        foreach (var (validPrecedingChordNoteNames, validNextChordNoteNames) in _validProgressions)
         {
             if (precedingChordNoteNames.IsSubsetOf(validPrecedingChordNoteNames) && nextChordNoteNames.IsSubsetOf(validNextChordNoteNames))
             {

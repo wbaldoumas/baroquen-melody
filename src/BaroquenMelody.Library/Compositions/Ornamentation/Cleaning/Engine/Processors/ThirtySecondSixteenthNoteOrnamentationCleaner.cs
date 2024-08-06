@@ -13,33 +13,28 @@ internal sealed class ThirtySecondSixteenthNoteOrnamentationCleaner : IProcessor
     {
         if (item.Note.OrnamentationType is OrnamentationType.DoubleTurn or OrnamentationType.ThirtySecondNoteRun)
         {
-            CleanTargetedNotes(item.Note, item.OtherNote);
+            Clean(item.Note, item.OtherNote);
         }
         else
         {
-            CleanTargetedNotes(item.OtherNote, item.Note);
+            Clean(item.OtherNote, item.Note);
         }
     }
 
-    private static void CleanTargetedNotes(BaroquenNote noteWithThirtySecondNoteOrnamentation, BaroquenNote noteWithSixteenthNoteOrnamentation)
+    private static void Clean(BaroquenNote noteWithThirtySecondNotes, BaroquenNote noteWithSixteenthNotes)
     {
-        foreach (var (sixteenthNoteIndex, thirtySecondNoteIndex) in IndicesToCheck)
+        if (!IndicesToCheck.Any(i => noteWithSixteenthNotes.Ornamentations[i.SixteenthNoteIndex].IsDissonantWith(noteWithThirtySecondNotes.Ornamentations[i.ThirtySecondNoteIndex])))
         {
-            if (!noteWithSixteenthNoteOrnamentation.Ornamentations[sixteenthNoteIndex].IsDissonantWith(noteWithThirtySecondNoteOrnamentation.Ornamentations[thirtySecondNoteIndex]))
-            {
-                continue;
-            }
-
-            if (noteWithSixteenthNoteOrnamentation.Raw.NoteNumber > noteWithThirtySecondNoteOrnamentation.Raw.NoteNumber)
-            {
-                noteWithThirtySecondNoteOrnamentation.ResetOrnamentation();
-            }
-            else
-            {
-                noteWithSixteenthNoteOrnamentation.ResetOrnamentation();
-            }
-
             return;
+        }
+
+        if (noteWithSixteenthNotes > noteWithThirtySecondNotes)
+        {
+            noteWithThirtySecondNotes.ResetOrnamentation();
+        }
+        else
+        {
+            noteWithSixteenthNotes.ResetOrnamentation();
         }
     }
 }

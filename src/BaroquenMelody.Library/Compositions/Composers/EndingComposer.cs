@@ -26,20 +26,22 @@ internal sealed class EndingComposer(
     CompositionConfiguration compositionConfiguration
 ) : IEndingComposer
 {
-    private const int MaxBridgingChords = 100;
+    private const int MaxBridgingChords = 25;
 
-    private const int MaxChordsToTonic = 100;
+    private const int MaxChordsToTonic = 25;
 
     public Composition Compose(Composition composition, BaroquenTheme theme)
     {
+        logger.ComposingEnding();
+
         var bridgingComposition = GetBridgingComposition(composition, theme);
 
         composition.Measures[^1].Beats[^1] = bridgingComposition.Measures[0].Beats[0];
 
         var continuationChords = bridgingComposition.Measures
-            .SelectMany(measure => measure.Beats.Select(beat => beat.Chord))
+            .SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord))
             .TrimEdges()
-            .Concat(theme.Recapitulation.SelectMany(measure => measure.Beats.Select(beat => new BaroquenChord(beat.Chord))));
+            .Concat(theme.Recapitulation.SelectMany(static measure => measure.Beats.Select(static beat => new BaroquenChord(beat.Chord))));
 
         foreach (var measure in ConvertChordsToMeasures(continuationChords))
         {
@@ -79,7 +81,7 @@ internal sealed class EndingComposer(
     {
         var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
-            composition.Measures.SelectMany(measure => measure.Beats.Select(beat => beat.Chord))
+            composition.Measures.SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord))
         );
 
         var chords = new List<BaroquenChord>();
@@ -100,6 +102,8 @@ internal sealed class EndingComposer(
 
             if (chords.Count < MaxBridgingChords)
             {
+                logger.ComposedBridgingChord(chords.Count, MaxBridgingChords);
+
                 continue;
             }
 
@@ -150,7 +154,7 @@ internal sealed class EndingComposer(
             composition.Measures[^1].Beats[^1] = compositionWithTonicFinalChord.Measures[0].Beats[0];
 
             var continuationChords = compositionWithTonicFinalChord.Measures
-                .SelectMany(measure => measure.Beats.Select(beat => beat.Chord))
+                .SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord))
                 .Skip(1)
                 .ToList();
 
@@ -166,7 +170,7 @@ internal sealed class EndingComposer(
 
         foreach (var note in finalChordOfComposition.Notes)
         {
-            note.Duration = MusicalTimeSpan.Half;
+            note.MusicalTimeSpan = MusicalTimeSpan.Half;
         }
 
         var restingChord = new BaroquenChord(finalChordOfComposition);
@@ -181,13 +185,11 @@ internal sealed class EndingComposer(
         composition.Measures[^1].Beats.Add(new Beat(restingChord));
     }
 
-#pragma warning disable MA0051 // Method is too long
     private Composition GetCompositionWithTonicFinalChord(Composition composition)
-#pragma warning restore MA0051 // Method is too long
     {
         var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
-            composition.Measures.SelectMany(measure => measure.Beats.Select(beat => beat.Chord))
+            composition.Measures.SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord))
         );
 
         var lastChordOfComposition = compositionContext[^1];
@@ -225,6 +227,8 @@ internal sealed class EndingComposer(
 
             if (chords.Count < MaxChordsToTonic)
             {
+                logger.ComposedChordToTonic(chords.Count, MaxChordsToTonic);
+
                 continue;
             }
 
@@ -242,7 +246,7 @@ internal sealed class EndingComposer(
 
     private BaroquenChord GetNextChord(IReadOnlyList<ChordChoice> possibleChordChoices, IReadOnlyList<BaroquenChord> compositionContext)
     {
-        var chordChoice = possibleChordChoices.MinBy(_ => ThreadLocalRandom.Next());
+        var chordChoice = possibleChordChoices.MinBy(static _ => ThreadLocalRandom.Next());
 
         if (chordChoice is not null)
         {

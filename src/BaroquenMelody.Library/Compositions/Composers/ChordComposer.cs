@@ -15,7 +15,7 @@ internal sealed class ChordComposer(ICompositionStrategy compositionStrategy, Co
     public BaroquenChord Compose(IReadOnlyList<BaroquenChord> precedingChords)
     {
         var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(precedingChords);
-        var chordChoice = possibleChordChoices.MinBy(_ => ThreadLocalRandom.Next());
+        var chordChoice = possibleChordChoices.MinBy(static _ => ThreadLocalRandom.Next());
 
         if (chordChoice != null)
         {

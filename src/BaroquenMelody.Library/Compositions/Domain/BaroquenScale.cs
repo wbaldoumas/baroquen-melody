@@ -142,4 +142,11 @@ internal sealed class BaroquenScale
     /// <param name="note">The note to retrieve the descending notes from.</param>
     /// <returns>The descending notes from the given note.</returns>
     public List<Note> GetDescendingNotes(Note note) => _descendingNotes[note];
+
+    /// <summary>
+    ///     Retrieve the index of the given note in the scale.
+    /// </summary>
+    /// <param name="note">The note to retrieve the index of.</param>
+    /// <returns>The index of the given note in the scale.</returns>
+    public int IndexOf(BaroquenNote note) => GetNotes().IndexOf(note.Raw);
 }

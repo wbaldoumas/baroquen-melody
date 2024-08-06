@@ -3,7 +3,7 @@
 namespace BaroquenMelody.Library.Compositions.Phrasing;
 
 /// <summary>
-///     Represents something that can split a <see cref="BaroquenTheme"/> into smaller parts.
+///     Represents something that can split a <see cref="BaroquenTheme"/> into smaller parts as <see cref="RepeatedPhrase"/>s.
 /// </summary>
 internal interface IThemeSplitter
 {
