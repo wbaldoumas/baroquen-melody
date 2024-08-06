@@ -57,7 +57,7 @@ internal sealed class DecorateIntervalProcessorTests
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.E5);
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.D5);
         noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.E5);
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
-        noteToAssert.Ornamentations[0].Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
     }
 }

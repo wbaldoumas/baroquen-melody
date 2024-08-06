@@ -21,18 +21,18 @@ internal sealed class CompositionRuleFactory(CompositionConfiguration compositio
     {
         ICompositionRule compositionRule = configuration.Rule switch
         {
-            ConfigurableCompositionRule.AvoidDissonance => new AvoidDissonance(),
-            ConfigurableCompositionRule.AvoidDissonantLeaps => new AvoidDissonantLeaps(compositionConfiguration),
-            ConfigurableCompositionRule.HandleAscendingSeventh => new HandleAscendingSeventh(compositionConfiguration),
-            ConfigurableCompositionRule.AvoidRepetition => new AvoidRepetition(),
-            ConfigurableCompositionRule.AvoidParallelFourths => new AvoidParallelIntervals(Interval.PerfectFourth),
-            ConfigurableCompositionRule.AvoidParallelFifths => new AvoidParallelIntervals(Interval.PerfectFifth),
-            ConfigurableCompositionRule.AvoidParallelOctaves => new AvoidParallelIntervals(Interval.Unison),
-            ConfigurableCompositionRule.AvoidDirectFourths => new AvoidDirectIntervals(Interval.PerfectFourth),
-            ConfigurableCompositionRule.AvoidDirectFifths => new AvoidDirectIntervals(Interval.PerfectFifth),
-            ConfigurableCompositionRule.AvoidDirectOctaves => new AvoidDirectIntervals(Interval.Unison),
-            ConfigurableCompositionRule.AvoidOverDoubling => new AvoidOverDoubling(),
-            ConfigurableCompositionRule.FollowStandardChordProgression => new FollowsStandardProgression(compositionConfiguration),
+            CompositionRule.AvoidDissonance => new AvoidDissonance(),
+            CompositionRule.AvoidDissonantLeaps => new AvoidDissonantLeaps(compositionConfiguration),
+            CompositionRule.HandleAscendingSeventh => new HandleAscendingSeventh(compositionConfiguration),
+            CompositionRule.AvoidRepetition => new AvoidRepetition(),
+            CompositionRule.AvoidParallelFourths => new AvoidParallelIntervals(Interval.PerfectFourth),
+            CompositionRule.AvoidParallelFifths => new AvoidParallelIntervals(Interval.PerfectFifth),
+            CompositionRule.AvoidParallelOctaves => new AvoidParallelIntervals(Interval.Unison),
+            CompositionRule.AvoidDirectFourths => new AvoidDirectIntervals(Interval.PerfectFourth),
+            CompositionRule.AvoidDirectFifths => new AvoidDirectIntervals(Interval.PerfectFifth),
+            CompositionRule.AvoidDirectOctaves => new AvoidDirectIntervals(Interval.Unison),
+            CompositionRule.AvoidOverDoubling => new AvoidOverDoubling(),
+            CompositionRule.FollowStandardChordProgression => new FollowsStandardProgression(compositionConfiguration),
             _ => throw new ArgumentOutOfRangeException(nameof(configuration), configuration.Rule, "The composition rule is not supported.")
         };
 

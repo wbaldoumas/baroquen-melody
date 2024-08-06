@@ -24,6 +24,5 @@ internal interface IChordChoiceRepository
     /// </summary>
     /// <param name="chordChoice"> The <see cref="ChordChoice"/> to get the ID of. </param>
     /// <returns> The ID of the given <see cref="ChordChoice"/>. </returns>
-    // ReSharper disable once UnusedMemberInSuper.Global
     BigInteger GetChordChoiceId(ChordChoice chordChoice);
 }

@@ -37,7 +37,7 @@ internal sealed class CompositionPhraserTests
     public void AttemptPhraseRepetition_ExistingRepeatablePhrase_ShouldRepeat()
     {
         // arrange
-        var phraser = CreatePhraser(new PhrasingConfiguration([4], 2, 1, 100));
+        var phraser = CreatePhraser(new PhrasingConfiguration([4], 2, 1));
         var measures = CreateMeasures(8);
 
         SetRuleEvaluationOutcome(_mockCompositionRule, true);
@@ -53,7 +53,7 @@ internal sealed class CompositionPhraserTests
     public void AttemptPhraseRepetition_ExistingRepeatableThemePhrase_ShouldRepeat()
     {
         // arrange
-        var phraser = CreatePhraser(new PhrasingConfiguration([4], 2, 1, 100));
+        var phraser = CreatePhraser(new PhrasingConfiguration([4], 2, 1));
         var measures = CreateMeasures(8);
 
         _mockThemeSplitter.SplitThemeIntoPhrases(Arg.Any<BaroquenTheme>()).Returns([
@@ -78,7 +78,7 @@ internal sealed class CompositionPhraserTests
     public void AttemptPhraseRepetition_ExistingPhraseNotRepeatable_ShouldNotRepeat()
     {
         // arrange
-        var phraser = CreatePhraser(new PhrasingConfiguration([4], 1, 1, 100)); // Max repetitions set to 1
+        var phraser = CreatePhraser(new PhrasingConfiguration([4], 1, 1)); // Max repetitions set to 1
         var measures = CreateMeasures(8);
 
         SetRuleEvaluationOutcome(_mockCompositionRule, true);
@@ -101,7 +101,7 @@ internal sealed class CompositionPhraserTests
     public void AttemptPhraseRepetition_NoExistingPhrase_ShouldCreateAndRepeatNewPhrase()
     {
         // arrange
-        var phraser = CreatePhraser(new PhrasingConfiguration([2], 2, 0, 100));
+        var phraser = CreatePhraser(new PhrasingConfiguration([2], 2, 0));
         var measures = CreateMeasures(4);
 
         SetRuleEvaluationOutcome(_mockCompositionRule, true);
@@ -118,7 +118,7 @@ internal sealed class CompositionPhraserTests
     public void AttemptPhraseRepetition_CannotRepeat_ShouldNotRepeat()
     {
         // arrange
-        var phraser = CreatePhraser(new PhrasingConfiguration([4], 2, 2, 100)); // Increase min pool size
+        var phraser = CreatePhraser(new PhrasingConfiguration([4], 2)); // Increase min pool size
         var measures = CreateMeasures(4);
 
         SetRuleEvaluationOutcome(_mockCompositionRule, false);
@@ -150,7 +150,7 @@ internal sealed class CompositionPhraserTests
     public void AttemptPhraseRepetition_WithCoolOffPhrase_ShouldUtilizeCoolOffPhrase()
     {
         // arrange
-        var phraser = CreatePhraser(new PhrasingConfiguration([2], 1, 1, 100)); // Ensuring coolOffPhrase can be set
+        var phraser = CreatePhraser(new PhrasingConfiguration([2], 1, 1)); // Ensuring coolOffPhrase can be set
         var measures = CreateMeasures(4);
 
         SetRuleEvaluationOutcome(_mockCompositionRule, true);
@@ -167,7 +167,7 @@ internal sealed class CompositionPhraserTests
     public void AttemptPhraseRepetition_MeasuresLessThanPhraseLength_ShouldNotCreateOrRepeatPhrase()
     {
         // arrange
-        var phraser = CreatePhraser(new PhrasingConfiguration([5], 2, 0, 100)); // Phrase length greater than measures count
+        var phraser = CreatePhraser(new PhrasingConfiguration([5], 2, 0)); // Phrase length greater than measures count
         var measures = CreateMeasures(4); // Less than the required phrase length
 
         SetRuleEvaluationOutcome(_mockCompositionRule, true);
@@ -183,7 +183,7 @@ internal sealed class CompositionPhraserTests
     public void AddTheme_invokes_ThemeSplitter()
     {
         // arrange
-        var phraser = CreatePhraser(new PhrasingConfiguration([4], 2, 1, 100));
+        var phraser = CreatePhraser(new PhrasingConfiguration([4], 2, 1));
 
         // act
         phraser.AddTheme(new BaroquenTheme());

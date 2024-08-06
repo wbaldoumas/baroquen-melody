@@ -5,8 +5,10 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 
-/// <inheritdoc cref="IProcessor{T}"/>
-internal sealed class SustainedNoteProcessor(IMusicalTimeSpanCalculator musicalTimeSpanCalculator, CompositionConfiguration configuration) : IProcessor<OrnamentationItem>
+internal sealed class SustainedNoteProcessor(
+    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
+    CompositionConfiguration compositionConfiguration
+) : IProcessor<OrnamentationItem>
 {
     public const int Interval = 0;
 
@@ -15,8 +17,8 @@ internal sealed class SustainedNoteProcessor(IMusicalTimeSpanCalculator musicalT
         var currentNote = item.CurrentBeat[item.Voice];
         var nextNote = item.NextBeat![item.Voice];
 
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Sustain, configuration.Meter);
-        nextNote.Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.MidSustain, configuration.Meter);
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Sustain, compositionConfiguration.Meter);
+        nextNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.MidSustain, compositionConfiguration.Meter);
 
         currentNote.OrnamentationType = OrnamentationType.Sustain;
         nextNote.OrnamentationType = OrnamentationType.MidSustain;

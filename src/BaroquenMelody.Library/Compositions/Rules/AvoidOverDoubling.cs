@@ -2,6 +2,7 @@
 
 namespace BaroquenMelody.Library.Compositions.Rules;
 
+/// <inheritdoc cref="ICompositionRule"/>
 internal sealed class AvoidOverDoubling : ICompositionRule
 {
     private const int DuetThreshold = 1;
@@ -12,7 +13,7 @@ internal sealed class AvoidOverDoubling : ICompositionRule
 
     public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
     {
-        var uniqueNoteNameCount = nextChord.Notes.GroupBy(note => note.Raw.NoteName).Count();
+        var uniqueNoteNameCount = nextChord.Notes.GroupBy(static note => note.NoteName).Count();
 
         return nextChord.Notes.Count switch
         {

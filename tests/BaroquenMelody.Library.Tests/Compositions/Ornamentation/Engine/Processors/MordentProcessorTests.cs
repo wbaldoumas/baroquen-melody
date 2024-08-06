@@ -61,14 +61,14 @@ internal sealed class MordentProcessorTests
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Mordent);
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.ThirtySecond);
 
         ornamentationItem.CurrentBeat[0].Ornamentations.Should().HaveCount(2);
 
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B4);
-        noteToAssert.Ornamentations[0].Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.ThirtySecond);
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.A4);
-        noteToAssert.Ornamentations[1].Duration.Should().Be(MusicalTimeSpan.Eighth.Dotted(1));
+        noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth.Dotted(1));
     }
 
     [Test]
@@ -91,13 +91,13 @@ internal sealed class MordentProcessorTests
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Mordent);
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.ThirtySecond);
 
         ornamentationItem.CurrentBeat[0].Ornamentations.Should().HaveCount(2);
 
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.G4);
-        noteToAssert.Ornamentations[0].Duration.Should().Be(MusicalTimeSpan.ThirtySecond);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.ThirtySecond);
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.A4);
-        noteToAssert.Ornamentations[1].Duration.Should().Be(MusicalTimeSpan.Eighth.Dotted(1));
+        noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth.Dotted(1));
     }
 }

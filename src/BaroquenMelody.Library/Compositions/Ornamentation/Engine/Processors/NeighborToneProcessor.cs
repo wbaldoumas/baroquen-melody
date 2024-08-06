@@ -18,19 +18,19 @@ internal sealed class NeighborToneProcessor(
     public void Process(OrnamentationItem item)
     {
         var currentNote = item.CurrentBeat[item.Voice];
-        var notes = compositionConfiguration.Scale.GetNotes();
-        var currentNoteScaleIndex = notes.IndexOf(currentNote.Raw);
+        var currentNoteScaleIndex = compositionConfiguration.Scale.IndexOf(currentNote);
 
         var nextNoteScaleIndex = weightedRandomBooleanGenerator.IsTrue() ? currentNoteScaleIndex + 1 : currentNoteScaleIndex - 1;
 
+        var notes = compositionConfiguration.Scale.GetNotes();
         var nextNote = notes[nextNoteScaleIndex];
 
         var ornamentationNote = new BaroquenNote(item.Voice, nextNote)
         {
-            Duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter)
+            MusicalTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter)
         };
 
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, compositionConfiguration.Meter);
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, compositionConfiguration.Meter);
         currentNote.OrnamentationType = ornamentationType;
         currentNote.Ornamentations.Add(ornamentationNote);
     }

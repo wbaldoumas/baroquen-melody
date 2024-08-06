@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library.Compositions.Phrasing;
 
+/// <inheritdoc cref="ICompositionPhraser"/>
 internal sealed class CompositionPhraser(
     ICompositionRule compositionRule,
     IThemeSplitter themeSplitter,
@@ -47,7 +48,7 @@ internal sealed class CompositionPhraser(
 
     private bool AttemptToRepeatExistingThemePhrase(List<Measure> measures)
     {
-        foreach (var themePhraseToRepeat in themePhrasesToRepeat.Where(themePhraseToRepeat => themePhraseToRepeat != themeCoolOffPhrase).OrderBy(_ => ThreadLocalRandom.Next()))
+        foreach (var themePhraseToRepeat in themePhrasesToRepeat.Where(themePhraseToRepeat => themePhraseToRepeat != themeCoolOffPhrase).OrderBy(static _ => ThreadLocalRandom.Next()))
         {
             if (!TryRepeatPhrase(measures, themePhraseToRepeat))
             {
@@ -73,7 +74,7 @@ internal sealed class CompositionPhraser(
             return false;
         }
 
-        foreach (var repeatedPhrase in phrasesToRepeat.OrderBy(_ => ThreadLocalRandom.Next()).Where(repeatedPhrase => TryRepeatPhrase(measures, repeatedPhrase)))
+        foreach (var repeatedPhrase in phrasesToRepeat.OrderBy(static _ => ThreadLocalRandom.Next()).Where(repeatedPhrase => TryRepeatPhrase(measures, repeatedPhrase)))
         {
             phrasesToRepeat.Remove(repeatedPhrase);
 
@@ -98,14 +99,14 @@ internal sealed class CompositionPhraser(
 
     private void AttemptToCreateAndRepeatNewPhrase(List<Measure> measures)
     {
-        foreach (var phraseLength in compositionConfiguration.PhrasingConfiguration.PhraseLengths.OrderByDescending(phraseLength => phraseLength))
+        foreach (var phraseLength in compositionConfiguration.PhrasingConfiguration.PhraseLengths.OrderByDescending(static phraseLength => phraseLength))
         {
             if (measures.Count < phraseLength)
             {
                 continue;
             }
 
-            var lastMeasures = measures.Skip(measures.Count - phraseLength).Take(phraseLength).Select(measure => new Measure(measure)).ToList();
+            var lastMeasures = measures.Skip(measures.Count - phraseLength).Take(phraseLength).Select(static measure => new Measure(measure)).ToList();
 
             if (!weightedRandomBooleanGenerator.IsTrue(compositionConfiguration.PhrasingConfiguration.PhraseRepetitionProbability) || !CanRepeatPhrase(measures, lastMeasures))
             {
@@ -122,7 +123,7 @@ internal sealed class CompositionPhraser(
 
             ResetPhraseEndOrnamentation(measures[^1]);
 
-            measures.AddRange(lastMeasures.Select(measure => new Measure(measure)));
+            measures.AddRange(lastMeasures.Select(static measure => new Measure(measure)));
 
             return;
         }
@@ -134,7 +135,7 @@ internal sealed class CompositionPhraser(
     /// <param name="measure">The measure to reset the ornamentation on.</param>
     private static void ResetPhraseEndOrnamentation(Measure measure)
     {
-        foreach (var note in measure.Beats.Last().Chord.Notes.Where(note => note.OrnamentationType != OrnamentationType.MidSustain))
+        foreach (var note in measure.Beats[^1].Chord.Notes.Where(static note => note.OrnamentationType != OrnamentationType.MidSustain))
         {
             note.ResetOrnamentation();
         }
@@ -151,7 +152,7 @@ internal sealed class CompositionPhraser(
 
         ResetPhraseEndOrnamentation(measures[^1]);
 
-        measures.AddRange(repeatedPhrase.Phrase.Select(measure => new Measure(measure)).ToList());
+        measures.AddRange(repeatedPhrase.Phrase.Select(static measure => new Measure(measure)).ToList());
         repeatedPhrase.RepetitionCount++;
 
         return true;
@@ -161,7 +162,7 @@ internal sealed class CompositionPhraser(
     {
         var compositionContext = new FixedSizeList<BaroquenChord>(compositionConfiguration.CompositionContextSize);
 
-        foreach (var beat in measures.SelectMany(measure => measure.Beats))
+        foreach (var beat in measures.SelectMany(static measure => measure.Beats))
         {
             compositionContext.Add(beat.Chord);
         }

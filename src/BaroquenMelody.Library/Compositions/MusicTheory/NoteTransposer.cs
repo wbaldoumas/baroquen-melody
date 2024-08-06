@@ -4,6 +4,7 @@ using BaroquenMelody.Library.Compositions.Enums;
 
 namespace BaroquenMelody.Library.Compositions.MusicTheory;
 
+/// <inheritdoc cref="INoteTransposer"/>
 internal sealed class NoteTransposer(CompositionConfiguration compositionConfiguration) : INoteTransposer
 {
     public IEnumerable<BaroquenNote> TransposeToVoice(IEnumerable<BaroquenNote> notesToTranspose, Voice currentVoice, Voice targetVoice)
@@ -28,7 +29,7 @@ internal sealed class NoteTransposer(CompositionConfiguration compositionConfigu
             var transposedNote = new BaroquenNote(targetVoice, notes[transposedNoteIndex])
             {
                 OrnamentationType = noteToTranspose.OrnamentationType,
-                Duration = noteToTranspose.Duration
+                MusicalTimeSpan = noteToTranspose.MusicalTimeSpan
             };
 
             foreach (var ornamentedNote in noteToTranspose.Ornamentations)
@@ -39,7 +40,7 @@ internal sealed class NoteTransposer(CompositionConfiguration compositionConfigu
                 var newOrnamentedNote = new BaroquenNote(targetVoice, notes[transposedOrnamentedNoteIndex])
                 {
                     OrnamentationType = ornamentedNote.OrnamentationType,
-                    Duration = ornamentedNote.Duration
+                    MusicalTimeSpan = ornamentedNote.MusicalTimeSpan
                 };
 
                 transposedNote.Ornamentations.Add(newOrnamentedNote);

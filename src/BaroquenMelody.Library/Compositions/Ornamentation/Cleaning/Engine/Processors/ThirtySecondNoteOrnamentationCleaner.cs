@@ -5,16 +5,16 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Proc
 
 internal sealed class ThirtySecondNoteOrnamentationCleaner : IProcessor<OrnamentationCleaningItem>
 {
-    private static readonly int[] OrnamentationIndicesToCheck = [1, 3, 5];
+    private static readonly int[] IndicesToCheck = [1, 3, 5];
 
     public void Process(OrnamentationCleaningItem item)
     {
-        if (!OrnamentationIndicesToCheck.Any(index => item.Note.Ornamentations[index].IsDissonantWith(item.OtherNote.Ornamentations[index])))
+        if (!IndicesToCheck.Any(index => item.Note.Ornamentations[index].IsDissonantWith(item.OtherNote.Ornamentations[index])))
         {
             return;
         }
 
-        if (item.Note.Raw.NoteNumber > item.OtherNote.Raw.NoteNumber)
+        if (item.Note > item.OtherNote)
         {
             item.OtherNote.ResetOrnamentation();
         }

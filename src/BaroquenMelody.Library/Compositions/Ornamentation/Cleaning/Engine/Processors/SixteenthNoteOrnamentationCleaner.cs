@@ -9,12 +9,12 @@ internal sealed class SixteenthNoteOrnamentationCleaner : IProcessor<Ornamentati
 
     public void Process(OrnamentationCleaningItem item)
     {
-        if (!_ornamentationIndices.Any(i => item.Note.Ornamentations[i].IsDissonantWith(item.OtherNote.Ornamentations[i])))
+        if (!_ornamentationIndices.Any(index => item.Note.Ornamentations[index].IsDissonantWith(item.OtherNote.Ornamentations[index])))
         {
             return;
         }
 
-        if (item.Note.Raw.NoteNumber > item.OtherNote.Raw.NoteNumber)
+        if (item.Note > item.OtherNote)
         {
             item.OtherNote.ResetOrnamentation();
         }

@@ -56,9 +56,9 @@ internal sealed class DoublePassingToneProcessorTests
         noteToAssert.Ornamentations.Should().HaveCount(2);
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.G4);
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.F4);
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Eighth);
-        noteToAssert.Ornamentations[0].Duration.Should().Be(MusicalTimeSpan.Sixteenth);
-        noteToAssert.Ornamentations[1].Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
     }
 
     [Test]
@@ -82,8 +82,8 @@ internal sealed class DoublePassingToneProcessorTests
         noteToAssert.Ornamentations.Should().HaveCount(2);
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B4);
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.C5);
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Eighth);
-        noteToAssert.Ornamentations[0].Duration.Should().Be(MusicalTimeSpan.Sixteenth);
-        noteToAssert.Ornamentations[1].Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
     }
 }

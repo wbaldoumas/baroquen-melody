@@ -13,49 +13,34 @@ internal sealed class DelayedThirtySecondNoteRunProcessor(
 {
     public const int Interval = 5;
 
+    private readonly int[] _ornamentationTranslations = [1, 2, 3, 4];
+
     public void Process(OrnamentationItem item)
     {
         var currentNote = item.CurrentBeat[item.Voice];
         var nextNote = item.NextBeat![item.Voice];
 
+        var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
+        var nextNoteIndex = compositionConfiguration.Scale.IndexOf(nextNote);
+
+        var isDescending = currentNoteIndex > nextNoteIndex;
         var notes = compositionConfiguration.Scale.GetNotes();
 
-        var currentNoteIndex = notes.IndexOf(currentNote.Raw);
-        var nextNoteIndex = notes.IndexOf(nextNote.Raw);
+        var ornamentationNotes = _ornamentationTranslations
+            .Select(ornamentationTranslation => isDescending ? currentNoteIndex - ornamentationTranslation : currentNoteIndex + ornamentationTranslation)
+            .Select(index => notes[index]);
 
-        var firstNoteIndex = currentNoteIndex > nextNoteIndex ? currentNoteIndex - 1 : currentNoteIndex + 1;
-        var secondNoteIndex = currentNoteIndex > nextNoteIndex ? currentNoteIndex - 2 : currentNoteIndex + 2;
-        var thirdNoteIndex = currentNoteIndex > nextNoteIndex ? currentNoteIndex - 3 : currentNoteIndex + 3;
-        var fourthNoteIndex = currentNoteIndex > nextNoteIndex ? currentNoteIndex - 4 : currentNoteIndex + 4;
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.DelayedThirtySecondNoteRun, compositionConfiguration.Meter);
 
-        var firstNote = notes[firstNoteIndex];
-        var secondNote = notes[secondNoteIndex];
-        var thirdNote = notes[thirdNoteIndex];
-        var fourthNote = notes[fourthNoteIndex];
+        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.DelayedThirtySecondNoteRun, compositionConfiguration.Meter);
 
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.DelayedThirtySecondNoteRun, compositionConfiguration.Meter);
-
-        var ornamentationDuration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.DelayedThirtySecondNoteRun, compositionConfiguration.Meter);
-
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, firstNote)
+        foreach (var ornamentation in ornamentationNotes)
         {
-            Duration = ornamentationDuration
-        });
-
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, secondNote)
-        {
-            Duration = ornamentationDuration
-        });
-
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, thirdNote)
-        {
-            Duration = ornamentationDuration
-        });
-
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, fourthNote)
-        {
-            Duration = ornamentationDuration
-        });
+            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, ornamentation)
+            {
+                MusicalTimeSpan = ornamentationTimeSpan
+            });
+        }
 
         currentNote.OrnamentationType = OrnamentationType.DelayedThirtySecondNoteRun;
     }

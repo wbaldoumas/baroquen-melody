@@ -12,33 +12,29 @@ internal sealed class DecorateIntervalProcessor(
     int intervalChange
 ) : IProcessor<OrnamentationItem>
 {
+    private readonly int[] _ornamentationTranslations = [intervalChange, intervalChange - 1, intervalChange];
+
     public void Process(OrnamentationItem item)
     {
         var currentNote = item.CurrentBeat[item.Voice];
+        var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
         var notes = compositionConfiguration.Scale.GetNotes();
-        var noteIndex = notes.IndexOf(currentNote.Raw);
-        var firstNote = notes[noteIndex + intervalChange];
-        var secondNote = notes[noteIndex + intervalChange - 1];
-        var thirdNote = notes[noteIndex + intervalChange];
 
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.DecorateInterval, compositionConfiguration.Meter);
+        var ornamentationNotes = _ornamentationTranslations
+            .Select(ornamentationTranslation => currentNoteIndex + ornamentationTranslation)
+            .Select(index => notes[index]);
 
-        var ornamentationDuration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.DecorateInterval, compositionConfiguration.Meter);
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.DecorateInterval, compositionConfiguration.Meter);
 
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, firstNote)
+        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.DecorateInterval, compositionConfiguration.Meter);
+
+        foreach (var ornamentation in ornamentationNotes)
         {
-            Duration = ornamentationDuration
-        });
-
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, secondNote)
-        {
-            Duration = ornamentationDuration
-        });
-
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, thirdNote)
-        {
-            Duration = ornamentationDuration
-        });
+            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, ornamentation)
+            {
+                MusicalTimeSpan = ornamentationTimeSpan
+            });
+        }
 
         currentNote.OrnamentationType = OrnamentationType.DecorateInterval;
     }

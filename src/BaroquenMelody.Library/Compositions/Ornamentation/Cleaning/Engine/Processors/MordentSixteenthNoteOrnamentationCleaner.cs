@@ -1,5 +1,4 @@
 ﻿using Atrea.PolicyEngine.Processors;
-using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 
@@ -7,23 +6,22 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Proc
 
 internal sealed class MordentSixteenthNoteOrnamentationCleaner : IProcessor<OrnamentationCleaningItem>
 {
+    private const int IndexToCheck = 1;
+
     public void Process(OrnamentationCleaningItem item)
     {
+        if (!item.Note.Ornamentations[IndexToCheck].IsDissonantWith(item.OtherNote.Ornamentations[IndexToCheck]))
+        {
+            return;
+        }
+
         if (item.Note.OrnamentationType == OrnamentationType.Mordent)
         {
-            CleanTargetedNotes(item.Note, item.OtherNote);
+            item.Note.ResetOrnamentation();
         }
         else
         {
-            CleanTargetedNotes(item.OtherNote, item.Note);
-        }
-    }
-
-    private static void CleanTargetedNotes(BaroquenNote noteWithMordent, BaroquenNote noteWithSixteenths)
-    {
-        if (noteWithMordent.Ornamentations[1].IsDissonantWith(noteWithSixteenths.Ornamentations[1]))
-        {
-            noteWithMordent.ResetOrnamentation();
+            item.OtherNote.ResetOrnamentation();
         }
     }
 }

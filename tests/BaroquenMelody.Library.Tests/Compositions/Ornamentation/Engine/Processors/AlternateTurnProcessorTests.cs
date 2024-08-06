@@ -59,11 +59,11 @@ internal sealed class AlternateTurnProcessorTests
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.B3);
         noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.C4);
 
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
 
         foreach (var baroquenNote in noteToAssert.Ornamentations)
         {
-            baroquenNote.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+            baroquenNote.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
         }
     }
 
@@ -91,11 +91,11 @@ internal sealed class AlternateTurnProcessorTests
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.D4);
         noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.C4);
 
-        noteToAssert.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
 
         foreach (var baroquenNote in noteToAssert.Ornamentations)
         {
-            baroquenNote.Duration.Should().Be(MusicalTimeSpan.Sixteenth);
+            baroquenNote.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
         }
     }
 }

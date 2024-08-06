@@ -41,38 +41,38 @@ internal sealed class NoteTransposerTests
             new(Voice.Soprano, Notes.C4)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
-                Duration = MusicalTimeSpan.Eighth,
+                MusicalTimeSpan = MusicalTimeSpan.Eighth,
                 Ornamentations =
                 {
                     new BaroquenNote(Voice.Soprano, Notes.D4)
                     {
                         OrnamentationType = OrnamentationType.PassingTone,
-                        Duration = MusicalTimeSpan.Eighth
+                        MusicalTimeSpan = MusicalTimeSpan.Eighth
                     }
                 }
             },
             new(Voice.Soprano, Notes.E4)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
-                Duration = MusicalTimeSpan.Eighth,
+                MusicalTimeSpan = MusicalTimeSpan.Eighth,
                 Ornamentations =
                 {
                     new BaroquenNote(Voice.Soprano, Notes.F4)
                     {
                         OrnamentationType = OrnamentationType.PassingTone,
-                        Duration = MusicalTimeSpan.Eighth
+                        MusicalTimeSpan = MusicalTimeSpan.Eighth
                     }
                 }
             },
             new(Voice.Soprano, Notes.G4)
             {
                 OrnamentationType = OrnamentationType.None,
-                Duration = MusicalTimeSpan.Quarter
+                MusicalTimeSpan = MusicalTimeSpan.Quarter
             },
             new(Voice.Soprano, Notes.C4)
             {
                 OrnamentationType = OrnamentationType.None,
-                Duration = MusicalTimeSpan.Quarter
+                MusicalTimeSpan = MusicalTimeSpan.Quarter
             }
         };
 
@@ -81,38 +81,38 @@ internal sealed class NoteTransposerTests
             new(Voice.Alto, Notes.G2)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
-                Duration = MusicalTimeSpan.Eighth,
+                MusicalTimeSpan = MusicalTimeSpan.Eighth,
                 Ornamentations =
                 {
                     new BaroquenNote(Voice.Alto, Notes.A2)
                     {
                         OrnamentationType = OrnamentationType.PassingTone,
-                        Duration = MusicalTimeSpan.Eighth
+                        MusicalTimeSpan = MusicalTimeSpan.Eighth
                     }
                 }
             },
             new(Voice.Alto, Notes.B2)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
-                Duration = MusicalTimeSpan.Eighth,
+                MusicalTimeSpan = MusicalTimeSpan.Eighth,
                 Ornamentations =
                 {
                     new BaroquenNote(Voice.Alto, Notes.C3)
                     {
                         OrnamentationType = OrnamentationType.PassingTone,
-                        Duration = MusicalTimeSpan.Eighth
+                        MusicalTimeSpan = MusicalTimeSpan.Eighth
                     }
                 }
             },
             new(Voice.Alto, Notes.D3)
             {
                 OrnamentationType = OrnamentationType.None,
-                Duration = MusicalTimeSpan.Quarter
+                MusicalTimeSpan = MusicalTimeSpan.Quarter
             },
             new(Voice.Alto, Notes.G2)
             {
                 OrnamentationType = OrnamentationType.None,
-                Duration = MusicalTimeSpan.Quarter
+                MusicalTimeSpan = MusicalTimeSpan.Quarter
             }
         };
 

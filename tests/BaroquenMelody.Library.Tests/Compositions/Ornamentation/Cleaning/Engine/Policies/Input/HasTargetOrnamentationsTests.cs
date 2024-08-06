@@ -11,7 +11,7 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Cleaning.Engine.Policies.Input;
 
 [TestFixture]
-internal sealed class NotesContainTargetOrnamentationsTests
+internal sealed class HasTargetOrnamentationsTests
 {
     [Test]
     [TestCase(OrnamentationType.PassingTone, OrnamentationType.PassingTone, OrnamentationType.PassingTone, OrnamentationType.PassingTone, InputPolicyResult.Continue)]
@@ -32,7 +32,7 @@ internal sealed class NotesContainTargetOrnamentationsTests
             new BaroquenNote(Voice.Alto, Notes.C3) { OrnamentationType = otherNoteOrnamentationType }
         );
 
-        var policy = new NotesContainTargetOrnamentations(targetOrnamentationType, otherTargetOrnamentationType);
+        var policy = new HasTargetOrnamentations(targetOrnamentationType, otherTargetOrnamentationType);
 
         // act
         var result = policy.ShouldProcess(item);

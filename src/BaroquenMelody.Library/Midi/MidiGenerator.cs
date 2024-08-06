@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+using BaroquenMelody.Library.Midi.Extensions;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Composing;
 using Melanchall.DryWetMidi.Core;
@@ -22,7 +23,7 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
         }
 
         var tempoMap = TempoMap.Create(Tempo.FromBeatsPerMinute(compositionConfiguration.Tempo));
-        var chunks = patternBuildersByVoice.Values.Select(patternBuilder => patternBuilder.Build().ToTrackChunk(tempoMap, new FourBitNumber(1)));
+        var chunks = patternBuildersByVoice.Values.Select((patternBuilder, channelNumber) => patternBuilder.Build().ToTrackChunk(tempoMap, FourBitNumber.Values[channelNumber]));
         var midiFile = new MidiFile(chunks);
 
         midiFile.ReplaceTempoMap(tempoMap);
@@ -30,57 +31,63 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
         return midiFile;
     }
 
-    private Dictionary<Voice, PatternBuilder> InitializePatternBuildersByVoice()
-    {
-        return compositionConfiguration.VoiceConfigurations.ToDictionary(
-            voiceConfiguration => voiceConfiguration.Voice,
-            voiceConfiguration => new PatternBuilder().ProgramChange(voiceConfiguration.Instrument)
-        );
-    }
+    private Dictionary<Voice, PatternBuilder> InitializePatternBuildersByVoice() => compositionConfiguration.VoiceConfigurations.ToDictionary(
+        voiceConfiguration => voiceConfiguration.Voice,
+        voiceConfiguration => new PatternBuilder().ProgramChange(voiceConfiguration.Instrument)
+    );
 
-    private void ProcessMeasure(Measure measure, Dictionary<Voice, PatternBuilder> patternBuildersByVoice)
+    private static void ProcessMeasure(Measure measure, Dictionary<Voice, PatternBuilder> patternBuildersByVoice)
     {
         foreach (var beat in measure.Beats)
         {
-            foreach (var voice in compositionConfiguration.Voices)
-            {
-                var patternBuilder = patternBuildersByVoice[voice];
-
-                if (!beat.ContainsVoice(voice))
-                {
-                    patternBuilder.StepForward(MusicalTimeSpan.Quarter);
-
-                    continue;
-                }
-
-                var note = beat[voice];
-
-                if (HandledRestfulOrnamentation(patternBuilder, note))
-                {
-                    continue;
-                }
-
-                patternBuilder.SetNoteLength(note.Duration).Note(note.Raw);
-
-                foreach (var ornamentation in note.Ornamentations)
-                {
-                    patternBuilder.SetNoteLength(ornamentation.Duration).Note(ornamentation.Raw);
-                }
-            }
+            ProcessBeat(beat, patternBuildersByVoice);
         }
     }
 
-    private static bool HandledRestfulOrnamentation(PatternBuilder patternBuilder, BaroquenNote note) => note.OrnamentationType switch
+    private static void ProcessBeat(Beat beat, Dictionary<Voice, PatternBuilder> patternBuildersByVoice)
     {
-        OrnamentationType.MidSustain => true,
-        OrnamentationType.Rest => HandleRest(patternBuilder),
-        _ => false
-    };
+        foreach (var (voice, patternBuilder) in patternBuildersByVoice)
+        {
+            ProcessVoice(voice, beat, patternBuilder);
+        }
+    }
 
-    private static bool HandleRest(PatternBuilder patternBuilder)
+    private static void ProcessVoice(Voice voice, Beat beat, PatternBuilder patternBuilder)
     {
-        patternBuilder.StepForward(MusicalTimeSpan.Quarter);
+        if (!beat.ContainsVoice(voice))
+        {
+            patternBuilder.AddRest();
 
-        return true;
+            return;
+        }
+
+        var note = beat[voice];
+
+        if (HandledRestfulOrnamentation(patternBuilder, note))
+        {
+            return;
+        }
+
+        patternBuilder.AddNote(note);
+    }
+
+    /// <summary>
+    ///     Determines if a "restful" ornamentation is needed and handles it.
+    /// </summary>
+    /// <param name="patternBuilder">The pattern builder to potentially handle a restful ornamentation in.</param>
+    /// <param name="note">The note, which might have a restful ornamentation.</param>
+    /// <returns>Whether a restful ornamentation was handled.</returns>
+    private static bool HandledRestfulOrnamentation(PatternBuilder patternBuilder, BaroquenNote note)
+    {
+        switch (note.OrnamentationType)
+        {
+            case OrnamentationType.MidSustain:
+                return true;
+            case OrnamentationType.Rest:
+                patternBuilder.AddRest();
+                return true;
+            default:
+                return false;
+        }
     }
 }

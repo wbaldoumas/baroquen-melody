@@ -8,8 +8,9 @@ internal sealed class IsIntervalWithinVoiceRange(CompositionConfiguration compos
     public InputPolicyResult ShouldProcess(OrnamentationItem item)
     {
         var currentNote = item.CurrentBeat[item.Voice];
+        var noteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
+
         var notes = compositionConfiguration.Scale.GetNotes();
-        var noteIndex = notes.IndexOf(currentNote.Raw);
         var nextNote = notes[noteIndex + interval];
 
         return compositionConfiguration.IsNoteInVoiceRange(item.Voice, nextNote) ? InputPolicyResult.Continue : InputPolicyResult.Reject;

@@ -13,41 +13,34 @@ internal sealed class AlternateTurnProcessor(
 {
     public const int Interval = 1;
 
+    private readonly int[] _ornamentationTranslations = [1, -1, 0];
+
     public void Process(OrnamentationItem item)
     {
         var currentNote = item.CurrentBeat[item.Voice];
         var nextNote = item.NextBeat![item.Voice];
 
+        var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
+        var nextNoteIndex = compositionConfiguration.Scale.IndexOf(nextNote);
+
+        var isDescending = currentNoteIndex > nextNoteIndex;
         var notes = compositionConfiguration.Scale.GetNotes();
 
-        var currentNoteIndex = notes.IndexOf(currentNote.Raw);
-        var nextNoteIndex = notes.IndexOf(nextNote.Raw);
+        var ornamentationNotes = _ornamentationTranslations
+            .Select(ornamentationTranslation => isDescending ? currentNoteIndex - ornamentationTranslation : currentNoteIndex + ornamentationTranslation)
+            .Select(index => notes[index]);
 
-        var firstNoteIndex = currentNoteIndex > nextNoteIndex ? currentNoteIndex - 1 : currentNoteIndex + 1;
-        var secondNoteIndex = currentNoteIndex > nextNoteIndex ? currentNoteIndex + 1 : currentNoteIndex - 1;
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.AlternateTurn, compositionConfiguration.Meter);
 
-        var firstNote = notes[firstNoteIndex];
-        var secondNote = notes[secondNoteIndex];
-        var thirdNote = notes[currentNoteIndex];
+        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.AlternateTurn, compositionConfiguration.Meter);
 
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.AlternateTurn, compositionConfiguration.Meter);
-
-        var duration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.AlternateTurn, compositionConfiguration.Meter);
-
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, firstNote)
+        foreach (var ornamentation in ornamentationNotes)
         {
-            Duration = duration
-        });
-
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, secondNote)
-        {
-            Duration = duration
-        });
-
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, thirdNote)
-        {
-            Duration = duration
-        });
+            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, ornamentation)
+            {
+                MusicalTimeSpan = ornamentationTimeSpan
+            });
+        }
 
         currentNote.OrnamentationType = OrnamentationType.AlternateTurn;
     }

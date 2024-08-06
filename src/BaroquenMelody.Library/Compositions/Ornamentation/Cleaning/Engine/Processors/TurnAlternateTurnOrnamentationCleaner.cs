@@ -7,21 +7,23 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Proc
 
 internal sealed class TurnAlternateTurnOrnamentationCleaner : IProcessor<OrnamentationCleaningItem>
 {
+    private const int IndexToCheck = 1;
+
     public void Process(OrnamentationCleaningItem item)
     {
         if (item.Note.OrnamentationType is OrnamentationType.Turn)
         {
-            CleanTargetedNotes(item.Note, item.OtherNote);
+            Clean(item.Note, item.OtherNote);
         }
         else
         {
-            CleanTargetedNotes(item.OtherNote, item.Note);
+            Clean(item.OtherNote, item.Note);
         }
     }
 
-    private static void CleanTargetedNotes(BaroquenNote noteWithTurnOrnamentation, BaroquenNote noteWithAlternateTurnOrnamentation)
+    private static void Clean(BaroquenNote noteWithTurnOrnamentation, BaroquenNote noteWithAlternateTurnOrnamentation)
     {
-        if (!noteWithTurnOrnamentation.Ornamentations[1].IsDissonantWith(noteWithAlternateTurnOrnamentation.Ornamentations[1]))
+        if (!noteWithTurnOrnamentation.Ornamentations[IndexToCheck].IsDissonantWith(noteWithAlternateTurnOrnamentation.Ornamentations[IndexToCheck]))
         {
             return;
         }

@@ -23,13 +23,25 @@ internal sealed class AvoidDissonantLeaps(CompositionConfiguration compositionCo
     {
         var notes = compositionConfiguration.Scale.GetNotes();
 
-        return (
-            from note in lastChord.Notes
-            let nextNote = nextChord[note.Voice]
-            where note.IsDissonantWith(nextNote)
-            let noteScaleIndex = notes.IndexOf(note.Raw)
-            let nextNoteScaleIndex = notes.IndexOf(nextNote.Raw)
-            select Math.Abs(noteScaleIndex - nextNoteScaleIndex)
-        ).Any(scaleStepDifference => scaleStepDifference > LeapThreshold);
+        foreach (var note in lastChord.Notes)
+        {
+            var nextNote = nextChord[note.Voice];
+
+            if (!note.IsDissonantWith(nextNote))
+            {
+                continue;
+            }
+
+            var noteScaleIndex = notes.IndexOf(note.Raw);
+            var nextNoteScaleIndex = notes.IndexOf(nextNote.Raw);
+            var scaleStepDifference = Math.Abs(noteScaleIndex - nextNoteScaleIndex);
+
+            if (scaleStepDifference > LeapThreshold)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -1,6 +1,8 @@
 ﻿using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Interaction;
+using Melanchall.DryWetMidi.MusicTheory;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
 namespace BaroquenMelody.Library.Compositions.Domain;
@@ -23,9 +25,19 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
     public Note Raw { get; init; } = raw;
 
     /// <summary>
+    ///     The name of the note.
+    /// </summary>
+    public NoteName NoteName => Raw.NoteName;
+
+    /// <summary>
+    ///     The number of the note.
+    /// </summary>
+    public SevenBitNumber NoteNumber => Raw.NoteNumber;
+
+    /// <summary>
     ///     The duration of the note. May be modified if the note is ornamented.
     /// </summary>
-    public MusicalTimeSpan Duration { get; set; } = MusicalTimeSpan.Quarter;
+    public MusicalTimeSpan MusicalTimeSpan { get; set; } = MusicalTimeSpan.Quarter;
 
     /// <summary>
     ///     The ornamentation notes that are played with this note.
@@ -49,7 +61,7 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
     public BaroquenNote(BaroquenNote note)
         : this(note.Voice, note.Raw)
     {
-        Duration = note.Duration;
+        MusicalTimeSpan = note.MusicalTimeSpan;
         Ornamentations = note.Ornamentations.Select(ornamentation => new BaroquenNote(ornamentation)).ToList();
         OrnamentationType = note.OrnamentationType;
     }
@@ -59,7 +71,7 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
     /// </summary>
     public void ResetOrnamentation()
     {
-        Duration = MusicalTimeSpan.Quarter;
+        MusicalTimeSpan = MusicalTimeSpan.Quarter;
         Ornamentations.Clear();
         OrnamentationType = OrnamentationType.None;
     }
@@ -83,7 +95,7 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
 
         return Voice == other.Voice &&
                Raw == other.Raw &&
-               Duration == other.Duration &&
+               MusicalTimeSpan == other.MusicalTimeSpan &&
                Ornamentations.SequenceEqual(other.Ornamentations);
     }
 
@@ -130,4 +142,20 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
     /// <param name="otherNote">The second <see cref="BaroquenNote"/> to compare.</param>
     /// <returns>Whether the <see cref="BaroquenNote"/> is not equal to the other <see cref="BaroquenNote"/>.</returns>
     public static bool operator !=(BaroquenNote? note, BaroquenNote? otherNote) => !(note == otherNote);
+
+    /// <summary>
+    ///     Determines if the <see cref="BaroquenNote"/> is greater (higher in pitch) than another <see cref="BaroquenNote"/>.
+    /// </summary>
+    /// <param name="note">The first <see cref="BaroquenNote"/> to compare.</param>
+    /// <param name="otherNote">The second <see cref="BaroquenNote"/> to compare.</param>
+    /// <returns>Whether the <see cref="BaroquenNote"/> is greater (higher in pitch) than the other <see cref="BaroquenNote"/>.</returns>
+    public static bool operator >(BaroquenNote? note, BaroquenNote? otherNote) => note?.Raw.NoteNumber > otherNote?.Raw.NoteNumber;
+
+    /// <summary>
+    ///     Determines if the <see cref="BaroquenNote"/> is less (lower in pitch) than another <see cref="BaroquenNote"/>.
+    /// </summary>
+    /// <param name="note">The first <see cref="BaroquenNote"/> to compare.</param>
+    /// <param name="otherNote">The second <see cref="BaroquenNote"/> to compare.</param>
+    /// <returns>Whether the <see cref="BaroquenNote"/> is less (lower in pitch) than the other <see cref="BaroquenNote"/>.</returns>
+    public static bool operator <(BaroquenNote? note, BaroquenNote? otherNote) => note?.Raw.NoteNumber < otherNote?.Raw.NoteNumber;
 }

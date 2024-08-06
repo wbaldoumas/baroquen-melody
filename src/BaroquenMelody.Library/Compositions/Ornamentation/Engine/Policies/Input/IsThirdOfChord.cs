@@ -13,7 +13,7 @@ internal sealed class IsThirdOfChord(
     public InputPolicyResult ShouldProcess(OrnamentationItem item)
     {
         var chordNumber = chordNumberIdentifier.IdentifyChordNumber(item.CurrentBeat.Chord);
-        var noteName = item.CurrentBeat[item.Voice].Raw.NoteName;
+        var noteName = item.CurrentBeat[item.Voice].NoteName;
 
         return chordNumber switch
         {

@@ -2,6 +2,9 @@
 
 namespace BaroquenMelody.Library.Compositions.Strategies;
 
+/// <summary>
+///     Creates <see cref="ICompositionStrategy"/> instances.
+/// </summary>
 internal interface ICompositionStrategyFactory
 {
     /// <summary>
@@ -9,6 +12,5 @@ internal interface ICompositionStrategyFactory
     /// </summary>
     /// <param name="compositionConfiguration"> The composition configuration. </param>
     /// <returns> A configured composition strategy. </returns>
-    // ReSharper disable once UnusedMemberInSuper.Global
     ICompositionStrategy Create(CompositionConfiguration compositionConfiguration);
 }

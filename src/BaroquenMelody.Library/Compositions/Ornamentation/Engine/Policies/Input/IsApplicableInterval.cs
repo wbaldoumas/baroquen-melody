@@ -3,18 +3,16 @@ using BaroquenMelody.Library.Compositions.Configurations;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 
-internal sealed class IsApplicableInterval(CompositionConfiguration configuration, int Interval) : IInputPolicy<OrnamentationItem>
+internal sealed class IsApplicableInterval(CompositionConfiguration compositionConfiguration, int Interval) : IInputPolicy<OrnamentationItem>
 {
     public InputPolicyResult ShouldProcess(OrnamentationItem item)
     {
         var currentNote = item.CurrentBeat[item.Voice];
         var nextNote = item.NextBeat?[item.Voice];
 
-        var notes = configuration.Scale.GetNotes();
+        var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
+        var nextNoteIndex = compositionConfiguration.Scale.IndexOf(nextNote ?? currentNote);
 
-        var currentNoteScaleIndex = notes.IndexOf(currentNote.Raw);
-        var nextNoteScaleIndex = notes.IndexOf(nextNote?.Raw ?? currentNote.Raw);
-
-        return Math.Abs(nextNoteScaleIndex - currentNoteScaleIndex) == Interval ? InputPolicyResult.Continue : InputPolicyResult.Reject;
+        return Math.Abs(nextNoteIndex - currentNoteIndex) == Interval ? InputPolicyResult.Continue : InputPolicyResult.Reject;
     }
 }

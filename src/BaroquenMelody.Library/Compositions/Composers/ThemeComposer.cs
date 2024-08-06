@@ -49,8 +49,8 @@ internal sealed class ThemeComposer(
         var initialComposition = new Composition(initialMeasures);
 
         var voices = compositionConfiguration.VoiceConfigurations
-            .OrderByDescending(voiceConfiguration => voiceConfiguration.MinNote)
-            .Select(voiceConfiguration => voiceConfiguration.Voice)
+            .OrderByDescending(static voiceConfiguration => voiceConfiguration.MinNote)
+            .Select(static voiceConfiguration => voiceConfiguration.Voice)
             .ToList();
 
         var fugueSubjectVoice = voices[0];
@@ -58,11 +58,11 @@ internal sealed class ThemeComposer(
         compositionDecorator.Decorate(initialComposition, fugueSubjectVoice);
 
         var fugueSubject = initialComposition.Measures
-            .SelectMany(measure => measure.Beats)
+            .SelectMany(static measure => measure.Beats)
             .Select(beat => beat.Chord[fugueSubjectVoice])
             .ToList();
 
-        var workingChords = initialComposition.Measures.SelectMany(measure => measure.Beats.Select(beat => beat.Chord)).ToList();
+        var workingChords = initialComposition.Measures.SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord)).ToList();
 
         workingChords = ContinueFugueSubject(fugueSubject, fugueSubjectVoice, workingChords, voices);
 
@@ -81,7 +81,7 @@ internal sealed class ThemeComposer(
     {
         var initialChord = compositionStrategy.GenerateInitialChord();
         var beats = new List<Beat>(compositionConfiguration.BeatsPerMeasure) { new(initialChord) };
-        var precedingChords = beats.Select(beat => beat.Chord).ToList();
+        var precedingChords = beats.Select(static beat => beat.Chord).ToList();
 
         while (beats.Count < compositionConfiguration.BeatsPerMeasure)
         {
@@ -107,10 +107,9 @@ internal sealed class ThemeComposer(
             var nextChords = new List<BaroquenChord>();
 
             var transposedSubjectChords = noteTransposer.TransposeToVoice(fugueSubject, fugueSubjectVoice, voice)
-                .Select(note => new BaroquenChord([note]))
+                .Select(static note => new BaroquenChord([note]))
                 .ToList();
 
-            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (var transposedSubjectChord in transposedSubjectChords)
             {
                 var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChord], transposedSubjectChord);
@@ -120,7 +119,7 @@ internal sealed class ThemeComposer(
                     return [];
                 }
 
-                var nextChord = possibleChords.OrderBy(_ => ThreadLocalRandom.Next()).First();
+                var nextChord = possibleChords.OrderBy(static _ => ThreadLocalRandom.Next()).First();
                 var transposedSubjectNote = transposedSubjectChord[voice];
                 var otherNotes = nextChord.Notes.Where(note => note.Voice != voice).ToList();
                 var workingChord = new BaroquenChord([.. otherNotes, transposedSubjectNote]);
@@ -129,14 +128,14 @@ internal sealed class ThemeComposer(
                 precedingChord = workingChord;
             }
 
-            var tempComposition = new Composition([new Measure(nextChords.Select(chord => new Beat(chord)).ToList(), compositionConfiguration.Meter)]);
+            var tempComposition = new Composition([new Measure(nextChords.Select(static chord => new Beat(chord)).ToList(), compositionConfiguration.Meter)]);
 
             foreach (var processedVoice in processedVoices)
             {
                 compositionDecorator.Decorate(tempComposition, processedVoice);
             }
 
-            workingChords.AddRange(tempComposition.Measures.SelectMany(measure => measure.Beats.Select(beat => beat.Chord)));
+            workingChords.AddRange(tempComposition.Measures.SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord)));
             processedVoices.Add(voice);
         }
 
@@ -154,8 +153,16 @@ internal sealed class ThemeComposer(
         {
             inProcessVoices.Add(voice);
 
-            var beats = workingChords.Skip(beatIndex).Take(compositionConfiguration.BeatsPerMeasure).Select(chord => new Beat(chord)).ToList();
-            var strippedBeats = beats.Select(beat => new BaroquenChord(beat.Chord.Notes.Where(note => inProcessVoices.Contains(note.Voice)).ToList())).Select(newChord => new Beat(newChord)).ToList();
+            var beats = workingChords
+                .Skip(beatIndex)
+                .Take(compositionConfiguration.BeatsPerMeasure)
+                .Select(static chord => new Beat(chord))
+                .ToList();
+
+            var strippedBeats = beats
+                .Select(beat => new BaroquenChord(beat.Chord.Notes.Where(note => inProcessVoices.Contains(note.Voice)).ToList()))
+                .Select(static newChord => new Beat(newChord))
+                .ToList();
 
             beatIndex += compositionConfiguration.BeatsPerMeasure;
 

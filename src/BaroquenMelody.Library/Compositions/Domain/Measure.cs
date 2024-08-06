@@ -11,7 +11,7 @@ internal sealed record Measure(IList<Beat> Beats, Meter Meter)
 {
     public Measure(Measure measure)
     {
-        Beats = measure.Beats.Select(beat => new Beat(beat)).ToList();
+        Beats = measure.Beats.Select(static beat => new Beat(beat)).ToList();
         Meter = measure.Meter;
     }
 }

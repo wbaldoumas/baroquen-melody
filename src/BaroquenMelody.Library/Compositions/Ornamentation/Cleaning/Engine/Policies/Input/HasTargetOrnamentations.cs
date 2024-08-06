@@ -3,7 +3,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Policies.Input;
 
-internal sealed class NotesContainTargetOrnamentations(OrnamentationType targetOrnamentationType, OrnamentationType otherTargetOrnamentationType) : IInputPolicy<OrnamentationCleaningItem>
+internal sealed class HasTargetOrnamentations(OrnamentationType targetOrnamentationType, OrnamentationType otherTargetOrnamentationType) : IInputPolicy<OrnamentationCleaningItem>
 {
     public InputPolicyResult ShouldProcess(OrnamentationCleaningItem item)
     {

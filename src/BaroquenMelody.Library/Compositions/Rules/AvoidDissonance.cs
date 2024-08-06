@@ -8,8 +8,24 @@ internal sealed class AvoidDissonance : ICompositionRule
 {
     public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
     {
-        var notes = nextChord.Notes.Select(note => note.Raw).DistinctBy(note => note.NoteName).ToList();
+        var notes = nextChord.Notes.DistinctBy(static note => note.NoteName).ToList();
 
-        return notes.TrueForAll(note => notes.TrueForAll(otherNote => !note.IsDissonantWith(otherNote)));
+        foreach (var note in notes)
+        {
+            foreach (var otherNote in notes)
+            {
+                if (note == otherNote)
+                {
+                    continue;
+                }
+
+                if (note.IsDissonantWith(otherNote))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

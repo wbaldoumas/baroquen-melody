@@ -3,49 +3,42 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
-using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 
 internal sealed class ThirtySecondNoteRunProcessor(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
-    CompositionConfiguration configuration
+    CompositionConfiguration compositionConfiguration
 ) : IProcessor<OrnamentationItem>
 {
     public const int Interval = 5;
+
+    private readonly int[] _ornamentationTranslations = [1, 2, 3, 1, 2, 3, 4];
 
     public void Process(OrnamentationItem item)
     {
         var currentNote = item.CurrentBeat[item.Voice];
         var nextNote = item.NextBeat![item.Voice];
 
-        var notes = configuration.Scale.GetNotes();
-
-        var currentNoteIndex = notes.IndexOf(currentNote.Raw);
-        var nextNoteIndex = notes.IndexOf(nextNote.Raw);
+        var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
+        var nextNoteIndex = compositionConfiguration.Scale.IndexOf(nextNote);
 
         var isDescending = currentNoteIndex > nextNoteIndex;
+        var notes = compositionConfiguration.Scale.GetNotes();
 
-        var ornamentationNotes = new List<Note>
-        {
-            notes[isDescending ? currentNoteIndex - 1 : currentNoteIndex + 1],
-            notes[isDescending ? currentNoteIndex - 2 : currentNoteIndex + 2],
-            notes[isDescending ? currentNoteIndex - 3 : currentNoteIndex + 3],
-            notes[isDescending ? currentNoteIndex - 1 : currentNoteIndex + 1],
-            notes[isDescending ? currentNoteIndex - 2 : currentNoteIndex + 2],
-            notes[isDescending ? currentNoteIndex - 3 : currentNoteIndex + 3],
-            notes[isDescending ? currentNoteIndex - 4 : currentNoteIndex + 4]
-        };
+        var ornamentationNotes = _ornamentationTranslations
+            .Select(ornamentationTranslation => isDescending ? currentNoteIndex - ornamentationTranslation : currentNoteIndex + ornamentationTranslation)
+            .Select(index => notes[index]);
 
-        currentNote.Duration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.ThirtySecondNoteRun, configuration.Meter);
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.ThirtySecondNoteRun, compositionConfiguration.Meter);
 
-        var ornamentationDuration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.ThirtySecondNoteRun, configuration.Meter);
+        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.ThirtySecondNoteRun, compositionConfiguration.Meter);
 
         foreach (var note in ornamentationNotes)
         {
             currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, note)
             {
-                Duration = ornamentationDuration
+                MusicalTimeSpan = ornamentationTimeSpan
             });
         }
 
