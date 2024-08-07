@@ -5,6 +5,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Policies.Input;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -28,8 +29,8 @@ internal sealed class HasTargetOrnamentationsTests
     {
         // arrange
         var item = new OrnamentationCleaningItem(
-            new BaroquenNote(Voice.Soprano, Notes.C4) { OrnamentationType = noteOrnamentationType },
-            new BaroquenNote(Voice.Alto, Notes.C3) { OrnamentationType = otherNoteOrnamentationType }
+            new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half) { OrnamentationType = noteOrnamentationType },
+            new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half) { OrnamentationType = otherNoteOrnamentationType }
         );
 
         var policy = new HasTargetOrnamentations(targetOrnamentationType, otherTargetOrnamentationType);

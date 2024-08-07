@@ -6,14 +6,14 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 
-internal sealed class ThirtySecondNoteRunProcessor(
+internal sealed class RunProcessor(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     CompositionConfiguration compositionConfiguration
 ) : IProcessor<OrnamentationItem>
 {
-    public const int Interval = 5;
+    public const int Interval = 4;
 
-    private readonly int[] _ornamentationTranslations = [1, 2, 3, 1, 2, 3, 4];
+    private readonly int[] _ornamentationTranslations = [1, 2, 3];
 
     public void Process(OrnamentationItem item)
     {
@@ -30,18 +30,15 @@ internal sealed class ThirtySecondNoteRunProcessor(
             .Select(ornamentationTranslation => isDescending ? currentNoteIndex - ornamentationTranslation : currentNoteIndex + ornamentationTranslation)
             .Select(index => notes[index]);
 
-        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.ThirtySecondNoteRun, compositionConfiguration.Meter);
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Run, compositionConfiguration.Meter);
 
-        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.ThirtySecondNoteRun, compositionConfiguration.Meter);
+        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Run, compositionConfiguration.Meter);
 
         foreach (var note in ornamentationNotes)
         {
-            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, note)
-            {
-                MusicalTimeSpan = ornamentationTimeSpan
-            });
+            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, note, ornamentationTimeSpan));
         }
 
-        currentNote.OrnamentationType = OrnamentationType.ThirtySecondNoteRun;
+        currentNote.OrnamentationType = OrnamentationType.Run;
     }
 }

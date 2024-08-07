@@ -3,9 +3,11 @@ using BaroquenMelody.Library.Compositions.Composers;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Infrastructure.Exceptions;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -41,7 +43,7 @@ internal sealed class ChordComposerTests
             CompositionLength: 100
         );
 
-        _chordComposer = new ChordComposer(_mockCompositionStrategy, _compositionConfiguration, _mockLogger);
+        _chordComposer = new ChordComposer(_mockCompositionStrategy, new MusicalTimeSpanCalculator(), _compositionConfiguration, _mockLogger);
     }
 
     [Test]
@@ -66,21 +68,21 @@ internal sealed class ChordComposerTests
         {
             new(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ])
         };
 
         var expectedChordA = new BaroquenChord(
         [
-            new BaroquenNote(Voice.Soprano, Notes.D5),
-            new BaroquenNote(Voice.Alto, Notes.G2)
+            new BaroquenNote(Voice.Soprano, Notes.D5, MusicalTimeSpan.Half),
+            new BaroquenNote(Voice.Alto, Notes.G2, MusicalTimeSpan.Half)
         ]);
 
         var expectedChordB = new BaroquenChord(
         [
-            new BaroquenNote(Voice.Soprano, Notes.E4),
-            new BaroquenNote(Voice.Alto, Notes.F3)
+            new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half),
+            new BaroquenNote(Voice.Alto, Notes.F3, MusicalTimeSpan.Half)
         ]);
 
         // act
@@ -101,8 +103,8 @@ internal sealed class ChordComposerTests
         {
             new(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ])
         };
 

@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Enums.Extensions;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -23,32 +24,32 @@ internal sealed class NoteMotionExtensionsTests
         get
         {
             yield return new TestCaseData(
-                new BaroquenNote(Voice.Soprano, Notes.C4),
-                new BaroquenNote(Voice.Soprano, Notes.B3),
+                new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Soprano, Notes.B3, MusicalTimeSpan.Half),
                 NoteMotion.Descending
             );
 
             yield return new TestCaseData(
-                new BaroquenNote(Voice.Soprano, Notes.C4),
-                new BaroquenNote(Voice.Soprano, Notes.C4),
+                new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
                 NoteMotion.Oblique
             );
 
             yield return new TestCaseData(
-                new BaroquenNote(Voice.Soprano, Notes.C4),
-                new BaroquenNote(Voice.Soprano, Notes.CSharp4),
+                new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Soprano, Notes.CSharp4, MusicalTimeSpan.Half),
                 NoteMotion.Ascending
             );
 
             yield return new TestCaseData(
-                new BaroquenNote(Voice.Soprano, Notes.C4),
-                new BaroquenNote(Voice.Soprano, Notes.C5),
+                new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Soprano, Notes.C5, MusicalTimeSpan.Half),
                 NoteMotion.Ascending
             );
 
             yield return new TestCaseData(
-                new BaroquenNote(Voice.Soprano, Notes.C4),
-                new BaroquenNote(Voice.Soprano, Notes.C3),
+                new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Soprano, Notes.C3, MusicalTimeSpan.Half),
                 NoteMotion.Descending
             );
         }

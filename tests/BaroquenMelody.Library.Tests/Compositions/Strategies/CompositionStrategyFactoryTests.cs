@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Strategies;
 using FluentAssertions;
@@ -19,6 +20,8 @@ internal sealed class CompositionStrategyFactoryTests
 
     private ICompositionRule _mockCompositionRule = null!;
 
+    private IMusicalTimeSpanCalculator _mockMusicalTimeSpanCalculator = null!;
+
     private ILogger _mockLogger = null!;
 
     private CompositionStrategyFactory _compositionStrategyFactory = null!;
@@ -28,9 +31,10 @@ internal sealed class CompositionStrategyFactoryTests
     {
         _mockChordChoiceRepositoryFactory = Substitute.For<IChordChoiceRepositoryFactory>();
         _mockCompositionRule = Substitute.For<ICompositionRule>();
+        _mockMusicalTimeSpanCalculator = Substitute.For<IMusicalTimeSpanCalculator>();
         _mockLogger = Substitute.For<ILogger>();
 
-        _compositionStrategyFactory = new CompositionStrategyFactory(_mockChordChoiceRepositoryFactory, _mockCompositionRule, _mockLogger);
+        _compositionStrategyFactory = new CompositionStrategyFactory(_mockChordChoiceRepositoryFactory, _mockCompositionRule, _mockMusicalTimeSpanCalculator, _mockLogger);
     }
 
     [Test]

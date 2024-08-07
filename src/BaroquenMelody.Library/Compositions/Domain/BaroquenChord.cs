@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Enums;
+using Melanchall.DryWetMidi.Interaction;
 using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Compositions.Domain;
@@ -29,11 +30,12 @@ internal sealed class BaroquenChord(List<BaroquenNote> notes) : IEquatable<Baroq
     /// <summary>
     ///     Resets the ornamentation of the notes in the <see cref="BaroquenChord"/>.
     /// </summary>
-    public void ResetOrnamentation()
+    /// <param name="defaultTimeSpan">The default time span to reset the ornamentation to.</param>
+    public void ResetOrnamentation(MusicalTimeSpan defaultTimeSpan)
     {
         foreach (var note in Notes)
         {
-            note.ResetOrnamentation();
+            note.ResetOrnamentation(defaultTimeSpan);
         }
     }
 

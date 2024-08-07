@@ -3,19 +3,22 @@ using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Cleaning.Engine.Processors;
 
 [TestFixture]
-internal sealed class EighthSixteenthNoteOrnamentationCleanerTests
+internal sealed class QuarterEighthNoteOrnamentationCleanerTests
 {
-    private EighthSixteenthNoteOrnamentationCleaner _cleaner = null!;
+    private QuarterEighthNoteOrnamentationCleaner _cleaner = null!;
 
     [SetUp]
-    public void SetUp() => _cleaner = new EighthSixteenthNoteOrnamentationCleaner();
+    public void SetUp() => _cleaner = new QuarterEighthNoteOrnamentationCleaner(new MusicalTimeSpanCalculator(), Configurations.CompositionConfiguration);
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
@@ -36,15 +39,15 @@ internal sealed class EighthSixteenthNoteOrnamentationCleanerTests
     {
         get
         {
-            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4);
-            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4);
-            var sopranoE4 = new BaroquenNote(Voice.Soprano, Notes.E4);
+            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half);
+            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half);
+            var sopranoE4 = new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half);
 
-            var altoG3 = new BaroquenNote(Voice.Alto, Notes.G3);
-            var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3);
-            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3);
-            var altoD3 = new BaroquenNote(Voice.Alto, Notes.D3);
-            var altoC3 = new BaroquenNote(Voice.Alto, Notes.C3);
+            var altoG3 = new BaroquenNote(Voice.Alto, Notes.G3, MusicalTimeSpan.Half);
+            var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3, MusicalTimeSpan.Half);
+            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half);
+            var altoD3 = new BaroquenNote(Voice.Alto, Notes.D3, MusicalTimeSpan.Half);
+            var altoC3 = new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half);
 
             var sopranoC4WithAscendingPassingTone = new BaroquenNote(sopranoC4)
             {
@@ -65,9 +68,9 @@ internal sealed class EighthSixteenthNoteOrnamentationCleanerTests
                 }
             };
 
-            var altoG3WithDescendingSixteenthNotes = new BaroquenNote(altoG3)
+            var altoG3WithDescendingRun = new BaroquenNote(altoG3)
             {
-                OrnamentationType = OrnamentationType.SixteenthNoteRun,
+                OrnamentationType = OrnamentationType.Run,
                 Ornamentations =
                 {
                     new BaroquenNote(altoF3),
@@ -76,9 +79,9 @@ internal sealed class EighthSixteenthNoteOrnamentationCleanerTests
                 }
             };
 
-            var altoF3WithDescendingSixteenthNotes = new BaroquenNote(altoF3)
+            var altoF3WithDescendingRun = new BaroquenNote(altoF3)
             {
-                OrnamentationType = OrnamentationType.SixteenthNoteRun,
+                OrnamentationType = OrnamentationType.Run,
                 Ornamentations =
                 {
                     new BaroquenNote(altoE3),
@@ -89,37 +92,37 @@ internal sealed class EighthSixteenthNoteOrnamentationCleanerTests
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoC4WithAscendingPassingTone),
-                new BaroquenNote(altoG3WithDescendingSixteenthNotes),
+                new BaroquenNote(altoG3WithDescendingRun),
                 new BaroquenNote(sopranoC4),
-                new BaroquenNote(altoG3WithDescendingSixteenthNotes)
+                new BaroquenNote(altoG3WithDescendingRun)
             ).SetName("When soprano has ascending passing tone and alto has descending sixteenth notes, then passing tone is cleaned.");
 
             yield return new TestCaseData(
-                new BaroquenNote(altoG3WithDescendingSixteenthNotes),
+                new BaroquenNote(altoG3WithDescendingRun),
                 new BaroquenNote(sopranoC4WithAscendingPassingTone),
-                new BaroquenNote(altoG3WithDescendingSixteenthNotes),
+                new BaroquenNote(altoG3WithDescendingRun),
                 new BaroquenNote(sopranoC4)
             ).SetName("When soprano has ascending passing tone and alto has descending sixteenth notes, then passing tone is cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoC4WithAscendingDoublePassingTone),
-                new BaroquenNote(altoG3WithDescendingSixteenthNotes),
+                new BaroquenNote(altoG3WithDescendingRun),
                 new BaroquenNote(sopranoC4),
-                new BaroquenNote(altoG3WithDescendingSixteenthNotes)
+                new BaroquenNote(altoG3WithDescendingRun)
             ).SetName("When soprano has ascending double passing tone and alto has descending sixteenth notes, then passing tone is cleaned.");
 
             yield return new TestCaseData(
-                new BaroquenNote(altoG3WithDescendingSixteenthNotes),
+                new BaroquenNote(altoG3WithDescendingRun),
                 new BaroquenNote(sopranoC4WithAscendingDoublePassingTone),
-                new BaroquenNote(altoG3WithDescendingSixteenthNotes),
+                new BaroquenNote(altoG3WithDescendingRun),
                 new BaroquenNote(sopranoC4)
             ).SetName("When soprano has ascending double passing tone and alto has descending sixteenth notes, then passing tone is cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoC4WithAscendingPassingTone),
-                new BaroquenNote(altoF3WithDescendingSixteenthNotes),
+                new BaroquenNote(altoF3WithDescendingRun),
                 new BaroquenNote(sopranoC4WithAscendingPassingTone),
-                new BaroquenNote(altoF3WithDescendingSixteenthNotes)
+                new BaroquenNote(altoF3WithDescendingRun)
             ).SetName("When passing tone and sixteenth notes don't conflict, then nothing is cleaned.");
         }
     }

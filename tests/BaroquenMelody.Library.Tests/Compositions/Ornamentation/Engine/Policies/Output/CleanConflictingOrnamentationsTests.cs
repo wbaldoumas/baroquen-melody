@@ -6,6 +6,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Output;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Infrastructure.Collections;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
@@ -30,17 +31,17 @@ internal sealed class CleanConflictingOrnamentationsTests
     public void Apply_Invokes_Expected_Components_Expected_Number_Of_Times()
     {
         // arrange
-        var sopranoC4WithPassingTone = new BaroquenNote(Voice.Soprano, Notes.C4)
+        var sopranoC4WithPassingTone = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.PassingTone,
-            Ornamentations = { new BaroquenNote(Voice.Soprano, Notes.D4) }
+            Ornamentations = { new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half) }
         };
 
-        var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3);
+        var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3, MusicalTimeSpan.Half);
 
-        var tenorA2 = new BaroquenNote(Voice.Tenor, Notes.A2);
+        var tenorA2 = new BaroquenNote(Voice.Tenor, Notes.A2, MusicalTimeSpan.Half);
 
-        var bassF1 = new BaroquenNote(Voice.Bass, Notes.F1);
+        var bassF1 = new BaroquenNote(Voice.Bass, Notes.F1, MusicalTimeSpan.Half);
 
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,

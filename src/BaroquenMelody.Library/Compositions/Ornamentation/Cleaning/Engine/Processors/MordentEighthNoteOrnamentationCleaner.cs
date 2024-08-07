@@ -1,10 +1,15 @@
 ﻿using Atrea.PolicyEngine.Processors;
+using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 
-internal sealed class MordentSixteenthNoteOrnamentationCleaner : IProcessor<OrnamentationCleaningItem>
+internal sealed class MordentEighthNoteOrnamentationCleaner(
+    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
+    CompositionConfiguration compositionConfiguration
+) : IProcessor<OrnamentationCleaningItem>
 {
     private const int IndexToCheck = 1;
 
@@ -15,13 +20,15 @@ internal sealed class MordentSixteenthNoteOrnamentationCleaner : IProcessor<Orna
             return;
         }
 
+        var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
+
         if (item.Note.OrnamentationType == OrnamentationType.Mordent)
         {
-            item.Note.ResetOrnamentation();
+            item.Note.ResetOrnamentation(defaultTimeSpan);
         }
         else
         {
-            item.OtherNote.ResetOrnamentation();
+            item.OtherNote.ResetOrnamentation(defaultTimeSpan);
         }
     }
 }

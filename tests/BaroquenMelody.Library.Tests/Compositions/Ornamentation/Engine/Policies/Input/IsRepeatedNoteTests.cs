@@ -5,6 +5,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -37,8 +38,8 @@ internal sealed class IsRepeatedNoteTests
                 new OrnamentationItem(
                     Voice.Soprano,
                     new FixedSizeList<Beat>(1),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)]))
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))
                 ),
                 InputPolicyResult.Continue
             ).SetName("When notes are repeated, policy continues.");
@@ -47,8 +48,8 @@ internal sealed class IsRepeatedNoteTests
                 new OrnamentationItem(
                     Voice.Soprano,
                     new FixedSizeList<Beat>(1),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.D4)]))
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half)]))
                 ),
                 InputPolicyResult.Reject
             ).SetName("When notes are not repeated, policy rejects.");
@@ -57,8 +58,8 @@ internal sealed class IsRepeatedNoteTests
                 new OrnamentationItem(
                     Voice.Tenor,
                     new FixedSizeList<Beat>(1),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.D4)]))
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half)]))
                 ),
                 InputPolicyResult.Reject
             ).SetName("When voice is not present, policy rejects.");
@@ -67,7 +68,7 @@ internal sealed class IsRepeatedNoteTests
                 new OrnamentationItem(
                     Voice.Soprano,
                     new FixedSizeList<Beat>(1),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
                     null
                 ),
                 InputPolicyResult.Reject

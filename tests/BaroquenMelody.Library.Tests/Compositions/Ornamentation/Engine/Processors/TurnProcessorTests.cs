@@ -42,8 +42,8 @@ internal sealed class TurnProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -59,11 +59,11 @@ internal sealed class TurnProcessorTests
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.C4);
         noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.D4);
 
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
 
         foreach (var baroquenNote in noteToAssert.Ornamentations)
         {
-            baroquenNote.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+            baroquenNote.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
         }
     }
 
@@ -74,8 +74,8 @@ internal sealed class TurnProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A3)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A3, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -91,11 +91,11 @@ internal sealed class TurnProcessorTests
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.C4);
         noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.B3);
 
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
 
         foreach (var baroquenNote in noteToAssert.Ornamentations)
         {
-            baroquenNote.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+            baroquenNote.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
         }
     }
 }

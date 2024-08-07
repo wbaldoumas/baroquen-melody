@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -42,12 +43,12 @@ internal sealed class EnsureVoiceRangeTests
         get
         {
             yield return new TestCaseData(
-                new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C3)]),
+                new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C3, MusicalTimeSpan.Half)]),
                 true
             ).SetName("Soprano note is in range.");
 
             yield return new TestCaseData(
-                new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.B2)]),
+                new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.B2, MusicalTimeSpan.Half)]),
                 false
             ).SetName("Soprano note is out of range.");
         }

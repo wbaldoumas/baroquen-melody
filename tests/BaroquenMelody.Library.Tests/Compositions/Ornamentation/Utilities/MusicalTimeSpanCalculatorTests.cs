@@ -84,47 +84,47 @@ internal sealed class MusicalTimeSpanCalculatorTests
     {
         get
         {
-            yield return new TestCaseData(OrnamentationType.None, Meter.FourFour, MusicalTimeSpan.Quarter);
+            yield return new TestCaseData(OrnamentationType.None, Meter.FourFour, MusicalTimeSpan.Half);
 
-            yield return new TestCaseData(OrnamentationType.PassingTone, Meter.FourFour, MusicalTimeSpan.Eighth);
+            yield return new TestCaseData(OrnamentationType.PassingTone, Meter.FourFour, MusicalTimeSpan.Quarter);
 
-            yield return new TestCaseData(OrnamentationType.SixteenthNoteRun, Meter.FourFour, MusicalTimeSpan.Sixteenth);
+            yield return new TestCaseData(OrnamentationType.Run, Meter.FourFour, MusicalTimeSpan.Eighth);
 
-            yield return new TestCaseData(OrnamentationType.DelayedPassingTone, Meter.FourFour, MusicalTimeSpan.Eighth.Dotted(1));
+            yield return new TestCaseData(OrnamentationType.DelayedPassingTone, Meter.FourFour, MusicalTimeSpan.Quarter.Dotted(1));
 
-            yield return new TestCaseData(OrnamentationType.Turn, Meter.FourFour, MusicalTimeSpan.Sixteenth);
+            yield return new TestCaseData(OrnamentationType.Turn, Meter.FourFour, MusicalTimeSpan.Eighth);
 
-            yield return new TestCaseData(OrnamentationType.AlternateTurn, Meter.FourFour, MusicalTimeSpan.Sixteenth);
+            yield return new TestCaseData(OrnamentationType.AlternateTurn, Meter.FourFour, MusicalTimeSpan.Eighth);
 
-            yield return new TestCaseData(OrnamentationType.Sustain, Meter.FourFour, MusicalTimeSpan.Half);
+            yield return new TestCaseData(OrnamentationType.Sustain, Meter.FourFour, MusicalTimeSpan.Whole);
 
             yield return new TestCaseData(OrnamentationType.MidSustain, Meter.FourFour, new MusicalTimeSpan());
 
-            yield return new TestCaseData(OrnamentationType.DoubleTurn, Meter.FourFour, MusicalTimeSpan.ThirtySecond);
+            yield return new TestCaseData(OrnamentationType.DoubleTurn, Meter.FourFour, MusicalTimeSpan.Sixteenth);
 
-            yield return new TestCaseData(OrnamentationType.DelayedThirtySecondNoteRun, Meter.FourFour, MusicalTimeSpan.Eighth);
+            yield return new TestCaseData(OrnamentationType.DelayedRun, Meter.FourFour, MusicalTimeSpan.Quarter);
 
-            yield return new TestCaseData(OrnamentationType.DoublePassingTone, Meter.FourFour, MusicalTimeSpan.Eighth);
+            yield return new TestCaseData(OrnamentationType.DoublePassingTone, Meter.FourFour, MusicalTimeSpan.Quarter);
 
-            yield return new TestCaseData(OrnamentationType.DelayedDoublePassingTone, Meter.FourFour, MusicalTimeSpan.Eighth.Dotted(1));
+            yield return new TestCaseData(OrnamentationType.DelayedDoublePassingTone, Meter.FourFour, MusicalTimeSpan.Quarter.Dotted(1));
 
-            yield return new TestCaseData(OrnamentationType.DecorateInterval, Meter.FourFour, MusicalTimeSpan.Sixteenth);
+            yield return new TestCaseData(OrnamentationType.DecorateInterval, Meter.FourFour, MusicalTimeSpan.Eighth);
 
-            yield return new TestCaseData(OrnamentationType.ThirtySecondNoteRun, Meter.FourFour, MusicalTimeSpan.ThirtySecond);
+            yield return new TestCaseData(OrnamentationType.DoubleRun, Meter.FourFour, MusicalTimeSpan.Sixteenth);
 
-            yield return new TestCaseData(OrnamentationType.Pedal, Meter.FourFour, MusicalTimeSpan.Sixteenth);
+            yield return new TestCaseData(OrnamentationType.Pedal, Meter.FourFour, MusicalTimeSpan.Eighth);
 
-            yield return new TestCaseData(OrnamentationType.Mordent, Meter.FourFour, MusicalTimeSpan.ThirtySecond);
+            yield return new TestCaseData(OrnamentationType.Mordent, Meter.FourFour, MusicalTimeSpan.Sixteenth);
 
             yield return new TestCaseData(OrnamentationType.Rest, Meter.FourFour, new MusicalTimeSpan());
 
-            yield return new TestCaseData(OrnamentationType.RepeatedEighthNote, Meter.FourFour, MusicalTimeSpan.Eighth);
+            yield return new TestCaseData(OrnamentationType.RepeatedNote, Meter.FourFour, MusicalTimeSpan.Quarter);
 
-            yield return new TestCaseData(OrnamentationType.RepeatedDottedEighthSixteenth, Meter.FourFour, MusicalTimeSpan.Eighth.Dotted(1));
+            yield return new TestCaseData(OrnamentationType.DelayedRepeatedNote, Meter.FourFour, MusicalTimeSpan.Quarter.Dotted(1));
 
-            yield return new TestCaseData(OrnamentationType.NeighborTone, Meter.FourFour, MusicalTimeSpan.Eighth);
+            yield return new TestCaseData(OrnamentationType.NeighborTone, Meter.FourFour, MusicalTimeSpan.Quarter);
 
-            yield return new TestCaseData(OrnamentationType.DelayedNeighborTone, Meter.FourFour, MusicalTimeSpan.Eighth.Dotted(1));
+            yield return new TestCaseData(OrnamentationType.DelayedNeighborTone, Meter.FourFour, MusicalTimeSpan.Quarter.Dotted(1));
         }
     }
 
@@ -132,45 +132,45 @@ internal sealed class MusicalTimeSpanCalculatorTests
     {
         get
         {
-            yield return new TestCaseData(OrnamentationType.PassingTone, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
+            yield return new TestCaseData(OrnamentationType.PassingTone, Meter.FourFour, MusicalTimeSpan.Quarter, 1);
 
-            yield return new TestCaseData(OrnamentationType.SixteenthNoteRun, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
+            yield return new TestCaseData(OrnamentationType.Run, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
 
-            yield return new TestCaseData(OrnamentationType.DelayedPassingTone, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
+            yield return new TestCaseData(OrnamentationType.DelayedPassingTone, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
 
-            yield return new TestCaseData(OrnamentationType.Turn, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
+            yield return new TestCaseData(OrnamentationType.Turn, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
 
-            yield return new TestCaseData(OrnamentationType.AlternateTurn, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
+            yield return new TestCaseData(OrnamentationType.AlternateTurn, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
 
             yield return new TestCaseData(OrnamentationType.MidSustain, Meter.FourFour, new MusicalTimeSpan(), 1);
 
-            yield return new TestCaseData(OrnamentationType.DoubleTurn, Meter.FourFour, MusicalTimeSpan.ThirtySecond, 1);
+            yield return new TestCaseData(OrnamentationType.DoubleTurn, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
 
-            yield return new TestCaseData(OrnamentationType.DelayedThirtySecondNoteRun, Meter.FourFour, MusicalTimeSpan.ThirtySecond, 1);
+            yield return new TestCaseData(OrnamentationType.DelayedRun, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
 
-            yield return new TestCaseData(OrnamentationType.DoublePassingTone, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
+            yield return new TestCaseData(OrnamentationType.DoublePassingTone, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
 
-            yield return new TestCaseData(OrnamentationType.DelayedDoublePassingTone, Meter.FourFour, MusicalTimeSpan.ThirtySecond, 1);
+            yield return new TestCaseData(OrnamentationType.DelayedDoublePassingTone, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
 
-            yield return new TestCaseData(OrnamentationType.DecorateInterval, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
+            yield return new TestCaseData(OrnamentationType.DecorateInterval, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
 
-            yield return new TestCaseData(OrnamentationType.ThirtySecondNoteRun, Meter.FourFour, MusicalTimeSpan.ThirtySecond, 1);
+            yield return new TestCaseData(OrnamentationType.DoubleRun, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
 
-            yield return new TestCaseData(OrnamentationType.Pedal, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
+            yield return new TestCaseData(OrnamentationType.Pedal, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
 
-            yield return new TestCaseData(OrnamentationType.Mordent, Meter.FourFour, MusicalTimeSpan.ThirtySecond, 1);
+            yield return new TestCaseData(OrnamentationType.Mordent, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
 
-            yield return new TestCaseData(OrnamentationType.Mordent, Meter.FourFour, MusicalTimeSpan.Eighth.Dotted(1), 2);
+            yield return new TestCaseData(OrnamentationType.Mordent, Meter.FourFour, MusicalTimeSpan.Quarter.Dotted(1), 2);
 
             yield return new TestCaseData(OrnamentationType.Rest, Meter.FourFour, new MusicalTimeSpan(), 1);
 
-            yield return new TestCaseData(OrnamentationType.RepeatedEighthNote, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
+            yield return new TestCaseData(OrnamentationType.RepeatedNote, Meter.FourFour, MusicalTimeSpan.Quarter, 1);
 
-            yield return new TestCaseData(OrnamentationType.RepeatedDottedEighthSixteenth, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
+            yield return new TestCaseData(OrnamentationType.DelayedRepeatedNote, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
 
-            yield return new TestCaseData(OrnamentationType.NeighborTone, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
+            yield return new TestCaseData(OrnamentationType.NeighborTone, Meter.FourFour, MusicalTimeSpan.Quarter, 1);
 
-            yield return new TestCaseData(OrnamentationType.DelayedNeighborTone, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
+            yield return new TestCaseData(OrnamentationType.DelayedNeighborTone, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
         }
     }
 }

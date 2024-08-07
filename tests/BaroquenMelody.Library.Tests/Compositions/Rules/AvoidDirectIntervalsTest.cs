@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 using Interval = BaroquenMelody.Library.Compositions.MusicTheory.Enums.Interval;
@@ -31,12 +32,12 @@ internal sealed class AvoidDirectIntervalsTest
     {
         get
         {
-            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4);
-            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4);
+            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half);
+            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half);
 
-            var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3);
-            var altoA3 = new BaroquenNote(Voice.Alto, Notes.A3);
-            var altoA2 = new BaroquenNote(Voice.Alto, Notes.A2);
+            var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3, MusicalTimeSpan.Half);
+            var altoA3 = new BaroquenNote(Voice.Alto, Notes.A3, MusicalTimeSpan.Half);
+            var altoA2 = new BaroquenNote(Voice.Alto, Notes.A2, MusicalTimeSpan.Half);
 
             yield return new TestCaseData(
                 new List<BaroquenChord>(),

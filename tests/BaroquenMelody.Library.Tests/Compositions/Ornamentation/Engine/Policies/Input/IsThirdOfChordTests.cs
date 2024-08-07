@@ -7,6 +7,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -52,45 +53,45 @@ internal sealed class IsThirdOfChordTests
     {
         get
         {
-            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4);
-            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3);
-            var tenorG2 = new BaroquenNote(Voice.Tenor, Notes.G2);
+            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half);
+            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half);
+            var tenorG2 = new BaroquenNote(Voice.Tenor, Notes.G2, MusicalTimeSpan.Half);
 
             var i = new BaroquenChord([sopranoC4, altoE3, tenorG2]);
 
-            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4);
-            var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3);
-            var tenorA2 = new BaroquenNote(Voice.Tenor, Notes.A2);
+            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half);
+            var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3, MusicalTimeSpan.Half);
+            var tenorA2 = new BaroquenNote(Voice.Tenor, Notes.A2, MusicalTimeSpan.Half);
 
             var ii = new BaroquenChord([sopranoD4, altoF3, tenorA2]);
 
-            var sopranoE4 = new BaroquenNote(Voice.Soprano, Notes.E4);
-            var altoG3 = new BaroquenNote(Voice.Alto, Notes.G3);
-            var tenorB2 = new BaroquenNote(Voice.Tenor, Notes.B2);
+            var sopranoE4 = new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half);
+            var altoG3 = new BaroquenNote(Voice.Alto, Notes.G3, MusicalTimeSpan.Half);
+            var tenorB2 = new BaroquenNote(Voice.Tenor, Notes.B2, MusicalTimeSpan.Half);
 
             var iii = new BaroquenChord([sopranoE4, altoG3, tenorB2]);
 
-            var sopranoF4 = new BaroquenNote(Voice.Soprano, Notes.F4);
-            var altoA3 = new BaroquenNote(Voice.Alto, Notes.A3);
-            var tenorC3 = new BaroquenNote(Voice.Tenor, Notes.C3);
+            var sopranoF4 = new BaroquenNote(Voice.Soprano, Notes.F4, MusicalTimeSpan.Half);
+            var altoA3 = new BaroquenNote(Voice.Alto, Notes.A3, MusicalTimeSpan.Half);
+            var tenorC3 = new BaroquenNote(Voice.Tenor, Notes.C3, MusicalTimeSpan.Half);
 
             var iv = new BaroquenChord([sopranoF4, altoA3, tenorC3]);
 
-            var sopranoG4 = new BaroquenNote(Voice.Soprano, Notes.G4);
-            var altoB3 = new BaroquenNote(Voice.Alto, Notes.B3);
-            var tenorD3 = new BaroquenNote(Voice.Tenor, Notes.D3);
+            var sopranoG4 = new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half);
+            var altoB3 = new BaroquenNote(Voice.Alto, Notes.B3, MusicalTimeSpan.Half);
+            var tenorD3 = new BaroquenNote(Voice.Tenor, Notes.D3, MusicalTimeSpan.Half);
 
             var v = new BaroquenChord([sopranoG4, altoB3, tenorD3]);
 
-            var sopranoA4 = new BaroquenNote(Voice.Soprano, Notes.A4);
-            var altoC4 = new BaroquenNote(Voice.Alto, Notes.C4);
-            var tenorE3 = new BaroquenNote(Voice.Tenor, Notes.E3);
+            var sopranoA4 = new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half);
+            var altoC4 = new BaroquenNote(Voice.Alto, Notes.C4, MusicalTimeSpan.Half);
+            var tenorE3 = new BaroquenNote(Voice.Tenor, Notes.E3, MusicalTimeSpan.Half);
 
             var vi = new BaroquenChord([sopranoA4, altoC4, tenorE3]);
 
-            var sopranoB4 = new BaroquenNote(Voice.Soprano, Notes.B4);
-            var altoD4 = new BaroquenNote(Voice.Alto, Notes.D4);
-            var tenorF3 = new BaroquenNote(Voice.Tenor, Notes.F3);
+            var sopranoB4 = new BaroquenNote(Voice.Soprano, Notes.B4, MusicalTimeSpan.Half);
+            var altoD4 = new BaroquenNote(Voice.Alto, Notes.D4, MusicalTimeSpan.Half);
+            var tenorF3 = new BaroquenNote(Voice.Tenor, Notes.F3, MusicalTimeSpan.Half);
 
             var vii = new BaroquenChord([sopranoB4, altoD4, tenorF3]);
 

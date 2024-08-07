@@ -3,9 +3,11 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Strategies;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -39,6 +41,8 @@ internal sealed class CompositionStrategyTests
 
     private ICompositionRule _mockCompositionRule = default!;
 
+    private IMusicalTimeSpanCalculator _mockMusicalTimeSpanCalculator = default!;
+
     private ILogger _mockLogger = default!;
 
     private CompositionStrategy _compositionStrategy = default!;
@@ -50,6 +54,7 @@ internal sealed class CompositionStrategyTests
     {
         _mockChordChoiceRepository = Substitute.For<IChordChoiceRepository>();
         _mockCompositionRule = Substitute.For<ICompositionRule>();
+        _mockMusicalTimeSpanCalculator = Substitute.For<IMusicalTimeSpanCalculator>();
         _mockLogger = Substitute.For<ILogger>();
 
         _mockChordChoiceRepository.Count.Returns(MockChordChoiceCount);
@@ -70,6 +75,7 @@ internal sealed class CompositionStrategyTests
         _compositionStrategy = new CompositionStrategy(
             _mockChordChoiceRepository,
             _mockCompositionRule,
+            _mockMusicalTimeSpanCalculator,
             _mockLogger,
             _compositionConfiguration
         );
@@ -108,10 +114,10 @@ internal sealed class CompositionStrategyTests
         var precedingChords = new List<BaroquenChord>
         {
             new([
-                new BaroquenNote(Voice.Soprano, Notes.C4),
-                new BaroquenNote(Voice.Alto, Notes.E3),
-                new BaroquenNote(Voice.Tenor, Notes.G2),
-                new BaroquenNote(Voice.Bass, Notes.C2)
+                new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Tenor, Notes.G2, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Bass, Notes.C2, MusicalTimeSpan.Half)
             ])
         };
 
@@ -214,18 +220,18 @@ internal sealed class CompositionStrategyTests
         var precedingChords = new List<BaroquenChord>
         {
             new([
-                new BaroquenNote(Voice.Soprano, Notes.C4),
-                new BaroquenNote(Voice.Alto, Notes.E3),
-                new BaroquenNote(Voice.Tenor, Notes.G2),
-                new BaroquenNote(Voice.Bass, Notes.C2)
+                new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Tenor, Notes.G2, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Bass, Notes.C2, MusicalTimeSpan.Half)
             ])
         };
 
         var nextChord = new BaroquenChord([
-                new BaroquenNote(Voice.Soprano, Notes.C4),
-                new BaroquenNote(Voice.Alto, Notes.E3),
-                new BaroquenNote(Voice.Tenor, Notes.G2),
-                new BaroquenNote(Voice.Bass, Notes.C2)
+                new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Tenor, Notes.G2, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Bass, Notes.C2, MusicalTimeSpan.Half)
             ]
         );
 

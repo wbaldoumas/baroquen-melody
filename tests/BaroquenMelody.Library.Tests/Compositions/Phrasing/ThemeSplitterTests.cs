@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -30,19 +31,19 @@ internal sealed class ThemeSplitterTests
     {
         get
         {
-            var chordA = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)]);
+            var chordA = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]);
             var beatA = new Beat(chordA);
             var measureA = new Measure([beatA], Meter.FourFour);
 
-            var chordB = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.D4)]);
+            var chordB = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half)]);
             var beatB = new Beat(chordB);
             var measureB = new Measure([beatB], Meter.FourFour);
 
-            var chordC = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4)]);
+            var chordC = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)]);
             var beatC = new Beat(chordC);
             var measureC = new Measure([beatC], Meter.FourFour);
 
-            var chordD = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F4)]);
+            var chordD = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F4, MusicalTimeSpan.Half)]);
             var beatD = new Beat(chordD);
             var measureD = new Measure([beatD], Meter.FourFour);
 

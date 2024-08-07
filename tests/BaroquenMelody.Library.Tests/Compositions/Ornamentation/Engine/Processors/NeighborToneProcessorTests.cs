@@ -52,8 +52,8 @@ internal sealed class NeighborToneProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
         _mockMusicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Eighth.Dotted(1));
@@ -80,8 +80,8 @@ internal sealed class NeighborToneProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
         _mockMusicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Eighth.Dotted(1));

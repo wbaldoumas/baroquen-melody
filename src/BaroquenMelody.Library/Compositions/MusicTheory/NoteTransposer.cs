@@ -26,10 +26,9 @@ internal sealed class NoteTransposer(CompositionConfiguration compositionConfigu
             var noteToTransposeNoteIndex = notes.IndexOf(noteToTranspose.Raw);
             var transposedNoteIndex = Transpose(currentVoiceMinNoteIndex, currentVoiceMaxNoteIndex, targetVoiceMinNoteIndex, targetVoiceMaxNoteIndex, noteToTransposeNoteIndex);
 
-            var transposedNote = new BaroquenNote(targetVoice, notes[transposedNoteIndex])
+            var transposedNote = new BaroquenNote(targetVoice, notes[transposedNoteIndex], noteToTranspose.MusicalTimeSpan)
             {
-                OrnamentationType = noteToTranspose.OrnamentationType,
-                MusicalTimeSpan = noteToTranspose.MusicalTimeSpan
+                OrnamentationType = noteToTranspose.OrnamentationType
             };
 
             foreach (var ornamentedNote in noteToTranspose.Ornamentations)
@@ -37,10 +36,9 @@ internal sealed class NoteTransposer(CompositionConfiguration compositionConfigu
                 var ornamentedNoteIndex = notes.IndexOf(ornamentedNote.Raw);
                 var transposedOrnamentedNoteIndex = Transpose(currentVoiceMinNoteIndex, currentVoiceMaxNoteIndex, targetVoiceMinNoteIndex, targetVoiceMaxNoteIndex, ornamentedNoteIndex);
 
-                var newOrnamentedNote = new BaroquenNote(targetVoice, notes[transposedOrnamentedNoteIndex])
+                var newOrnamentedNote = new BaroquenNote(targetVoice, notes[transposedOrnamentedNoteIndex], ornamentedNote.MusicalTimeSpan)
                 {
-                    OrnamentationType = ornamentedNote.OrnamentationType,
-                    MusicalTimeSpan = ornamentedNote.MusicalTimeSpan
+                    OrnamentationType = ornamentedNote.OrnamentationType
                 };
 
                 transposedNote.Ornamentations.Add(newOrnamentedNote);

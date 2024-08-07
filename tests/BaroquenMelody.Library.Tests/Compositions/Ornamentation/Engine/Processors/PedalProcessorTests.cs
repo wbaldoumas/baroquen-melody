@@ -65,8 +65,8 @@ internal sealed class PedalProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -84,7 +84,7 @@ internal sealed class PedalProcessorTests
 
         foreach (var ornamentation in noteToAssert.Ornamentations)
         {
-            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
         }
     }
 
@@ -95,8 +95,8 @@ internal sealed class PedalProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A3)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A3, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -114,7 +114,7 @@ internal sealed class PedalProcessorTests
 
         foreach (var ornamentation in noteToAssert.Ornamentations)
         {
-            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
         }
     }
 
@@ -125,8 +125,8 @@ internal sealed class PedalProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -144,7 +144,7 @@ internal sealed class PedalProcessorTests
 
         foreach (var ornamentation in noteToAssert.Ornamentations)
         {
-            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
         }
     }
 
@@ -155,8 +155,8 @@ internal sealed class PedalProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -174,7 +174,7 @@ internal sealed class PedalProcessorTests
 
         foreach (var ornamentation in noteToAssert.Ornamentations)
         {
-            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
         }
     }
 
@@ -185,8 +185,8 @@ internal sealed class PedalProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.B4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.B4, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -204,7 +204,7 @@ internal sealed class PedalProcessorTests
 
         foreach (var ornamentation in noteToAssert.Ornamentations)
         {
-            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
         }
     }
 
@@ -215,8 +215,8 @@ internal sealed class PedalProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -234,7 +234,7 @@ internal sealed class PedalProcessorTests
 
         foreach (var ornamentation in noteToAssert.Ornamentations)
         {
-            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+            ornamentation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
         }
     }
 }

@@ -12,17 +12,23 @@ namespace BaroquenMelody.Library.Compositions.Domain;
 /// </summary>
 /// <param name="voice">The voice that the note is played in.</param>
 /// <param name="raw">The raw note that is played.</param>
-internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenNote>
+/// <param name="musicalTimeSpan">The musical time span of the note. May be modified if the note is ornamented.</param>
+internal sealed class BaroquenNote(Voice voice, Note raw, MusicalTimeSpan musicalTimeSpan) : IEquatable<BaroquenNote>
 {
     /// <summary>
     ///     The voice that the note is played in.
     /// </summary>
-    public Voice Voice { get; init; } = voice;
+    public Voice Voice { get; } = voice;
 
     /// <summary>
     ///     The raw note that is played.
     /// </summary>
-    public Note Raw { get; init; } = raw;
+    public Note Raw { get; } = raw;
+
+    /// <summary>
+    ///     The musical time span of the note. May be modified if the note is ornamented.
+    /// </summary>
+    public MusicalTimeSpan MusicalTimeSpan { get; set; } = musicalTimeSpan;
 
     /// <summary>
     ///     The name of the note.
@@ -33,11 +39,6 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
     ///     The number of the note.
     /// </summary>
     public SevenBitNumber NoteNumber => Raw.NoteNumber;
-
-    /// <summary>
-    ///     The musical time span of the note. May be modified if the note is ornamented.
-    /// </summary>
-    public MusicalTimeSpan MusicalTimeSpan { get; set; } = MusicalTimeSpan.Quarter;
 
     /// <summary>
     ///     The ornamentation notes that are played with this note.
@@ -59,19 +60,19 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
     /// </summary>
     /// <param name="note">The note to copy.</param>
     public BaroquenNote(BaroquenNote note)
-        : this(note.Voice, note.Raw)
+        : this(note.Voice, note.Raw, note.MusicalTimeSpan)
     {
-        MusicalTimeSpan = note.MusicalTimeSpan;
         Ornamentations = note.Ornamentations.Select(ornamentation => new BaroquenNote(ornamentation)).ToList();
         OrnamentationType = note.OrnamentationType;
     }
 
     /// <summary>
-    ///     Resets the ornamentation on this note.
+    ///     Resets the ornamentation of the <see cref="BaroquenNote"/>.
     /// </summary>
-    public void ResetOrnamentation()
+    /// <param name="defaultTimeSpan">The time span to reset the note to.</param>
+    public void ResetOrnamentation(MusicalTimeSpan defaultTimeSpan)
     {
-        MusicalTimeSpan = MusicalTimeSpan.Quarter;
+        MusicalTimeSpan = defaultTimeSpan;
         Ornamentations.Clear();
         OrnamentationType = OrnamentationType.None;
     }

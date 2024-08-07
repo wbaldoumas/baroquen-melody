@@ -27,10 +27,13 @@ internal sealed class PassingToneProcessor(
 
         currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, compositionConfiguration.Meter);
 
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, passingTone)
-        {
-            MusicalTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter)
-        });
+        currentNote.Ornamentations.Add(
+            new BaroquenNote(
+                currentNote.Voice,
+                passingTone,
+                musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter)
+            )
+        );
 
         currentNote.OrnamentationType = ornamentationType;
     }

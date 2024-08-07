@@ -7,34 +7,36 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 
-internal sealed class TurnAlternateTurnOrnamentationCleaner(
+internal sealed class QuarterEighthNoteOrnamentationCleaner(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     CompositionConfiguration compositionConfiguration
 ) : IProcessor<OrnamentationCleaningItem>
 {
-    private const int IndexToCheck = 1;
+    private const int PassingToneIndexToCheck = 0;
+
+    private const int EighthNoteIndexToCheck = 1;
 
     public void Process(OrnamentationCleaningItem item)
     {
-        if (item.Note.OrnamentationType is OrnamentationType.Turn)
+        if (item.Note.OrnamentationType is OrnamentationType.PassingTone or OrnamentationType.DoublePassingTone or OrnamentationType.RepeatedNote)
         {
-            Clean(item.Note, item.OtherNote);
+            CleanTargetedNotes(item.Note, item.OtherNote);
         }
         else
         {
-            Clean(item.OtherNote, item.Note);
+            CleanTargetedNotes(item.OtherNote, item.Note);
         }
     }
 
-    private void Clean(BaroquenNote noteWithTurnOrnamentation, BaroquenNote noteWithAlternateTurnOrnamentation)
+    private void CleanTargetedNotes(BaroquenNote noteWithPassingToneOrnamentation, BaroquenNote noteWithEighthNotes)
     {
-        if (!noteWithTurnOrnamentation.Ornamentations[IndexToCheck].IsDissonantWith(noteWithAlternateTurnOrnamentation.Ornamentations[IndexToCheck]))
+        if (!noteWithPassingToneOrnamentation.Ornamentations[PassingToneIndexToCheck].IsDissonantWith(noteWithEighthNotes.Ornamentations[EighthNoteIndexToCheck]))
         {
             return;
         }
 
         var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
 
-        noteWithAlternateTurnOrnamentation.ResetOrnamentation(defaultTimeSpan);
+        noteWithPassingToneOrnamentation.ResetOrnamentation(defaultTimeSpan);
     }
 }

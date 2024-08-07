@@ -4,6 +4,7 @@ using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Midi;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -35,26 +36,26 @@ internal sealed class MidiGeneratorTests
     public void Generate_returns_midi_file_as_expected()
     {
         // arrange
-        var sopranoWithMidSustain = new BaroquenNote(Voice.Soprano, Notes.C4)
+        var sopranoWithMidSustain = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.MidSustain
         };
 
-        var altoWithRest = new BaroquenNote(Voice.Alto, Notes.C3)
+        var altoWithRest = new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.Rest
         };
 
-        var sopranoWithPassingTone = new BaroquenNote(Voice.Soprano, Notes.D4)
+        var sopranoWithPassingTone = new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.PassingTone,
-            Ornamentations = { new BaroquenNote(Voice.Soprano, Notes.C4) }
+            Ornamentations = { new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half) }
         };
 
-        var altoWithDoubleTurn = new BaroquenNote(Voice.Alto, Notes.C3)
+        var altoWithDoubleTurn = new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.DoubleTurn,
-            Ornamentations = { new BaroquenNote(Voice.Alto, Notes.B3), new BaroquenNote(Voice.Alto, Notes.D4) }
+            Ornamentations = { new BaroquenNote(Voice.Alto, Notes.B3, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.D4, MusicalTimeSpan.Half) }
         };
 
         var composition = new Composition(

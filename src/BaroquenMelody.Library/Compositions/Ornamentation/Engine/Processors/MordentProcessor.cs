@@ -27,15 +27,21 @@ internal sealed class MordentProcessor(
 
         currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter);
 
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, firstNote)
-        {
-            MusicalTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter)
-        });
+        currentNote.Ornamentations.Add(
+            new BaroquenNote(
+                currentNote.Voice,
+                firstNote,
+                musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter)
+            )
+        );
 
-        currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, secondNote)
-        {
-            MusicalTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter, 2)
-        });
+        currentNote.Ornamentations.Add(
+            new BaroquenNote(
+                currentNote.Voice,
+                secondNote,
+                musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter, 2)
+            )
+        );
 
         currentNote.OrnamentationType = OrnamentationType.Mordent;
     }

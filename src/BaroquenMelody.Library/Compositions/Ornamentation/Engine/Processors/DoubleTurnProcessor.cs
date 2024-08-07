@@ -36,10 +36,7 @@ internal sealed class DoubleTurnProcessor(
 
         foreach (var ornamentation in ornamentationNotes)
         {
-            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, ornamentation)
-            {
-                MusicalTimeSpan = ornamentationTimeSpan
-            });
+            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, ornamentation, ornamentationTimeSpan));
         }
 
         currentNote.OrnamentationType = OrnamentationType.DoubleTurn;

@@ -3,7 +3,10 @@ using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -15,7 +18,7 @@ internal sealed class TurnAlternateTurnOrnamentationCleanerTests
     private TurnAlternateTurnOrnamentationCleaner _cleaner = null!;
 
     [SetUp]
-    public void SetUp() => _cleaner = new TurnAlternateTurnOrnamentationCleaner();
+    public void SetUp() => _cleaner = new TurnAlternateTurnOrnamentationCleaner(new MusicalTimeSpanCalculator(), Configurations.CompositionConfiguration);
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
@@ -36,16 +39,16 @@ internal sealed class TurnAlternateTurnOrnamentationCleanerTests
     {
         get
         {
-            var sopranoB3 = new BaroquenNote(Voice.Soprano, Notes.B3);
-            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4);
-            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4);
+            var sopranoB3 = new BaroquenNote(Voice.Soprano, Notes.B3, MusicalTimeSpan.Half);
+            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half);
+            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half);
 
-            var altoG3 = new BaroquenNote(Voice.Alto, Notes.G3);
-            var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3);
-            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3);
-            var altoD3 = new BaroquenNote(Voice.Alto, Notes.D3);
-            var altoC3 = new BaroquenNote(Voice.Alto, Notes.C3);
-            var altoB3 = new BaroquenNote(Voice.Alto, Notes.B3);
+            var altoG3 = new BaroquenNote(Voice.Alto, Notes.G3, MusicalTimeSpan.Half);
+            var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3, MusicalTimeSpan.Half);
+            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half);
+            var altoD3 = new BaroquenNote(Voice.Alto, Notes.D3, MusicalTimeSpan.Half);
+            var altoC3 = new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half);
+            var altoB3 = new BaroquenNote(Voice.Alto, Notes.B3, MusicalTimeSpan.Half);
 
             var sopranoC4WithDescendingTurn = new BaroquenNote(sopranoC4)
             {

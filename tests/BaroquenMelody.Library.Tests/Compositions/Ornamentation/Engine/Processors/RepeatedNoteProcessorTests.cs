@@ -37,7 +37,7 @@ internal sealed class RepeatedNoteProcessorTests
         );
 
         _mockMusicalTimeSpanCalculator = Substitute.For<IMusicalTimeSpanCalculator>();
-        _repeatedNoteProcessor = new RepeatedNoteProcessor(_mockMusicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.RepeatedEighthNote);
+        _repeatedNoteProcessor = new RepeatedNoteProcessor(_mockMusicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.RepeatedNote);
     }
 
     [Test]
@@ -47,8 +47,8 @@ internal sealed class RepeatedNoteProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)]))
         );
 
         _mockMusicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Eighth);
@@ -60,7 +60,7 @@ internal sealed class RepeatedNoteProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
-        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.RepeatedEighthNote);
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.RepeatedNote);
         noteToAssert.Ornamentations.Should().ContainSingle();
         noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.C4);

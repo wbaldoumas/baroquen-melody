@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
@@ -44,29 +45,29 @@ internal sealed class CompositionDecoratorTests
         // arrange
         var chordA = new BaroquenChord(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordB = new BaroquenChord(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordC = new BaroquenChord(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordD = new BaroquenChord(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
@@ -98,29 +99,29 @@ internal sealed class CompositionDecoratorTests
         // arrange
         var chordA = new BaroquenChord(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordB = new BaroquenChord(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordC = new BaroquenChord(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordD = new BaroquenChord(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
@@ -152,29 +153,29 @@ internal sealed class CompositionDecoratorTests
         // arrange
         var chordA = new BaroquenChord(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordB = new BaroquenChord(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordC = new BaroquenChord(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordD = new BaroquenChord(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4),
-                new BaroquenNote(Voice.Alto, Notes.C3)
+                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 

@@ -42,7 +42,7 @@ internal sealed class DecorateIntervalProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
             null
         );
 
@@ -57,7 +57,7 @@ internal sealed class DecorateIntervalProcessorTests
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.E5);
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.D5);
         noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.E5);
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
-        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
     }
 }
