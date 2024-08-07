@@ -35,7 +35,7 @@ internal sealed class BaroquenNote(Voice voice, Note raw) : IEquatable<BaroquenN
     public SevenBitNumber NoteNumber => Raw.NoteNumber;
 
     /// <summary>
-    ///     The duration of the note. May be modified if the note is ornamented.
+    ///     The musical time span of the note. May be modified if the note is ornamented.
     /// </summary>
     public MusicalTimeSpan MusicalTimeSpan { get; set; } = MusicalTimeSpan.Quarter;
 
