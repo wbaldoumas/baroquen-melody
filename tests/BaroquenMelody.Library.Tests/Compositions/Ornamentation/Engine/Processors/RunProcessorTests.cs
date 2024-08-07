@@ -14,9 +14,9 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Processors;
 
 [TestFixture]
-internal sealed class SixteenthNoteRunProcessorTests
+internal sealed class RunProcessorTests
 {
-    private SixteenthNoteRunProcessor _processor = null!;
+    private RunProcessor _processor = null!;
 
     [SetUp]
     public void SetUp()
@@ -32,7 +32,7 @@ internal sealed class SixteenthNoteRunProcessorTests
             CompositionLength: 100
         );
 
-        _processor = new SixteenthNoteRunProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
+        _processor = new RunProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
     }
 
     [Test]
@@ -42,8 +42,8 @@ internal sealed class SixteenthNoteRunProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F3)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F3, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -52,18 +52,18 @@ internal sealed class SixteenthNoteRunProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
-        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.SixteenthNoteRun);
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Run);
         noteToAssert.Ornamentations.Should().HaveCount(3);
 
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B3);
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.A3);
         noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.G3);
 
-        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
-        noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
-        noteToAssert.Ornamentations[2].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[2].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
 
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
     }
 
     [Test]
@@ -73,8 +73,8 @@ internal sealed class SixteenthNoteRunProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F3)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F3, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -83,17 +83,17 @@ internal sealed class SixteenthNoteRunProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
-        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.SixteenthNoteRun);
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Run);
         noteToAssert.Ornamentations.Should().HaveCount(3);
 
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.G3);
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.A3);
         noteToAssert.Ornamentations[2].Raw.Should().Be(Notes.B3);
 
-        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
-        noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
-        noteToAssert.Ornamentations[2].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[2].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
 
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
     }
 }

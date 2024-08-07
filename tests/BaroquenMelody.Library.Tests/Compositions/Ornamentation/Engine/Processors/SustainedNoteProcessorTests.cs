@@ -42,8 +42,8 @@ internal sealed class SustainedNoteProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -55,7 +55,7 @@ internal sealed class SustainedNoteProcessorTests
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Sustain);
         noteToAssert.Ornamentations.Should().BeEmpty();
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Half);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Whole);
         nextNoteToAssert.OrnamentationType.Should().Be(OrnamentationType.MidSustain);
         nextNoteToAssert.Ornamentations.Should().BeEmpty();
         nextNoteToAssert.MusicalTimeSpan.Should().Be(new MusicalTimeSpan());

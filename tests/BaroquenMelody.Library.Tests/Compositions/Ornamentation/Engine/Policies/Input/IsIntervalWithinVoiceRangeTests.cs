@@ -6,6 +6,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -58,7 +59,7 @@ internal sealed class IsIntervalWithinVoiceRangeTests
                 new OrnamentationItem(
                     Voice.Soprano,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C5), new BaroquenNote(Voice.Alto, Notes.G4)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C5, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.G4, MusicalTimeSpan.Half)])),
                     null
                 ),
                 InputPolicyResult.Continue
@@ -68,7 +69,7 @@ internal sealed class IsIntervalWithinVoiceRangeTests
                 new OrnamentationItem(
                     Voice.Soprano,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C6), new BaroquenNote(Voice.Alto, Notes.G3)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C6, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.G3, MusicalTimeSpan.Half)])),
                     null
                 ),
                 InputPolicyResult.Reject

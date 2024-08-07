@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -45,10 +46,10 @@ internal sealed class HandleAscendingSeventhTests
     {
         get
         {
-            var sopranoA3 = new BaroquenNote(Voice.Soprano, Notes.A3);
-            var sopranoB3 = new BaroquenNote(Voice.Soprano, Notes.B3);
-            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4);
-            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3);
+            var sopranoA3 = new BaroquenNote(Voice.Soprano, Notes.A3, MusicalTimeSpan.Half);
+            var sopranoB3 = new BaroquenNote(Voice.Soprano, Notes.B3, MusicalTimeSpan.Half);
+            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half);
+            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half);
 
             var cMajor = new BaroquenChord([sopranoC4, altoE3]);
             var eMinor = new BaroquenChord([sopranoB3, altoE3]);

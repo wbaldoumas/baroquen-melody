@@ -42,8 +42,8 @@ internal sealed class PassingToneProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F4, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -55,8 +55,8 @@ internal sealed class PassingToneProcessorTests
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.PassingTone);
         noteToAssert.Ornamentations.Should().ContainSingle();
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.G4);
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
-        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
     }
 
     [Test]
@@ -66,8 +66,8 @@ internal sealed class PassingToneProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C5)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C5, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -79,7 +79,7 @@ internal sealed class PassingToneProcessorTests
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.PassingTone);
         noteToAssert.Ornamentations.Should().ContainSingle();
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B4);
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
-        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
     }
 }

@@ -5,6 +5,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -35,10 +36,10 @@ internal sealed class IsTargetNoteTests
         {
             var testCompositionContext = new FixedSizeList<Beat>(1);
 
-            var sopranoNoteWithTargetNoteName = new BaroquenNote(Voice.Soprano, Notes.A4);
-            var altoNoteWithTargetNoteName = new BaroquenNote(Voice.Alto, Notes.A4);
-            var sopranoNoteWithoutNoteName = new BaroquenNote(Voice.Soprano, Notes.G4);
-            var altoNoteWithoutNoteName = new BaroquenNote(Voice.Alto, Notes.G4);
+            var sopranoNoteWithTargetNoteName = new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half);
+            var altoNoteWithTargetNoteName = new BaroquenNote(Voice.Alto, Notes.A4, MusicalTimeSpan.Half);
+            var sopranoNoteWithoutNoteName = new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half);
+            var altoNoteWithoutNoteName = new BaroquenNote(Voice.Alto, Notes.G4, MusicalTimeSpan.Half);
 
             yield return new TestCaseData(
                 new OrnamentationItem(

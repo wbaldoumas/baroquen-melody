@@ -6,14 +6,14 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 
-internal sealed class DelayedThirtySecondNoteRunProcessor(
+internal sealed class DoubleRunProcessor(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     CompositionConfiguration compositionConfiguration
 ) : IProcessor<OrnamentationItem>
 {
     public const int Interval = 5;
 
-    private readonly int[] _ornamentationTranslations = [1, 2, 3, 4];
+    private readonly int[] _ornamentationTranslations = [1, 2, 3, 1, 2, 3, 4];
 
     public void Process(OrnamentationItem item)
     {
@@ -30,18 +30,15 @@ internal sealed class DelayedThirtySecondNoteRunProcessor(
             .Select(ornamentationTranslation => isDescending ? currentNoteIndex - ornamentationTranslation : currentNoteIndex + ornamentationTranslation)
             .Select(index => notes[index]);
 
-        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.DelayedThirtySecondNoteRun, compositionConfiguration.Meter);
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.DoubleRun, compositionConfiguration.Meter);
 
-        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.DelayedThirtySecondNoteRun, compositionConfiguration.Meter);
+        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.DoubleRun, compositionConfiguration.Meter);
 
-        foreach (var ornamentation in ornamentationNotes)
+        foreach (var note in ornamentationNotes)
         {
-            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, ornamentation)
-            {
-                MusicalTimeSpan = ornamentationTimeSpan
-            });
+            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, note, ornamentationTimeSpan));
         }
 
-        currentNote.OrnamentationType = OrnamentationType.DelayedThirtySecondNoteRun;
+        currentNote.OrnamentationType = OrnamentationType.DoubleRun;
     }
 }

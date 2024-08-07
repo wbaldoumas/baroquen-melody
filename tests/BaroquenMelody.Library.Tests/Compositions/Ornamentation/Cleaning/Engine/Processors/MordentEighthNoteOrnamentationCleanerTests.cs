@@ -3,19 +3,22 @@ using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Cleaning.Engine.Processors;
 
 [TestFixture]
-internal sealed class MordentSixteenthNoteOrnamentationCleanerTests
+internal sealed class MordentEighthNoteOrnamentationCleanerTests
 {
-    private MordentSixteenthNoteOrnamentationCleaner _mordentSixteenthNoteOrnamentationCleaner = null!;
+    private MordentEighthNoteOrnamentationCleaner _mordentEighthNoteOrnamentationCleaner = null!;
 
     [SetUp]
-    public void SetUp() => _mordentSixteenthNoteOrnamentationCleaner = new MordentSixteenthNoteOrnamentationCleaner();
+    public void SetUp() => _mordentEighthNoteOrnamentationCleaner = new MordentEighthNoteOrnamentationCleaner(new MusicalTimeSpanCalculator(), Configurations.CompositionConfiguration);
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
@@ -25,7 +28,7 @@ internal sealed class MordentSixteenthNoteOrnamentationCleanerTests
         var ornamentationCleaningItem = new OrnamentationCleaningItem(noteA, noteB);
 
         // act
-        _mordentSixteenthNoteOrnamentationCleaner.Process(ornamentationCleaningItem);
+        _mordentEighthNoteOrnamentationCleaner.Process(ornamentationCleaningItem);
 
         // assert
         noteA.Should().BeEquivalentTo(expectedNoteA);
@@ -36,13 +39,13 @@ internal sealed class MordentSixteenthNoteOrnamentationCleanerTests
     {
         get
         {
-            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4);
-            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4);
+            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half);
+            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half);
 
-            var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3);
-            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3);
-            var altoD3 = new BaroquenNote(Voice.Alto, Notes.D3);
-            var altoC3 = new BaroquenNote(Voice.Alto, Notes.C3);
+            var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3, MusicalTimeSpan.Half);
+            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half);
+            var altoD3 = new BaroquenNote(Voice.Alto, Notes.D3, MusicalTimeSpan.Half);
+            var altoC3 = new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half);
 
             var sopranoC4WithMordent = new BaroquenNote(sopranoC4)
             {
@@ -54,9 +57,9 @@ internal sealed class MordentSixteenthNoteOrnamentationCleanerTests
                 }
             };
 
-            var altoF3WithNonDissonantSixteenthNotes = new BaroquenNote(altoF3)
+            var altoF3WithNonDissonantRun = new BaroquenNote(altoF3)
             {
-                OrnamentationType = OrnamentationType.SixteenthNoteRun,
+                OrnamentationType = OrnamentationType.Run,
                 Ornamentations =
                 {
                     new BaroquenNote(altoD3),
@@ -65,9 +68,9 @@ internal sealed class MordentSixteenthNoteOrnamentationCleanerTests
                 }
             };
 
-            var altoC3WithDissonantSixteenthNotes = new BaroquenNote(altoC3)
+            var altoC3WithDissonantRun = new BaroquenNote(altoC3)
             {
-                OrnamentationType = OrnamentationType.SixteenthNoteRun,
+                OrnamentationType = OrnamentationType.Run,
                 Ornamentations =
                 {
                     new BaroquenNote(altoE3),
@@ -78,29 +81,29 @@ internal sealed class MordentSixteenthNoteOrnamentationCleanerTests
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoC4WithMordent),
-                new BaroquenNote(altoF3WithNonDissonantSixteenthNotes),
+                new BaroquenNote(altoF3WithNonDissonantRun),
                 new BaroquenNote(sopranoC4WithMordent),
-                new BaroquenNote(altoF3WithNonDissonantSixteenthNotes)
+                new BaroquenNote(altoF3WithNonDissonantRun)
             ).SetName("When sixteenth notes are not dissonant, mordent is not cleaned.");
 
             yield return new TestCaseData(
-                new BaroquenNote(altoF3WithNonDissonantSixteenthNotes),
+                new BaroquenNote(altoF3WithNonDissonantRun),
                 new BaroquenNote(sopranoC4WithMordent),
-                new BaroquenNote(altoF3WithNonDissonantSixteenthNotes),
+                new BaroquenNote(altoF3WithNonDissonantRun),
                 new BaroquenNote(sopranoC4WithMordent)
             ).SetName("When sixteenth notes are not dissonant, mordent is not cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoC4WithMordent),
-                new BaroquenNote(altoC3WithDissonantSixteenthNotes),
+                new BaroquenNote(altoC3WithDissonantRun),
                 new BaroquenNote(sopranoC4),
-                new BaroquenNote(altoC3WithDissonantSixteenthNotes)
+                new BaroquenNote(altoC3WithDissonantRun)
             ).SetName("When sixteenth notes are dissonant, mordent is cleaned.");
 
             yield return new TestCaseData(
-                new BaroquenNote(altoC3WithDissonantSixteenthNotes),
+                new BaroquenNote(altoC3WithDissonantRun),
                 new BaroquenNote(sopranoC4WithMordent),
-                new BaroquenNote(altoC3WithDissonantSixteenthNotes),
+                new BaroquenNote(altoC3WithDissonantRun),
                 new BaroquenNote(sopranoC4)
             ).SetName("When sixteenth notes are dissonant, mordent is cleaned.");
         }

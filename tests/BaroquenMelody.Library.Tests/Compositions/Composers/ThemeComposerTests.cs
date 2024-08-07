@@ -6,6 +6,7 @@ using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Strategies;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -60,10 +61,10 @@ internal sealed class ThemeComposerTests
     {
         // arrange
         var mockBaroquenChord = new BaroquenChord([
-            new BaroquenNote(Voice.Soprano, Notes.C4),
-            new BaroquenNote(Voice.Alto, Notes.E3),
-            new BaroquenNote(Voice.Tenor, Notes.G2),
-            new BaroquenNote(Voice.Bass, Notes.C1)
+            new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+            new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half),
+            new BaroquenNote(Voice.Tenor, Notes.G2, MusicalTimeSpan.Half),
+            new BaroquenNote(Voice.Bass, Notes.C1, MusicalTimeSpan.Half)
         ]);
 
         _mockCompositionStrategy.GenerateInitialChord().Returns(mockBaroquenChord);

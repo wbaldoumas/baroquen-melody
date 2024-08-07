@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -25,13 +26,13 @@ internal sealed class BeatTests
         get
         {
             yield return new TestCaseData(
-                new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C1)])),
+                new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C1, MusicalTimeSpan.Half)])),
                 Voice.Soprano,
                 true
             );
 
             yield return new TestCaseData(
-                new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C1)])),
+                new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C1, MusicalTimeSpan.Half)])),
                 Voice.Alto,
                 false
             );

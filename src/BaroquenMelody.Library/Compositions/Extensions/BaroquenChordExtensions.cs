@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Enums.Extensions;
+using Melanchall.DryWetMidi.Interaction;
 
 namespace BaroquenMelody.Library.Compositions.Extensions;
 
@@ -10,7 +11,11 @@ namespace BaroquenMelody.Library.Compositions.Extensions;
 /// </summary>
 internal static class BaroquenChordExtensions
 {
-    public static BaroquenChord ApplyChordChoice(this BaroquenChord chord, BaroquenScale scale, ChordChoice chordChoice)
+    public static BaroquenChord ApplyChordChoice(
+        this BaroquenChord chord,
+        BaroquenScale scale,
+        ChordChoice chordChoice,
+        MusicalTimeSpan noteTimeSpan)
     {
         var notes = new List<BaroquenNote>();
         var noteChoicesToApply = new List<NoteChoice>();
@@ -28,7 +33,7 @@ internal static class BaroquenChordExtensions
             var voice = noteChoice.Voice;
             var note = chord[voice];
 
-            notes.Add(note.ApplyNoteChoice(scale, noteChoice));
+            notes.Add(note.ApplyNoteChoice(scale, noteChoice, noteTimeSpan));
         }
 
         return new BaroquenChord(notes);

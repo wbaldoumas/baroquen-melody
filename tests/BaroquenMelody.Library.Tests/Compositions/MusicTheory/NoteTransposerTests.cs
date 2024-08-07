@@ -38,81 +38,69 @@ internal sealed class NoteTransposerTests
         // arrange
         var notesToTranspose = new List<BaroquenNote>
         {
-            new(Voice.Soprano, Notes.C4)
+            new(Voice.Soprano, Notes.C4, MusicalTimeSpan.Eighth)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
-                MusicalTimeSpan = MusicalTimeSpan.Eighth,
                 Ornamentations =
                 {
-                    new BaroquenNote(Voice.Soprano, Notes.D4)
+                    new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Eighth)
                     {
-                        OrnamentationType = OrnamentationType.PassingTone,
-                        MusicalTimeSpan = MusicalTimeSpan.Eighth
+                        OrnamentationType = OrnamentationType.PassingTone
                     }
                 }
             },
-            new(Voice.Soprano, Notes.E4)
+            new(Voice.Soprano, Notes.E4, MusicalTimeSpan.Eighth)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
-                MusicalTimeSpan = MusicalTimeSpan.Eighth,
                 Ornamentations =
                 {
-                    new BaroquenNote(Voice.Soprano, Notes.F4)
+                    new BaroquenNote(Voice.Soprano, Notes.F4, MusicalTimeSpan.Eighth)
                     {
-                        OrnamentationType = OrnamentationType.PassingTone,
-                        MusicalTimeSpan = MusicalTimeSpan.Eighth
+                        OrnamentationType = OrnamentationType.PassingTone
                     }
                 }
             },
-            new(Voice.Soprano, Notes.G4)
+            new(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half)
             {
-                OrnamentationType = OrnamentationType.None,
-                MusicalTimeSpan = MusicalTimeSpan.Quarter
+                OrnamentationType = OrnamentationType.None
             },
-            new(Voice.Soprano, Notes.C4)
+            new(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)
             {
-                OrnamentationType = OrnamentationType.None,
-                MusicalTimeSpan = MusicalTimeSpan.Quarter
+                OrnamentationType = OrnamentationType.None
             }
         };
 
         var expectedNotes = new List<BaroquenNote>
         {
-            new(Voice.Alto, Notes.G2)
+            new(Voice.Alto, Notes.G2, MusicalTimeSpan.Eighth)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
-                MusicalTimeSpan = MusicalTimeSpan.Eighth,
                 Ornamentations =
                 {
-                    new BaroquenNote(Voice.Alto, Notes.A2)
+                    new BaroquenNote(Voice.Alto, Notes.A2, MusicalTimeSpan.Eighth)
                     {
-                        OrnamentationType = OrnamentationType.PassingTone,
-                        MusicalTimeSpan = MusicalTimeSpan.Eighth
+                        OrnamentationType = OrnamentationType.PassingTone
                     }
                 }
             },
-            new(Voice.Alto, Notes.B2)
+            new(Voice.Alto, Notes.B2, MusicalTimeSpan.Eighth)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
-                MusicalTimeSpan = MusicalTimeSpan.Eighth,
                 Ornamentations =
                 {
-                    new BaroquenNote(Voice.Alto, Notes.C3)
+                    new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Eighth)
                     {
-                        OrnamentationType = OrnamentationType.PassingTone,
-                        MusicalTimeSpan = MusicalTimeSpan.Eighth
+                        OrnamentationType = OrnamentationType.PassingTone
                     }
                 }
             },
-            new(Voice.Alto, Notes.D3)
+            new(Voice.Alto, Notes.D3, MusicalTimeSpan.Half)
             {
-                OrnamentationType = OrnamentationType.None,
-                MusicalTimeSpan = MusicalTimeSpan.Quarter
+                OrnamentationType = OrnamentationType.None
             },
-            new(Voice.Alto, Notes.G2)
+            new(Voice.Alto, Notes.G2, MusicalTimeSpan.Half)
             {
-                OrnamentationType = OrnamentationType.None,
-                MusicalTimeSpan = MusicalTimeSpan.Quarter
+                OrnamentationType = OrnamentationType.None
             }
         };
 

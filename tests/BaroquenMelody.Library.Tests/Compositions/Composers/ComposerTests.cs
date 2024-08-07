@@ -6,13 +6,16 @@ using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
+using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Strategies;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
+using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
 namespace BaroquenMelody.Library.Tests.Compositions.Composers;
 
@@ -43,6 +46,8 @@ internal sealed class ComposerTests
 
     private IChordNumberIdentifier _mockChordNumberIdentifier = null!;
 
+    private IMusicalTimeSpanCalculator _musicalTimeSpanCalculator = null!;
+
     private CompositionConfiguration _compositionConfiguration = null!;
 
     private Composer _composer = null!;
@@ -54,6 +59,7 @@ internal sealed class ComposerTests
         _mockCompositionDecorator = Substitute.For<ICompositionDecorator>();
         _mockCompositionPhraser = Substitute.For<ICompositionPhraser>();
         _mockChordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
+        _musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
         _mockLogger = Substitute.For<ILogger>();
 
         _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>()).Returns(ChordNumber.V, ChordNumber.I);
@@ -70,9 +76,9 @@ internal sealed class ComposerTests
         );
 
         _noteTransposer = new NoteTransposer(_compositionConfiguration);
-        _chordComposer = new ChordComposer(_mockCompositionStrategy, _compositionConfiguration, _mockLogger);
+        _chordComposer = new ChordComposer(_mockCompositionStrategy, _musicalTimeSpanCalculator, _compositionConfiguration, _mockLogger);
         _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _noteTransposer, _mockLogger, _compositionConfiguration);
-        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, _mockLogger, _compositionConfiguration);
+        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, _musicalTimeSpanCalculator, _mockLogger, _compositionConfiguration);
         _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, _themeComposer, _endingComposer, _mockLogger, _compositionConfiguration);
     }
 
@@ -82,8 +88,8 @@ internal sealed class ComposerTests
         // arrange
         _mockCompositionStrategy.GenerateInitialChord().Returns(
             new BaroquenChord([
-                new BaroquenNote(Voice.Soprano, MinSopranoNote),
-                new BaroquenNote(Voice.Alto, MinAltoNote)
+                new BaroquenNote(Voice.Soprano, MinSopranoNote, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, MinAltoNote, MusicalTimeSpan.Half)
             ])
         );
 
@@ -100,8 +106,8 @@ internal sealed class ComposerTests
             .GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
             .Returns([
                 new BaroquenChord([
-                    new BaroquenNote(Voice.Soprano, MinSopranoNote),
-                    new BaroquenNote(Voice.Alto, MinAltoNote)
+                    new BaroquenNote(Voice.Soprano, MinSopranoNote, MusicalTimeSpan.Half),
+                    new BaroquenNote(Voice.Alto, MinAltoNote, MusicalTimeSpan.Half)
                 ])
             ]);
 

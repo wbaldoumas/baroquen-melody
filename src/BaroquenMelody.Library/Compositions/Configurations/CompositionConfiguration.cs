@@ -24,7 +24,7 @@ internal sealed record CompositionConfiguration(
     Meter Meter,
     int CompositionLength,
     int CompositionContextSize = 8,
-    int Tempo = 60)
+    int Tempo = 120)
 {
     public IDictionary<Voice, VoiceConfiguration> VoiceConfigurationsByVoice { get; } = VoiceConfigurations.ToDictionary(
         voiceConfiguration => voiceConfiguration.Voice

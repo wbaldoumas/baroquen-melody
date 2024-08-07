@@ -42,8 +42,8 @@ internal sealed class DoublePassingToneProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -56,9 +56,9 @@ internal sealed class DoublePassingToneProcessorTests
         noteToAssert.Ornamentations.Should().HaveCount(2);
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.G4);
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.F4);
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
-        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
-        noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
     }
 
     [Test]
@@ -68,8 +68,8 @@ internal sealed class DoublePassingToneProcessorTests
         var ornamentationItem = new OrnamentationItem(
             Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.D5)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.D5, MusicalTimeSpan.Half)]))
         );
 
         // act
@@ -82,8 +82,8 @@ internal sealed class DoublePassingToneProcessorTests
         noteToAssert.Ornamentations.Should().HaveCount(2);
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B4);
         noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.C5);
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
-        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
-        noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
     }
 }

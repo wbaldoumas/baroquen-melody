@@ -1,10 +1,12 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Infrastructure.Random;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -198,7 +200,7 @@ internal sealed class CompositionPhraserTests
 
         for (var i = 0; i < count; i++)
         {
-            var beats = Enumerable.Range(0, beatsPerMeasure).Select(_ => new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4)]))).ToList();
+            var beats = Enumerable.Range(0, beatsPerMeasure).Select(_ => new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))).ToList();
             measures.Add(new Measure(beats, Meter.FourFour));
         }
 
@@ -218,6 +220,6 @@ internal sealed class CompositionPhraserTests
             16
         );
 
-        return new CompositionPhraser(_mockCompositionRule, _mockThemeSplitter, _weightedRandomBooleanGenerator, _mockLogger, compositionConfiguration);
+        return new CompositionPhraser(_mockCompositionRule, _mockThemeSplitter, _weightedRandomBooleanGenerator, new MusicalTimeSpanCalculator(), _mockLogger, compositionConfiguration);
     }
 }

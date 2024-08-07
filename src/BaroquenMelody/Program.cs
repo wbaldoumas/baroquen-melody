@@ -31,10 +31,10 @@ var phrasingConfiguration = new PhrasingConfiguration(
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
-        new(Voice.Soprano, Notes.C5, Notes.E6, GeneralMidi2Program.ChurchOrganOctaveMix),
-        new(Voice.Alto, Notes.G3, Notes.B4, GeneralMidi2Program.ChurchOrganOctaveMix),
-        new(Voice.Tenor, Notes.F2, Notes.A3, GeneralMidi2Program.ChurchOrganOctaveMix),
-        new(Voice.Bass, Notes.C1, Notes.E2, GeneralMidi2Program.ChurchOrganOctaveMix)
+        new(Voice.Soprano, Notes.C5, Notes.E6, GeneralMidi2Program.AcousticGuitarNylon),
+        new(Voice.Alto, Notes.G3, Notes.B4, GeneralMidi2Program.AcousticGuitarNylon),
+        new(Voice.Tenor, Notes.F3, Notes.A4, GeneralMidi2Program.AcousticGuitarNylon),
+        new(Voice.Bass, Notes.C2, Notes.E3, GeneralMidi2Program.AcousticGuitarNylon)
     },
     phrasingConfiguration,
     AggregateCompositionRuleConfiguration.Default,
@@ -48,17 +48,19 @@ var logger = factory.CreateLogger<Composer>();
 
 var compositionRuleFactory = new CompositionRuleFactory(compositionConfiguration, new WeightedRandomBooleanGenerator());
 var compositionRule = compositionRuleFactory.CreateAggregate(compositionConfiguration.AggregateCompositionRuleConfiguration);
+var musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
 
 var compositionStrategyFactory = new CompositionStrategyFactory(
     new ChordChoiceRepositoryFactory(
         new NoteChoiceGenerator()
     ),
     compositionRule,
+    musicalTimeSpanCalculator,
     logger
 );
 
 var compositionStrategy = compositionStrategyFactory.Create(compositionConfiguration);
-var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, new MusicalTimeSpanCalculator(), logger);
+var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, musicalTimeSpanCalculator, logger);
 
 var compositionDecorator = new CompositionDecorator(
     ornamentationEngineBuilder.BuildOrnamentationEngine(),
@@ -68,9 +70,9 @@ var compositionDecorator = new CompositionDecorator(
 
 var weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
 var themeSplitter = new ThemeSplitter();
-var compositionPhraser = new CompositionPhraser(compositionRule, themeSplitter, weightedRandomBooleanGenerator, logger, compositionConfiguration);
+var compositionPhraser = new CompositionPhraser(compositionRule, themeSplitter, weightedRandomBooleanGenerator, musicalTimeSpanCalculator, logger, compositionConfiguration);
 var noteTransposer = new NoteTransposer(compositionConfiguration);
-var chordComposer = new ChordComposer(compositionStrategy, compositionConfiguration, logger);
+var chordComposer = new ChordComposer(compositionStrategy, musicalTimeSpanCalculator, compositionConfiguration, logger);
 var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
 
 var themeComposer = new ThemeComposer(
@@ -86,6 +88,7 @@ var endingComposer = new EndingComposer(
     compositionStrategy,
     compositionDecorator,
     chordNumberIdentifier,
+    musicalTimeSpanCalculator,
     logger,
     compositionConfiguration
 );

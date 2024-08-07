@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using Melanchall.DryWetMidi.Interaction;
 
 namespace BaroquenMelody.Library.Compositions.Extensions;
 
@@ -9,7 +10,7 @@ namespace BaroquenMelody.Library.Compositions.Extensions;
 /// </summary>
 internal static class BaroquenNoteExtensions
 {
-    public static BaroquenNote ApplyNoteChoice(this BaroquenNote note, BaroquenScale scale, NoteChoice noteChoice)
+    public static BaroquenNote ApplyNoteChoice(this BaroquenNote note, BaroquenScale scale, NoteChoice noteChoice, MusicalTimeSpan noteTimeSpan)
     {
         var nextNote = noteChoice.Motion switch
         {
@@ -19,7 +20,7 @@ internal static class BaroquenNoteExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(noteChoice))
         };
 
-        return new BaroquenNote(note.Voice, nextNote);
+        return new BaroquenNote(note.Voice, nextNote, noteTimeSpan);
     }
 
     public static bool IsDissonantWith(this BaroquenNote note, BaroquenNote otherNote) => note.Raw.IsDissonantWith(otherNote.Raw);

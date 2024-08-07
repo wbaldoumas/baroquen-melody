@@ -1,10 +1,12 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using BaroquenMelody.Library.Infrastructure.Logging;
 using BaroquenMelody.Library.Infrastructure.Random;
+using Melanchall.DryWetMidi.Interaction;
 using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library.Compositions.Phrasing;
@@ -14,6 +16,7 @@ internal sealed class CompositionPhraser(
     ICompositionRule compositionRule,
     IThemeSplitter themeSplitter,
     IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
+    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
 ) : ICompositionPhraser
@@ -40,9 +43,11 @@ internal sealed class CompositionPhraser(
     {
         themePhrasesToRepeat = themeSplitter.SplitThemeIntoPhrases(theme);
 
+        var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
+
         foreach (var themePhraseToRepeat in themePhrasesToRepeat.ToList())
         {
-            ResetPhraseEndOrnamentation(themePhraseToRepeat.Phrase[^1]);
+            ResetPhraseEndOrnamentation(themePhraseToRepeat.Phrase[^1], defaultTimeSpan);
         }
     }
 
@@ -121,7 +126,9 @@ internal sealed class CompositionPhraser(
 
             phrasesToRepeat.Add(repeatedPhrase);
 
-            ResetPhraseEndOrnamentation(measures[^1]);
+            var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
+
+            ResetPhraseEndOrnamentation(measures[^1], defaultTimeSpan);
 
             measures.AddRange(lastMeasures.Select(static measure => new Measure(measure)));
 
@@ -133,11 +140,12 @@ internal sealed class CompositionPhraser(
     ///     Resets the ornamentation on the last note of the last measure in the phrase if it is not a rest.
     /// </summary>
     /// <param name="measure">The measure to reset the ornamentation on.</param>
-    private static void ResetPhraseEndOrnamentation(Measure measure)
+    /// <param name="defaultTimeSpan">The default time span to reset the ornamentation to.</param>
+    private static void ResetPhraseEndOrnamentation(Measure measure, MusicalTimeSpan defaultTimeSpan)
     {
         foreach (var note in measure.Beats[^1].Chord.Notes.Where(static note => note.OrnamentationType != OrnamentationType.MidSustain))
         {
-            note.ResetOrnamentation();
+            note.ResetOrnamentation(defaultTimeSpan);
         }
     }
 
@@ -150,7 +158,9 @@ internal sealed class CompositionPhraser(
             return false;
         }
 
-        ResetPhraseEndOrnamentation(measures[^1]);
+        var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
+
+        ResetPhraseEndOrnamentation(measures[^1], defaultTimeSpan);
 
         measures.AddRange(repeatedPhrase.Phrase.Select(static measure => new Measure(measure)).ToList());
         repeatedPhrase.RepetitionCount++;

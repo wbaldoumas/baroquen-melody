@@ -37,10 +37,7 @@ internal sealed class TurnProcessor(
 
         foreach (var note in ornamentationNotes)
         {
-            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, note)
-            {
-                MusicalTimeSpan = ornamentationTimeSpan
-            });
+            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, note, ornamentationTimeSpan));
         }
 
         currentNote.OrnamentationType = OrnamentationType.Turn;

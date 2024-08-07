@@ -5,6 +5,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
@@ -39,7 +40,7 @@ internal sealed class HasNextBeatTests
                 new OrnamentationItem(
                     Voice.Soprano,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
                     null
                 ),
                 InputPolicyResult.Reject
@@ -49,8 +50,8 @@ internal sealed class HasNextBeatTests
                 new OrnamentationItem(
                     Voice.Soprano,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)])),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4)]))
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)]))
                 ),
                 InputPolicyResult.Continue
             ).SetName($"When next beat is not null, then {nameof(InputPolicyResult.Continue)} is returned.");

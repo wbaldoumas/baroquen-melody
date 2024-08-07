@@ -13,9 +13,9 @@ internal enum OrnamentationType : byte
     PassingTone,
 
     /// <summary>
-    ///     A sixteenth note run between two notes.
+    ///     A run between two notes.
     /// </summary>
-    SixteenthNoteRun,
+    Run,
 
     /// <summary>
     ///     A delayed passing tone between two notes.
@@ -28,7 +28,7 @@ internal enum OrnamentationType : byte
     Turn,
 
     /// <summary>
-    ///     A turn between two notes.
+    ///     An alternate turn between two notes.
     /// </summary>
     AlternateTurn,
 
@@ -43,9 +43,9 @@ internal enum OrnamentationType : byte
     MidSustain,
 
     /// <summary>
-    ///     A delayed thirty-second note run between two notes.
+    ///     A delayed run between two notes.
     /// </summary>
-    DelayedThirtySecondNoteRun,
+    DelayedRun,
 
     /// <summary>
     ///     A double turn between two notes.
@@ -63,14 +63,14 @@ internal enum OrnamentationType : byte
     DelayedDoublePassingTone,
 
     /// <summary>
-    ///     Outline the dominant seventh chord.
+    ///     Outlines an interval in a chord.
     /// </summary>
     DecorateInterval,
 
     /// <summary>
-    ///    Two thirty-second note runs between two notes.
+    ///    Two back to back runs between two notes.
     /// </summary>
-    ThirtySecondNoteRun,
+    DoubleRun,
 
     /// <summary>
     ///     A pedal below a passing tone.
@@ -88,14 +88,14 @@ internal enum OrnamentationType : byte
     Rest,
 
     /// <summary>
-    ///     A note which is repeated across two eighth notes.
+    ///     A note which is repeated across two notes.
     /// </summary>
-    RepeatedEighthNote,
+    RepeatedNote,
 
     /// <summary>
-    ///     A note which is repeated across one dotted eighth note followed by a sixteenth note.
+    ///     A delayed note which is repeated across two notes.
     /// </summary>
-    RepeatedDottedEighthSixteenth,
+    DelayedRepeatedNote,
 
     /// <summary>
     ///     A neighbor tone to ornament an existing note.
