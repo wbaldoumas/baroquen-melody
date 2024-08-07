@@ -22,7 +22,7 @@ internal interface ICompositionDecorator
     void Decorate(Composition composition, Voice voice);
 
     /// <summary>
-    ///    Apply sustain to the composition by identifying repeated notes and extending their duration.
+    ///    Apply sustain to the composition by identifying repeated notes and extending their musical time span.
     /// </summary>
     /// <param name="composition">The composition to apply sustain to.</param>
     void ApplySustain(Composition composition);

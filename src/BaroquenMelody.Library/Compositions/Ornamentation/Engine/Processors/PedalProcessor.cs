@@ -40,13 +40,13 @@ internal sealed class PedalProcessor(
 
         currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Pedal, compositionConfiguration.Meter);
 
-        var ornamentationDuration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Pedal, compositionConfiguration.Meter);
+        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Pedal, compositionConfiguration.Meter);
 
         foreach (var note in ornamentationNotes)
         {
             currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, note)
             {
-                MusicalTimeSpan = ornamentationDuration
+                MusicalTimeSpan = ornamentationTimeSpan
             });
         }
 

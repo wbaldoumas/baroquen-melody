@@ -67,7 +67,7 @@ internal sealed class BaroquenNoteTests
             var noteWithDifferentPitch = new BaroquenNote(Voice.Soprano, Notes.D1);
             var noteWithDifferentVoice = new BaroquenNote(Voice.Alto, Notes.C1);
 
-            var noteWithDifferentDuration = new BaroquenNote(Voice.Soprano, Notes.C1)
+            var noteWithDifferentMusicalTimeSpan = new BaroquenNote(Voice.Soprano, Notes.C1)
             {
                 MusicalTimeSpan = note.MusicalTimeSpan.Triplet()
             };
@@ -87,7 +87,7 @@ internal sealed class BaroquenNoteTests
 
             yield return new TestCaseData(note, noteWithDifferentVoice, false).SetName("Notes with different voices are not equal");
 
-            yield return new TestCaseData(note, noteWithDifferentDuration, false).SetName("Notes with different durations are not equal");
+            yield return new TestCaseData(note, noteWithDifferentMusicalTimeSpan, false).SetName("Notes with different musical time spans are not equal");
 
             yield return new TestCaseData(note, noteWithOrnamentation, false).SetName("Notes with different ornamentations are not equal");
 
