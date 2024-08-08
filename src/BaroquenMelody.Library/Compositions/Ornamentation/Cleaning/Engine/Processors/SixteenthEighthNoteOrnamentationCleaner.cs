@@ -3,14 +3,10 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 
-internal sealed class SixteenthEighthNoteOrnamentationCleaner(
-    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
-    CompositionConfiguration compositionConfiguration
-) : IProcessor<OrnamentationCleaningItem>
+internal sealed class SixteenthEighthNoteOrnamentationCleaner(CompositionConfiguration compositionConfiguration) : IProcessor<OrnamentationCleaningItem>
 {
     private static readonly (int EighthNoteIndex, int SixteenthNoteIndex)[] IndicesToCheck = [(0, 1), (1, 3), (2, 5)];
 
@@ -33,15 +29,13 @@ internal sealed class SixteenthEighthNoteOrnamentationCleaner(
             return;
         }
 
-        var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
-
         if (noteWithEighthNotes > noteWithSixteenthNotes)
         {
-            noteWithSixteenthNotes.ResetOrnamentation(defaultTimeSpan);
+            noteWithSixteenthNotes.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
         }
         else
         {
-            noteWithEighthNotes.ResetOrnamentation(defaultTimeSpan);
+            noteWithEighthNotes.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
         }
     }
 }

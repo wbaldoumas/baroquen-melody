@@ -5,6 +5,7 @@ using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Strategies;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -40,18 +41,7 @@ internal sealed class ThemeComposerTests
         _mockNoteTransposer = Substitute.For<INoteTransposer>();
         _mockLogger = Substitute.For<ILogger>();
 
-        _compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, Notes.C4, Notes.C5),
-                new(Voice.Alto, Notes.C3, Notes.C4),
-                new(Voice.Tenor, Notes.C2, Notes.C3),
-                new(Voice.Bass, Notes.C1, Notes.C2)
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        _compositionConfiguration = Configurations.GetCompositionConfiguration();
 
         _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockNoteTransposer, _mockLogger, _compositionConfiguration);
     }

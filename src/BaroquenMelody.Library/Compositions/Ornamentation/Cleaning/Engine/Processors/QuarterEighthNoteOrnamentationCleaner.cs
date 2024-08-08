@@ -3,14 +3,10 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 
-internal sealed class QuarterEighthNoteOrnamentationCleaner(
-    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
-    CompositionConfiguration compositionConfiguration
-) : IProcessor<OrnamentationCleaningItem>
+internal sealed class QuarterEighthNoteOrnamentationCleaner(CompositionConfiguration compositionConfiguration) : IProcessor<OrnamentationCleaningItem>
 {
     private const int PassingToneIndexToCheck = 0;
 
@@ -35,8 +31,6 @@ internal sealed class QuarterEighthNoteOrnamentationCleaner(
             return;
         }
 
-        var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
-
-        noteWithPassingToneOrnamentation.ResetOrnamentation(defaultTimeSpan);
+        noteWithPassingToneOrnamentation.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
     }
 }

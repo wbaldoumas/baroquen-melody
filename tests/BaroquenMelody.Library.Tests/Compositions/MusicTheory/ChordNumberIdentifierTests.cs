@@ -1,8 +1,8 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -18,17 +18,7 @@ internal sealed class ChordNumberIdentifierTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, Notes.C3, Notes.G6),
-                new(Voice.Alto, Notes.C2, Notes.G5),
-                new(Voice.Tenor, Notes.C1, Notes.G4)
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(3);
 
         _chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
     }

@@ -1,8 +1,8 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Midi;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -18,16 +18,7 @@ internal sealed class MidiGeneratorTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, Notes.C3, Notes.C5),
-                new(Voice.Alto, Notes.C2, Notes.C4)
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(2);
 
         _midiGenerator = new MidiGenerator(compositionConfiguration);
     }

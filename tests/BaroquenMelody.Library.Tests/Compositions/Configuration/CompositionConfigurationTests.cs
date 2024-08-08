@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Extensions;
 using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests.Compositions.Configuration;
@@ -27,8 +28,11 @@ internal sealed class CompositionConfigurationTests
                 new(Voice.Tenor, 36.ToNote(), 48.ToNote()),
                 new(Voice.Bass, 24.ToNote(), 36.ToNote())
             },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
             BaroquenScale.Parse("C Major"),
             Meter.FourFour,
+            MusicalTimeSpan.Half,
             CompositionLength: 100
         );
     }

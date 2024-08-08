@@ -1,11 +1,8 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Extensions;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Strategies;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -20,8 +17,6 @@ internal sealed class CompositionStrategyFactoryTests
 
     private ICompositionRule _mockCompositionRule = null!;
 
-    private IMusicalTimeSpanCalculator _mockMusicalTimeSpanCalculator = null!;
-
     private ILogger _mockLogger = null!;
 
     private CompositionStrategyFactory _compositionStrategyFactory = null!;
@@ -31,10 +26,9 @@ internal sealed class CompositionStrategyFactoryTests
     {
         _mockChordChoiceRepositoryFactory = Substitute.For<IChordChoiceRepositoryFactory>();
         _mockCompositionRule = Substitute.For<ICompositionRule>();
-        _mockMusicalTimeSpanCalculator = Substitute.For<IMusicalTimeSpanCalculator>();
         _mockLogger = Substitute.For<ILogger>();
 
-        _compositionStrategyFactory = new CompositionStrategyFactory(_mockChordChoiceRepositoryFactory, _mockCompositionRule, _mockMusicalTimeSpanCalculator, _mockLogger);
+        _compositionStrategyFactory = new CompositionStrategyFactory(_mockChordChoiceRepositoryFactory, _mockCompositionRule, _mockLogger);
     }
 
     [Test]
@@ -47,16 +41,7 @@ internal sealed class CompositionStrategyFactoryTests
 
         mockChordChoiceRepository.Count.Returns(500);
 
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
-                new(Voice.Alto, 45.ToNote(), 80.ToNote())
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(2);
 
         // act
         var compositionStrategy = _compositionStrategyFactory.Create(compositionConfiguration);

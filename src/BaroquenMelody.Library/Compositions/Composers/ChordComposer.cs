@@ -1,8 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Extensions;
-using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Infrastructure.Exceptions;
 using BaroquenMelody.Library.Infrastructure.Logging;
@@ -14,7 +12,6 @@ namespace BaroquenMelody.Library.Compositions.Composers;
 /// <inheritdoc cref="IChordComposer"/>
 internal sealed class ChordComposer(
     ICompositionStrategy compositionStrategy,
-    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     CompositionConfiguration compositionConfiguration,
     ILogger logger) : IChordComposer
 {
@@ -22,11 +19,10 @@ internal sealed class ChordComposer(
     {
         var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(precedingChords);
         var chordChoice = possibleChordChoices.MinBy(static _ => ThreadLocalRandom.Next());
-        var timeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
 
         if (chordChoice != null)
         {
-            return precedingChords[^1].ApplyChordChoice(compositionConfiguration.Scale, chordChoice, timeSpan);
+            return precedingChords[^1].ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan);
         }
 
         logger.NoValidChordChoicesAvailable();

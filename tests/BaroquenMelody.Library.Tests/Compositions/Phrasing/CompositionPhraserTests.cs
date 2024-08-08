@@ -1,10 +1,10 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Infrastructure.Random;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -211,15 +211,8 @@ internal sealed class CompositionPhraserTests
 
     private CompositionPhraser CreatePhraser(PhrasingConfiguration phrasingConfiguration)
     {
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>(),
-            phrasingConfiguration,
-            AggregateCompositionRuleConfiguration.Default,
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            16
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(2) with { PhrasingConfiguration = phrasingConfiguration };
 
-        return new CompositionPhraser(_mockCompositionRule, _mockThemeSplitter, _weightedRandomBooleanGenerator, new MusicalTimeSpanCalculator(), _mockLogger, compositionConfiguration);
+        return new CompositionPhraser(_mockCompositionRule, _mockThemeSplitter, _weightedRandomBooleanGenerator, _mockLogger, compositionConfiguration);
     }
 }

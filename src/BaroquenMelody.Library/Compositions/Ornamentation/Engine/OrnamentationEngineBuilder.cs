@@ -32,13 +32,13 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
     private readonly IInputPolicy<OrnamentationItem> _hasNoOrnamentation = new Not<OrnamentationItem>(new HasOrnamentation());
 
     private readonly OrnamentationCleaningEngineBuilder _ornamentationCleaningEngineBuilder = new(
-        new QuarterNoteOrnamentationCleaner(musicalTimeSpanCalculator, compositionConfiguration),
-        new EighthNoteOrnamentationCleaner(musicalTimeSpanCalculator, compositionConfiguration),
-        new QuarterEighthNoteOrnamentationCleaner(musicalTimeSpanCalculator, compositionConfiguration),
-        new TurnAlternateTurnOrnamentationCleaner(musicalTimeSpanCalculator, compositionConfiguration),
-        new SixteenthNoteOrnamentationCleaner(musicalTimeSpanCalculator, compositionConfiguration),
-        new SixteenthEighthNoteOrnamentationCleaner(musicalTimeSpanCalculator, compositionConfiguration),
-        new MordentEighthNoteOrnamentationCleaner(musicalTimeSpanCalculator, compositionConfiguration)
+        new QuarterNoteOrnamentationCleaner(compositionConfiguration),
+        new EighthNoteOrnamentationCleaner(compositionConfiguration),
+        new QuarterEighthNoteOrnamentationCleaner(compositionConfiguration),
+        new TurnAlternateTurnOrnamentationCleaner(compositionConfiguration),
+        new SixteenthNoteOrnamentationCleaner(compositionConfiguration),
+        new SixteenthEighthNoteOrnamentationCleaner(compositionConfiguration),
+        new MordentEighthNoteOrnamentationCleaner(compositionConfiguration)
     );
 
     public IPolicyEngine<OrnamentationItem> BuildOrnamentationEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()

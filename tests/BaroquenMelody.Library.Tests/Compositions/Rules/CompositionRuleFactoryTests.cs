@@ -1,11 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Rules.Enums;
 using BaroquenMelody.Library.Infrastructure.Random;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
-using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -19,16 +17,7 @@ internal sealed class CompositionRuleFactoryTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, Notes.C3, Notes.C5),
-                new(Voice.Alto, Notes.C2, Notes.C4)
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(2);
 
         _factory = new CompositionRuleFactory(compositionConfiguration, Substitute.For<IWeightedRandomBooleanGenerator>());
     }

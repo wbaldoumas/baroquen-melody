@@ -1,15 +1,10 @@
 ﻿using Atrea.PolicyEngine.Processors;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Extensions;
-using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 
-internal sealed class EighthNoteOrnamentationCleaner(
-    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
-    CompositionConfiguration compositionConfiguration
-) : IProcessor<OrnamentationCleaningItem>
+internal sealed class EighthNoteOrnamentationCleaner(CompositionConfiguration compositionConfiguration) : IProcessor<OrnamentationCleaningItem>
 {
     private static readonly int[] _ornamentationIndices = [0, 1, 2];
 
@@ -20,15 +15,13 @@ internal sealed class EighthNoteOrnamentationCleaner(
             return;
         }
 
-        var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
-
         if (item.Note > item.OtherNote)
         {
-            item.OtherNote.ResetOrnamentation(defaultTimeSpan);
+            item.OtherNote.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
         }
         else
         {
-            item.Note.ResetOrnamentation(defaultTimeSpan);
+            item.Note.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
         }
     }
 }

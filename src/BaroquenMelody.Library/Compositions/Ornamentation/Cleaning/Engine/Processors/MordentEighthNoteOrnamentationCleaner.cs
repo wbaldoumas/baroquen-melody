@@ -2,14 +2,10 @@
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 
-internal sealed class MordentEighthNoteOrnamentationCleaner(
-    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
-    CompositionConfiguration compositionConfiguration
-) : IProcessor<OrnamentationCleaningItem>
+internal sealed class MordentEighthNoteOrnamentationCleaner(CompositionConfiguration compositionConfiguration) : IProcessor<OrnamentationCleaningItem>
 {
     private const int IndexToCheck = 1;
 
@@ -20,15 +16,13 @@ internal sealed class MordentEighthNoteOrnamentationCleaner(
             return;
         }
 
-        var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
-
         if (item.Note.OrnamentationType == OrnamentationType.Mordent)
         {
-            item.Note.ResetOrnamentation(defaultTimeSpan);
+            item.Note.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
         }
         else
         {
-            item.OtherNote.ResetOrnamentation(defaultTimeSpan);
+            item.OtherNote.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
         }
     }
 }

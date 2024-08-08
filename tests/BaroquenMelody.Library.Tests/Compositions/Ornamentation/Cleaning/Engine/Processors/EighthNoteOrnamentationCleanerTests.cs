@@ -3,7 +3,6 @@ using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
@@ -20,7 +19,7 @@ internal sealed class EighthNoteOrnamentationCleanerTests
     [SetUp]
     public void SetUp()
     {
-        _cleaner = new EighthNoteOrnamentationCleaner(new MusicalTimeSpanCalculator(), Configurations.CompositionConfiguration);
+        _cleaner = new EighthNoteOrnamentationCleaner(Configurations.GetCompositionConfiguration());
     }
 
     [Test]

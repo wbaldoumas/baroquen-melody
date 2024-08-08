@@ -1,7 +1,7 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -17,16 +17,7 @@ internal sealed class HandleAscendingSeventhTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, Notes.G5, Notes.G6),
-                new(Voice.Alto, Notes.C4, Notes.G5)
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            100
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(2);
 
         _handleAscendingSeventh = new HandleAscendingSeventh(compositionConfiguration);
     }

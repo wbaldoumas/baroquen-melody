@@ -2,10 +2,9 @@
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Extensions;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Strategies;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -19,29 +18,11 @@ namespace BaroquenMelody.Library.Tests.Compositions.Strategies;
 [TestFixture]
 internal sealed class CompositionStrategyTests
 {
-    private const byte MinSopranoPitch = 60;
-
-    private const byte MaxSopranoPitch = 72;
-
-    private const byte MinAltoPitch = 48;
-
-    private const byte MaxAltoPitch = 60;
-
-    private const byte MinTenorPitch = 36;
-
-    private const byte MaxTenorPitch = 48;
-
-    private const byte MinBassPitch = 24;
-
-    private const byte MaxBassPitch = 36;
-
     private static readonly BigInteger MockChordChoiceCount = 5;
 
     private IChordChoiceRepository _mockChordChoiceRepository = default!;
 
     private ICompositionRule _mockCompositionRule = default!;
-
-    private IMusicalTimeSpanCalculator _mockMusicalTimeSpanCalculator = default!;
 
     private ILogger _mockLogger = default!;
 
@@ -54,28 +35,15 @@ internal sealed class CompositionStrategyTests
     {
         _mockChordChoiceRepository = Substitute.For<IChordChoiceRepository>();
         _mockCompositionRule = Substitute.For<ICompositionRule>();
-        _mockMusicalTimeSpanCalculator = Substitute.For<IMusicalTimeSpanCalculator>();
         _mockLogger = Substitute.For<ILogger>();
 
         _mockChordChoiceRepository.Count.Returns(MockChordChoiceCount);
 
-        _compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, MinSopranoPitch.ToNote(), MaxSopranoPitch.ToNote()),
-                new(Voice.Alto, MinAltoPitch.ToNote(), MaxAltoPitch.ToNote()),
-                new(Voice.Tenor, MinTenorPitch.ToNote(), MaxTenorPitch.ToNote()),
-                new(Voice.Bass, MinBassPitch.ToNote(), MaxBassPitch.ToNote())
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        _compositionConfiguration = Configurations.GetCompositionConfiguration();
 
         _compositionStrategy = new CompositionStrategy(
             _mockChordChoiceRepository,
             _mockCompositionRule,
-            _mockMusicalTimeSpanCalculator,
             _mockLogger,
             _compositionConfiguration
         );

@@ -6,7 +6,6 @@ using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using BaroquenMelody.Library.Infrastructure.Collections.Extensions;
@@ -23,7 +22,6 @@ internal sealed class EndingComposer(
     ICompositionStrategy compositionStrategy,
     ICompositionDecorator compositionDecorator,
     IChordNumberIdentifier chordNumberIdentifier,
-    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
 ) : IEndingComposer
@@ -58,14 +56,13 @@ internal sealed class EndingComposer(
     private Composition GetBridgingComposition(Composition composition, BaroquenTheme theme)
     {
         var firstChordOfRecapitulation = new BaroquenChord(theme.Recapitulation[0].Beats[0].Chord);
-        var timeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
 
-        firstChordOfRecapitulation.ResetOrnamentation(timeSpan);
+        firstChordOfRecapitulation.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
 
         var bridgingChords = GetBridgingChords(composition, firstChordOfRecapitulation);
         var lastChordOfComposition = new BaroquenChord(composition.Measures[^1].Beats[^1].Chord);
 
-        lastChordOfComposition.ResetOrnamentation(timeSpan);
+        lastChordOfComposition.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
 
         var chords = new List<BaroquenChord> { lastChordOfComposition };
 
@@ -121,7 +118,6 @@ internal sealed class EndingComposer(
     private BaroquenChord GetBridgingChord(IReadOnlyList<BaroquenChord> compositionContext, BaroquenChord targetChord)
     {
         var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(compositionContext);
-        var timeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
 
         foreach (var chordChoice in possibleChordChoices)
         {
@@ -132,7 +128,7 @@ internal sealed class EndingComposer(
                 workingCompositionContext.Add(chord);
             }
 
-            var possibleChord = compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, chordChoice, timeSpan);
+            var possibleChord = compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan);
 
             workingCompositionContext.Add(possibleChord);
 
@@ -169,9 +165,8 @@ internal sealed class EndingComposer(
         }
 
         var finalChordOfComposition = composition.Measures[^1].Beats[^1].Chord;
-        var timeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
 
-        finalChordOfComposition.ResetOrnamentation(timeSpan);
+        finalChordOfComposition.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
 
         foreach (var note in finalChordOfComposition.Notes)
         {
@@ -180,7 +175,7 @@ internal sealed class EndingComposer(
 
         var restingChord = new BaroquenChord(finalChordOfComposition);
 
-        restingChord.ResetOrnamentation(timeSpan);
+        restingChord.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
 
         foreach (var note in restingChord.Notes)
         {
@@ -199,7 +194,6 @@ internal sealed class EndingComposer(
 
         var lastChordOfComposition = compositionContext[^1];
         var chords = new List<BaroquenChord> { lastChordOfComposition };
-        var timeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
 
         while (true)
         {
@@ -208,7 +202,7 @@ internal sealed class EndingComposer(
 
             foreach (var possibleChordChoice in possibleChordChoices)
             {
-                var potentialTonicChord = compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, possibleChordChoice, timeSpan);
+                var potentialTonicChord = compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, possibleChordChoice, compositionConfiguration.DefaultNoteTimeSpan);
 
                 if (chordNumberIdentifier.IdentifyChordNumber(potentialTonicChord) != ChordNumber.I)
                 {
@@ -253,11 +247,10 @@ internal sealed class EndingComposer(
     private BaroquenChord GetNextChord(IReadOnlyList<ChordChoice> possibleChordChoices, IReadOnlyList<BaroquenChord> compositionContext)
     {
         var chordChoice = possibleChordChoices.MinBy(static _ => ThreadLocalRandom.Next());
-        var timeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
 
         if (chordChoice is not null)
         {
-            return compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, chordChoice, timeSpan);
+            return compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan);
         }
 
         logger.NoValidChordChoicesAvailable();

@@ -1,10 +1,10 @@
 ﻿using Atrea.PolicyEngine.Policies.Input;
-using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Infrastructure.Collections;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -20,20 +20,7 @@ internal sealed class IsIntervalWithinVoiceRangeTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, Notes.C5, Notes.G6),
-                new(Voice.Alto, Notes.G3, Notes.C5),
-                new(Voice.Tenor, Notes.C2, Notes.G3),
-                new(Voice.Bass, Notes.G0, Notes.C2)
-            },
-            PhrasingConfiguration.Default,
-            AggregateCompositionRuleConfiguration.Default,
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            25
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration();
 
         _isIntervalWithinVoiceRange = new IsIntervalWithinVoiceRange(compositionConfiguration, interval: 5);
     }

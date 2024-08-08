@@ -1,8 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
-using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -46,16 +44,7 @@ internal sealed class DuetChordChoiceRepositoryTests
     public void WhenDuetChordChoiceRepositoryIsConstructed_ItGeneratesNoteChoices()
     {
         // arrange
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
-                new(Voice.Alto, 45.ToNote(), 80.ToNote())
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(2);
 
         var duetChordChoiceRepository = new DuetChordChoiceRepository(
             compositionConfiguration,
@@ -85,17 +74,7 @@ internal sealed class DuetChordChoiceRepositoryTests
     public void WhenInvalidCompositionConfigurationIsPassedToDuetChordChoiceRepository_ItThrows()
     {
         // arrange
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
-                new(Voice.Alto, 45.ToNote(), 80.ToNote()),
-                new(Voice.Tenor, 35.ToNote(), 70.ToNote())
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(3);
 
         // act
         var act = () => _ = new DuetChordChoiceRepository(
@@ -111,16 +90,7 @@ internal sealed class DuetChordChoiceRepositoryTests
     public void GetChordChoiceId_ReturnsExpectedId()
     {
         // arrange
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
-                new(Voice.Alto, 45.ToNote(), 80.ToNote())
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(2);
 
         var duetChordChoiceRepository = new DuetChordChoiceRepository(
             compositionConfiguration,

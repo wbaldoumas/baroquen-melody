@@ -1,7 +1,7 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -17,18 +17,7 @@ internal sealed class EnsureVoiceRangeTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, Notes.C3, Notes.C4),
-                new(Voice.Alto, Notes.G2, Notes.G3),
-                new(Voice.Tenor, Notes.C2, Notes.C3),
-                new(Voice.Bass, Notes.G1, Notes.G2)
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(2);
 
         _ensureVoiceRange = new EnsureVoiceRange(compositionConfiguration);
     }
@@ -43,7 +32,7 @@ internal sealed class EnsureVoiceRangeTests
         get
         {
             yield return new TestCaseData(
-                new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C3, MusicalTimeSpan.Half)]),
+                new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C5, MusicalTimeSpan.Half)]),
                 true
             ).SetName("Soprano note is in range.");
 

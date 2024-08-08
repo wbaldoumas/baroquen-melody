@@ -3,14 +3,10 @@ using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 
-internal sealed class QuarterNoteOrnamentationCleaner(
-    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
-    CompositionConfiguration compositionConfiguration
-) : IProcessor<OrnamentationCleaningItem>
+internal sealed class QuarterNoteOrnamentationCleaner(CompositionConfiguration compositionConfiguration) : IProcessor<OrnamentationCleaningItem>
 {
     private const int IndexToCheck = 0;
 
@@ -24,25 +20,23 @@ internal sealed class QuarterNoteOrnamentationCleaner(
             return;
         }
 
-        var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
-
         if (ShouldCleanNoteBasedOnOrnamentation(note, otherNote))
         {
-            otherNote.ResetOrnamentation(defaultTimeSpan);
+            otherNote.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
         }
         else if (ShouldCleanNoteBasedOnOrnamentation(otherNote, note))
         {
-            note.ResetOrnamentation(defaultTimeSpan);
+            note.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
         }
         else
         {
             if (note > otherNote)
             {
-                otherNote.ResetOrnamentation(defaultTimeSpan);
+                otherNote.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
             }
             else
             {
-                note.ResetOrnamentation(defaultTimeSpan);
+                note.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
             }
         }
     }
