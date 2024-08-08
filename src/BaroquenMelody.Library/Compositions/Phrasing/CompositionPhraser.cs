@@ -1,7 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using BaroquenMelody.Library.Infrastructure.Logging;
@@ -16,7 +15,6 @@ internal sealed class CompositionPhraser(
     ICompositionRule compositionRule,
     IThemeSplitter themeSplitter,
     IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
-    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
 ) : ICompositionPhraser
@@ -43,11 +41,9 @@ internal sealed class CompositionPhraser(
     {
         themePhrasesToRepeat = themeSplitter.SplitThemeIntoPhrases(theme);
 
-        var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
-
         foreach (var themePhraseToRepeat in themePhrasesToRepeat.ToList())
         {
-            ResetPhraseEndOrnamentation(themePhraseToRepeat.Phrase[^1], defaultTimeSpan);
+            ResetPhraseEndOrnamentation(themePhraseToRepeat.Phrase[^1], compositionConfiguration.DefaultNoteTimeSpan);
         }
     }
 
@@ -126,9 +122,7 @@ internal sealed class CompositionPhraser(
 
             phrasesToRepeat.Add(repeatedPhrase);
 
-            var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
-
-            ResetPhraseEndOrnamentation(measures[^1], defaultTimeSpan);
+            ResetPhraseEndOrnamentation(measures[^1], compositionConfiguration.DefaultNoteTimeSpan);
 
             measures.AddRange(lastMeasures.Select(static measure => new Measure(measure)));
 
@@ -158,9 +152,7 @@ internal sealed class CompositionPhraser(
             return false;
         }
 
-        var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
-
-        ResetPhraseEndOrnamentation(measures[^1], defaultTimeSpan);
+        ResetPhraseEndOrnamentation(measures[^1], compositionConfiguration.DefaultNoteTimeSpan);
 
         measures.AddRange(repeatedPhrase.Phrase.Select(static measure => new Measure(measure)).ToList());
         repeatedPhrase.RepetitionCount++;

@@ -2,8 +2,6 @@
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Extensions;
-using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Infrastructure.Exceptions;
 using BaroquenMelody.Library.Infrastructure.Logging;
@@ -17,7 +15,6 @@ namespace BaroquenMelody.Library.Compositions.Strategies;
 internal sealed class CompositionStrategy(
     IChordChoiceRepository chordChoiceRepository,
     ICompositionRule compositionRule,
-    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     ILogger logger,
     CompositionConfiguration compositionConfiguration,
     int maxRepeatedNotes = 2,
@@ -43,14 +40,14 @@ internal sealed class CompositionStrategy(
     {
         var startingNoteCounts = compositionConfiguration.Scale.I.ToDictionary(noteName => noteName, _ => 0);
         var rawNotes = compositionConfiguration.Scale.GetNotes();
-        var musicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
 
         var notes = compositionConfiguration.VoiceConfigurations
             .Select(voiceConfiguration =>
                 new BaroquenNote(
                     voiceConfiguration.Voice,
                     ChooseStartingNote(voiceConfiguration, rawNotes, compositionConfiguration.Scale.I, ref startingNoteCounts),
-                    musicalTimeSpan)
+                    compositionConfiguration.DefaultNoteTimeSpan
+                )
             )
             .ToList();
 
@@ -61,10 +58,9 @@ internal sealed class CompositionStrategy(
     {
         var currentChord = precedingChords[^1];
         var possibleChordChoices = GetPossibleChordChoices(precedingChords);
-        var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
 
         return possibleChordChoices
-            .Select(chordChoice => currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice, defaultTimeSpan))
+            .Select(chordChoice => currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan))
             .ToList();
     }
 
@@ -120,12 +116,11 @@ internal sealed class CompositionStrategy(
     private IEnumerable<(ChordChoice ChordChoice, BaroquenChord Chord)> GetValidChordChoicesAndChords(IReadOnlyList<BaroquenChord> precedingChords)
     {
         var currentChord = precedingChords[^1];
-        var defaultTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, compositionConfiguration.Meter);
 
         for (var chordChoiceId = 0; chordChoiceId < chordChoiceRepository.Count; ++chordChoiceId)
         {
             var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceId);
-            var nextChord = currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice, defaultTimeSpan);
+            var nextChord = currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan);
 
             if (compositionRule.Evaluate(precedingChords, nextChord))
             {

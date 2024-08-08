@@ -1,8 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
-using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -65,21 +63,10 @@ internal sealed class QuartetChordChoiceRepositoryTests
     }
 
     [Test]
-    public void WhenDuetChordChoiceRepositoryIsConstructed_ItGeneratesNoteChoices()
+    public void WhenQuartetChordChoiceRepositoryIsConstructed_ItGeneratesNoteChoices()
     {
         // arrange
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
-                new(Voice.Alto, 45.ToNote(), 80.ToNote()),
-                new(Voice.Tenor, 35.ToNote(), 70.ToNote()),
-                new(Voice.Bass, 25.ToNote(), 60.ToNote())
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration();
 
         var quartetChordChoiceRepository = new QuartetChordChoiceRepository(
             compositionConfiguration,
@@ -108,19 +95,10 @@ internal sealed class QuartetChordChoiceRepositoryTests
     }
 
     [Test]
-    public void WhenInvalidCompositionConfigurationIsPassedToDuetChordChoiceRepository_ItThrows()
+    public void WhenInvalidCompositionConfigurationIsPassedToQuartetChordChoiceRepository_ItThrows()
     {
         // arrange
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
-                new(Voice.Alto, 45.ToNote(), 80.ToNote())
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(2);
 
         // act
         var act = () => _ = new QuartetChordChoiceRepository(
@@ -136,18 +114,7 @@ internal sealed class QuartetChordChoiceRepositoryTests
     public void GetChordChoiceId_ReturnsExpectedIndex()
     {
         // arrange
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, 55.ToNote(), 90.ToNote()),
-                new(Voice.Alto, 45.ToNote(), 80.ToNote()),
-                new(Voice.Tenor, 35.ToNote(), 70.ToNote()),
-                new(Voice.Bass, 25.ToNote(), 60.ToNote())
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        var compositionConfiguration = Configurations.GetCompositionConfiguration();
 
         var quartetChordChoiceRepository = new QuartetChordChoiceRepository(
             compositionConfiguration,

@@ -1,7 +1,7 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -15,32 +15,7 @@ internal sealed class AvoidDissonantLeapsTests
     private AvoidDissonantLeaps _avoidDissonantLeaps = null!;
 
     [SetUp]
-    public void SetUp()
-    {
-        var phrasingConfiguration = new PhrasingConfiguration(
-            PhraseLengths: [2, 4, 8],
-            MaxPhraseRepetitions: 4,
-            MinPhraseRepetitionPoolSize: 10,
-            PhraseRepetitionProbability: 90
-        );
-
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, Notes.G5, Notes.G6),
-                new(Voice.Alto, Notes.C4, Notes.G5),
-                new(Voice.Tenor, Notes.C3, Notes.C4),
-                new(Voice.Bass, Notes.C2, Notes.C3)
-            },
-            phrasingConfiguration,
-            AggregateCompositionRuleConfiguration.Default,
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            100
-        );
-
-        _avoidDissonantLeaps = new AvoidDissonantLeaps(compositionConfiguration);
-    }
+    public void SetUp() => _avoidDissonantLeaps = new AvoidDissonantLeaps(Configurations.GetCompositionConfiguration());
 
     [Test]
     [TestCaseSource(nameof(TestCases))]

@@ -6,6 +6,7 @@ using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Rules;
@@ -28,6 +29,10 @@ var phrasingConfiguration = new PhrasingConfiguration(
     PhraseRepetitionProbability: 100
 );
 
+var musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
+
+var meter = Meter.FourFour;
+
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
@@ -39,7 +44,8 @@ var compositionConfiguration = new CompositionConfiguration(
     phrasingConfiguration,
     AggregateCompositionRuleConfiguration.Default,
     BaroquenScale.Parse("C Ionian"),
-    Meter.FourFour,
+    meter,
+    musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, meter),
     25
 );
 
@@ -48,14 +54,12 @@ var logger = factory.CreateLogger<Composer>();
 
 var compositionRuleFactory = new CompositionRuleFactory(compositionConfiguration, new WeightedRandomBooleanGenerator());
 var compositionRule = compositionRuleFactory.CreateAggregate(compositionConfiguration.AggregateCompositionRuleConfiguration);
-var musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
 
 var compositionStrategyFactory = new CompositionStrategyFactory(
     new ChordChoiceRepositoryFactory(
         new NoteChoiceGenerator()
     ),
     compositionRule,
-    musicalTimeSpanCalculator,
     logger
 );
 
@@ -70,9 +74,9 @@ var compositionDecorator = new CompositionDecorator(
 
 var weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
 var themeSplitter = new ThemeSplitter();
-var compositionPhraser = new CompositionPhraser(compositionRule, themeSplitter, weightedRandomBooleanGenerator, musicalTimeSpanCalculator, logger, compositionConfiguration);
+var compositionPhraser = new CompositionPhraser(compositionRule, themeSplitter, weightedRandomBooleanGenerator, logger, compositionConfiguration);
 var noteTransposer = new NoteTransposer(compositionConfiguration);
-var chordComposer = new ChordComposer(compositionStrategy, musicalTimeSpanCalculator, compositionConfiguration, logger);
+var chordComposer = new ChordComposer(compositionStrategy, compositionConfiguration, logger);
 var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
 
 var themeComposer = new ThemeComposer(
@@ -88,7 +92,6 @@ var endingComposer = new EndingComposer(
     compositionStrategy,
     compositionDecorator,
     chordNumberIdentifier,
-    musicalTimeSpanCalculator,
     logger,
     compositionConfiguration
 );

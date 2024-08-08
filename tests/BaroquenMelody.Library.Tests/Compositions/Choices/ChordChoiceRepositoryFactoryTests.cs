@@ -1,10 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
-using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
-using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -32,16 +28,8 @@ internal sealed class ChordChoiceRepositoryFactoryTests
         int numberOfVoices,
         Type expectedType)
     {
-        // arrange
-        var compositionConfiguration = new CompositionConfiguration(
-            GenerateVoiceConfigurations(numberOfVoices),
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
-
         // act
-        var chordChoiceRepository = _chordChoiceRepositoryFactory.Create(compositionConfiguration);
+        var chordChoiceRepository = _chordChoiceRepositoryFactory.Create(Configurations.GetCompositionConfiguration(numberOfVoices));
 
         // assert
         chordChoiceRepository.Should().BeOfType(expectedType);
@@ -50,45 +38,10 @@ internal sealed class ChordChoiceRepositoryFactoryTests
     [Test]
     public void WhenChordChoiceRepositoryIsPassedInvalidConfiguration_ItThrows()
     {
-        // arrange
-        var compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                // invalid configuration: only one voice
-                new(Voice.Soprano, 55.ToNote(), 90.ToNote())
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
-
         // act
-        var act = () => _chordChoiceRepositoryFactory.Create(compositionConfiguration);
+        var act = () => _chordChoiceRepositoryFactory.Create(Configurations.GetCompositionConfiguration(1));
 
         // assert
         act.Should().Throw<ArgumentException>();
     }
-
-    private static HashSet<VoiceConfiguration> GenerateVoiceConfigurations(int numberOfVoices) => numberOfVoices switch
-    {
-        2 =>
-        [
-            new VoiceConfiguration(Voice.Soprano, Notes.C4, Notes.C5),
-            new VoiceConfiguration(Voice.Alto, Notes.C3, Notes.C4)
-        ],
-        3 =>
-        [
-            new VoiceConfiguration(Voice.Soprano, Notes.C4, Notes.C5),
-            new VoiceConfiguration(Voice.Alto, Notes.C3, Notes.C4),
-            new VoiceConfiguration(Voice.Tenor, Notes.C2, Notes.C3)
-        ],
-        4 =>
-        [
-            new VoiceConfiguration(Voice.Soprano, Notes.C4, Notes.C5),
-            new VoiceConfiguration(Voice.Alto, Notes.C3, Notes.C4),
-            new VoiceConfiguration(Voice.Tenor, Notes.C2, Notes.C3),
-            new VoiceConfiguration(Voice.Bass, Notes.C1, Notes.C2)
-        ],
-        _ => throw new ArgumentException("Invalid number of voices.")
-    };
 }

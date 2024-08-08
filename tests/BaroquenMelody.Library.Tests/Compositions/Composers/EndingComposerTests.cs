@@ -6,8 +6,8 @@ using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Strategies;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -28,8 +28,6 @@ internal sealed class EndingComposerTests
 
     private IChordNumberIdentifier _mockChordNumberIdentifier = null!;
 
-    private IMusicalTimeSpanCalculator _musicalTimeSpanCalculator = null!;
-
     private ILogger _mockLogger = null!;
 
     private CompositionConfiguration _compositionConfiguration = null!;
@@ -40,25 +38,13 @@ internal sealed class EndingComposerTests
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
         _mockCompositionDecorator = Substitute.For<ICompositionDecorator>();
         _mockChordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
-        _musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
         _mockLogger = Substitute.For<ILogger>();
 
-        _compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
-            {
-                new(Voice.Soprano, Notes.C4, Notes.C5),
-                new(Voice.Alto, Notes.C3, Notes.C4),
-                new(Voice.Tenor, Notes.C2, Notes.C3),
-                new(Voice.Bass, Notes.C1, Notes.C2)
-            },
-            BaroquenScale.Parse("C Major"),
-            Meter.FourFour,
-            CompositionLength: 100
-        );
+        _compositionConfiguration = Configurations.GetCompositionConfiguration();
 
         _mockChordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
 
-        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, _musicalTimeSpanCalculator, _mockLogger, _compositionConfiguration);
+        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, _mockLogger, _compositionConfiguration);
     }
 
     [Test]

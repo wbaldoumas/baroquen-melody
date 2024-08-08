@@ -25,6 +25,7 @@ internal static class BenchmarkData
         AggregateCompositionRuleConfiguration.Default,
         BaroquenScale.Parse("D Dorian"),
         Meter.FourFour,
+        MusicalTimeSpan.Half,
         25
     );
 
