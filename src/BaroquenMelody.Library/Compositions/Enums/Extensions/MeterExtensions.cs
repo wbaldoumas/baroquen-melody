@@ -14,6 +14,7 @@ internal static class MeterExtensions
     public static int BeatsPerMeasure(this Meter meter) => meter switch
     {
         Meter.FourFour => 4,
+        Meter.ThreeFour => 3,
         _ => throw new ArgumentOutOfRangeException(nameof(meter), meter, null)
     };
 }

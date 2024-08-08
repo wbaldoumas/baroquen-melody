@@ -7,14 +7,15 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine;
 
-internal sealed class OrnamentationCleaningEngineBuilder(
+internal sealed class FourFourOrnamentationCleaningEngineBuilder(
     IProcessor<OrnamentationCleaningItem> passingToneOrnamentationCleaner,
     IProcessor<OrnamentationCleaningItem> eighthNoteOrnamentationCleaner,
     IProcessor<OrnamentationCleaningItem> quarterEighthNoteOrnamentationCleaner,
     IProcessor<OrnamentationCleaningItem> turnAlternateTurnOrnamentationCleaner,
     IProcessor<OrnamentationCleaningItem> sixteenthNoteOrnamentationCleaner,
     IProcessor<OrnamentationCleaningItem> sixteenthEighthNoteOrnamentationCleaner,
-    IProcessor<OrnamentationCleaningItem> mordentEighthNoteOrnamentationCleaner)
+    IProcessor<OrnamentationCleaningItem> mordentEighthNoteOrnamentationCleaner
+) : IOrnamentationCleaningEngineBuilder
 {
     public IPolicyEngine<OrnamentationCleaningItem> Build() => PolicyEngineBuilder<OrnamentationCleaningItem>.Configure()
         .WithoutInputPolicies()

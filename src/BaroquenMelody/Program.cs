@@ -31,7 +31,7 @@ var phrasingConfiguration = new PhrasingConfiguration(
 
 var musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
 
-var meter = Meter.FourFour;
+const Meter meter = Meter.ThreeFour;
 
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
@@ -43,10 +43,10 @@ var compositionConfiguration = new CompositionConfiguration(
     },
     phrasingConfiguration,
     AggregateCompositionRuleConfiguration.Default,
-    BaroquenScale.Parse("C Ionian"),
+    BaroquenScale.Parse("E Phrygian"),
     meter,
     musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, meter),
-    25
+    30
 );
 
 using var factory = LoggerFactory.Create(builder => builder.AddConsole());

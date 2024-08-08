@@ -2,9 +2,13 @@
 using Atrea.PolicyEngine.Builders;
 using Atrea.PolicyEngine.Policies.Input;
 using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine;
-using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors.FourFour;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors.MeterAgnostic;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors.ThreeFour;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Output;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
@@ -31,7 +35,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private readonly IInputPolicy<OrnamentationItem> _hasNoOrnamentation = new Not<OrnamentationItem>(new HasOrnamentation());
 
-    private readonly OrnamentationCleaningEngineBuilder _ornamentationCleaningEngineBuilder = new(
+    private readonly FourFourOrnamentationCleaningEngineBuilder _fourFourOrnamentationCleaningEngineBuilder = new(
         new QuarterNoteOrnamentationCleaner(compositionConfiguration),
         new EighthNoteOrnamentationCleaner(compositionConfiguration),
         new QuarterEighthNoteOrnamentationCleaner(compositionConfiguration),
@@ -39,6 +43,19 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         new SixteenthNoteOrnamentationCleaner(compositionConfiguration),
         new SixteenthEighthNoteOrnamentationCleaner(compositionConfiguration),
         new MordentEighthNoteOrnamentationCleaner(compositionConfiguration)
+    );
+
+    private readonly ThreeFourOrnamentationCleaningEngineBuilder _threeFourOrnamentationCleaningEngineBuilder = new(
+        new HalfQuarterOrnamentationCleaner(compositionConfiguration),
+        new EighthNoteOrnamentationCleaner(compositionConfiguration),
+        new HalfEighthNoteOrnamentationCleaner(compositionConfiguration),
+        new SixteenthEighthNoteOrnamentationCleaner(compositionConfiguration),
+        new DelayedRunEighthOrnamentationCleaner(compositionConfiguration),
+        new DoublePassingToneQuarterOrnamentationCleaner(compositionConfiguration),
+        new DoublePassingToneOrnamentationCleaner(compositionConfiguration),
+        new HalfQuarterEighthOrnamentationCleaner(compositionConfiguration),
+        new QuarterQuarterEighthOrnamentationCleaner(compositionConfiguration),
+        new DoublePassingToneDelayedRunOrnamentationCleaner(compositionConfiguration)
     );
 
     public IPolicyEngine<OrnamentationItem> BuildOrnamentationEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
@@ -67,7 +84,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             BuildRepeatedNoteProcessor(OrnamentationType.RepeatedNote),
             BuildRepeatedNoteProcessor(OrnamentationType.DelayedRepeatedNote)
         )
-        .WithOutputPolicies(new CleanConflictingOrnamentations(_ornamentationCleaningEngineBuilder.Build()))
+        .WithOutputPolicies(new CleanConflictingOrnamentations(BuildOrnamentationCleaningEngine()))
         .Build();
 
     public IPolicyEngine<OrnamentationItem> BuildSustainedNoteEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
@@ -238,4 +255,8 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         .WithProcessors(new NeighborToneProcessor(musicalTimeSpanCalculator, _weightedRandomBooleanGenerator, ornamentationType, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DelayedNeighborTone, logger))
         .Build();
+
+    private IPolicyEngine<OrnamentationCleaningItem> BuildOrnamentationCleaningEngine() => compositionConfiguration.Meter == Meter.FourFour
+        ? _fourFourOrnamentationCleaningEngineBuilder.Build()
+        : _threeFourOrnamentationCleaningEngineBuilder.Build();
 }

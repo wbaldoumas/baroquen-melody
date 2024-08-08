@@ -5,5 +5,10 @@ internal enum Meter
     /// <summary>
     ///     4/4 time.
     /// </summary>
-    FourFour
+    FourFour,
+
+    /// <summary>
+    ///     3/4 time.
+    /// </summary>
+    ThreeFour
 }
