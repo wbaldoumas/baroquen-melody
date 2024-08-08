@@ -36,7 +36,7 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
         voiceConfiguration => new PatternBuilder().ProgramChange(voiceConfiguration.Instrument)
     );
 
-    private static void ProcessMeasure(Measure measure, Dictionary<Voice, PatternBuilder> patternBuildersByVoice)
+    private void ProcessMeasure(Measure measure, Dictionary<Voice, PatternBuilder> patternBuildersByVoice)
     {
         foreach (var beat in measure.Beats)
         {
@@ -44,7 +44,7 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
         }
     }
 
-    private static void ProcessBeat(Beat beat, Dictionary<Voice, PatternBuilder> patternBuildersByVoice)
+    private void ProcessBeat(Beat beat, Dictionary<Voice, PatternBuilder> patternBuildersByVoice)
     {
         foreach (var (voice, patternBuilder) in patternBuildersByVoice)
         {
@@ -52,11 +52,11 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
         }
     }
 
-    private static void ProcessVoice(Voice voice, Beat beat, PatternBuilder patternBuilder)
+    private void ProcessVoice(Voice voice, Beat beat, PatternBuilder patternBuilder)
     {
         if (!beat.ContainsVoice(voice))
         {
-            patternBuilder.AddRest();
+            patternBuilder.AddRest(compositionConfiguration.DefaultNoteTimeSpan);
 
             return;
         }
@@ -77,14 +77,14 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
     /// <param name="patternBuilder">The pattern builder to potentially handle a restful ornamentation in.</param>
     /// <param name="note">The note, which might have a restful ornamentation.</param>
     /// <returns>Whether a restful ornamentation was handled.</returns>
-    private static bool HandledRestfulOrnamentation(PatternBuilder patternBuilder, BaroquenNote note)
+    private bool HandledRestfulOrnamentation(PatternBuilder patternBuilder, BaroquenNote note)
     {
         switch (note.OrnamentationType)
         {
             case OrnamentationType.MidSustain:
                 return true;
             case OrnamentationType.Rest:
-                patternBuilder.AddRest();
+                patternBuilder.AddRest(compositionConfiguration.DefaultNoteTimeSpan);
                 return true;
             default:
                 return false;

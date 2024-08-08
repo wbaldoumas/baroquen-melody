@@ -28,5 +28,6 @@ internal static class PatternBuilderExtensions
     ///     Add a rest to the <see cref="PatternBuilder"/>.
     /// </summary>
     /// <param name="patternBuilder">The <see cref="PatternBuilder"/> to add the rest to.</param>
-    public static void AddRest(this PatternBuilder patternBuilder) => patternBuilder.StepForward(MusicalTimeSpan.Half);
+    /// <param name="length">The length of the rest to add to the <see cref="PatternBuilder"/>.</param>
+    public static void AddRest(this PatternBuilder patternBuilder, MusicalTimeSpan length) => patternBuilder.StepForward(length);
 }

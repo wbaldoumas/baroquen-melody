@@ -31,6 +31,8 @@ var phrasingConfiguration = new PhrasingConfiguration(
 
 var musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
 
+var meter = Meter.FourFour;
+
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
     {
@@ -42,8 +44,8 @@ var compositionConfiguration = new CompositionConfiguration(
     phrasingConfiguration,
     AggregateCompositionRuleConfiguration.Default,
     BaroquenScale.Parse("C Ionian"),
-    Meter.FourFour,
-    musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, Meter.FourFour),
+    meter,
+    musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.None, meter),
     25
 );
 
