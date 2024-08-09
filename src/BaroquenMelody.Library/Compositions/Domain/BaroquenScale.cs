@@ -5,7 +5,7 @@ namespace BaroquenMelody.Library.Compositions.Domain;
 /// <summary>
 ///    Represents a scale in a musical composition.
 /// </summary>
-internal sealed class BaroquenScale
+public sealed class BaroquenScale
 {
     private readonly List<Note> _notes;
 

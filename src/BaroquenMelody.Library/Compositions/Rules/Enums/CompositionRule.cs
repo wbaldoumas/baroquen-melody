@@ -3,7 +3,7 @@
 /// <summary>
 ///     Represents the different configurable composition rules available for use.
 /// </summary>
-internal enum CompositionRule : byte
+public enum CompositionRule : byte
 {
     /// <summary>
     ///     Avoid dissonant intervals.

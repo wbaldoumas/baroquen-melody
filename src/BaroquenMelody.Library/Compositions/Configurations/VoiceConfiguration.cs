@@ -11,7 +11,7 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 /// <param name="MinNote"> The voice's minimum note value. </param>
 /// <param name="MaxNote"> The voice's maximum note value. </param>
 /// <param name="Instrument"> The voice's instrument. </param>
-internal sealed record VoiceConfiguration(
+public sealed record VoiceConfiguration(
     Voice Voice,
     Note MinNote,
     Note MaxNote,

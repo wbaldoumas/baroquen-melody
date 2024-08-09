@@ -64,6 +64,9 @@ dotnet_diagnostic.SA1642.severity = none
 # force static members to appear before non-static
 dotnet_diagnostic.SA1204.severity = none
 
+# force abstraction over implementation
+dotnet_diagnostic.MA0016.severity = none
+
 [*.csproj]
 indent_style = space
 indent_size = 2

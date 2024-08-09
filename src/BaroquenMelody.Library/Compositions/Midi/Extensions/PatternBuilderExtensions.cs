@@ -2,7 +2,7 @@
 using Melanchall.DryWetMidi.Composing;
 using Melanchall.DryWetMidi.Interaction;
 
-namespace BaroquenMelody.Library.Midi.Extensions;
+namespace BaroquenMelody.Library.Compositions.Midi.Extensions;
 
 /// <summary>
 ///     A home for extension methods for <see cref="PatternBuilder"/>.
