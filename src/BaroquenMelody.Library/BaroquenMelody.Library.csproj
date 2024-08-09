@@ -37,7 +37,6 @@
     <InternalsVisibleTo Include="$(AssemblyName).Tests" />
     <InternalsVisibleTo Include="BaroquenMelody.Benchmarks" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
-    <InternalsVisibleTo Include="baroquen-melody" />
   </ItemGroup>
 
 </Project>

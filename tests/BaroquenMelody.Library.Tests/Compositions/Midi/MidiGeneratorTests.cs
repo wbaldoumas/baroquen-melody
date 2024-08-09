@@ -1,14 +1,14 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Midi;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Midi;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
-namespace BaroquenMelody.Library.Tests.Midi;
+namespace BaroquenMelody.Library.Tests.Compositions.Midi;
 
 [TestFixture]
 internal sealed class MidiGeneratorTests

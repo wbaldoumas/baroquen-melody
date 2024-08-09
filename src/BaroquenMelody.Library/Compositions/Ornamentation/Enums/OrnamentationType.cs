@@ -1,6 +1,6 @@
 ﻿namespace BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 
-internal enum OrnamentationType : byte
+public enum OrnamentationType : byte
 {
     /// <summary>
     ///     No ornamentation.

@@ -8,14 +8,17 @@ namespace BaroquenMelody.Library.Tests.TestData;
 
 internal static class Configurations
 {
-    public static CompositionConfiguration GetCompositionConfiguration(int numberOfVoices = 4) => new(
+    public static CompositionConfiguration GetCompositionConfiguration(
+        int numberOfVoices = 4,
+        int compositionLength = 100
+    ) => new(
         GenerateVoiceConfigurations(numberOfVoices),
         PhrasingConfiguration.Default,
         AggregateCompositionRuleConfiguration.Default,
         BaroquenScale.Parse("C Major"),
         Meter.FourFour,
         MusicalTimeSpan.Half,
-        CompositionLength: 100
+        CompositionLength: compositionLength
     );
 
     private static HashSet<VoiceConfiguration> GenerateVoiceConfigurations(int numberOfVoices) => numberOfVoices switch

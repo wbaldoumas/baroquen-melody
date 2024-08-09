@@ -1,14 +1,14 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Midi.Extensions;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Midi.Extensions;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Composing;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 
-namespace BaroquenMelody.Library.Midi;
+namespace BaroquenMelody.Library.Compositions.Midi;
 
 /// <inheritdoc cref="IMidiGenerator"/>
 internal sealed class MidiGenerator(CompositionConfiguration compositionConfiguration) : IMidiGenerator

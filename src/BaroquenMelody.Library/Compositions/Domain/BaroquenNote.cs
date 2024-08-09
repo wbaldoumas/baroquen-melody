@@ -13,7 +13,7 @@ namespace BaroquenMelody.Library.Compositions.Domain;
 /// <param name="voice">The voice that the note is played in.</param>
 /// <param name="raw">The raw note that is played.</param>
 /// <param name="musicalTimeSpan">The musical time span of the note. May be modified if the note is ornamented.</param>
-internal sealed class BaroquenNote(Voice voice, Note raw, MusicalTimeSpan musicalTimeSpan) : IEquatable<BaroquenNote>
+public sealed class BaroquenNote(Voice voice, Note raw, MusicalTimeSpan musicalTimeSpan) : IEquatable<BaroquenNote>
 {
     /// <summary>
     ///     The voice that the note is played in.

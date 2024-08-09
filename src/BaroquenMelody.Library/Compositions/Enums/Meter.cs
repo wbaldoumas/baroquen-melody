@@ -1,6 +1,6 @@
 ﻿namespace BaroquenMelody.Library.Compositions.Enums;
 
-internal enum Meter
+public enum Meter
 {
     /// <summary>
     ///     4/4 time.

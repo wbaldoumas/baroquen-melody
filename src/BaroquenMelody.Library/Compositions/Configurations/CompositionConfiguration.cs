@@ -18,7 +18,7 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 /// <param name="DefaultNoteTimeSpan"> The default note time span to be used in the composition. </param>
 /// <param name="CompositionContextSize"> The size of the context to be used in the composition. </param>
 /// <param name="Tempo"> The tempo of the composition, in beats per minute. </param>
-internal sealed record CompositionConfiguration(
+public sealed record CompositionConfiguration(
     ISet<VoiceConfiguration> VoiceConfigurations,
     PhrasingConfiguration PhrasingConfiguration,
     AggregateCompositionRuleConfiguration AggregateCompositionRuleConfiguration,

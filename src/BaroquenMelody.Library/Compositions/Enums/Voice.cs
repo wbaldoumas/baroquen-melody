@@ -3,7 +3,7 @@
 /// <summary>
 ///    Indicates the voice being used to play a note.
 /// </summary>
-internal enum Voice : byte
+public enum Voice : byte
 {
     /// <summary>
     ///     The highest voice.

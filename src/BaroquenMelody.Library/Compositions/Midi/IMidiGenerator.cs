@@ -1,7 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using Melanchall.DryWetMidi.Core;
 
-namespace BaroquenMelody.Library.Midi;
+namespace BaroquenMelody.Library.Compositions.Midi;
 
 /// <summary>
 ///     Generates a <see cref="MidiFile"/> from a <see cref="Composition"/>.
