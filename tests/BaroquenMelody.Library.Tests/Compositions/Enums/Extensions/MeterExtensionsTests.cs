@@ -10,6 +10,7 @@ internal sealed class MeterExtensionsTests
 {
     [Test]
     [TestCase(Meter.FourFour, 4)]
+    [TestCase(Meter.ThreeFour, 3)]
     public void BeatsPerMeasure_returns_expected_value(Meter meter, int expectedBeatsPerMeasure) =>
         meter.BeatsPerMeasure().Should().Be(expectedBeatsPerMeasure);
 

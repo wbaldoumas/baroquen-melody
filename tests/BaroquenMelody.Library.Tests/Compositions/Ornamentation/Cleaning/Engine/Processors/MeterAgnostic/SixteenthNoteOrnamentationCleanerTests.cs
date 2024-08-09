@@ -1,7 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
-using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors.MeterAgnostic;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
@@ -9,15 +9,15 @@ using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
-namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Cleaning.Engine.Processors;
+namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Cleaning.Engine.Processors.MeterAgnostic;
 
 [TestFixture]
-internal sealed class SixteenthEighthNoteOrnamentationCleanerTests
+internal sealed class SixteenthNoteOrnamentationCleanerTests
 {
-    private SixteenthEighthNoteOrnamentationCleaner _cleaner;
+    private SixteenthNoteOrnamentationCleaner _cleaner = null!;
 
     [SetUp]
-    public void SetUp() => _cleaner = new SixteenthEighthNoteOrnamentationCleaner(Configurations.GetCompositionConfiguration());
+    public void SetUp() => _cleaner = new SixteenthNoteOrnamentationCleaner(Configurations.GetCompositionConfiguration());
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
@@ -48,6 +48,7 @@ internal sealed class SixteenthEighthNoteOrnamentationCleanerTests
             var altoD3 = new BaroquenNote(Voice.Alto, Notes.D3, MusicalTimeSpan.Half);
             var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half);
             var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3, MusicalTimeSpan.Half);
+            var altoG3 = new BaroquenNote(Voice.Alto, Notes.G3, MusicalTimeSpan.Half);
 
             var sopranoWithAscendingDoubleRun = new BaroquenNote(sopranoC4)
             {
@@ -66,45 +67,61 @@ internal sealed class SixteenthEighthNoteOrnamentationCleanerTests
 
             var altoC3WithoutDissonantNotes = new BaroquenNote(altoC3)
             {
-                OrnamentationType = OrnamentationType.Run,
+                OrnamentationType = OrnamentationType.DoubleRun,
                 Ornamentations =
                 {
-                    new BaroquenNote(altoE3),
                     new BaroquenNote(altoD3),
-                    new BaroquenNote(altoF3)
-                }
-            };
-
-            var altoC3WithDissonantFirstNote = new BaroquenNote(altoC3)
-            {
-                OrnamentationType = OrnamentationType.Run,
-                Ornamentations =
-                {
+                    new BaroquenNote(altoE3),
                     new BaroquenNote(altoF3),
                     new BaroquenNote(altoD3),
-                    new BaroquenNote(altoF3)
+                    new BaroquenNote(altoE3),
+                    new BaroquenNote(altoF3),
+                    new BaroquenNote(altoG3)
                 }
             };
 
             var altoC3WithDissonantSecondNote = new BaroquenNote(altoC3)
             {
-                OrnamentationType = OrnamentationType.Run,
+                OrnamentationType = OrnamentationType.DoubleRun,
                 Ornamentations =
                 {
+                    new BaroquenNote(altoD3),
+                    new BaroquenNote(altoD3),
+                    new BaroquenNote(altoF3),
+                    new BaroquenNote(altoD3),
                     new BaroquenNote(altoE3),
-                    new BaroquenNote(altoE3),
-                    new BaroquenNote(altoF3)
+                    new BaroquenNote(altoF3),
+                    new BaroquenNote(altoG3)
                 }
             };
 
-            var altoC3WithDissonantThirdNote = new BaroquenNote(altoC3)
+            var altoC3WithDissonantFourthNote = new BaroquenNote(altoC3)
             {
-                OrnamentationType = OrnamentationType.Run,
+                OrnamentationType = OrnamentationType.DoubleRun,
                 Ornamentations =
                 {
-                    new BaroquenNote(altoE3),
                     new BaroquenNote(altoD3),
-                    new BaroquenNote(altoE3)
+                    new BaroquenNote(altoE3),
+                    new BaroquenNote(altoF3),
+                    new BaroquenNote(altoC3),
+                    new BaroquenNote(altoE3),
+                    new BaroquenNote(altoF3),
+                    new BaroquenNote(altoG3)
+                }
+            };
+
+            var altoC3WithDissonantSixthNote = new BaroquenNote(altoC3)
+            {
+                OrnamentationType = OrnamentationType.DoubleRun,
+                Ornamentations =
+                {
+                    new BaroquenNote(altoD3),
+                    new BaroquenNote(altoE3),
+                    new BaroquenNote(altoF3),
+                    new BaroquenNote(altoD3),
+                    new BaroquenNote(altoE3),
+                    new BaroquenNote(altoG3),
+                    new BaroquenNote(altoG3)
                 }
             };
 
@@ -113,56 +130,49 @@ internal sealed class SixteenthEighthNoteOrnamentationCleanerTests
                 new BaroquenNote(altoC3WithoutDissonantNotes),
                 new BaroquenNote(sopranoWithAscendingDoubleRun),
                 new BaroquenNote(altoC3WithoutDissonantNotes)
-            ).SetName("When double run notes don't conflict with sixteenth notes, no notes are cleaned.");
-
-            yield return new TestCaseData(
-                new BaroquenNote(altoC3WithoutDissonantNotes),
-                new BaroquenNote(sopranoWithAscendingDoubleRun),
-                new BaroquenNote(altoC3WithoutDissonantNotes),
-                new BaroquenNote(sopranoWithAscendingDoubleRun)
-            ).SetName("When double run notes don't conflict with sixteenth notes, no notes are cleaned.");
-
-            yield return new TestCaseData(
-                new BaroquenNote(sopranoWithAscendingDoubleRun),
-                new BaroquenNote(altoC3WithDissonantFirstNote),
-                new BaroquenNote(sopranoWithAscendingDoubleRun),
-                new BaroquenNote(altoC3)
-            ).SetName("When double run notes conflict with sixteenth notes, then lower note is cleaned.");
-
-            yield return new TestCaseData(
-                new BaroquenNote(altoC3WithDissonantFirstNote),
-                new BaroquenNote(sopranoWithAscendingDoubleRun),
-                new BaroquenNote(altoC3),
-                new BaroquenNote(sopranoWithAscendingDoubleRun)
-            ).SetName("When double run notes conflict with sixteenth notes, then lower note is cleaned.");
+            ).SetName("When double run notes don't conflict, no notes are cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoWithAscendingDoubleRun),
                 new BaroquenNote(altoC3WithDissonantSecondNote),
                 new BaroquenNote(sopranoWithAscendingDoubleRun),
                 new BaroquenNote(altoC3)
-            ).SetName("When double run notes conflict with sixteenth notes, then lower note is cleaned.");
+            ).SetName("When double run notes conflict, lower note is cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(altoC3WithDissonantSecondNote),
                 new BaroquenNote(sopranoWithAscendingDoubleRun),
                 new BaroquenNote(altoC3),
                 new BaroquenNote(sopranoWithAscendingDoubleRun)
-            ).SetName("When double run notes conflict with sixteenth notes, then lower note is cleaned.");
+            ).SetName("When double run notes conflict, lower note is cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoWithAscendingDoubleRun),
-                new BaroquenNote(altoC3WithDissonantThirdNote),
+                new BaroquenNote(altoC3WithDissonantFourthNote),
                 new BaroquenNote(sopranoWithAscendingDoubleRun),
                 new BaroquenNote(altoC3)
-            ).SetName("When double run notes conflict with sixteenth notes, then lower note is cleaned.");
+            ).SetName("When double run notes conflict, lower note is cleaned.");
 
             yield return new TestCaseData(
-                new BaroquenNote(altoC3WithDissonantThirdNote),
+                new BaroquenNote(altoC3WithDissonantFourthNote),
                 new BaroquenNote(sopranoWithAscendingDoubleRun),
                 new BaroquenNote(altoC3),
                 new BaroquenNote(sopranoWithAscendingDoubleRun)
-            ).SetName("When double run notes conflict with sixteenth notes, then lower note is cleaned.");
+            ).SetName("When double run notes conflict, lower note is cleaned.");
+
+            yield return new TestCaseData(
+                new BaroquenNote(sopranoWithAscendingDoubleRun),
+                new BaroquenNote(altoC3WithDissonantSixthNote),
+                new BaroquenNote(sopranoWithAscendingDoubleRun),
+                new BaroquenNote(altoC3)
+            ).SetName("When double run notes conflict, lower note is cleaned.");
+
+            yield return new TestCaseData(
+                new BaroquenNote(altoC3WithDissonantSixthNote),
+                new BaroquenNote(sopranoWithAscendingDoubleRun),
+                new BaroquenNote(altoC3),
+                new BaroquenNote(sopranoWithAscendingDoubleRun)
+            ).SetName("When double run notes conflict, lower note is cleaned.");
         }
     }
 }

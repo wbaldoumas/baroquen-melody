@@ -3,7 +3,8 @@ using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine;
-using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors.FourFour;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors.MeterAgnostic;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -13,7 +14,7 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Cleaning.Engine;
 
 [TestFixture]
-internal sealed class OrnamentationCleaningEngineBuilderTests
+internal sealed class FourFourOrnamentationCleaningEngineBuilderTests
 {
     private IProcessor<OrnamentationCleaningItem> _mockPassingToneOrnamentationCleaner = null!;
 
@@ -31,7 +32,7 @@ internal sealed class OrnamentationCleaningEngineBuilderTests
 
     private Dictionary<string, IProcessor<OrnamentationCleaningItem>> _processorsByName = null!;
 
-    private OrnamentationCleaningEngineBuilder _ornamentationCleaningEngineBuilder;
+    private FourFourOrnamentationCleaningEngineBuilder _fourFourOrnamentationCleaningEngineBuilder;
 
     [SetUp]
     public void SetUp()
@@ -55,7 +56,7 @@ internal sealed class OrnamentationCleaningEngineBuilderTests
             { nameof(MordentEighthNoteOrnamentationCleaner), _mockMordentEighthNoteOrnamentationCleaner }
         };
 
-        _ornamentationCleaningEngineBuilder = new OrnamentationCleaningEngineBuilder(
+        _fourFourOrnamentationCleaningEngineBuilder = new FourFourOrnamentationCleaningEngineBuilder(
             _mockPassingToneOrnamentationCleaner,
             _mockEighthNoteOrnamentationCleaner,
             _mockPassingToneEighthNoteOrnamentationCleaner,
@@ -187,7 +188,7 @@ internal sealed class OrnamentationCleaningEngineBuilderTests
             new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half) { OrnamentationType = ornamentationTypeB }
         );
 
-        var ornamentationCleaningEngine = _ornamentationCleaningEngineBuilder.Build();
+        var ornamentationCleaningEngine = _fourFourOrnamentationCleaningEngineBuilder.Build();
 
         // act
         ornamentationCleaningEngine.Process(ornamentationCleaningItem);

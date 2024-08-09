@@ -2,15 +2,15 @@
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Extensions;
 
-namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
+namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors.ThreeFour;
 
-internal sealed class EighthNoteOrnamentationCleaner(CompositionConfiguration compositionConfiguration) : IProcessor<OrnamentationCleaningItem>
+internal sealed class DoublePassingToneOrnamentationCleaner(CompositionConfiguration compositionConfiguration) : IProcessor<OrnamentationCleaningItem>
 {
-    private static readonly int[] _ornamentationIndices = [0, 1, 2];
+    private static readonly int[] IndicesToCheck = [0, 1];
 
     public void Process(OrnamentationCleaningItem item)
     {
-        if (!_ornamentationIndices.Any(index => item.Note.Ornamentations[index].IsDissonantWith(item.OtherNote.Ornamentations[index])))
+        if (!IndicesToCheck.Any(index => item.Note.Ornamentations[index].IsDissonantWith(item.OtherNote.Ornamentations[index])))
         {
             return;
         }
