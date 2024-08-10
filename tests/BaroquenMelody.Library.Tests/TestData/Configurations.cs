@@ -15,6 +15,7 @@ internal static class Configurations
         GenerateVoiceConfigurations(numberOfVoices),
         PhrasingConfiguration.Default,
         AggregateCompositionRuleConfiguration.Default,
+        AggregateOrnamentationConfiguration.Default,
         BaroquenScale.Parse("C Major"),
         Meter.FourFour,
         MusicalTimeSpan.Half,

@@ -30,6 +30,7 @@ internal sealed class CompositionConfigurationTests
             },
             PhrasingConfiguration.Default,
             AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
             BaroquenScale.Parse("C Major"),
             Meter.FourFour,
             MusicalTimeSpan.Half,

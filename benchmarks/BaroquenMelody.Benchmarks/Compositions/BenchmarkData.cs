@@ -23,6 +23,7 @@ internal static class BenchmarkData
             PhraseRepetitionProbability: 100
         ),
         AggregateCompositionRuleConfiguration.Default,
+        AggregateOrnamentationConfiguration.Default,
         BaroquenScale.Parse("D Dorian"),
         Meter.FourFour,
         MusicalTimeSpan.Half,

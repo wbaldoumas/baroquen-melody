@@ -27,6 +27,7 @@ var compositionConfiguration = new CompositionConfiguration(
     },
     phrasingConfiguration,
     AggregateCompositionRuleConfiguration.Default,
+    AggregateOrnamentationConfiguration.Default,
     BaroquenScale.Parse("C Major"),
     meter,
     meter.DefaultMusicalTimeSpan(),
