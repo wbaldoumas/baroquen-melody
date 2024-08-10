@@ -1,5 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+﻿using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BaroquenMelody.Library.Compositions.Configurations;
 
