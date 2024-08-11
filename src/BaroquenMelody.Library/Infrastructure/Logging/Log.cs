@@ -16,48 +16,6 @@ internal static partial class Log
     public static partial void NoValidChordChoicesAvailable(this ILogger logger);
 
     [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Information,
-        Message = "Composing...")]
-    public static partial void Composing(this ILogger logger);
-
-    [LoggerMessage(
-        EventId = 2,
-        Level = LogLevel.Information,
-        Message = "Composed main theme...")]
-    public static partial void ComposedMainTheme(this ILogger logger);
-
-    [LoggerMessage(
-        EventId = 3,
-        Level = LogLevel.Information,
-        Message = "Composed measure {MeasureNumber} of {TotalMeasures}...")]
-    public static partial void ComposedMeasure(this ILogger logger, int measureNumber, int totalMeasures);
-
-    [LoggerMessage(
-        EventId = 4,
-        Level = LogLevel.Information,
-        Message = "Composed composition continuation...")]
-    public static partial void ComposedContinuation(this ILogger logger);
-
-    [LoggerMessage(
-        EventId = 5,
-        Level = LogLevel.Information,
-        Message = "Phrased composition...")]
-    public static partial void PhrasedComposition(this ILogger logger);
-
-    [LoggerMessage(
-        EventId = 6,
-        Level = LogLevel.Information,
-        Message = "Composing composition ending...")]
-    public static partial void ComposingEnding(this ILogger logger);
-
-    [LoggerMessage(
-        EventId = 7,
-        Level = LogLevel.Information,
-        Message = "Composed composition ending...")]
-    public static partial void ComposedEnding(this ILogger logger);
-
-    [LoggerMessage(
         EventId = 8,
         Level = LogLevel.Warning,
         Message = "Could not find a suitable bridging chord after {MaxAttempts} attempts.")]

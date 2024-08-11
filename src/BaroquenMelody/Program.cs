@@ -1,10 +1,13 @@
-﻿using BaroquenMelody.Library;
+﻿using BaroquenMelody;
+using BaroquenMelody.Library;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Enums.Extensions;
+using Fluxor;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 
@@ -34,12 +37,25 @@ var compositionConfiguration = new CompositionConfiguration(
     30
 );
 
-using var factory = LoggerFactory.Create(builder => builder.AddConsole());
-var logger = factory.CreateLogger<BaroquenMelody.Library.BaroquenMelody>();
+var serviceProvider = new ServiceCollection()
+    .AddLogging(loggingBuilder =>
+    {
+        loggingBuilder.SetMinimumLevel(LogLevel.Error);
+        loggingBuilder.AddConsole();
+    })
+    .AddFluxor(fluxorOptions =>
+    {
+        fluxorOptions.WithLifetime(StoreLifetime.Singleton);
+        fluxorOptions.ScanAssemblies(typeof(BaroquenMelodyComposerConfigurator).Assembly);
+    })
+    .AddSingleton<IBaroquenMelodyComposerConfigurator, BaroquenMelodyComposerConfigurator>()
+    .AddSingleton<App>()
+    .BuildServiceProvider();
 
-var baroquenMelody = new BaroquenMelodyComposerConfigurator(logger)
-    .Configure(compositionConfiguration)
-    .Compose();
+var baroquenMelody = await serviceProvider
+    .GetRequiredService<App>()
+    .RunAsync(compositionConfiguration)
+    .ConfigureAwait(false);
 
 var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
 

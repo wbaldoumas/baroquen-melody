@@ -32,8 +32,6 @@ internal sealed class EndingComposer(
 
     public Composition Compose(Composition composition, BaroquenTheme theme)
     {
-        logger.ComposingEnding();
-
         var bridgingComposition = GetBridgingComposition(composition, theme);
 
         composition.Measures[^1].Beats[^1] = bridgingComposition.Measures[0].Beats[0];

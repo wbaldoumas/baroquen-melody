@@ -1,49 +1,55 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
+using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Infrastructure.Collections;
-using BaroquenMelody.Library.Infrastructure.Logging;
-using Microsoft.Extensions.Logging;
+using BaroquenMelody.Library.Store.Actions;
+using Fluxor;
 
 namespace BaroquenMelody.Library.Compositions.Composers;
 
-/// <summary>
-///     Represents a composer which can generate a <see cref="Composition"/>.
-/// </summary>
-/// <param name="compositionDecorator"> The decorator that the composer should use to decorate the composition. </param>
-/// <param name="compositionPhraser"> The phraser that the composer should use to phrase the composition. </param>
-/// <param name="chordComposer"> The chord composer that the composer should use to compose chords. </param>
-/// <param name="themeComposer"> The theme composer that the composer should use to compose themes. </param>
-/// <param name="endingComposer"> The ending composer that the composer should use to compose endings. </param>
-/// <param name="logger"> The logger that the composer should use to log messages. </param>
-/// <param name="compositionConfiguration"> The configuration to use to generate the composition. </param>
 internal sealed class Composer(
     ICompositionDecorator compositionDecorator,
     ICompositionPhraser compositionPhraser,
     IChordComposer chordComposer,
     IThemeComposer themeComposer,
     IEndingComposer endingComposer,
-    ILogger logger,
+    IDispatcher dispatcher,
     CompositionConfiguration compositionConfiguration
 ) : IComposer
 {
     public Composition Compose()
     {
-        logger.Composing();
+        var theme = ComposeMainTheme();
+        var compositionBody = ComposeBodyOfComposition(theme);
+        var compositionWithOrnamentation = AddOrnamentation(compositionBody);
+        var compositionWithPhrasing = ApplyPhrasing(compositionWithOrnamentation, theme);
+        var compositionWithEnding = ComposeEnding(compositionWithPhrasing, theme);
+        var compositionWithSustain = ApplySustain(compositionWithEnding);
 
-        var theme = themeComposer.Compose();
+        return CompleteComposition(theme, compositionWithSustain);
+    }
 
-        logger.ComposedMainTheme();
+    private BaroquenTheme ComposeMainTheme()
+    {
+        dispatcher.Dispatch(new ProgressCompositionStepAction(CompositionStep.Theme));
+
+        return themeComposer.Compose();
+    }
+
+    private Composition ComposeBodyOfComposition(BaroquenTheme theme)
+    {
+        dispatcher.Dispatch(new ProgressCompositionStepAction(CompositionStep.Body));
 
         var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
             theme.Exposition.SelectMany(static measure => measure.Beats.Select(static beat => new BaroquenChord(beat.Chord)))
         );
 
-        var continuationMeasures = new List<Measure>();
+        var compositionBody = new List<Measure>();
 
-        while (continuationMeasures.Count < compositionConfiguration.CompositionLength)
+        while (compositionBody.Count < compositionConfiguration.CompositionLength)
         {
             var initialChord = chordComposer.Compose(compositionContext);
             var beats = new List<Beat>(compositionConfiguration.BeatsPerMeasure) { new(initialChord) };
@@ -58,32 +64,25 @@ internal sealed class Composer(
                 beats.Add(new Beat(nextChord));
             }
 
-            continuationMeasures.Add(new Measure(beats, compositionConfiguration.Meter));
-
-            logger.ComposedMeasure(continuationMeasures.Count, compositionConfiguration.CompositionLength);
+            compositionBody.Add(new Measure(beats, compositionConfiguration.Meter));
         }
 
-        var continuationComposition = new Composition(continuationMeasures);
+        return new Composition(compositionBody);
+    }
 
-        compositionDecorator.Decorate(continuationComposition);
+    private Composition AddOrnamentation(Composition composition)
+    {
+        dispatcher.Dispatch(new ProgressCompositionStepAction(CompositionStep.Ornamentation));
 
-        logger.ComposedContinuation();
+        compositionDecorator.Decorate(composition);
 
-        var phrasedComposition = ApplyPhrasing(continuationComposition, theme);
-
-        logger.PhrasedComposition();
-
-        var compositionWithEnding = endingComposer.Compose(phrasedComposition, theme);
-
-        compositionDecorator.ApplySustain(compositionWithEnding);
-
-        logger.ComposedEnding();
-
-        return new Composition([.. theme.Exposition, .. compositionWithEnding.Measures]);
+        return composition;
     }
 
     private Composition ApplyPhrasing(Composition initialComposition, BaroquenTheme theme)
     {
+        dispatcher.Dispatch(new ProgressCompositionStepAction(CompositionStep.Phrasing));
+
         compositionPhraser.AddTheme(theme);
 
         var currentMeasureIndex = 0;
@@ -109,5 +108,26 @@ internal sealed class Composer(
         compositionDecorator.Decorate(phrasedComposition);
 
         return phrasedComposition;
+    }
+
+    private Composition ComposeEnding(Composition composition, BaroquenTheme theme)
+    {
+        dispatcher.Dispatch(new ProgressCompositionStepAction(CompositionStep.Ending));
+
+        return endingComposer.Compose(composition, theme);
+    }
+
+    private Composition ApplySustain(Composition composition)
+    {
+        compositionDecorator.ApplySustain(composition);
+
+        return composition;
+    }
+
+    private Composition CompleteComposition(BaroquenTheme theme, Composition composition)
+    {
+        dispatcher.Dispatch(new ProgressCompositionStepAction(CompositionStep.Complete));
+
+        return new Composition([.. theme.Exposition, .. composition.Measures]);
     }
 }
