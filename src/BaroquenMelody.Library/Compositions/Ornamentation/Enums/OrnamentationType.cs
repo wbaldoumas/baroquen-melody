@@ -105,5 +105,15 @@ public enum OrnamentationType : byte
     /// <summary>
     ///     A delayed neighbor tone to ornament an existing note.
     /// </summary>
-    DelayedNeighborTone
+    DelayedNeighborTone,
+
+    /// <summary>
+    ///     A pickup note before another note.
+    /// </summary>
+    Pickup,
+
+    /// <summary>
+    ///     A delayed pickup note before another note.
+    /// </summary>
+    DelayedPickup
 }

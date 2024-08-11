@@ -39,6 +39,8 @@ internal sealed class HalfEighthNoteOrnamentationCleaner(CompositionConfiguratio
     {
         (OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedRepeatedNote) => true,
         (OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedNeighborTone) => true,
+        (OrnamentationType.DelayedPickup, OrnamentationType.DelayedRepeatedNote) => true,
+        (OrnamentationType.DelayedPickup, OrnamentationType.DelayedNeighborTone) => true,
         (OrnamentationType.DelayedNeighborTone, OrnamentationType.DelayedRepeatedNote) => true,
         _ => false
     };

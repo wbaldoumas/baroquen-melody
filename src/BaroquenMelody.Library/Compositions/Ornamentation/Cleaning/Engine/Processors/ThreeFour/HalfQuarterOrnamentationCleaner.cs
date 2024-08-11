@@ -38,10 +38,13 @@ internal sealed class HalfQuarterOrnamentationCleaner(CompositionConfiguration c
     private static bool ShouldCleanNoteBasedOnOrnamentation(BaroquenNote note, BaroquenNote otherNote) => (note.OrnamentationType, otherNote.OrnamentationType) switch
     {
         (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.PassingTone) => true,
+        (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.Pickup) => true,
         (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.NeighborTone) => true,
         (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.RepeatedNote) => true,
         (OrnamentationType.PassingTone, OrnamentationType.NeighborTone) => true,
         (OrnamentationType.PassingTone, OrnamentationType.RepeatedNote) => true,
+        (OrnamentationType.Pickup, OrnamentationType.NeighborTone) => true,
+        (OrnamentationType.Pickup, OrnamentationType.RepeatedNote) => true,
         (OrnamentationType.NeighborTone, OrnamentationType.RepeatedNote) => true,
         _ => false
     };
