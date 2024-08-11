@@ -10,6 +10,7 @@ using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Infrastructure.Random;
+using Fluxor;
 using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library;
@@ -18,7 +19,8 @@ namespace BaroquenMelody.Library;
 ///     Centralized logic for configuring a <see cref="BaroquenMelodyComposer"/> which can generate a <see cref="BaroquenMelody"/>.
 /// </summary>
 /// <param name="logger">A logger to be used throughout the composition process.</param>
-public sealed class BaroquenMelodyComposerConfigurator(ILogger logger) : IBaroquenMelodyComposerConfigurator
+/// <param name="dispatcher">A dispatcher to be used to dispatch actions to the store.</param>
+public sealed class BaroquenMelodyComposerConfigurator(ILogger<BaroquenMelody> logger, IDispatcher dispatcher) : IBaroquenMelodyComposerConfigurator
 {
     private readonly IMusicalTimeSpanCalculator _musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
 
@@ -42,7 +44,7 @@ public sealed class BaroquenMelodyComposerConfigurator(ILogger logger) : IBaroqu
         var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
         var themeComposer = new ThemeComposer(compositionStrategy, compositionDecorator, chordComposer, noteTransposer, logger, compositionConfiguration);
         var endingComposer = new EndingComposer(compositionStrategy, compositionDecorator, chordNumberIdentifier, logger, compositionConfiguration);
-        var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, themeComposer, endingComposer, logger, compositionConfiguration);
+        var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, themeComposer, endingComposer, dispatcher, compositionConfiguration);
         var midiGenerator = new MidiGenerator(compositionConfiguration);
 
         return new BaroquenMelodyComposer(composer, midiGenerator);

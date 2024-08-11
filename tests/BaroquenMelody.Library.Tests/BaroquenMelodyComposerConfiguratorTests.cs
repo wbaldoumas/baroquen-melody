@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
+using Fluxor;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
@@ -13,7 +14,7 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
     private BaroquenMelodyComposerConfigurator _baroquenMelodyComposerConfigurator = null!;
 
     [SetUp]
-    public void SetUp() => _baroquenMelodyComposerConfigurator = new BaroquenMelodyComposerConfigurator(Substitute.For<ILogger>());
+    public void SetUp() => _baroquenMelodyComposerConfigurator = new BaroquenMelodyComposerConfigurator(Substitute.For<ILogger<BaroquenMelody>>(), Substitute.For<IDispatcher>());
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
