@@ -167,6 +167,14 @@ internal sealed class MusicalTimeSpanCalculatorTests
             yield return new TestCaseData(OrnamentationType.DelayedNeighborTone, Meter.FourFour, MusicalTimeSpan.Quarter.Dotted(1));
 
             yield return new TestCaseData(OrnamentationType.DelayedNeighborTone, Meter.ThreeFour, MusicalTimeSpan.Half + MusicalTimeSpan.Eighth);
+
+            yield return new TestCaseData(OrnamentationType.Pickup, Meter.FourFour, MusicalTimeSpan.Quarter);
+
+            yield return new TestCaseData(OrnamentationType.Pickup, Meter.ThreeFour, MusicalTimeSpan.Half);
+
+            yield return new TestCaseData(OrnamentationType.DelayedPickup, Meter.FourFour, MusicalTimeSpan.Quarter.Dotted(1));
+
+            yield return new TestCaseData(OrnamentationType.DelayedPickup, Meter.ThreeFour, MusicalTimeSpan.Half + MusicalTimeSpan.Eighth);
         }
     }
 
@@ -253,6 +261,14 @@ internal sealed class MusicalTimeSpanCalculatorTests
             yield return new TestCaseData(OrnamentationType.DelayedNeighborTone, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
 
             yield return new TestCaseData(OrnamentationType.DelayedNeighborTone, Meter.ThreeFour, MusicalTimeSpan.Eighth, 1);
+
+            yield return new TestCaseData(OrnamentationType.Pickup, Meter.FourFour, MusicalTimeSpan.Quarter, 1);
+
+            yield return new TestCaseData(OrnamentationType.Pickup, Meter.ThreeFour, MusicalTimeSpan.Quarter, 1);
+
+            yield return new TestCaseData(OrnamentationType.DelayedPickup, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
+
+            yield return new TestCaseData(OrnamentationType.DelayedPickup, Meter.ThreeFour, MusicalTimeSpan.Eighth, 1);
         }
     }
 }

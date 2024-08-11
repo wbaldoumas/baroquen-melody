@@ -16,7 +16,8 @@ internal sealed class HalfQuarterEighthOrnamentationCleaner(CompositionConfigura
             OrnamentationType.PassingTone or
             OrnamentationType.DelayedDoublePassingTone or
             OrnamentationType.RepeatedNote or
-            OrnamentationType.NeighborTone)
+            OrnamentationType.NeighborTone or
+            OrnamentationType.RepeatedNote)
         {
             Clean(item.Note, item.OtherNote);
         }

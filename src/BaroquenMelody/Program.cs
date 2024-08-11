@@ -34,7 +34,7 @@ var compositionConfiguration = new CompositionConfiguration(
     BaroquenScale.Parse("C Major"),
     meter,
     meter.DefaultMusicalTimeSpan(),
-    30
+    25
 );
 
 var serviceProvider = new ServiceCollection()

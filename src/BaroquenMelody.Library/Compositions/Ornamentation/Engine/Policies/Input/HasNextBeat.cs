@@ -4,5 +4,5 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Inpu
 
 internal sealed class HasNextBeat : IInputPolicy<OrnamentationItem>
 {
-    public InputPolicyResult ShouldProcess(OrnamentationItem item) => item.NextBeat is not null ? InputPolicyResult.Continue : InputPolicyResult.Reject;
+    public InputPolicyResult ShouldProcess(OrnamentationItem item) => item.NextBeat is not null && item.NextBeat.ContainsVoice(item.Voice) ? InputPolicyResult.Continue : InputPolicyResult.Reject;
 }

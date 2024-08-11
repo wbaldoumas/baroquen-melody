@@ -14,7 +14,7 @@ internal sealed class QuarterEighthNoteOrnamentationCleaner(CompositionConfigura
 
     public void Process(OrnamentationCleaningItem item)
     {
-        if (item.Note.OrnamentationType is OrnamentationType.PassingTone or OrnamentationType.DoublePassingTone or OrnamentationType.RepeatedNote)
+        if (item.Note.OrnamentationType is OrnamentationType.PassingTone or OrnamentationType.DoublePassingTone or OrnamentationType.RepeatedNote or OrnamentationType.Pickup)
         {
             CleanTargetedNotes(item.Note, item.OtherNote);
         }
