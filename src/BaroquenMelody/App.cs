@@ -1,18 +1,31 @@
 ﻿using BaroquenMelody.Library;
 using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Infrastructure.State;
 using BaroquenMelody.Library.Store.State;
 using Fluxor;
 
 namespace BaroquenMelody;
 
-public class App(IStore store, IBaroquenMelodyComposerConfigurator configurator, IState<CompositionProgressState> compositionProgressState)
+internal sealed class App : IDisposable
 {
-    public async Task<Library.BaroquenMelody> RunAsync(CompositionConfiguration compositionConfiguration)
+    private readonly IBaroquenMelodyComposerConfigurator _configurator;
+
+    private readonly IDisposable _stateSubscription;
+
+    public App(IStore store, IBaroquenMelodyComposerConfigurator configurator, IState<CompositionProgressState> compositionProgressState)
     {
-        await store.InitializeAsync().ConfigureAwait(false);
+        store.InitializeAsync().Wait();
 
-        compositionProgressState.StateChanged += (_, _) => { Console.WriteLine($"Current composition step: {compositionProgressState.Value.CurrentStep}\n"); };
+        _configurator = configurator;
 
-        return configurator.Configure(compositionConfiguration).Compose();
+        _stateSubscription = compositionProgressState
+            .ObserveChanges()
+            .Subscribe(ReportCompositionProgress);
     }
+
+    public Library.BaroquenMelody Run(CompositionConfiguration compositionConfiguration) => _configurator.Configure(compositionConfiguration).Compose();
+
+    public void Dispose() => _stateSubscription.Dispose();
+
+    private static void ReportCompositionProgress(IState<CompositionProgressState> state) => Console.WriteLine($"Current composition step: {state.Value.CurrentStep}\n");
 }

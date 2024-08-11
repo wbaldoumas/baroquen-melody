@@ -18,7 +18,7 @@ var phrasingConfiguration = new PhrasingConfiguration(
     PhraseRepetitionProbability: 100
 );
 
-const Meter meter = Meter.ThreeFour;
+const Meter meter = Meter.FourFour;
 
 var compositionConfiguration = new CompositionConfiguration(
     new HashSet<VoiceConfiguration>
@@ -49,14 +49,13 @@ var serviceProvider = new ServiceCollection()
         fluxorOptions.ScanAssemblies(typeof(BaroquenMelodyComposerConfigurator).Assembly);
     })
     .AddSingleton<IBaroquenMelodyComposerConfigurator, BaroquenMelodyComposerConfigurator>()
-    .AddSingleton<App>()
+    .AddScoped<App>()
     .BuildServiceProvider();
 
-var baroquenMelody = await serviceProvider
-    .GetRequiredService<App>()
-    .RunAsync(compositionConfiguration)
-    .ConfigureAwait(false);
+using var scope = serviceProvider.CreateScope();
 
+var app = scope.ServiceProvider.GetRequiredService<App>();
+var baroquenMelody = app.Run(compositionConfiguration);
 var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
 
 baroquenMelody.MidiFile.Write($"test-{timestamp}.mid");
