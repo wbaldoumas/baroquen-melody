@@ -17,17 +17,17 @@ public sealed record AggregateOrnamentationConfiguration(ISet<OrnamentationConfi
             new(OrnamentationType.DelayedNeighborTone, true, 25),
             new(OrnamentationType.NeighborTone, true, 25),
             new(OrnamentationType.Run, true, 80),
-            new(OrnamentationType.DoubleRun, true, 15),
+            new(OrnamentationType.DoubleRun, true, 25),
             new(OrnamentationType.Turn, true, 80),
             new(OrnamentationType.AlternateTurn, true, 80),
-            new(OrnamentationType.DelayedRun, true, 20),
-            new(OrnamentationType.Mordent, true, 5),
-            new(OrnamentationType.DecorateInterval, true, 50),
+            new(OrnamentationType.DelayedRun, true, 25),
+            new(OrnamentationType.Mordent, true, 20),
+            new(OrnamentationType.DecorateInterval, true, 60),
             new(OrnamentationType.Pedal, true, 80),
-            new(OrnamentationType.RepeatedNote, true, 10),
-            new(OrnamentationType.DelayedRepeatedNote, true, 10),
-            new(OrnamentationType.Pickup, true, 20),
-            new(OrnamentationType.DelayedPickup, true, 20)
+            new(OrnamentationType.RepeatedNote, true, 15),
+            new(OrnamentationType.DelayedRepeatedNote, true, 15),
+            new(OrnamentationType.Pickup, true, 25),
+            new(OrnamentationType.DelayedPickup, true, 25)
         }
     );
 }
