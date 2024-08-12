@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Rules.Enums;
 using BaroquenMelody.Library.Infrastructure.Random;
@@ -19,7 +20,11 @@ internal sealed class CompositionRuleFactoryTests
     {
         var compositionConfiguration = Configurations.GetCompositionConfiguration(2);
 
-        _factory = new CompositionRuleFactory(compositionConfiguration, Substitute.For<IWeightedRandomBooleanGenerator>());
+        _factory = new CompositionRuleFactory(
+            compositionConfiguration,
+            Substitute.For<IWeightedRandomBooleanGenerator>(),
+            Substitute.For<IChordNumberIdentifier>()
+        );
     }
 
     [Test]
@@ -35,6 +40,7 @@ internal sealed class CompositionRuleFactoryTests
     [TestCase(CompositionRule.AvoidDirectOctaves, int.MaxValue, typeof(AvoidDirectIntervals))]
     [TestCase(CompositionRule.AvoidOverDoubling, int.MaxValue, typeof(AvoidOverDoubling))]
     [TestCase(CompositionRule.FollowStandardChordProgression, int.MaxValue, typeof(FollowsStandardProgression))]
+    [TestCase(CompositionRule.AvoidRepeatedChords, int.MaxValue, typeof(AvoidRepeatedChords))]
     [TestCase(CompositionRule.AvoidDissonance, int.MinValue, typeof(CompositionRuleBypass))]
     public void Create_returns_expected_rule(CompositionRule rule, int strictness, Type expectedRuleType)
     {

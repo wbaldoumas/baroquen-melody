@@ -63,5 +63,10 @@ public enum CompositionRule : byte
     /// <summary>
     ///     Follow standard chord progression.
     /// </summary>
-    FollowStandardChordProgression
+    FollowStandardChordProgression,
+
+    /// <summary>
+    ///     Avoid repeated chords.
+    /// </summary>
+    AvoidRepeatedChords
 }

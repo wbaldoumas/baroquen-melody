@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Compositions.Rules.Enums;
 using BaroquenMelody.Library.Infrastructure.Random;
@@ -6,7 +7,11 @@ using BaroquenMelody.Library.Infrastructure.Random;
 namespace BaroquenMelody.Library.Compositions.Rules;
 
 /// <inheritdoc cref="ICompositionRuleFactory"/>
-internal sealed class CompositionRuleFactory(CompositionConfiguration compositionConfiguration, IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator) : ICompositionRuleFactory
+internal sealed class CompositionRuleFactory(
+    CompositionConfiguration compositionConfiguration,
+    IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
+    IChordNumberIdentifier chordNumberIdentifier
+) : ICompositionRuleFactory
 {
     private const int Threshold = 100;
 
@@ -33,6 +38,7 @@ internal sealed class CompositionRuleFactory(CompositionConfiguration compositio
             CompositionRule.AvoidDirectOctaves => new AvoidDirectIntervals(Interval.Unison),
             CompositionRule.AvoidOverDoubling => new AvoidOverDoubling(),
             CompositionRule.FollowStandardChordProgression => new FollowsStandardProgression(compositionConfiguration),
+            CompositionRule.AvoidRepeatedChords => new AvoidRepeatedChords(chordNumberIdentifier),
             _ => throw new ArgumentOutOfRangeException(nameof(configuration), configuration.Rule, "The composition rule is not supported.")
         };
 
