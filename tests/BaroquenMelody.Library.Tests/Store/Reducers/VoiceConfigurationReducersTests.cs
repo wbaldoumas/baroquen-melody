@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Enums;
+﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Reducers;
 using BaroquenMelody.Library.Store.State;
@@ -41,5 +42,14 @@ internal sealed class VoiceConfigurationReducersTests
         state.Configurations[Voice.Tenor].MaxNote.Should().Be(Notes.C7);
         state.Configurations[Voice.Tenor].Instrument.Should().Be(GeneralMidi2Program.Celesta);
         state.Configurations[Voice.Tenor].IsEnabled.Should().BeTrue();
+
+        state.Aggregate.Should().BeEquivalentTo(
+            new HashSet<VoiceConfiguration>
+            {
+                new(Voice.Soprano, Notes.C7, Notes.C8, GeneralMidi2Program.Dulcimer, false),
+                new(Voice.Alto, Notes.C5, Notes.C6, GeneralMidi2Program.Banjo),
+                new(Voice.Tenor, Notes.C6, Notes.C7, GeneralMidi2Program.Celesta)
+            }
+        );
     }
 }

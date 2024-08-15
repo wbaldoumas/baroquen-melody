@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Reducers;
 using BaroquenMelody.Library.Store.State;
@@ -17,10 +18,25 @@ internal sealed class CompositionOrnamentationConfigurationReducersTests
         var state = new CompositionOrnamentationConfigurationState();
 
         // act
-        state = CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(state, new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Run, true, 1));
-        state = CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(state, new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Mordent, true, 2));
-        state = CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(state, new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Turn, true, 3));
-        state = CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(state, new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Mordent, true, 4));
+        state = CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(
+            state,
+            new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Run, true, 1)
+        );
+
+        state = CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(
+            state,
+            new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Mordent, true, 2)
+        );
+
+        state = CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(
+            state,
+            new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Turn, true, 3)
+        );
+
+        state = CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(
+            state,
+            new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Mordent, true, 4)
+        );
 
         // assert
         state.Configurations
@@ -30,5 +46,16 @@ internal sealed class CompositionOrnamentationConfigurationReducersTests
         state.Configurations[OrnamentationType.Run].Probability.Should().Be(1);
         state.Configurations[OrnamentationType.Turn].Probability.Should().Be(3);
         state.Configurations[OrnamentationType.Mordent].Probability.Should().Be(4);
+
+        state.Aggregate.Should().BeEquivalentTo(
+            new AggregateOrnamentationConfiguration(
+                new HashSet<OrnamentationConfiguration>
+                {
+                    new(OrnamentationType.Run, true, 1),
+                    new(OrnamentationType.Turn, true, 3),
+                    new(OrnamentationType.Mordent, true, 4)
+                }
+            )
+        );
     }
 }

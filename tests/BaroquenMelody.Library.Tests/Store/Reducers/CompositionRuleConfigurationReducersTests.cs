@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Rules.Enums;
+﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Rules.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Reducers;
 using BaroquenMelody.Library.Store.State;
@@ -35,5 +36,16 @@ internal sealed class CompositionRuleConfigurationReducersTests
 
         state.Configurations[CompositionRule.AvoidRepeatedChords].Strictness.Should().Be(3);
         state.Configurations[CompositionRule.AvoidRepeatedChords].IsEnabled.Should().BeTrue();
+
+        state.Aggregate.Should().BeEquivalentTo(
+            new AggregateCompositionRuleConfiguration(
+                new HashSet<CompositionRuleConfiguration>
+                {
+                    new CompositionRuleConfiguration(CompositionRule.AvoidDirectFifths, false, 4),
+                    new CompositionRuleConfiguration(CompositionRule.AvoidDissonance, true, 2),
+                    new CompositionRuleConfiguration(CompositionRule.AvoidRepeatedChords, true, 3)
+                }
+            )
+        );
     }
 }
