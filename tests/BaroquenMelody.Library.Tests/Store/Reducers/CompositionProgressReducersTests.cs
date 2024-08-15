@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Store.Reducers;
 
 [TestFixture]
-internal sealed class CompositionProgressReducerTests
+internal sealed class CompositionProgressReducersTests
 {
     [Test]
     public void ReduceUpdateCompositionProgressAction_returns_new_state_with_expected_steps()
@@ -18,7 +18,7 @@ internal sealed class CompositionProgressReducerTests
         var action = new ProgressCompositionStepAction(CompositionStep.Theme);
 
         // act
-        var newState = CompositionProgressReducer.ReduceUpdateCompositionProgressAction(state, action);
+        var newState = CompositionProgressReducers.ReduceUpdateCompositionProgressAction(state, action);
 
         // assert
         newState.CompletedSteps.Should().BeEquivalentTo(new HashSet<CompositionStep> { CompositionStep.Waiting });

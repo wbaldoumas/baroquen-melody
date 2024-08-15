@@ -5,16 +5,16 @@ using Fluxor;
 
 namespace BaroquenMelody.Library.Store.Reducers;
 
-public static class CompositionProgressReducer
+public static class CompositionProgressReducers
 {
     [ReducerMethod]
     public static CompositionProgressState ReduceUpdateCompositionProgressAction(CompositionProgressState state, ProgressCompositionStepAction action)
     {
-        var newCompletedSteps = new HashSet<CompositionStep>(state.CompletedSteps)
+        var completedSteps = new HashSet<CompositionStep>(state.CompletedSteps)
         {
             state.CurrentStep
         };
 
-        return new CompositionProgressState(newCompletedSteps, action.Step);
+        return new CompositionProgressState(completedSteps, action.Step);
     }
 }
