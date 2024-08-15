@@ -31,17 +31,17 @@ internal sealed class PassingToneProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.Soprano,
+            Voice.One,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.F4, MusicalTimeSpan.Half)]))
         );
 
         // act
         _processor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.PassingTone);
         noteToAssert.Ornamentations.Should().ContainSingle();
@@ -55,17 +55,17 @@ internal sealed class PassingToneProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.Soprano,
+            Voice.One,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C5, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half)]))
         );
 
         // act
         _processor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.PassingTone);
         noteToAssert.Ornamentations.Should().ContainSingle();

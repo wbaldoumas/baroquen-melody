@@ -31,17 +31,17 @@ internal sealed class DoublePassingToneProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.Soprano,
+            Voice.One,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half)]))
         );
 
         // act
         _processor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.DoublePassingTone);
         noteToAssert.Ornamentations.Should().HaveCount(2);
@@ -57,17 +57,17 @@ internal sealed class DoublePassingToneProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.Soprano,
+            Voice.One,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.D5, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.D5, MusicalTimeSpan.Half)]))
         );
 
         // act
         _processor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.DoublePassingTone);
         noteToAssert.Ornamentations.Should().HaveCount(2);

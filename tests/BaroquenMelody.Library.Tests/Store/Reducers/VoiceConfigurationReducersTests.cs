@@ -20,35 +20,35 @@ internal sealed class VoiceConfigurationReducersTests
         var state = new VoiceConfigurationState();
 
         // act
-        state = VoiceConfigurationReducers.ReduceUpdateVoiceConfiguration(state, new UpdateVoiceConfiguration(Voice.Soprano, Notes.C4, Notes.C5, GeneralMidi2Program.Accordion, true));
-        state = VoiceConfigurationReducers.ReduceUpdateVoiceConfiguration(state, new UpdateVoiceConfiguration(Voice.Alto, Notes.C5, Notes.C6, GeneralMidi2Program.Banjo, true));
-        state = VoiceConfigurationReducers.ReduceUpdateVoiceConfiguration(state, new UpdateVoiceConfiguration(Voice.Tenor, Notes.C6, Notes.C7, GeneralMidi2Program.Celesta, true));
-        state = VoiceConfigurationReducers.ReduceUpdateVoiceConfiguration(state, new UpdateVoiceConfiguration(Voice.Soprano, Notes.C7, Notes.C8, GeneralMidi2Program.Dulcimer, false));
+        state = VoiceConfigurationReducers.ReduceUpdateVoiceConfiguration(state, new UpdateVoiceConfiguration(Voice.One, Notes.C4, Notes.C5, GeneralMidi2Program.Accordion, true));
+        state = VoiceConfigurationReducers.ReduceUpdateVoiceConfiguration(state, new UpdateVoiceConfiguration(Voice.Two, Notes.C5, Notes.C6, GeneralMidi2Program.Banjo, true));
+        state = VoiceConfigurationReducers.ReduceUpdateVoiceConfiguration(state, new UpdateVoiceConfiguration(Voice.Three, Notes.C6, Notes.C7, GeneralMidi2Program.Celesta, true));
+        state = VoiceConfigurationReducers.ReduceUpdateVoiceConfiguration(state, new UpdateVoiceConfiguration(Voice.One, Notes.C7, Notes.C8, GeneralMidi2Program.Dulcimer, false));
 
         // assert
-        state.Configurations.Should().ContainKeys(Voice.Soprano, Voice.Alto, Voice.Tenor);
+        state.Configurations.Should().ContainKeys(Voice.One, Voice.Two, Voice.Three);
 
-        state.Configurations[Voice.Soprano].MinNote.Should().Be(Notes.C7);
-        state.Configurations[Voice.Soprano].MaxNote.Should().Be(Notes.C8);
-        state.Configurations[Voice.Soprano].Instrument.Should().Be(GeneralMidi2Program.Dulcimer);
-        state.Configurations[Voice.Soprano].IsEnabled.Should().BeFalse();
+        state.Configurations[Voice.One].MinNote.Should().Be(Notes.C7);
+        state.Configurations[Voice.One].MaxNote.Should().Be(Notes.C8);
+        state.Configurations[Voice.One].Instrument.Should().Be(GeneralMidi2Program.Dulcimer);
+        state.Configurations[Voice.One].IsEnabled.Should().BeFalse();
 
-        state.Configurations[Voice.Alto].MinNote.Should().Be(Notes.C5);
-        state.Configurations[Voice.Alto].MaxNote.Should().Be(Notes.C6);
-        state.Configurations[Voice.Alto].Instrument.Should().Be(GeneralMidi2Program.Banjo);
-        state.Configurations[Voice.Alto].IsEnabled.Should().BeTrue();
+        state.Configurations[Voice.Two].MinNote.Should().Be(Notes.C5);
+        state.Configurations[Voice.Two].MaxNote.Should().Be(Notes.C6);
+        state.Configurations[Voice.Two].Instrument.Should().Be(GeneralMidi2Program.Banjo);
+        state.Configurations[Voice.Two].IsEnabled.Should().BeTrue();
 
-        state.Configurations[Voice.Tenor].MinNote.Should().Be(Notes.C6);
-        state.Configurations[Voice.Tenor].MaxNote.Should().Be(Notes.C7);
-        state.Configurations[Voice.Tenor].Instrument.Should().Be(GeneralMidi2Program.Celesta);
-        state.Configurations[Voice.Tenor].IsEnabled.Should().BeTrue();
+        state.Configurations[Voice.Three].MinNote.Should().Be(Notes.C6);
+        state.Configurations[Voice.Three].MaxNote.Should().Be(Notes.C7);
+        state.Configurations[Voice.Three].Instrument.Should().Be(GeneralMidi2Program.Celesta);
+        state.Configurations[Voice.Three].IsEnabled.Should().BeTrue();
 
         state.Aggregate.Should().BeEquivalentTo(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, Notes.C7, Notes.C8, GeneralMidi2Program.Dulcimer, false),
-                new(Voice.Alto, Notes.C5, Notes.C6, GeneralMidi2Program.Banjo),
-                new(Voice.Tenor, Notes.C6, Notes.C7, GeneralMidi2Program.Celesta)
+                new(Voice.One, Notes.C7, Notes.C8, GeneralMidi2Program.Dulcimer, false),
+                new(Voice.Two, Notes.C5, Notes.C6, GeneralMidi2Program.Banjo),
+                new(Voice.Three, Notes.C6, Notes.C7, GeneralMidi2Program.Celesta)
             }
         );
     }

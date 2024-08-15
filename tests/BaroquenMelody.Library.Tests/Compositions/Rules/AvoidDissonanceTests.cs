@@ -28,13 +28,13 @@ internal sealed class AvoidDissonanceTests
             // the current chord is unnecessary for this test, so it is set to empty
             var unusedChord = new BaroquenChord([]);
 
-            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half);
-            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half);
-            var tenorG2 = new BaroquenNote(Voice.Tenor, Notes.G2, MusicalTimeSpan.Half);
-            var bassC1 = new BaroquenNote(Voice.Bass, Notes.C1, MusicalTimeSpan.Half);
-            var sopranoB4 = new BaroquenNote(Voice.Soprano, Notes.B4, MusicalTimeSpan.Half);
-            var sopranoCSharp4 = new BaroquenNote(Voice.Soprano, Notes.CSharp4, MusicalTimeSpan.Half);
-            var bassASharp1 = new BaroquenNote(Voice.Bass, Notes.ASharp1, MusicalTimeSpan.Half);
+            var sopranoC4 = new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half);
+            var altoE3 = new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Half);
+            var tenorG2 = new BaroquenNote(Voice.Three, Notes.G2, MusicalTimeSpan.Half);
+            var bassC1 = new BaroquenNote(Voice.Four, Notes.C1, MusicalTimeSpan.Half);
+            var sopranoB4 = new BaroquenNote(Voice.One, Notes.B4, MusicalTimeSpan.Half);
+            var sopranoCSharp4 = new BaroquenNote(Voice.One, Notes.CSharp4, MusicalTimeSpan.Half);
+            var bassASharp1 = new BaroquenNote(Voice.Four, Notes.ASharp1, MusicalTimeSpan.Half);
 
             var cMajor = new BaroquenChord([sopranoC4, altoE3, tenorG2, bassC1]);
             var eMinor = new BaroquenChord([altoE3, tenorG2, sopranoB4]);

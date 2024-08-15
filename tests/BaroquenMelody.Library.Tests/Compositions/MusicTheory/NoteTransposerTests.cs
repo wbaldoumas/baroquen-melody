@@ -29,33 +29,33 @@ internal sealed class NoteTransposerTests
         // arrange
         var notesToTranspose = new List<BaroquenNote>
         {
-            new(Voice.Soprano, Notes.C4, MusicalTimeSpan.Eighth)
+            new(Voice.One, Notes.C4, MusicalTimeSpan.Eighth)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
                 Ornamentations =
                 {
-                    new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Eighth)
+                    new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Eighth)
                     {
                         OrnamentationType = OrnamentationType.PassingTone
                     }
                 }
             },
-            new(Voice.Soprano, Notes.E4, MusicalTimeSpan.Eighth)
+            new(Voice.One, Notes.E4, MusicalTimeSpan.Eighth)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
                 Ornamentations =
                 {
-                    new BaroquenNote(Voice.Soprano, Notes.F4, MusicalTimeSpan.Eighth)
+                    new BaroquenNote(Voice.One, Notes.F4, MusicalTimeSpan.Eighth)
                     {
                         OrnamentationType = OrnamentationType.PassingTone
                     }
                 }
             },
-            new(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half)
+            new(Voice.One, Notes.G4, MusicalTimeSpan.Half)
             {
                 OrnamentationType = OrnamentationType.None
             },
-            new(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)
+            new(Voice.One, Notes.C4, MusicalTimeSpan.Half)
             {
                 OrnamentationType = OrnamentationType.None
             }
@@ -63,40 +63,40 @@ internal sealed class NoteTransposerTests
 
         var expectedNotes = new List<BaroquenNote>
         {
-            new(Voice.Alto, Notes.G2, MusicalTimeSpan.Eighth)
+            new(Voice.Two, Notes.G2, MusicalTimeSpan.Eighth)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
                 Ornamentations =
                 {
-                    new BaroquenNote(Voice.Alto, Notes.A2, MusicalTimeSpan.Eighth)
+                    new BaroquenNote(Voice.Two, Notes.A2, MusicalTimeSpan.Eighth)
                     {
                         OrnamentationType = OrnamentationType.PassingTone
                     }
                 }
             },
-            new(Voice.Alto, Notes.B2, MusicalTimeSpan.Eighth)
+            new(Voice.Two, Notes.B2, MusicalTimeSpan.Eighth)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
                 Ornamentations =
                 {
-                    new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Eighth)
+                    new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Eighth)
                     {
                         OrnamentationType = OrnamentationType.PassingTone
                     }
                 }
             },
-            new(Voice.Alto, Notes.D3, MusicalTimeSpan.Half)
+            new(Voice.Two, Notes.D3, MusicalTimeSpan.Half)
             {
                 OrnamentationType = OrnamentationType.None
             },
-            new(Voice.Alto, Notes.G2, MusicalTimeSpan.Half)
+            new(Voice.Two, Notes.G2, MusicalTimeSpan.Half)
             {
                 OrnamentationType = OrnamentationType.None
             }
         };
 
         // act
-        var transposedNotes = _noteTransposer.TransposeToVoice(notesToTranspose, Voice.Soprano, Voice.Alto).ToList();
+        var transposedNotes = _noteTransposer.TransposeToVoice(notesToTranspose, Voice.One, Voice.Two).ToList();
 
         // assert
         transposedNotes.Should().HaveCount(expectedNotes.Count);

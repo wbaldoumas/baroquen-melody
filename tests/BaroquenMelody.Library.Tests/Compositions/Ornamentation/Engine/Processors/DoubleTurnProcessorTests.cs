@@ -31,17 +31,17 @@ internal sealed class DoubleTurnProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.Soprano,
+            Voice.One,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A3, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A3, MusicalTimeSpan.Half)]))
         );
 
         // act
         _processor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.DoubleTurn);
         noteToAssert.Ornamentations.Should().HaveCount(7);
@@ -67,17 +67,17 @@ internal sealed class DoubleTurnProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.Soprano,
+            Voice.One,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A3, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A3, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
         // act
         _processor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.DoubleTurn);
         noteToAssert.Ornamentations.Should().HaveCount(7);

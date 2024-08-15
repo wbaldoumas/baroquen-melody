@@ -26,25 +26,25 @@ internal static class Configurations
     {
         1 =>
         [
-            new VoiceConfiguration(Voice.Soprano, Notes.C4, Notes.C6)
+            new VoiceConfiguration(Voice.One, Notes.C4, Notes.C6)
         ],
         2 =>
         [
-            new VoiceConfiguration(Voice.Soprano, Notes.C4, Notes.C6),
-            new VoiceConfiguration(Voice.Alto, Notes.G2, Notes.G4)
+            new VoiceConfiguration(Voice.One, Notes.C4, Notes.C6),
+            new VoiceConfiguration(Voice.Two, Notes.G2, Notes.G4)
         ],
         3 =>
         [
-            new VoiceConfiguration(Voice.Soprano, Notes.C4, Notes.C6),
-            new VoiceConfiguration(Voice.Alto, Notes.G2, Notes.G4),
-            new VoiceConfiguration(Voice.Tenor, Notes.C2, Notes.C3)
+            new VoiceConfiguration(Voice.One, Notes.C4, Notes.C6),
+            new VoiceConfiguration(Voice.Two, Notes.G2, Notes.G4),
+            new VoiceConfiguration(Voice.Three, Notes.C2, Notes.C3)
         ],
         4 =>
         [
-            new VoiceConfiguration(Voice.Soprano, Notes.C4, Notes.C6),
-            new VoiceConfiguration(Voice.Alto, Notes.G2, Notes.G4),
-            new VoiceConfiguration(Voice.Tenor, Notes.C2, Notes.C3),
-            new VoiceConfiguration(Voice.Bass, Notes.C1, Notes.C2)
+            new VoiceConfiguration(Voice.One, Notes.C4, Notes.C6),
+            new VoiceConfiguration(Voice.Two, Notes.G2, Notes.G4),
+            new VoiceConfiguration(Voice.Three, Notes.C2, Notes.C3),
+            new VoiceConfiguration(Voice.Four, Notes.C1, Notes.C2)
         ],
         _ => throw new ArgumentException("Invalid number of voices.")
     };

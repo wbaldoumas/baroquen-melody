@@ -31,9 +31,9 @@ internal sealed class DecorateIntervalProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.Soprano,
+            Voice.One,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)])),
             null
         );
 
@@ -41,7 +41,7 @@ internal sealed class DecorateIntervalProcessorTests
         _processor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.DecorateInterval);
         noteToAssert.Ornamentations.Should().HaveCount(3);
