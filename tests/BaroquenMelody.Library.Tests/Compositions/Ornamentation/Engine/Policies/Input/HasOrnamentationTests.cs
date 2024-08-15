@@ -38,9 +38,9 @@ internal sealed class HasOrnamentationTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.Soprano,
+                    Voice.One,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)])),
                     null
                 ),
                 InputPolicyResult.Reject
@@ -48,9 +48,9 @@ internal sealed class HasOrnamentationTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.Soprano,
+                    Voice.One,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half) { Ornamentations = { new BaroquenNote(Voice.Soprano, Notes.G2, MusicalTimeSpan.Half) } }])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half) { Ornamentations = { new BaroquenNote(Voice.One, Notes.G2, MusicalTimeSpan.Half) } }])),
                     null
                 ),
                 InputPolicyResult.Continue

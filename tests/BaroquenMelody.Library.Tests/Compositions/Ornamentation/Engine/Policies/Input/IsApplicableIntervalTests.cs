@@ -44,29 +44,29 @@ internal sealed class IsApplicableIntervalTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.Soprano,
+                    Voice.One,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F4, MusicalTimeSpan.Half)]))
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.F4, MusicalTimeSpan.Half)]))
                 ),
                 InputPolicyResult.Continue
             ).SetName($"When notes are a third apart, then {nameof(InputPolicyResult.Continue)} is returned.");
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.Soprano,
+                    Voice.One,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half)]))
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half)]))
                 ),
                 InputPolicyResult.Reject
             ).SetName($"When notes are not a third apart, then {nameof(InputPolicyResult.Reject)} is returned.");
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.Soprano,
+                    Voice.One,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)])),
                     null
                 ),
                 InputPolicyResult.Reject
