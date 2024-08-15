@@ -38,20 +38,20 @@ internal sealed class NextBeatHasTargetNotesTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.Soprano,
+                    Voice.One,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.B4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Bass, Notes.D4, MusicalTimeSpan.Half)])),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.B4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Bass, Notes.D4, MusicalTimeSpan.Half)]))
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.B4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Four, Notes.D4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.B4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Four, Notes.D4, MusicalTimeSpan.Half)]))
                 ),
                 InputPolicyResult.Continue
             ).SetName($"When notes are G, B, and D, then {nameof(InputPolicyResult.Continue)} is returned.");
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.Soprano,
+                    Voice.One,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.B4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Tenor, Notes.E4, MusicalTimeSpan.Half)])),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.B4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Tenor, Notes.E4, MusicalTimeSpan.Half)]))
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.B4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Three, Notes.E4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.B4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Three, Notes.E4, MusicalTimeSpan.Half)]))
                 ),
                 InputPolicyResult.Reject
             ).SetName($"When notes are G, B, and E, then {nameof(InputPolicyResult.Reject)} is returned.");

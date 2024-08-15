@@ -18,46 +18,46 @@ internal sealed class QuartetChordChoiceRepositoryTests
         _mockNoteChoiceGenerator = Substitute.For<INoteChoiceGenerator>();
 
         _mockNoteChoiceGenerator
-            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Soprano))
+            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.One))
             .Returns(
                 new HashSet<NoteChoice>
                 {
-                    new(Voice.Soprano, NoteMotion.Oblique, 0),
-                    new(Voice.Soprano, NoteMotion.Ascending, 2),
-                    new(Voice.Soprano, NoteMotion.Descending, 3)
+                    new(Voice.One, NoteMotion.Oblique, 0),
+                    new(Voice.One, NoteMotion.Ascending, 2),
+                    new(Voice.One, NoteMotion.Descending, 3)
                 }
             );
 
         _mockNoteChoiceGenerator
-            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Alto))
+            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Two))
             .Returns(
                 new HashSet<NoteChoice>
                 {
-                    new(Voice.Alto, NoteMotion.Oblique, 0),
-                    new(Voice.Alto, NoteMotion.Ascending, 2),
-                    new(Voice.Alto, NoteMotion.Descending, 3)
+                    new(Voice.Two, NoteMotion.Oblique, 0),
+                    new(Voice.Two, NoteMotion.Ascending, 2),
+                    new(Voice.Two, NoteMotion.Descending, 3)
                 }
             );
 
         _mockNoteChoiceGenerator
-            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Tenor))
+            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Three))
             .Returns(
                 new HashSet<NoteChoice>
                 {
-                    new(Voice.Tenor, NoteMotion.Oblique, 0),
-                    new(Voice.Tenor, NoteMotion.Ascending, 2),
-                    new(Voice.Tenor, NoteMotion.Descending, 3)
+                    new(Voice.Three, NoteMotion.Oblique, 0),
+                    new(Voice.Three, NoteMotion.Ascending, 2),
+                    new(Voice.Three, NoteMotion.Descending, 3)
                 }
             );
 
         _mockNoteChoiceGenerator
-            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Bass))
+            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Four))
             .Returns(
                 new HashSet<NoteChoice>
                 {
-                    new(Voice.Bass, NoteMotion.Oblique, 0),
-                    new(Voice.Bass, NoteMotion.Ascending, 2),
-                    new(Voice.Bass, NoteMotion.Descending, 3)
+                    new(Voice.Four, NoteMotion.Oblique, 0),
+                    new(Voice.Four, NoteMotion.Ascending, 2),
+                    new(Voice.Four, NoteMotion.Descending, 3)
                 }
             );
     }
@@ -83,10 +83,10 @@ internal sealed class QuartetChordChoiceRepositoryTests
         noteChoice.Should().BeEquivalentTo(
             new ChordChoice(
                 [
-                    new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Tenor, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Bass, NoteMotion.Ascending, 2)
+                    new NoteChoice(Voice.One, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Two, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Three, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Four, NoteMotion.Ascending, 2)
                 ]
             )
         );
@@ -125,10 +125,10 @@ internal sealed class QuartetChordChoiceRepositoryTests
         var id = quartetChordChoiceRepository.GetChordChoiceId(
             new ChordChoice(
                 [
-                    new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Tenor, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Bass, NoteMotion.Ascending, 2)
+                    new NoteChoice(Voice.One, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Two, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Three, NoteMotion.Oblique, 0),
+                    new NoteChoice(Voice.Four, NoteMotion.Ascending, 2)
                 ]
             )
         );

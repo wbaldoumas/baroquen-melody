@@ -6,22 +6,22 @@
 public enum Voice : byte
 {
     /// <summary>
-    ///     The highest voice.
+    ///     The first voice.
     /// </summary>
-    Soprano,
+    One,
 
     /// <summary>
-    ///    The second-highest voice.
+    ///    The second voice.
     /// </summary>
-    Alto,
+    Two,
 
     /// <summary>
-    ///   The second-lowest voice.
+    ///   The third voice.
     /// </summary>
-    Tenor,
+    Three,
 
     /// <summary>
-    ///  The lowest voice.
+    ///  The fourth voice.
     /// </summary>
-    Bass
+    Four
 }

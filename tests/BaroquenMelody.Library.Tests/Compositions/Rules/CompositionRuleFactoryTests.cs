@@ -45,7 +45,7 @@ internal sealed class CompositionRuleFactoryTests
     public void Create_returns_expected_rule(CompositionRule rule, int strictness, Type expectedRuleType)
     {
         // arrange
-        var configuration = new CompositionRuleConfiguration(rule, strictness);
+        var configuration = new CompositionRuleConfiguration(rule, true, strictness);
 
         // act
         var result = _factory.Create(configuration);

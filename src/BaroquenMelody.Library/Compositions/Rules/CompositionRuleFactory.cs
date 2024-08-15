@@ -17,6 +17,7 @@ internal sealed class CompositionRuleFactory(
 
     public ICompositionRule CreateAggregate(AggregateCompositionRuleConfiguration aggregateConfiguration) => new AggregateCompositionRule(
         aggregateConfiguration.Configurations
+            .Where(configuration => configuration.IsEnabled)
             .Select(Create)
             .Prepend(new EnsureVoiceRange(compositionConfiguration))
             .ToList()

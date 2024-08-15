@@ -27,26 +27,26 @@ internal sealed class MidiGeneratorTests
     public void Generate_returns_midi_file_as_expected()
     {
         // arrange
-        var sopranoWithMidSustain = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)
+        var sopranoWithMidSustain = new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.MidSustain
         };
 
-        var altoWithRest = new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
+        var altoWithRest = new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.Rest
         };
 
-        var sopranoWithPassingTone = new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half)
+        var sopranoWithPassingTone = new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.PassingTone,
-            Ornamentations = { new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half) }
+            Ornamentations = { new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half) }
         };
 
-        var altoWithDoubleTurn = new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
+        var altoWithDoubleTurn = new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.DoubleTurn,
-            Ornamentations = { new BaroquenNote(Voice.Alto, Notes.B3, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.D4, MusicalTimeSpan.Half) }
+            Ornamentations = { new BaroquenNote(Voice.Two, Notes.B3, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.D4, MusicalTimeSpan.Half) }
         };
 
         var composition = new Composition(

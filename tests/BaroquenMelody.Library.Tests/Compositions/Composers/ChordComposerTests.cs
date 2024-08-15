@@ -45,13 +45,13 @@ internal sealed class ChordComposerTests
         [
             new ChordChoice(
             [
-                new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 3),
-                new NoteChoice(Voice.Alto, NoteMotion.Descending, 3)
+                new NoteChoice(Voice.One, NoteMotion.Ascending, 3),
+                new NoteChoice(Voice.Two, NoteMotion.Descending, 3)
             ]),
             new ChordChoice(
             [
-                new NoteChoice(Voice.Soprano, NoteMotion.Descending, 3),
-                new NoteChoice(Voice.Alto, NoteMotion.Ascending, 3)
+                new NoteChoice(Voice.One, NoteMotion.Descending, 3),
+                new NoteChoice(Voice.Two, NoteMotion.Ascending, 3)
             ])
         ]);
 
@@ -59,21 +59,21 @@ internal sealed class ChordComposerTests
         {
             new(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
             ])
         };
 
         var expectedChordA = new BaroquenChord(
         [
-            new BaroquenNote(Voice.Soprano, Notes.D5, MusicalTimeSpan.Half),
-            new BaroquenNote(Voice.Alto, Notes.G2, MusicalTimeSpan.Half)
+            new BaroquenNote(Voice.One, Notes.D5, MusicalTimeSpan.Half),
+            new BaroquenNote(Voice.Two, Notes.G2, MusicalTimeSpan.Half)
         ]);
 
         var expectedChordB = new BaroquenChord(
         [
-            new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half),
-            new BaroquenNote(Voice.Alto, Notes.F3, MusicalTimeSpan.Half)
+            new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half),
+            new BaroquenNote(Voice.Two, Notes.F3, MusicalTimeSpan.Half)
         ]);
 
         // act
@@ -94,8 +94,8 @@ internal sealed class ChordComposerTests
         {
             new(
             [
-                new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
             ])
         };
 

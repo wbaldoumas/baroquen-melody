@@ -53,13 +53,13 @@ internal sealed class EndingComposerTests
         // arrange
         var composition = CreateTestComposition();
         var theme = CreateTestTheme();
-        var bridgingChords = new List<BaroquenChord> { new([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]) };
+        var bridgingChords = new List<BaroquenChord> { new([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)]) };
 
         _mockCompositionStrategy.GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
             .Returns(bridgingChords);
 
         _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
-            .Returns([new ChordChoice([new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 1)])]);
+            .Returns([new ChordChoice([new NoteChoice(Voice.One, NoteMotion.Oblique, 1)])]);
 
         _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>())
             .Returns(ChordNumber.V, ChordNumber.V, ChordNumber.V, ChordNumber.I);
@@ -79,7 +79,7 @@ internal sealed class EndingComposerTests
         // arrange
         var composition = CreateTestComposition();
         var theme = CreateTestTheme();
-        var bridgingChords = new List<BaroquenChord> { new([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]) };
+        var bridgingChords = new List<BaroquenChord> { new([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)]) };
 
         _mockCompositionStrategy.GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
             .Returns([], bridgingChords);
@@ -95,10 +95,10 @@ internal sealed class EndingComposerTests
 
         var fallbackChordChoice = new ChordChoice(
         [
-            new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 1),
-            new NoteChoice(Voice.Alto, NoteMotion.Oblique, 1),
-            new NoteChoice(Voice.Tenor, NoteMotion.Oblique, 1),
-            new NoteChoice(Voice.Bass, NoteMotion.Oblique, 1)
+            new NoteChoice(Voice.One, NoteMotion.Oblique, 1),
+            new NoteChoice(Voice.Two, NoteMotion.Oblique, 1),
+            new NoteChoice(Voice.Three, NoteMotion.Oblique, 1),
+            new NoteChoice(Voice.Four, NoteMotion.Oblique, 1)
         ]);
 
         _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
@@ -124,7 +124,7 @@ internal sealed class EndingComposerTests
             .Returns([]);
 
         _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
-            .Returns([new ChordChoice([new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0)])]);
+            .Returns([new ChordChoice([new NoteChoice(Voice.One, NoteMotion.Oblique, 0)])]);
 
         _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>())
             .Returns(ChordNumber.V, ChordNumber.V);
@@ -138,14 +138,14 @@ internal sealed class EndingComposerTests
 
     private static Composition CreateTestComposition()
     {
-        var measure = new Measure([new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))], Meter.FourFour);
+        var measure = new Measure([new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)]))], Meter.FourFour);
 
         return new Composition([measure]);
     }
 
     private static BaroquenTheme CreateTestTheme()
     {
-        var measure = new Measure([new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))], Meter.FourFour);
+        var measure = new Measure([new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)]))], Meter.FourFour);
 
         return new BaroquenTheme([measure], [measure]);
     }

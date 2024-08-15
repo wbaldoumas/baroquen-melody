@@ -23,10 +23,10 @@ internal sealed class CompositionConfigurationTests
         _compositionConfiguration = new CompositionConfiguration(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.Soprano, MinSopranoPitch.ToNote(), MaxSopranoPitch.ToNote()),
-                new(Voice.Alto, 48.ToNote(), 60.ToNote()),
-                new(Voice.Tenor, 36.ToNote(), 48.ToNote()),
-                new(Voice.Bass, 24.ToNote(), 36.ToNote())
+                new(Voice.One, MinSopranoPitch.ToNote(), MaxSopranoPitch.ToNote()),
+                new(Voice.Two, 48.ToNote(), 60.ToNote()),
+                new(Voice.Three, 36.ToNote(), 48.ToNote()),
+                new(Voice.Four, 24.ToNote(), 36.ToNote())
             },
             PhrasingConfiguration.Default,
             AggregateCompositionRuleConfiguration.Default,
@@ -39,12 +39,12 @@ internal sealed class CompositionConfigurationTests
     }
 
     [Test]
-    [TestCase(Voice.Soprano, MaxSopranoPitch + 1, false)]
-    [TestCase(Voice.Soprano, MinSopranoPitch - 1, false)]
-    [TestCase(Voice.Soprano, MaxSopranoPitch, true)]
-    [TestCase(Voice.Soprano, MinSopranoPitch, true)]
-    [TestCase(Voice.Soprano, MaxSopranoPitch - 1, true)]
-    [TestCase(Voice.Soprano, MinSopranoPitch + 1, true)]
+    [TestCase(Voice.One, MaxSopranoPitch + 1, false)]
+    [TestCase(Voice.One, MinSopranoPitch - 1, false)]
+    [TestCase(Voice.One, MaxSopranoPitch, true)]
+    [TestCase(Voice.One, MinSopranoPitch, true)]
+    [TestCase(Voice.One, MaxSopranoPitch - 1, true)]
+    [TestCase(Voice.One, MinSopranoPitch + 1, true)]
     public void IsPitchInVoiceRange_returns_expected_result(
         Voice voice,
         byte pitch,

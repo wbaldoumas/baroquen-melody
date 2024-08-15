@@ -44,9 +44,9 @@ internal sealed class IsIntervalWithinVoiceRangeTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.Soprano,
+                    Voice.One,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C5, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.G4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.G4, MusicalTimeSpan.Half)])),
                     null
                 ),
                 InputPolicyResult.Continue
@@ -54,9 +54,9 @@ internal sealed class IsIntervalWithinVoiceRangeTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.Soprano,
+                    Voice.One,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C6, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.G3, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C6, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.G3, MusicalTimeSpan.Half)])),
                     null
                 ),
                 InputPolicyResult.Reject
