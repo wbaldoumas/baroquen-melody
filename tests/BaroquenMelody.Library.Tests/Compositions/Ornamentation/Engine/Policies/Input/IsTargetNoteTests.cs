@@ -36,14 +36,14 @@ internal sealed class IsTargetNoteTests
         {
             var testCompositionContext = new FixedSizeList<Beat>(1);
 
-            var sopranoNoteWithTargetNoteName = new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half);
-            var altoNoteWithTargetNoteName = new BaroquenNote(Voice.Two, Notes.A4, MusicalTimeSpan.Half);
-            var sopranoNoteWithoutNoteName = new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half);
-            var altoNoteWithoutNoteName = new BaroquenNote(Voice.Two, Notes.G4, MusicalTimeSpan.Half);
+            var sopranoNoteWithTargetNoteName = new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half);
+            var altoNoteWithTargetNoteName = new BaroquenNote(Voice.Alto, Notes.A4, MusicalTimeSpan.Half);
+            var sopranoNoteWithoutNoteName = new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half);
+            var altoNoteWithoutNoteName = new BaroquenNote(Voice.Alto, Notes.G4, MusicalTimeSpan.Half);
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.One,
+                    Voice.Soprano,
                     testCompositionContext,
                     new Beat(new BaroquenChord([sopranoNoteWithTargetNoteName, altoNoteWithoutNoteName])),
                     null
@@ -53,7 +53,7 @@ internal sealed class IsTargetNoteTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.One,
+                    Voice.Soprano,
                     testCompositionContext,
                     new Beat(new BaroquenChord([sopranoNoteWithoutNoteName, altoNoteWithTargetNoteName])),
                     null

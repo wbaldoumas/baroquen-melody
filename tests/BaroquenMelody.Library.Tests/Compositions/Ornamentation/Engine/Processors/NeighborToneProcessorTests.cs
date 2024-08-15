@@ -40,10 +40,10 @@ internal sealed class NeighborToneProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
         _mockMusicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Eighth.Dotted(1));
@@ -54,7 +54,7 @@ internal sealed class NeighborToneProcessorTests
         _neighborToneProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.DelayedNeighborTone);
         noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth.Dotted(1));
@@ -68,10 +68,10 @@ internal sealed class NeighborToneProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
         _mockMusicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Eighth.Dotted(1));
@@ -82,7 +82,7 @@ internal sealed class NeighborToneProcessorTests
         _neighborToneProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.DelayedNeighborTone);
         noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth.Dotted(1));

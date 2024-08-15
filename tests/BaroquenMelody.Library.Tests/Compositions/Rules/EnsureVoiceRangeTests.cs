@@ -32,12 +32,12 @@ internal sealed class EnsureVoiceRangeTests
         get
         {
             yield return new TestCaseData(
-                new BaroquenChord([new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half)]),
+                new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C5, MusicalTimeSpan.Half)]),
                 true
             ).SetName("Soprano note is in range.");
 
             yield return new TestCaseData(
-                new BaroquenChord([new BaroquenNote(Voice.One, Notes.B2, MusicalTimeSpan.Half)]),
+                new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.B2, MusicalTimeSpan.Half)]),
                 false
             ).SetName("Soprano note is out of range.");
         }

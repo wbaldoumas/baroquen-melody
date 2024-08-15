@@ -26,14 +26,14 @@ internal sealed class BeatTests
         get
         {
             yield return new TestCaseData(
-                new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half)])),
-                Voice.One,
+                new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C1, MusicalTimeSpan.Half)])),
+                Voice.Soprano,
                 true
             );
 
             yield return new TestCaseData(
-                new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half)])),
-                Voice.Two,
+                new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C1, MusicalTimeSpan.Half)])),
+                Voice.Alto,
                 false
             );
         }

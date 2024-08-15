@@ -53,17 +53,17 @@ internal sealed class PedalProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)]))
         );
 
         // act
         _rootPedalProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Pedal);
         noteToAssert.Ornamentations.Should().HaveCount(3);
@@ -83,17 +83,17 @@ internal sealed class PedalProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A3, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A3, MusicalTimeSpan.Half)]))
         );
 
         // act
         _rootPedalProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Pedal);
         noteToAssert.Ornamentations.Should().HaveCount(3);
@@ -113,17 +113,17 @@ internal sealed class PedalProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half)]))
         );
 
         // act
         _thirdPedalProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Pedal);
         noteToAssert.Ornamentations.Should().HaveCount(3);
@@ -143,17 +143,17 @@ internal sealed class PedalProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
         // act
         _thirdPedalProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Pedal);
         noteToAssert.Ornamentations.Should().HaveCount(3);
@@ -173,17 +173,17 @@ internal sealed class PedalProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.B4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.B4, MusicalTimeSpan.Half)]))
         );
 
         // act
         _fifthPedalProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Pedal);
         noteToAssert.Ornamentations.Should().HaveCount(3);
@@ -203,17 +203,17 @@ internal sealed class PedalProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)]))
         );
 
         // act
         _fifthPedalProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Pedal);
         noteToAssert.Ornamentations.Should().HaveCount(3);

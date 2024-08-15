@@ -38,9 +38,9 @@ internal sealed class HasTargetNotesTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.One,
+                    Voice.Soprano,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.B4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Four, Notes.D4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.B4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Bass, Notes.D4, MusicalTimeSpan.Half)])),
                     null
                 ),
                 InputPolicyResult.Continue
@@ -48,9 +48,9 @@ internal sealed class HasTargetNotesTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.One,
+                    Voice.Soprano,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.B4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Three, Notes.E4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.B4, MusicalTimeSpan.Half), new BaroquenNote(Voice.Tenor, Notes.E4, MusicalTimeSpan.Half)])),
                     null
                 ),
                 InputPolicyResult.Reject

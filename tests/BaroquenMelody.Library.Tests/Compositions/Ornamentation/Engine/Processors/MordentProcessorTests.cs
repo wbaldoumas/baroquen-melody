@@ -37,10 +37,10 @@ internal sealed class MordentProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.F4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F4, MusicalTimeSpan.Half)]))
         );
 
         _mockWeightedRandomBooleanGenerator.IsTrue().Returns(true);
@@ -49,7 +49,7 @@ internal sealed class MordentProcessorTests
         _mordentProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Mordent);
         noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
@@ -67,10 +67,10 @@ internal sealed class MordentProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Voice.Soprano,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.F4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F4, MusicalTimeSpan.Half)]))
         );
 
         _mockWeightedRandomBooleanGenerator.IsTrue().Returns(false);
@@ -79,7 +79,7 @@ internal sealed class MordentProcessorTests
         _mordentProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Voice.Soprano];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Mordent);
         noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);

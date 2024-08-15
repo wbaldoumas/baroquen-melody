@@ -38,17 +38,17 @@ internal sealed class SixteenthNoteOrnamentationCleanerTests
     {
         get
         {
-            var sopranoC4 = new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half);
-            var sopranoD4 = new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Half);
-            var sopranoE4 = new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half);
-            var sopranoF4 = new BaroquenNote(Voice.One, Notes.F4, MusicalTimeSpan.Half);
-            var sopranoG4 = new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half);
+            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half);
+            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half);
+            var sopranoE4 = new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half);
+            var sopranoF4 = new BaroquenNote(Voice.Soprano, Notes.F4, MusicalTimeSpan.Half);
+            var sopranoG4 = new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half);
 
-            var altoC3 = new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half);
-            var altoD3 = new BaroquenNote(Voice.Two, Notes.D3, MusicalTimeSpan.Half);
-            var altoE3 = new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Half);
-            var altoF3 = new BaroquenNote(Voice.Two, Notes.F3, MusicalTimeSpan.Half);
-            var altoG3 = new BaroquenNote(Voice.Two, Notes.G3, MusicalTimeSpan.Half);
+            var altoC3 = new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half);
+            var altoD3 = new BaroquenNote(Voice.Alto, Notes.D3, MusicalTimeSpan.Half);
+            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half);
+            var altoF3 = new BaroquenNote(Voice.Alto, Notes.F3, MusicalTimeSpan.Half);
+            var altoG3 = new BaroquenNote(Voice.Alto, Notes.G3, MusicalTimeSpan.Half);
 
             var sopranoWithAscendingDoubleRun = new BaroquenNote(sopranoC4)
             {

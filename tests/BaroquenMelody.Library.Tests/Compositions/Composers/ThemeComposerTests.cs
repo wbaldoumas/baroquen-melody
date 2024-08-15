@@ -51,10 +51,10 @@ internal sealed class ThemeComposerTests
     {
         // arrange
         var mockBaroquenChord = new BaroquenChord([
-            new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half),
-            new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Half),
-            new BaroquenNote(Voice.Three, Notes.G2, MusicalTimeSpan.Half),
-            new BaroquenNote(Voice.Four, Notes.C1, MusicalTimeSpan.Half)
+            new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+            new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half),
+            new BaroquenNote(Voice.Tenor, Notes.G2, MusicalTimeSpan.Half),
+            new BaroquenNote(Voice.Bass, Notes.C1, MusicalTimeSpan.Half)
         ]);
 
         _mockCompositionStrategy.GenerateInitialChord().Returns(mockBaroquenChord);

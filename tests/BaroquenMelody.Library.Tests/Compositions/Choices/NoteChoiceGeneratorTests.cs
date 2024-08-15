@@ -16,7 +16,7 @@ internal sealed class NoteChoiceGeneratorTests
     [Test]
     public void GenerateNoteChoices_GivenVoice_ReturnsNoteChoices()
     {
-        var noteChoices = _noteChoiceGenerator.GenerateNoteChoices(Voice.One);
+        var noteChoices = _noteChoiceGenerator.GenerateNoteChoices(Voice.Soprano);
 
         noteChoices.Should().NotBeNull();
         noteChoices.Should().NotBeEmpty();

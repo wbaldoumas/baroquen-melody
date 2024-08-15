@@ -25,7 +25,7 @@ internal sealed class BaroquenNoteTests
     public void GetHashCode_throws_InvalidOperationException()
     {
         // arrange
-        var note = new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half);
+        var note = new BaroquenNote(Voice.Soprano, Notes.C1, MusicalTimeSpan.Half);
 
         // act
         var act = () => note.GetHashCode();
@@ -47,9 +47,9 @@ internal sealed class BaroquenNoteTests
     {
         get
         {
-            var sopranoC4 = new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half);
-            var sopranoC3 = new BaroquenNote(Voice.One, Notes.C3, MusicalTimeSpan.Half);
-            var sopranoD4 = new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Half);
+            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half);
+            var sopranoC3 = new BaroquenNote(Voice.Soprano, Notes.C3, MusicalTimeSpan.Half);
+            var sopranoD4 = new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half);
 
             yield return new TestCaseData(sopranoC4, sopranoD4, false).SetName("C4 is less than D4");
 
@@ -63,19 +63,19 @@ internal sealed class BaroquenNoteTests
     {
         get
         {
-            var note = new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half);
-            var identicalNote = new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half);
-            var noteWithDifferentPitch = new BaroquenNote(Voice.One, Notes.D1, MusicalTimeSpan.Half);
-            var noteWithDifferentVoice = new BaroquenNote(Voice.Two, Notes.C1, MusicalTimeSpan.Half);
+            var note = new BaroquenNote(Voice.Soprano, Notes.C1, MusicalTimeSpan.Half);
+            var identicalNote = new BaroquenNote(Voice.Soprano, Notes.C1, MusicalTimeSpan.Half);
+            var noteWithDifferentPitch = new BaroquenNote(Voice.Soprano, Notes.D1, MusicalTimeSpan.Half);
+            var noteWithDifferentVoice = new BaroquenNote(Voice.Alto, Notes.C1, MusicalTimeSpan.Half);
 
-            var noteWithDifferentMusicalTimeSpan = new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half)
+            var noteWithDifferentMusicalTimeSpan = new BaroquenNote(Voice.Soprano, Notes.C1, MusicalTimeSpan.Half)
             {
                 MusicalTimeSpan = note.MusicalTimeSpan.Triplet()
             };
 
-            var noteWithOrnamentation = new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half)
+            var noteWithOrnamentation = new BaroquenNote(Voice.Soprano, Notes.C1, MusicalTimeSpan.Half)
             {
-                Ornamentations = { new BaroquenNote(Voice.One, Notes.C2, MusicalTimeSpan.Half) }
+                Ornamentations = { new BaroquenNote(Voice.Soprano, Notes.C2, MusicalTimeSpan.Half) }
             };
 
             BaroquenNote? nullNote = null;

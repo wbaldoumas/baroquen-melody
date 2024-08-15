@@ -23,7 +23,7 @@ internal sealed class WantsToOrnamentTests
         // arrange
         var policy = new WantsToOrnament(_weightedRandomBooleanGenerator, 101);
 
-        var ornamentationItem = new OrnamentationItem(Voice.One, [], new Beat(new BaroquenChord([])), null);
+        var ornamentationItem = new OrnamentationItem(Voice.Soprano, [], new Beat(new BaroquenChord([])), null);
 
         // act
         var result = policy.ShouldProcess(ornamentationItem);
@@ -38,7 +38,7 @@ internal sealed class WantsToOrnamentTests
         // arrange
         var policy = new WantsToOrnament(_weightedRandomBooleanGenerator, -1);
 
-        var ornamentationItem = new OrnamentationItem(Voice.One, [], new Beat(new BaroquenChord([])), null);
+        var ornamentationItem = new OrnamentationItem(Voice.Soprano, [], new Beat(new BaroquenChord([])), null);
 
         // act
         var result = policy.ShouldProcess(ornamentationItem);

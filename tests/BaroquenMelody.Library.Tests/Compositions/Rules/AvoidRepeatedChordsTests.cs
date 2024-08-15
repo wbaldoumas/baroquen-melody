@@ -38,18 +38,18 @@ internal sealed class AvoidRepeatedChordsTests
     {
         get
         {
-            var sopranoC4 = new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half);
-            var sopranoE4 = new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half);
-            var sopranoG4 = new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half);
-            var sopranoA4 = new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half);
+            var sopranoC4 = new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half);
+            var sopranoE4 = new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half);
+            var sopranoG4 = new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half);
+            var sopranoA4 = new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half);
 
-            var altoC3 = new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half);
-            var altoE3 = new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Half);
-            var altoG3 = new BaroquenNote(Voice.Two, Notes.G3, MusicalTimeSpan.Half);
+            var altoC3 = new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half);
+            var altoE3 = new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half);
+            var altoG3 = new BaroquenNote(Voice.Alto, Notes.G3, MusicalTimeSpan.Half);
 
-            var tenorC2 = new BaroquenNote(Voice.Three, Notes.C2, MusicalTimeSpan.Half);
-            var tenorE2 = new BaroquenNote(Voice.Three, Notes.E2, MusicalTimeSpan.Half);
-            var tenorG2 = new BaroquenNote(Voice.Three, Notes.G2, MusicalTimeSpan.Half);
+            var tenorC2 = new BaroquenNote(Voice.Tenor, Notes.C2, MusicalTimeSpan.Half);
+            var tenorE2 = new BaroquenNote(Voice.Tenor, Notes.E2, MusicalTimeSpan.Half);
+            var tenorG2 = new BaroquenNote(Voice.Tenor, Notes.G2, MusicalTimeSpan.Half);
 
             var cMajor1 = new BaroquenChord([sopranoC4, altoE3, tenorG2]);
             var cMajor2 = new BaroquenChord([sopranoE4, altoG3, tenorC2]);

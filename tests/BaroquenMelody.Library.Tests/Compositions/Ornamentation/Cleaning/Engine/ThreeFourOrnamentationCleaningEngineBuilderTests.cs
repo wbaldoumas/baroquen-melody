@@ -172,8 +172,8 @@ internal sealed class ThreeFourOrnamentationCleaningEngineBuilderTests
     {
         // arrange
         var ornamentationCleaningItem = new OrnamentationCleaningItem(
-            new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half) { OrnamentationType = ornamentationTypeA },
-            new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half) { OrnamentationType = ornamentationTypeB }
+            new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half) { OrnamentationType = ornamentationTypeA },
+            new BaroquenNote(Voice.Alto, Notes.C3, MusicalTimeSpan.Half) { OrnamentationType = ornamentationTypeB }
         );
 
         var ornamentationCleaningEngine = _threeFourOrnamentationCleaningEngineBuilder.Build();

@@ -82,32 +82,32 @@ internal sealed class CompositionStrategyTests
         var precedingChords = new List<BaroquenChord>
         {
             new([
-                new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Three, Notes.G2, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Four, Notes.C2, MusicalTimeSpan.Half)
+                new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Tenor, Notes.G2, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Bass, Notes.C2, MusicalTimeSpan.Half)
             ])
         };
 
         var goodChordChoice = new ChordChoice([
-            new NoteChoice(Voice.One, NoteMotion.Oblique, 0),
-            new NoteChoice(Voice.Two, NoteMotion.Oblique, 0),
-            new NoteChoice(Voice.Three, NoteMotion.Oblique, 0),
-            new NoteChoice(Voice.Four, NoteMotion.Oblique, 0)
+            new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
+            new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0),
+            new NoteChoice(Voice.Tenor, NoteMotion.Oblique, 0),
+            new NoteChoice(Voice.Bass, NoteMotion.Oblique, 0)
         ]);
 
         var otherGoodChordChoice = new ChordChoice([
-            new NoteChoice(Voice.One, NoteMotion.Ascending, 1),
-            new NoteChoice(Voice.Two, NoteMotion.Descending, 1),
-            new NoteChoice(Voice.Three, NoteMotion.Ascending, 1),
-            new NoteChoice(Voice.Four, NoteMotion.Descending, 1)
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Alto, NoteMotion.Descending, 1),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Bass, NoteMotion.Descending, 1)
         ]);
 
         var badChordChoice = new ChordChoice([
-            new NoteChoice(Voice.One, NoteMotion.Ascending, 5),
-            new NoteChoice(Voice.Two, NoteMotion.Descending, 5),
-            new NoteChoice(Voice.Three, NoteMotion.Ascending, 5),
-            new NoteChoice(Voice.Four, NoteMotion.Descending, 5)
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Alto, NoteMotion.Descending, 5),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Bass, NoteMotion.Descending, 5)
         ]);
 
         var mockChordChoices = new List<ChordChoice>
@@ -188,40 +188,40 @@ internal sealed class CompositionStrategyTests
         var precedingChords = new List<BaroquenChord>
         {
             new([
-                new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Three, Notes.G2, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Four, Notes.C2, MusicalTimeSpan.Half)
+                new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Tenor, Notes.G2, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Bass, Notes.C2, MusicalTimeSpan.Half)
             ])
         };
 
         var nextChord = new BaroquenChord([
-                new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Three, Notes.G2, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Four, Notes.C2, MusicalTimeSpan.Half)
+                new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Alto, Notes.E3, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Tenor, Notes.G2, MusicalTimeSpan.Half),
+                new BaroquenNote(Voice.Bass, Notes.C2, MusicalTimeSpan.Half)
             ]
         );
 
         var goodChordChoice = new ChordChoice([
-            new NoteChoice(Voice.One, NoteMotion.Oblique, 0),
-            new NoteChoice(Voice.Two, NoteMotion.Oblique, 0),
-            new NoteChoice(Voice.Three, NoteMotion.Oblique, 0),
-            new NoteChoice(Voice.Four, NoteMotion.Oblique, 0)
+            new NoteChoice(Voice.Soprano, NoteMotion.Oblique, 0),
+            new NoteChoice(Voice.Alto, NoteMotion.Oblique, 0),
+            new NoteChoice(Voice.Tenor, NoteMotion.Oblique, 0),
+            new NoteChoice(Voice.Bass, NoteMotion.Oblique, 0)
         ]);
 
         var otherGoodChordChoice = new ChordChoice([
-            new NoteChoice(Voice.One, NoteMotion.Ascending, 1),
-            new NoteChoice(Voice.Two, NoteMotion.Descending, 1),
-            new NoteChoice(Voice.Three, NoteMotion.Ascending, 1),
-            new NoteChoice(Voice.Four, NoteMotion.Descending, 1)
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Alto, NoteMotion.Descending, 1),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 1),
+            new NoteChoice(Voice.Bass, NoteMotion.Descending, 1)
         ]);
 
         var badChordChoice = new ChordChoice([
-            new NoteChoice(Voice.One, NoteMotion.Ascending, 5),
-            new NoteChoice(Voice.Two, NoteMotion.Descending, 5),
-            new NoteChoice(Voice.Three, NoteMotion.Ascending, 5),
-            new NoteChoice(Voice.Four, NoteMotion.Descending, 5)
+            new NoteChoice(Voice.Soprano, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Alto, NoteMotion.Descending, 5),
+            new NoteChoice(Voice.Tenor, NoteMotion.Ascending, 5),
+            new NoteChoice(Voice.Bass, NoteMotion.Descending, 5)
         ]);
 
         var mockChordChoices = new List<ChordChoice>

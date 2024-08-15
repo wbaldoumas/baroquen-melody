@@ -8,20 +8,20 @@ public enum Voice : byte
     /// <summary>
     ///     The first voice.
     /// </summary>
-    One,
+    Soprano,
 
     /// <summary>
     ///    The second voice.
     /// </summary>
-    Two,
+    Alto,
 
     /// <summary>
     ///   The third voice.
     /// </summary>
-    Three,
+    Tenor,
 
     /// <summary>
     ///  The fourth voice.
     /// </summary>
-    Four
+    Bass
 }

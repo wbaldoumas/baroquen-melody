@@ -43,9 +43,9 @@ void DispatchInitialState(IDispatcher dispatcher)
 {
     dispatcher.Dispatch(new UpdateCompositionConfiguration(BaroquenScale.Parse("C Major"), Meter.ThreeFour, 25));
 
-    dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice.One, Notes.C5, Notes.E6, GeneralMidi2Program.AcousticGuitarNylon, true));
-    dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice.Two, Notes.G3, Notes.B4, GeneralMidi2Program.AcousticGuitarNylon, true));
-    dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice.Three, Notes.F3, Notes.A4, GeneralMidi2Program.AcousticGuitarNylon, true));
+    dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice.Soprano, Notes.C5, Notes.E6, GeneralMidi2Program.AcousticGuitarNylon, true));
+    dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice.Alto, Notes.G3, Notes.B4, GeneralMidi2Program.AcousticGuitarNylon, true));
+    dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice.Tenor, Notes.F3, Notes.A4, GeneralMidi2Program.AcousticGuitarNylon, true));
 
     // dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice.Four, Notes.C2, Notes.E3, GeneralMidi2Program.AcousticGuitarNylon, true));
     foreach (var configuration in AggregateCompositionRuleConfiguration.Default.Configurations)

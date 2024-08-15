@@ -31,19 +31,19 @@ internal sealed class ThemeSplitterTests
     {
         get
         {
-            var chordA = new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)]);
+            var chordA = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C4, MusicalTimeSpan.Half)]);
             var beatA = new Beat(chordA);
             var measureA = new Measure([beatA], Meter.FourFour);
 
-            var chordB = new BaroquenChord([new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Half)]);
+            var chordB = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.D4, MusicalTimeSpan.Half)]);
             var beatB = new Beat(chordB);
             var measureB = new Measure([beatB], Meter.FourFour);
 
-            var chordC = new BaroquenChord([new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half)]);
+            var chordC = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.E4, MusicalTimeSpan.Half)]);
             var beatC = new Beat(chordC);
             var measureC = new Measure([beatC], Meter.FourFour);
 
-            var chordD = new BaroquenChord([new BaroquenNote(Voice.One, Notes.F4, MusicalTimeSpan.Half)]);
+            var chordD = new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.F4, MusicalTimeSpan.Half)]);
             var beatD = new Beat(chordD);
             var measureD = new Measure([beatD], Meter.FourFour);
 

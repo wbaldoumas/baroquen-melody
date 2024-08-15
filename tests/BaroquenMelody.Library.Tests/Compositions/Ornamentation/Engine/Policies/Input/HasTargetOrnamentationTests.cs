@@ -37,27 +37,27 @@ internal sealed class HasTargetOrnamentationTests
         {
             var testCompositionContext = new FixedSizeList<Beat>(1);
 
-            var noteWithPassingTone = new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)
+            var noteWithPassingTone = new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)
             {
                 OrnamentationType = OrnamentationType.PassingTone,
-                Ornamentations = { new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half) }
+                Ornamentations = { new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half) }
             };
 
-            var noteWithDelayedPassingTone = new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half)
+            var noteWithDelayedPassingTone = new BaroquenNote(Voice.Soprano, Notes.A4, MusicalTimeSpan.Half)
             {
                 OrnamentationType = OrnamentationType.DelayedPassingTone,
-                Ornamentations = { new BaroquenNote(Voice.One, Notes.G4, MusicalTimeSpan.Half) }
+                Ornamentations = { new BaroquenNote(Voice.Soprano, Notes.G4, MusicalTimeSpan.Half) }
             };
 
             var noteWithoutOrnamentation = new BaroquenNote(
-                Voice.One,
+                Voice.Soprano,
                 Notes.A4,
                 MusicalTimeSpan.Half
             );
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.One,
+                    Voice.Soprano,
                     testCompositionContext,
                     new Beat(new BaroquenChord([noteWithPassingTone])),
                     null
@@ -67,7 +67,7 @@ internal sealed class HasTargetOrnamentationTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.One,
+                    Voice.Soprano,
                     testCompositionContext,
                     new Beat(new BaroquenChord([noteWithDelayedPassingTone])),
                     null
@@ -77,7 +77,7 @@ internal sealed class HasTargetOrnamentationTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.One,
+                    Voice.Soprano,
                     testCompositionContext,
                     new Beat(new BaroquenChord([noteWithoutOrnamentation])),
                     null

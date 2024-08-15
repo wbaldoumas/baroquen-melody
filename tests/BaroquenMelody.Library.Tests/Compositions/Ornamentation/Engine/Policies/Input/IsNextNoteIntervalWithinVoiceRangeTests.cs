@@ -44,20 +44,20 @@ internal sealed class IsNextNoteIntervalWithinVoiceRangeTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.One,
+                    Voice.Soprano,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.G4, MusicalTimeSpan.Half)])),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.G4, MusicalTimeSpan.Half)]))
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C5, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.G4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C5, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.G4, MusicalTimeSpan.Half)]))
                 ),
                 InputPolicyResult.Continue
             ).SetName($"When added interval is within voice range, then {nameof(InputPolicyResult.Continue)} is returned.");
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.One,
+                    Voice.Soprano,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C6, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.G3, MusicalTimeSpan.Half)])),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C6, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.G3, MusicalTimeSpan.Half)]))
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C6, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.G3, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Voice.Soprano, Notes.C6, MusicalTimeSpan.Half), new BaroquenNote(Voice.Alto, Notes.G3, MusicalTimeSpan.Half)]))
                 ),
                 InputPolicyResult.Reject
             ).SetName($"When added interval is not within voice range, then {nameof(InputPolicyResult.Reject)} is returned.");
