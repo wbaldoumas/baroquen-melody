@@ -17,7 +17,7 @@ internal sealed class CompositionConfigurationServiceTests
 
     private ICompositionRuleConfigurationService _mockCompositionRuleConfigurationService = null!;
 
-    private IVoiceConfigurationService _mockVoiceConfigurationService = null!;
+    private IInstrumentConfigurationService _mockInstrumentConfigurationService = null!;
 
     private IDispatcher _mockDispatcher = null!;
 
@@ -28,13 +28,13 @@ internal sealed class CompositionConfigurationServiceTests
     {
         _mockOrnamentationConfigurationService = Substitute.For<IOrnamentationConfigurationService>();
         _mockCompositionRuleConfigurationService = Substitute.For<ICompositionRuleConfigurationService>();
-        _mockVoiceConfigurationService = Substitute.For<IVoiceConfigurationService>();
+        _mockInstrumentConfigurationService = Substitute.For<IInstrumentConfigurationService>();
         _mockDispatcher = Substitute.For<IDispatcher>();
 
         _compositionConfigurationService = new CompositionConfigurationService(
             _mockOrnamentationConfigurationService,
             _mockCompositionRuleConfigurationService,
-            _mockVoiceConfigurationService,
+            _mockInstrumentConfigurationService,
             _mockDispatcher
         );
     }
@@ -114,7 +114,7 @@ internal sealed class CompositionConfigurationServiceTests
         // assert
         _mockOrnamentationConfigurationService.Received(1).ConfigureDefaults();
         _mockCompositionRuleConfigurationService.Received(1).ConfigureDefaults();
-        _mockVoiceConfigurationService.Received(1).ConfigureDefaults();
+        _mockInstrumentConfigurationService.Received(1).ConfigureDefaults();
         _mockDispatcher.Received(1).Dispatch(Arg.Any<UpdateCompositionConfiguration>());
     }
 }

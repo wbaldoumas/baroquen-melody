@@ -1,0 +1,8 @@
+﻿<MudExpansionPanels>
+    <MudExpansionPanel Text="Instrument Configurations">
+        @foreach (var instrument in InstrumentConfigurationService.ConfigurableInstruments)
+        {
+            <InstrumentConfigurationCard Instrument="instrument"/>
+        }
+    </MudExpansionPanel>
+</MudExpansionPanels>

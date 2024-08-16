@@ -31,34 +31,34 @@ internal sealed class CompositionDecoratorTests
     }
 
     [Test]
-    public void WhenDecorateIsInvoked_ThenOrnamentationEngineIsInvoked_ForEachVoiceAndChord()
+    public void WhenDecorateIsInvoked_ThenOrnamentationEngineIsInvoked_ForEachInstrumentAndChord()
     {
         // arrange
         var chordA = new BaroquenChord(
             [
-                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordB = new BaroquenChord(
             [
-                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordC = new BaroquenChord(
             [
-                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordD = new BaroquenChord(
             [
-                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
@@ -85,34 +85,34 @@ internal sealed class CompositionDecoratorTests
     }
 
     [Test]
-    public void WhenDecorateIsInvokedForSpecificVoice_ThenOrnamentationEngineIsInvokedForVoice()
+    public void WhenDecorateIsInvokedForSpecificInstrument_ThenOrnamentationEngineIsInvokedForInstrument()
     {
         // arrange
         var chordA = new BaroquenChord(
             [
-                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordB = new BaroquenChord(
             [
-                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordC = new BaroquenChord(
             [
-                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordD = new BaroquenChord(
             [
-                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
@@ -131,7 +131,7 @@ internal sealed class CompositionDecoratorTests
         );
 
         // act
-        _compositionDecorator.Decorate(composition, Voice.One);
+        _compositionDecorator.Decorate(composition, Instrument.One);
 
         // assert
         _mockOrnamentationEngine.ReceivedWithAnyArgs(4).Process(Arg.Any<OrnamentationItem>());
@@ -139,34 +139,34 @@ internal sealed class CompositionDecoratorTests
     }
 
     [Test]
-    public void WhenApplySustainIsInvoked_ThenSustainEngineIsInvoked_ForEachVoiceAndChord()
+    public void WhenApplySustainIsInvoked_ThenSustainEngineIsInvoked_ForEachInstrumentAndChord()
     {
         // arrange
         var chordA = new BaroquenChord(
             [
-                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordB = new BaroquenChord(
             [
-                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordC = new BaroquenChord(
             [
-                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 
         var chordD = new BaroquenChord(
             [
-                new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
             ]
         );
 

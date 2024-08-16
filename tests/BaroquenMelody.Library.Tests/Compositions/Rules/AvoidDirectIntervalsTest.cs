@@ -32,12 +32,12 @@ internal sealed class AvoidDirectIntervalsTest
     {
         get
         {
-            var sopranoC4 = new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half);
-            var sopranoD4 = new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Half);
+            var sopranoC4 = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+            var sopranoD4 = new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Half);
 
-            var altoF3 = new BaroquenNote(Voice.Two, Notes.F3, MusicalTimeSpan.Half);
-            var altoA3 = new BaroquenNote(Voice.Two, Notes.A3, MusicalTimeSpan.Half);
-            var altoA2 = new BaroquenNote(Voice.Two, Notes.A2, MusicalTimeSpan.Half);
+            var altoF3 = new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Half);
+            var altoA3 = new BaroquenNote(Instrument.Two, Notes.A3, MusicalTimeSpan.Half);
+            var altoA2 = new BaroquenNote(Instrument.Two, Notes.A2, MusicalTimeSpan.Half);
 
             yield return new TestCaseData(
                 new List<BaroquenChord>(),

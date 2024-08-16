@@ -35,36 +35,36 @@ internal sealed class AvoidParallelIntervalsTests
     {
         get
         {
-            var sopranoC4 = new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half);
-            var altoE3 = new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Half);
-            var tenorG2 = new BaroquenNote(Voice.Three, Notes.G2, MusicalTimeSpan.Half);
-            var bassC1 = new BaroquenNote(Voice.Four, Notes.C1, MusicalTimeSpan.Half);
+            var sopranoC4 = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+            var altoE3 = new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Half);
+            var tenorG2 = new BaroquenNote(Instrument.Three, Notes.G2, MusicalTimeSpan.Half);
+            var bassC1 = new BaroquenNote(Instrument.Four, Notes.C1, MusicalTimeSpan.Half);
 
             var cMajor = new BaroquenChord([sopranoC4, altoE3, tenorG2, bassC1]);
 
-            var sopranoD4 = new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Half);
-            var altoF3 = new BaroquenNote(Voice.Two, Notes.F3, MusicalTimeSpan.Half);
-            var tenorA2 = new BaroquenNote(Voice.Three, Notes.A2, MusicalTimeSpan.Half);
-            var bassD1 = new BaroquenNote(Voice.Four, Notes.D1, MusicalTimeSpan.Half);
+            var sopranoD4 = new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Half);
+            var altoF3 = new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Half);
+            var tenorA2 = new BaroquenNote(Instrument.Three, Notes.A2, MusicalTimeSpan.Half);
+            var bassD1 = new BaroquenNote(Instrument.Four, Notes.D1, MusicalTimeSpan.Half);
 
             var dMinor = new BaroquenChord([sopranoD4, altoF3, tenorA2, bassD1]);
 
-            var altoA3 = new BaroquenNote(Voice.Two, Notes.A3, MusicalTimeSpan.Half);
-            var tenorF2 = new BaroquenNote(Voice.Three, Notes.F2, MusicalTimeSpan.Half);
+            var altoA3 = new BaroquenNote(Instrument.Two, Notes.A3, MusicalTimeSpan.Half);
+            var tenorF2 = new BaroquenNote(Instrument.Three, Notes.F2, MusicalTimeSpan.Half);
 
-            var dMinorDifferentVoices = new BaroquenChord([sopranoD4, altoA3, tenorF2, bassD1]);
+            var dMinorDifferentInstruments = new BaroquenChord([sopranoD4, altoA3, tenorF2, bassD1]);
 
-            var tenorA1 = new BaroquenNote(Voice.Three, Notes.A1, MusicalTimeSpan.Half);
+            var tenorA1 = new BaroquenNote(Instrument.Three, Notes.A1, MusicalTimeSpan.Half);
 
             var dMinorDifferentDirection = new BaroquenChord([sopranoD4, altoF3, tenorA1, bassD1]);
 
             yield return new TestCaseData(new List<BaroquenChord>(), cMajor, true).SetName("No parallel fifths if it's the first chord");
 
-            yield return new TestCaseData(new List<BaroquenChord> { cMajor }, dMinor, false).SetName("Parallel fifths present when voices moving in same direction.");
+            yield return new TestCaseData(new List<BaroquenChord> { cMajor }, dMinor, false).SetName("Parallel fifths present when instruments moving in same direction.");
 
-            yield return new TestCaseData(new List<BaroquenChord> { cMajor }, dMinorDifferentVoices, true).SetName("No parallel fifths when voices are different.");
+            yield return new TestCaseData(new List<BaroquenChord> { cMajor }, dMinorDifferentInstruments, true).SetName("No parallel fifths when instruments are different.");
 
-            yield return new TestCaseData(new List<BaroquenChord> { cMajor }, dMinorDifferentDirection, true).SetName("No parallel fifths when voices are moving in different directions.");
+            yield return new TestCaseData(new List<BaroquenChord> { cMajor }, dMinorDifferentDirection, true).SetName("No parallel fifths when instruments are moving in different directions.");
 
             yield return new TestCaseData(new List<BaroquenChord> { cMajor }, cMajor, true).SetName("No parallel fifths when chords are identical.");
         }

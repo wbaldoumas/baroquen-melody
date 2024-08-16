@@ -20,7 +20,7 @@ internal sealed class AvoidRepetition : ICompositionRule
         {
             foreach (var precedingChord in precedingChordsToCheck)
             {
-                if (precedingChord[note.Voice].Raw != nextChord[note.Voice].Raw)
+                if (precedingChord[note.Instrument].Raw != nextChord[note.Instrument].Raw)
                 {
                     return true;
                 }

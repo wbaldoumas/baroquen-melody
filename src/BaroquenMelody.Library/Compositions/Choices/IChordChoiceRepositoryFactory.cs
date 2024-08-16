@@ -9,7 +9,7 @@ internal interface IChordChoiceRepositoryFactory
 {
     /// <summary>
     ///     Creates a <see cref="IChordChoiceRepository"/> for the given <see cref="CompositionConfiguration"/>. This is needed
-    ///     because the specific <see cref="IChordChoiceRepository"/> implementation to use depends on how many voices are in the composition.
+    ///     because the specific <see cref="IChordChoiceRepository"/> implementation to use depends on how many instruments are in the composition.
     /// </summary>
     /// <param name="compositionConfiguration"> The <see cref="CompositionConfiguration"/> to create the <see cref="IChordChoiceRepository"/> for. </param>
     /// <returns> The created <see cref="IChordChoiceRepository"/>. </returns>

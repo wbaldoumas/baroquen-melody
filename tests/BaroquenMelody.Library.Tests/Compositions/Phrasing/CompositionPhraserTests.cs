@@ -200,7 +200,7 @@ internal sealed class CompositionPhraserTests
 
         for (var i = 0; i < count; i++)
         {
-            var beats = Enumerable.Range(0, beatsPerMeasure).Select(_ => new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)]))).ToList();
+            var beats = Enumerable.Range(0, beatsPerMeasure).Select(_ => new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]))).ToList();
             measures.Add(new Measure(beats, Meter.FourFour));
         }
 

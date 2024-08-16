@@ -25,7 +25,7 @@ internal sealed class AvoidDissonantLeaps(CompositionConfiguration compositionCo
 
         foreach (var note in lastChord.Notes)
         {
-            var nextNote = nextChord[note.Voice];
+            var nextNote = nextChord[note.Instrument];
 
             if (!note.IsDissonantWith(nextNote))
             {

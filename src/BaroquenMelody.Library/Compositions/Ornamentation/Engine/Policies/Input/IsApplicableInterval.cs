@@ -7,8 +7,8 @@ internal sealed class IsApplicableInterval(CompositionConfiguration compositionC
 {
     public InputPolicyResult ShouldProcess(OrnamentationItem item)
     {
-        var currentNote = item.CurrentBeat[item.Voice];
-        var nextNote = item.NextBeat?[item.Voice];
+        var currentNote = item.CurrentBeat[item.Instrument];
+        var nextNote = item.NextBeat?[item.Instrument];
 
         var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
         var nextNoteIndex = compositionConfiguration.Scale.IndexOf(nextNote ?? currentNote);

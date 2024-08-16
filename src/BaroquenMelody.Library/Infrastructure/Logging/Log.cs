@@ -42,14 +42,14 @@ internal static partial class Log
     [LoggerMessage(
         EventId = 12,
         Level = LogLevel.Critical,
-        Message = "Could not find a starting note for voice {Voice}.")]
-    public static partial void CouldNotFindStartingNoteForVoice(this ILogger logger, Voice voice);
+        Message = "Could not find a starting note for instrument {Instrument}.")]
+    public static partial void CouldNotFindStartingNoteForInstrument(this ILogger logger, Instrument instrument);
 
     [LoggerMessage(
         EventId = 13,
         Level = LogLevel.Debug,
-        Message = "Applied ornamentation {Ornamentation} to voice {Voice}.")]
-    public static partial void AppliedOrnamentation(this ILogger logger, OrnamentationType ornamentation, Voice voice);
+        Message = "Applied ornamentation {Ornamentation} to instrument {Instrument}.")]
+    public static partial void AppliedOrnamentation(this ILogger logger, OrnamentationType ornamentation, Instrument instrument);
 
     [LoggerMessage(
         EventId = 14,

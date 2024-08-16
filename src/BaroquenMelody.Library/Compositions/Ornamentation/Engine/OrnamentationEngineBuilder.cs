@@ -260,7 +260,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
                 new HasTargetNotes([compositionConfiguration.Scale.Dominant, compositionConfiguration.Scale.LeadingTone, compositionConfiguration.Scale.Supertonic]),
                 new NextBeatHasTargetNotes([compositionConfiguration.Scale.Tonic, compositionConfiguration.Scale.Mediant, compositionConfiguration.Scale.Dominant]),
                 new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.DecorateInterval)),
-                new IsIntervalWithinVoiceRange(compositionConfiguration, intervalChange)
+                new IsIntervalWithinInstrumentRange(compositionConfiguration, intervalChange)
             )
             .WithProcessors(new DecorateIntervalProcessor(musicalTimeSpanCalculator, compositionConfiguration, intervalChange))
             .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DecorateInterval, logger))
@@ -284,7 +284,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
                 scaleDegreePolicy,
                 new IsApplicableInterval(compositionConfiguration, PedalProcessor.Interval),
                 new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Pedal)),
-                new IsIntervalWithinVoiceRange(compositionConfiguration, pedalInterval)
+                new IsIntervalWithinInstrumentRange(compositionConfiguration, pedalInterval)
             )
             .WithProcessors(new PedalProcessor(musicalTimeSpanCalculator, compositionConfiguration, pedalInterval))
             .WithOutputPolicies(new LogOrnamentation(OrnamentationType.Pedal, logger))
@@ -295,7 +295,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new WantsToOrnament(_weightedRandomBooleanGenerator, configuration.Probability),
             _hasNoOrnamentation,
             new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Mordent)),
-            new IsIntervalWithinVoiceRange(compositionConfiguration, 1).And(new IsIntervalWithinVoiceRange(compositionConfiguration, -1))
+            new IsIntervalWithinInstrumentRange(compositionConfiguration, 1).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -1))
         )
         .WithProcessors(new MordentProcessor(musicalTimeSpanCalculator, _weightedRandomBooleanGenerator, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.Mordent, logger))
@@ -328,7 +328,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new HasNextBeat(),
             new Not<OrnamentationItem>(new IsRepeatedNote()),
-            new IsNextNoteIntervalWithinVoiceRange(compositionConfiguration, 1).And(new IsNextNoteIntervalWithinVoiceRange(compositionConfiguration, -1))
+            new IsNextNoteIntervalWithinIntstrumentRange(compositionConfiguration, 1).And(new IsNextNoteIntervalWithinIntstrumentRange(compositionConfiguration, -1))
         )
         .WithProcessors(new PickupProcessor(musicalTimeSpanCalculator, compositionConfiguration, ornamentationType))
         .WithOutputPolicies(new LogOrnamentation(ornamentationType, logger))

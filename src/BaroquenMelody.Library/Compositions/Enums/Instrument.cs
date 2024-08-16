@@ -1,27 +1,27 @@
 ﻿namespace BaroquenMelody.Library.Compositions.Enums;
 
 /// <summary>
-///    Indicates the voice being used to play a note.
+///    Indicates the instrument being used to play a note.
 /// </summary>
-public enum Voice : byte
+public enum Instrument : byte
 {
     /// <summary>
-    ///     The first voice.
+    ///     The first instrument.
     /// </summary>
     One,
 
     /// <summary>
-    ///    The second voice.
+    ///    The second instrument.
     /// </summary>
     Two,
 
     /// <summary>
-    ///   The third voice.
+    ///   The third instrument.
     /// </summary>
     Three,
 
     /// <summary>
-    ///  The fourth voice.
+    ///  The fourth instrument.
     /// </summary>
     Four
 }

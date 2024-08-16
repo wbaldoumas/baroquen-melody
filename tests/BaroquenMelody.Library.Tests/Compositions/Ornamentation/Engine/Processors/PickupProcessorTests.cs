@@ -36,10 +36,10 @@ internal sealed class PickupProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Instrument.One,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half)]))
         );
 
         _mockMusicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Quarter);
@@ -49,7 +49,7 @@ internal sealed class PickupProcessorTests
         _pickupProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Instrument.One];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Pickup);
         noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
@@ -62,10 +62,10 @@ internal sealed class PickupProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Instrument.One,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
         _mockMusicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Quarter);
@@ -75,7 +75,7 @@ internal sealed class PickupProcessorTests
         _pickupProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Instrument.One];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Pickup);
         noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);

@@ -8,29 +8,29 @@ namespace BaroquenMelody.Library.Compositions.Choices;
 /// <inheritdoc cref="IChordChoiceRepository"/>
 internal sealed class TrioChordChoiceRepository : IChordChoiceRepository
 {
-    public const int NumberOfVoices = 3;
+    public const int NumberOfInstruments = 3;
 
     private readonly LazyCartesianProduct<NoteChoice, NoteChoice, NoteChoice> _noteChoices;
 
     public TrioChordChoiceRepository(CompositionConfiguration configuration, INoteChoiceGenerator noteChoiceGenerator)
     {
-        if (configuration.VoiceConfigurations.Count != NumberOfVoices)
+        if (configuration.InstrumentConfigurations.Count != NumberOfInstruments)
         {
             throw new ArgumentException(
-                "The composition configuration must contain exactly three voice configurations.",
+                "The composition configuration must contain exactly three instrument configurations.",
                 nameof(configuration)
             );
         }
 
-        var noteChoicesForVoices = configuration.VoiceConfigurations
-            .OrderBy(static voiceConfiguration => voiceConfiguration.Voice)
-            .Select(voiceConfiguration => noteChoiceGenerator.GenerateNoteChoices(voiceConfiguration.Voice))
+        var noteChoicesForInstruments = configuration.InstrumentConfigurations
+            .OrderBy(static instrumentConfiguration => instrumentConfiguration.Instrument)
+            .Select(instrumentConfiguration => noteChoiceGenerator.GenerateNoteChoices(instrumentConfiguration.Instrument))
             .ToList();
 
         _noteChoices = new LazyCartesianProduct<NoteChoice, NoteChoice, NoteChoice>(
-            [.. noteChoicesForVoices[0]],
-            [.. noteChoicesForVoices[1]],
-            [.. noteChoicesForVoices[2]]
+            [.. noteChoicesForInstruments[0]],
+            [.. noteChoicesForInstruments[1]],
+            [.. noteChoicesForInstruments[2]]
         );
     }
 

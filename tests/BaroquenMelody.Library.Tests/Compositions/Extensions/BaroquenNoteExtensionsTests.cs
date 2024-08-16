@@ -16,9 +16,9 @@ internal sealed class BaroquenNoteExtensionsTests
     public void ApplyNoteChoice_WhenMotionIsAscending_ThenNextNoteIsReturned()
     {
         // arrange
-        var note = new BaroquenNote(Voice.One, Notes.A4, MusicalTimeSpan.Half);
+        var note = new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half);
         var scale = BaroquenScale.Parse("C Major");
-        var noteChoice = new NoteChoice(Voice.One, NoteMotion.Ascending, 2);
+        var noteChoice = new NoteChoice(Instrument.One, NoteMotion.Ascending, 2);
 
         // act
         var result = note.ApplyNoteChoice(scale, noteChoice, MusicalTimeSpan.Half);
@@ -31,9 +31,9 @@ internal sealed class BaroquenNoteExtensionsTests
     public void ApplyNoteChoice_WhenMotionIsDescending_ThenNextNoteIsReturned()
     {
         // arrange
-        var note = new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half);
+        var note = new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half);
         var scale = BaroquenScale.Parse("C Major");
-        var noteChoice = new NoteChoice(Voice.One, NoteMotion.Descending, 2);
+        var noteChoice = new NoteChoice(Instrument.One, NoteMotion.Descending, 2);
 
         // act
         var result = note.ApplyNoteChoice(scale, noteChoice, MusicalTimeSpan.Half);
@@ -46,9 +46,9 @@ internal sealed class BaroquenNoteExtensionsTests
     public void ApplyNoteChoice_WhenMotionIsOblique_ThenNextNoteIsReturned()
     {
         // arrange
-        var note = new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half);
+        var note = new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half);
         var scale = BaroquenScale.Parse("C Major");
-        var noteChoice = new NoteChoice(Voice.One, NoteMotion.Oblique, 0);
+        var noteChoice = new NoteChoice(Instrument.One, NoteMotion.Oblique, 0);
 
         // act
         var result = note.ApplyNoteChoice(scale, noteChoice, MusicalTimeSpan.Half);
@@ -61,9 +61,9 @@ internal sealed class BaroquenNoteExtensionsTests
     public void ApplyNoteChoice_WhenMotionIsInvalid_ThenExceptionIsThrown()
     {
         // arrange
-        var note = new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half);
+        var note = new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half);
         var scale = BaroquenScale.Parse("C Major");
-        var noteChoice = new NoteChoice(Voice.One, (NoteMotion)99, 0);
+        var noteChoice = new NoteChoice(Instrument.One, (NoteMotion)99, 0);
 
         // act
         var act = () => note.ApplyNoteChoice(scale, noteChoice, MusicalTimeSpan.Half);
@@ -76,8 +76,8 @@ internal sealed class BaroquenNoteExtensionsTests
     public void IsDissonantWith_WhenNotDissonant_IsFalse()
     {
         // arrange
-        var note = new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half);
-        var otherNote = new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half);
+        var note = new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half);
+        var otherNote = new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half);
 
         // act
         var result = note.IsDissonantWith(otherNote);
@@ -90,8 +90,8 @@ internal sealed class BaroquenNoteExtensionsTests
     public void IsDissonantWith_WhenDissonant_IsTrue()
     {
         // arrange
-        var note = new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half);
-        var otherNote = new BaroquenNote(Voice.One, Notes.B4, MusicalTimeSpan.Half);
+        var note = new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half);
+        var otherNote = new BaroquenNote(Instrument.One, Notes.B4, MusicalTimeSpan.Half);
 
         // act
         var result = note.IsDissonantWith(otherNote);

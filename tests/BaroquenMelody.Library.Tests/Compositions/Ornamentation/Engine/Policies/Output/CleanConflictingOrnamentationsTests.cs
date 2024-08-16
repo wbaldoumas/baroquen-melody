@@ -31,20 +31,20 @@ internal sealed class CleanConflictingOrnamentationsTests
     public void Apply_Invokes_Expected_Components_Expected_Number_Of_Times()
     {
         // arrange
-        var sopranoC4WithPassingTone = new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)
+        var sopranoC4WithPassingTone = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.PassingTone,
-            Ornamentations = { new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Half) }
+            Ornamentations = { new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Half) }
         };
 
-        var altoF3 = new BaroquenNote(Voice.Two, Notes.F3, MusicalTimeSpan.Half);
+        var altoF3 = new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Half);
 
-        var tenorA2 = new BaroquenNote(Voice.Three, Notes.A2, MusicalTimeSpan.Half);
+        var tenorA2 = new BaroquenNote(Instrument.Three, Notes.A2, MusicalTimeSpan.Half);
 
-        var bassF1 = new BaroquenNote(Voice.Four, Notes.F1, MusicalTimeSpan.Half);
+        var bassF1 = new BaroquenNote(Instrument.Four, Notes.F1, MusicalTimeSpan.Half);
 
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Instrument.One,
             new FixedSizeList<Beat>(1),
             new Beat(new BaroquenChord([sopranoC4WithPassingTone, altoF3, tenorA2, bassF1])),
             null

@@ -78,8 +78,8 @@ internal sealed class ComposerTests
         // arrange
         _mockCompositionStrategy.GenerateInitialChord().Returns(
             new BaroquenChord([
-                new BaroquenNote(Voice.One, MinSopranoNote, MusicalTimeSpan.Half),
-                new BaroquenNote(Voice.Two, MinAltoNote, MusicalTimeSpan.Half)
+                new BaroquenNote(Instrument.One, MinSopranoNote, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, MinAltoNote, MusicalTimeSpan.Half)
             ])
         );
 
@@ -87,8 +87,8 @@ internal sealed class ComposerTests
             .GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
             .Returns([
                 new ChordChoice([
-                    new NoteChoice(Voice.One, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Two, NoteMotion.Oblique, 0)
+                    new NoteChoice(Instrument.One, NoteMotion.Oblique, 0),
+                    new NoteChoice(Instrument.Two, NoteMotion.Oblique, 0)
                 ])
             ]);
 
@@ -96,8 +96,8 @@ internal sealed class ComposerTests
             .GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
             .Returns([
                 new BaroquenChord([
-                    new BaroquenNote(Voice.One, MinSopranoNote, MusicalTimeSpan.Half),
-                    new BaroquenNote(Voice.Two, MinAltoNote, MusicalTimeSpan.Half)
+                    new BaroquenNote(Instrument.One, MinSopranoNote, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, MinAltoNote, MusicalTimeSpan.Half)
                 ])
             ]);
 

@@ -13,8 +13,8 @@ internal sealed class NoteChoiceExtensionsTests
     public void ToChordChoice_TwoNotes_CreatesExpectedChordChoice()
     {
         // arrange
-        var note1 = new NoteChoice(Voice.One, NoteMotion.Oblique, 0);
-        var note2 = new NoteChoice(Voice.Two, NoteMotion.Ascending, 2);
+        var note1 = new NoteChoice(Instrument.One, NoteMotion.Oblique, 0);
+        var note2 = new NoteChoice(Instrument.Two, NoteMotion.Ascending, 2);
 
         var source = (note1, note2);
 
@@ -29,9 +29,9 @@ internal sealed class NoteChoiceExtensionsTests
     public void ToChordChoice_ThreeNotes_CreatesExpectedChordChoice()
     {
         // arrange
-        var note1 = new NoteChoice(Voice.One, NoteMotion.Oblique, 0);
-        var note2 = new NoteChoice(Voice.Two, NoteMotion.Ascending, 2);
-        var note3 = new NoteChoice(Voice.Three, NoteMotion.Descending, 3);
+        var note1 = new NoteChoice(Instrument.One, NoteMotion.Oblique, 0);
+        var note2 = new NoteChoice(Instrument.Two, NoteMotion.Ascending, 2);
+        var note3 = new NoteChoice(Instrument.Three, NoteMotion.Descending, 3);
 
         var source = (note1, note2, note3);
 
@@ -46,10 +46,10 @@ internal sealed class NoteChoiceExtensionsTests
     public void ToChordChoice_FourNotes_CreatesExpectedChordChoice()
     {
         // arrange
-        var note1 = new NoteChoice(Voice.One, NoteMotion.Oblique, 0);
-        var note2 = new NoteChoice(Voice.Two, NoteMotion.Ascending, 2);
-        var note3 = new NoteChoice(Voice.Three, NoteMotion.Descending, 3);
-        var note4 = new NoteChoice(Voice.Four, NoteMotion.Ascending, 5);
+        var note1 = new NoteChoice(Instrument.One, NoteMotion.Oblique, 0);
+        var note2 = new NoteChoice(Instrument.Two, NoteMotion.Ascending, 2);
+        var note3 = new NoteChoice(Instrument.Three, NoteMotion.Descending, 3);
+        var note4 = new NoteChoice(Instrument.Four, NoteMotion.Ascending, 5);
 
         var source = (note1, note2, note3, note4);
 

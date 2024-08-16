@@ -14,9 +14,9 @@ internal sealed class NoteChoiceGeneratorTests
     public void SetUp() => _noteChoiceGenerator = new NoteChoiceGenerator(1, 7);
 
     [Test]
-    public void GenerateNoteChoices_GivenVoice_ReturnsNoteChoices()
+    public void GenerateNoteChoices_GivenInstrument_ReturnsNoteChoices()
     {
-        var noteChoices = _noteChoiceGenerator.GenerateNoteChoices(Voice.One);
+        var noteChoices = _noteChoiceGenerator.GenerateNoteChoices(Instrument.One);
 
         noteChoices.Should().NotBeNull();
         noteChoices.Should().NotBeEmpty();

@@ -20,7 +20,7 @@ internal static class BaroquenNoteExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(noteChoice))
         };
 
-        return new BaroquenNote(note.Voice, nextNote, noteTimeSpan);
+        return new BaroquenNote(note.Instrument, nextNote, noteTimeSpan);
     }
 
     public static bool IsDissonantWith(this BaroquenNote note, BaroquenNote otherNote) => note.Raw.IsDissonantWith(otherNote.Raw);

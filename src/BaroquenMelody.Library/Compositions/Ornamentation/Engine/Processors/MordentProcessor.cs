@@ -15,7 +15,7 @@ internal sealed class MordentProcessor(
 {
     public void Process(OrnamentationItem item)
     {
-        var currentNote = item.CurrentBeat[item.Voice];
+        var currentNote = item.CurrentBeat[item.Instrument];
         var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
 
         var firstNoteIndex = weightedRandomBooleanGenerator.IsTrue() ? currentNoteIndex + 1 : currentNoteIndex - 1;
@@ -29,7 +29,7 @@ internal sealed class MordentProcessor(
 
         currentNote.Ornamentations.Add(
             new BaroquenNote(
-                currentNote.Voice,
+                currentNote.Instrument,
                 firstNote,
                 musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter)
             )
@@ -37,7 +37,7 @@ internal sealed class MordentProcessor(
 
         currentNote.Ornamentations.Add(
             new BaroquenNote(
-                currentNote.Voice,
+                currentNote.Instrument,
                 secondNote,
                 musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Mordent, compositionConfiguration.Meter, 2)
             )

@@ -20,14 +20,14 @@ internal sealed class HandleAscendingSeventh(CompositionConfiguration compositio
 
         foreach (var seventhNote in lastChord.Notes.Where(note => note.NoteName == compositionConfiguration.Scale.LeadingTone))
         {
-            var nextToLastNote = nextToLastChord[seventhNote.Voice];
+            var nextToLastNote = nextToLastChord[seventhNote.Instrument];
 
             if (nextToLastNote.NoteNumber >= seventhNote.NoteNumber)
             {
                 continue;
             }
 
-            var nextNote = nextChord[seventhNote.Voice];
+            var nextNote = nextChord[seventhNote.Instrument];
 
             if (nextNote.NoteNumber <= seventhNote.NoteNumber)
             {

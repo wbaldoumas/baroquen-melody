@@ -14,8 +14,8 @@ internal sealed class PickupProcessor(
 {
     public void Process(OrnamentationItem item)
     {
-        var currentNote = item.CurrentBeat[item.Voice];
-        var nextNote = item.NextBeat![item.Voice];
+        var currentNote = item.CurrentBeat[item.Instrument];
+        var nextNote = item.NextBeat![item.Instrument];
         var nextNoteIndex = compositionConfiguration.Scale.IndexOf(nextNote);
         var notes = compositionConfiguration.Scale.GetNotes();
         var pickupNote = notes[currentNote > nextNote ? nextNoteIndex - 1 : nextNoteIndex + 1];
@@ -24,7 +24,7 @@ internal sealed class PickupProcessor(
 
         currentNote.Ornamentations.Add(
             new BaroquenNote(
-                item.Voice,
+                item.Instrument,
                 pickupNote,
                 musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter)
             )

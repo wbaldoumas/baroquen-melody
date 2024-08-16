@@ -15,11 +15,11 @@ internal interface ICompositionDecorator
     void Decorate(Composition composition);
 
     /// <summary>
-    ///     Decorate the given voice in the composition.
+    ///     Decorate the given instrument in the composition.
     /// </summary>
     /// <param name="composition">The composition to decorate.</param>
-    /// <param name="voice">The voice to decorate.</param>
-    void Decorate(Composition composition, Voice voice);
+    /// <param name="instrument">The instrument to decorate.</param>
+    void Decorate(Composition composition, Instrument instrument);
 
     /// <summary>
     ///    Apply sustain to the composition by identifying repeated notes and extending their musical time span.

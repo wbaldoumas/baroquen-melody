@@ -17,6 +17,6 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IBaroquenMelodyComposerConfigurator, BaroquenMelodyComposerConfigurator>()
         .AddSingleton<IOrnamentationConfigurationService, OrnamentationConfigurationService>()
         .AddSingleton<ICompositionRuleConfigurationService, CompositionRuleConfigurationService>()
-        .AddSingleton<IVoiceConfigurationService, VoiceConfigurationService>()
+        .AddSingleton<IInstrumentConfigurationService, InstrumentConfigurationService>()
         .AddSingleton<ICompositionConfigurationService, CompositionConfigurationService>();
 }

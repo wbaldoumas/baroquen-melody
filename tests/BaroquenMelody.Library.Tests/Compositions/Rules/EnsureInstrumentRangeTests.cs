@@ -10,34 +10,34 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Rules;
 
 [TestFixture]
-internal sealed class EnsureVoiceRangeTests
+internal sealed class EnsureInstrumentRangeTests
 {
-    private EnsureVoiceRange _ensureVoiceRange = null!;
+    private EnsureInstrumentRange _ensureInstrumentRange = null!;
 
     [SetUp]
     public void SetUp()
     {
         var compositionConfiguration = Configurations.GetCompositionConfiguration(2);
 
-        _ensureVoiceRange = new EnsureVoiceRange(compositionConfiguration);
+        _ensureInstrumentRange = new EnsureInstrumentRange(compositionConfiguration);
     }
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
     public void Evaluate_ReturnsExpectedResult(BaroquenChord nextChord, bool expectedResult) =>
-        _ensureVoiceRange.Evaluate(default!, nextChord).Should().Be(expectedResult);
+        _ensureInstrumentRange.Evaluate(default!, nextChord).Should().Be(expectedResult);
 
     private static IEnumerable<TestCaseData> TestCases
     {
         get
         {
             yield return new TestCaseData(
-                new BaroquenChord([new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half)]),
+                new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half)]),
                 true
             ).SetName("Soprano note is in range.");
 
             yield return new TestCaseData(
-                new BaroquenChord([new BaroquenNote(Voice.One, Notes.B2, MusicalTimeSpan.Half)]),
+                new BaroquenChord([new BaroquenNote(Instrument.One, Notes.B2, MusicalTimeSpan.Half)]),
                 false
             ).SetName("Soprano note is out of range.");
         }

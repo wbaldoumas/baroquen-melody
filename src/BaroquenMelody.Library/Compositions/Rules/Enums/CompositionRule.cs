@@ -21,7 +21,7 @@ public enum CompositionRule : byte
     HandleAscendingSeventh,
 
     /// <summary>
-    ///    Avoid repetition of notes within the same voice.
+    ///    Avoid repetition of notes within the same instrument.
     /// </summary>
     AvoidRepetition,
 
@@ -56,7 +56,7 @@ public enum CompositionRule : byte
     AvoidDirectOctaves,
 
     /// <summary>
-    ///     Avoid over-doubling of voices on the same note.
+    ///     Avoid over-doubling of instruments on the same note.
     /// </summary>
     AvoidOverDoubling,
 

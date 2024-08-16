@@ -12,11 +12,11 @@ internal sealed class BaroquenChord(List<BaroquenNote> notes) : IEquatable<Baroq
 {
     public List<BaroquenNote> Notes => notes;
 
-    public BaroquenNote this[Voice voice] => _notesByVoice[voice];
+    public BaroquenNote this[Instrument instrument] => _notesByInstrument[instrument];
 
-    public bool ContainsVoice(Voice voice) => _notesByVoice.ContainsKey(voice);
+    public bool ContainsInstrument(Instrument instrument) => _notesByInstrument.ContainsKey(instrument);
 
-    private readonly FrozenDictionary<Voice, BaroquenNote> _notesByVoice = notes.ToFrozenDictionary(note => note.Voice);
+    private readonly FrozenDictionary<Instrument, BaroquenNote> _notesByInstrument = notes.ToFrozenDictionary(note => note.Instrument);
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BaroquenChord"/> class.

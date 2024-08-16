@@ -25,11 +25,11 @@ internal sealed class ChordChoiceRepositoryFactoryTests
     [TestCase(3, typeof(TrioChordChoiceRepository))]
     [TestCase(4, typeof(QuartetChordChoiceRepository))]
     public void WhenChordChoiceRepositoryFactoryCreatesChordChoiceRepository_ItReturnsExpectedType(
-        int numberOfVoices,
+        int numberOfInstruments,
         Type expectedType)
     {
         // act
-        var chordChoiceRepository = _chordChoiceRepositoryFactory.Create(Configurations.GetCompositionConfiguration(numberOfVoices));
+        var chordChoiceRepository = _chordChoiceRepositoryFactory.Create(Configurations.GetCompositionConfiguration(numberOfInstruments));
 
         // assert
         chordChoiceRepository.Should().BeOfType(expectedType);

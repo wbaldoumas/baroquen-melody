@@ -21,12 +21,12 @@ internal sealed class AvoidParallelIntervals(Interval targetInterval) : IComposi
 
     private bool HasParallelIntervals(BaroquenChord lastChord, BaroquenChord nextChord)
     {
-        foreach (var (voiceA, voiceB) in GetParallelPerfectVoicePairs(lastChord))
+        foreach (var (instrumentA, instrumentB) in GetParallelPerfectInstrumentPairs(lastChord))
         {
-            var nextNoteA = nextChord[voiceA];
-            var nextNoteB = nextChord[voiceB];
+            var nextNoteA = nextChord[instrumentA];
+            var nextNoteB = nextChord[instrumentB];
 
-            if (IntervalExtensions.FromNotes(nextNoteA, nextNoteB) == targetInterval && lastChord.VoicesMoveInParallel(nextChord, voiceA, voiceB))
+            if (IntervalExtensions.FromNotes(nextNoteA, nextNoteB) == targetInterval && lastChord.InstrumentsMoveInParallel(nextChord, instrumentA, instrumentB))
             {
                 return true;
             }
@@ -35,9 +35,9 @@ internal sealed class AvoidParallelIntervals(Interval targetInterval) : IComposi
         return false;
     }
 
-    private List<(Voice, Voice)> GetParallelPerfectVoicePairs(BaroquenChord lastChord)
+    private List<(Instrument, Instrument)> GetParallelPerfectInstrumentPairs(BaroquenChord lastChord)
     {
-        var parallelPerfectVoicePairs = new List<(Voice, Voice)>();
+        var parallelPerfectInstrumentPairs = new List<(Instrument, Instrument)>();
 
         foreach (var note in lastChord.Notes)
         {
@@ -50,11 +50,11 @@ internal sealed class AvoidParallelIntervals(Interval targetInterval) : IComposi
 
                 if (IntervalExtensions.FromNotes(note, otherNote) == targetInterval)
                 {
-                    parallelPerfectVoicePairs.Add((note.Voice, otherNote.Voice));
+                    parallelPerfectInstrumentPairs.Add((note.Instrument, otherNote.Instrument));
                 }
             }
         }
 
-        return parallelPerfectVoicePairs;
+        return parallelPerfectInstrumentPairs;
     }
 }

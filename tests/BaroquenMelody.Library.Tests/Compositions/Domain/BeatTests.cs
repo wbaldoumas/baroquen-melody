@@ -12,13 +12,13 @@ internal sealed class BeatTests
 {
     [Test]
     [TestCaseSource(nameof(TestCases))]
-    public void ContainsVoice_returns_expected_result(Beat beat, Voice voice, bool expectedContainsVoice)
+    public void ContainsInstrument_returns_expected_result(Beat beat, Instrument instrument, bool expectedContainsInstrument)
     {
         // act
-        var containsVoice = beat.ContainsVoice(voice);
+        var containsInstrument = beat.ContainsInstrument(instrument);
 
         // assert
-        containsVoice.Should().Be(expectedContainsVoice);
+        containsInstrument.Should().Be(expectedContainsInstrument);
     }
 
     private static IEnumerable<TestCaseData> TestCases
@@ -26,14 +26,14 @@ internal sealed class BeatTests
         get
         {
             yield return new TestCaseData(
-                new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half)])),
-                Voice.One,
+                new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C1, MusicalTimeSpan.Half)])),
+                Instrument.One,
                 true
             );
 
             yield return new TestCaseData(
-                new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half)])),
-                Voice.Two,
+                new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C1, MusicalTimeSpan.Half)])),
+                Instrument.Two,
                 false
             );
         }

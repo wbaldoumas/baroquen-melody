@@ -26,7 +26,7 @@ internal sealed class BaroquenChordTests
     public void GetHashCode_throws_InvalidOperationException()
     {
         // arrange
-        var chord = new BaroquenChord([new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half)]);
+        var chord = new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C1, MusicalTimeSpan.Half)]);
 
         // act
         var act = () => chord.GetHashCode();
@@ -36,27 +36,27 @@ internal sealed class BaroquenChordTests
     }
 
     [Test]
-    [TestCaseSource(nameof(ContainsVoiceTestCases))]
-    public void ContainsVoice_returns_expected_result(BaroquenChord chord, Voice voice, bool expectedContainsVoice)
+    [TestCaseSource(nameof(ContainsInstrumentTestCases))]
+    public void ContainsInstrument_returns_expected_result(BaroquenChord chord, Instrument instrument, bool expectedContainsInstrument)
     {
         // act
-        var containsVoice = chord.ContainsVoice(voice);
+        var containsInstrument = chord.ContainsInstrument(instrument);
 
         // assert
-        containsVoice.Should().Be(expectedContainsVoice);
+        containsInstrument.Should().Be(expectedContainsInstrument);
     }
 
     [Test]
     public void ResetOrnamentation_resets_ornamentation()
     {
         // arrange
-        var sopranoC1 = new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half)
+        var sopranoC1 = new BaroquenNote(Instrument.One, Notes.C1, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.PassingTone,
-            Ornamentations = { new BaroquenNote(Voice.One, Notes.C2, MusicalTimeSpan.Half) }
+            Ornamentations = { new BaroquenNote(Instrument.One, Notes.C2, MusicalTimeSpan.Half) }
         };
 
-        var altoE1 = new BaroquenNote(Voice.Two, Notes.E1, MusicalTimeSpan.Half);
+        var altoE1 = new BaroquenNote(Instrument.Two, Notes.E1, MusicalTimeSpan.Half);
         var cMajor = new BaroquenChord([sopranoC1, altoE1]);
 
         // act
@@ -65,25 +65,25 @@ internal sealed class BaroquenChordTests
         // assert
         cMajor.Notes.Should().BeEquivalentTo(new[]
         {
-            new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half),
-            new BaroquenNote(Voice.Two, Notes.E1, MusicalTimeSpan.Half)
+            new BaroquenNote(Instrument.One, Notes.C1, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.E1, MusicalTimeSpan.Half)
         });
     }
 
-    private static IEnumerable<TestCaseData> ContainsVoiceTestCases
+    private static IEnumerable<TestCaseData> ContainsInstrumentTestCases
     {
         get
         {
-            var sopranoC1 = new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half);
-            var altoE1 = new BaroquenNote(Voice.Two, Notes.E1, MusicalTimeSpan.Half);
+            var sopranoC1 = new BaroquenNote(Instrument.One, Notes.C1, MusicalTimeSpan.Half);
+            var altoE1 = new BaroquenNote(Instrument.Two, Notes.E1, MusicalTimeSpan.Half);
 
             var cMajor = new BaroquenChord([sopranoC1, altoE1]);
 
-            yield return new TestCaseData(cMajor, Voice.One, true).SetName("Chord contains soprano voice");
+            yield return new TestCaseData(cMajor, Instrument.One, true).SetName("Chord contains soprano instrument");
 
-            yield return new TestCaseData(cMajor, Voice.Two, true).SetName("Chord contains alto voice");
+            yield return new TestCaseData(cMajor, Instrument.Two, true).SetName("Chord contains alto instrument");
 
-            yield return new TestCaseData(cMajor, Voice.Three, false).SetName("Chord does not contain tenor voice");
+            yield return new TestCaseData(cMajor, Instrument.Three, false).SetName("Chord does not contain tenor instrument");
         }
     }
 
@@ -91,20 +91,20 @@ internal sealed class BaroquenChordTests
     {
         get
         {
-            var sopranoC1 = new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half);
-            var altoE1 = new BaroquenNote(Voice.Two, Notes.E1, MusicalTimeSpan.Half);
+            var sopranoC1 = new BaroquenNote(Instrument.One, Notes.C1, MusicalTimeSpan.Half);
+            var altoE1 = new BaroquenNote(Instrument.Two, Notes.E1, MusicalTimeSpan.Half);
 
             var cMajor = new BaroquenChord([sopranoC1, altoE1]);
             var identicalCMajor = new BaroquenChord([sopranoC1, altoE1]);
 
-            var sopranoD1 = new BaroquenNote(Voice.One, Notes.D1, MusicalTimeSpan.Half);
-            var altoF1 = new BaroquenNote(Voice.Two, Notes.F1, MusicalTimeSpan.Half);
+            var sopranoD1 = new BaroquenNote(Instrument.One, Notes.D1, MusicalTimeSpan.Half);
+            var altoF1 = new BaroquenNote(Instrument.Two, Notes.F1, MusicalTimeSpan.Half);
 
             var dMinor = new BaroquenChord([sopranoD1, altoF1]);
 
-            var sopranoC1WithOrnamentation = new BaroquenNote(Voice.One, Notes.C1, MusicalTimeSpan.Half)
+            var sopranoC1WithOrnamentation = new BaroquenNote(Instrument.One, Notes.C1, MusicalTimeSpan.Half)
             {
-                Ornamentations = { new BaroquenNote(Voice.One, Notes.C2, MusicalTimeSpan.Half) }
+                Ornamentations = { new BaroquenNote(Instrument.One, Notes.C2, MusicalTimeSpan.Half) }
             };
 
             var cMajorWithOrnamentation = new BaroquenChord([sopranoC1WithOrnamentation, altoE1]);

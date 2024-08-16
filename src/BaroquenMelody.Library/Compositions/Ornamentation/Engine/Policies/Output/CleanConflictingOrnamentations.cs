@@ -13,26 +13,26 @@ internal sealed class CleanConflictingOrnamentations(IPolicyEngine<Ornamentation
 {
     public void Apply(OrnamentationItem item)
     {
-        var voices = item.CurrentBeat.Chord.Notes.Select(note => note.Voice).ToList();
-        var voiceCombinations = new LazyCartesianProduct<Voice, Voice>(voices, voices);
-        var processedVoiceCombinations = new HashSet<(Voice, Voice)>();
+        var instruments = item.CurrentBeat.Chord.Notes.Select(note => note.Instrument).ToList();
+        var instrumentCombinations = new LazyCartesianProduct<Instrument, Instrument>(instruments, instruments);
+        var processedInstrumentCombinations = new HashSet<(Instrument, Instrument)>();
 
-        for (var i = 0; i < voiceCombinations.Size; ++i)
+        for (var i = 0; i < instrumentCombinations.Size; ++i)
         {
-            var (voiceA, voiceB) = voiceCombinations[i];
+            var (instrumentA, instrumentB) = instrumentCombinations[i];
 
-            if (voiceA == voiceB || processedVoiceCombinations.Contains((voiceA, voiceB)))
+            if (instrumentA == instrumentB || processedInstrumentCombinations.Contains((instrumentA, instrumentB)))
             {
                 continue;
             }
 
-            var noteA = item.CurrentBeat[voiceA];
-            var noteB = item.CurrentBeat[voiceB];
+            var noteA = item.CurrentBeat[instrumentA];
+            var noteB = item.CurrentBeat[instrumentB];
 
             ornamentationCleaningEngine.Process(new OrnamentationCleaningItem(noteA, noteB));
 
-            processedVoiceCombinations.Add((voiceA, voiceB));
-            processedVoiceCombinations.Add((voiceB, voiceA));
+            processedInstrumentCombinations.Add((instrumentA, instrumentB));
+            processedInstrumentCombinations.Add((instrumentB, instrumentA));
         }
     }
 }

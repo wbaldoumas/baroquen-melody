@@ -7,8 +7,8 @@ internal sealed class IsRepeatedNote : IInputPolicy<OrnamentationItem>
 {
     public InputPolicyResult ShouldProcess(OrnamentationItem item) =>
         item.NextBeat is not null &&
-        item.CurrentBeat.ContainsVoice(item.Voice) &&
-        item.CurrentBeat[item.Voice].Raw == item.NextBeat![item.Voice].Raw
+        item.CurrentBeat.ContainsInstrument(item.Instrument) &&
+        item.CurrentBeat[item.Instrument].Raw == item.NextBeat![item.Instrument].Raw
             ? InputPolicyResult.Continue
             : InputPolicyResult.Reject;
 }

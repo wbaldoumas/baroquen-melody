@@ -29,8 +29,8 @@ internal sealed class HasTargetOrnamentationsTests
     {
         // arrange
         var item = new OrnamentationCleaningItem(
-            new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half) { OrnamentationType = noteOrnamentationType },
-            new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half) { OrnamentationType = otherNoteOrnamentationType }
+            new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half) { OrnamentationType = noteOrnamentationType },
+            new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half) { OrnamentationType = otherNoteOrnamentationType }
         );
 
         var policy = new HasTargetOrnamentations(targetOrnamentationType, otherTargetOrnamentationType);

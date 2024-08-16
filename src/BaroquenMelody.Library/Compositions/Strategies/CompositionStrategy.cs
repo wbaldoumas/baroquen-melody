@@ -29,10 +29,10 @@ internal sealed class CompositionStrategy(
 
     public IReadOnlyList<BaroquenChord> GetPossibleChordsForPartiallyVoicedChords(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
     {
-        var nextChordVoices = nextChord.Notes.Select(note => note.Voice).ToList();
+        var nextChordInstruments = nextChord.Notes.Select(note => note.Instrument).ToList();
 
         return GetPossibleChords(precedingChords)
-            .Where(possibleChord => nextChordVoices.TrueForAll(voice => possibleChord[voice].Raw == nextChord[voice].Raw))
+            .Where(possibleChord => nextChordInstruments.TrueForAll(instrument => possibleChord[instrument].Raw == nextChord[instrument].Raw))
             .ToList();
     }
 
@@ -41,11 +41,11 @@ internal sealed class CompositionStrategy(
         var startingNoteCounts = compositionConfiguration.Scale.I.ToDictionary(noteName => noteName, _ => 0);
         var rawNotes = compositionConfiguration.Scale.GetNotes();
 
-        var notes = compositionConfiguration.VoiceConfigurations
-            .Select(voiceConfiguration =>
+        var notes = compositionConfiguration.InstrumentConfigurations
+            .Select(instrumentConfiguration =>
                 new BaroquenNote(
-                    voiceConfiguration.Voice,
-                    ChooseStartingNote(voiceConfiguration, rawNotes, compositionConfiguration.Scale.I, ref startingNoteCounts),
+                    instrumentConfiguration.Instrument,
+                    ChooseStartingNote(instrumentConfiguration, rawNotes, compositionConfiguration.Scale.I, ref startingNoteCounts),
                     compositionConfiguration.DefaultNoteTimeSpan
                 )
             )
@@ -65,7 +65,7 @@ internal sealed class CompositionStrategy(
     }
 
     private Note ChooseStartingNote(
-        VoiceConfiguration voiceConfiguration,
+        InstrumentConfiguration instrumentConfiguration,
         IReadOnlyCollection<Note> notes,
         HashSet<NoteName> startingNoteNames,
         ref Dictionary<NoteName, int> startingNoteCounts)
@@ -80,9 +80,9 @@ internal sealed class CompositionStrategy(
                 .ToHashSet();
 
             chosenNote = notes
-                .Where(note => compositionConfiguration.IsNoteInVoiceRange(voiceConfiguration.Voice, note) && unChosenNotes.Contains(note.NoteName))
+                .Where(note => compositionConfiguration.IsNoteInInstrumentRange(instrumentConfiguration.Instrument, note) && unChosenNotes.Contains(note.NoteName))
                 .MinBy(static _ => ThreadLocalRandom.Next()) ?? notes
-                .Where(note => compositionConfiguration.IsNoteInVoiceRange(voiceConfiguration.Voice, note) && startingNoteNames.Contains(note.NoteName))
+                .Where(note => compositionConfiguration.IsNoteInInstrumentRange(instrumentConfiguration.Instrument, note) && startingNoteNames.Contains(note.NoteName))
                 .MinBy(static _ => ThreadLocalRandom.Next());
 
             if (chosenNote is not null)
@@ -90,9 +90,9 @@ internal sealed class CompositionStrategy(
                 continue;
             }
 
-            logger.CouldNotFindStartingNoteForVoice(voiceConfiguration.Voice);
+            logger.CouldNotFindStartingNoteForInstrument(instrumentConfiguration.Instrument);
 
-            throw new CouldNotFindStartingNoteForVoiceException(voiceConfiguration.Voice);
+            throw new CouldNotFindStartingNoteForInstrumentException(instrumentConfiguration.Instrument);
         } while (startingNoteCounts.TryGetValue(chosenNote.NoteName, out var count) && count >= maxRepeatedNotes);
 
         startingNoteCounts[chosenNote.NoteName]++;
