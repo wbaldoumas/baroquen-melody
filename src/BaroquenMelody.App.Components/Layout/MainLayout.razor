@@ -1,0 +1,18 @@
+﻿@inherits LayoutComponentBase
+
+<Fluxor.Blazor.Web.StoreInitializer/>
+
+<MudThemeProvider Theme="@ThemeProvider.Theme" IsDarkMode="ThemeProvider.IsDarkMode"/>
+<MudPopoverProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudLayout>
+    <MudAppBar Elevation="1" Dense="false" Gutters="false">
+        <MudSpacer/>
+        <MudIconButton Icon="@(ThemeProvider.DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@ThemeProvider.ToggleDarkMode" Class="mr-3" />
+    </MudAppBar>
+    <MudMainContent Class="mt-3 mx-5">
+        @Body
+    </MudMainContent>
+</MudLayout>

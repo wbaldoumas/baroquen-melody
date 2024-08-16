@@ -2,7 +2,7 @@
     <MudExpansionPanel Text="Composition Rules">
         @foreach (var compositionRule in CompositionRuleConfigurationService.ConfigurableCompositionRules)
         {
-            <CompositionRuleConfigurationCard CompositionRule="@compositionRule"/>
+            <CompositionRuleConfigurationCard CompositionRule="compositionRule"/>
         }
     </MudExpansionPanel>
 </MudExpansionPanels>

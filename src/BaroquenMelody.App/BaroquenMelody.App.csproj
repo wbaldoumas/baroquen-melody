@@ -63,7 +63,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Fluxor.Blazor.Web" Version="6.0.0" />
         <PackageReference Include="Meziantou.Analyzer" Version="2.0.163">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -72,7 +71,6 @@
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.80" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.80" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-        <PackageReference Include="MudBlazor" Version="7.6.0" />
         <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -80,6 +78,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\BaroquenMelody.App.Components\BaroquenMelody.App.Components.csproj" />
       <ProjectReference Include="..\BaroquenMelody.Library\BaroquenMelody.Library.csproj" />
     </ItemGroup>
 

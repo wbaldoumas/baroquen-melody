@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Infrastructure.Extensions;
+﻿using BaroquenMelody.App.Components.Extensions;
+using BaroquenMelody.Library.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
@@ -10,6 +11,7 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
+
         builder
             .UseMauiApp<App>()
             .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); });
@@ -17,6 +19,7 @@ public static class MauiProgram
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddMudServices();
         builder.Services.AddBaroquenMelody();
+        builder.Services.AddBaroquenMelodyComponents();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

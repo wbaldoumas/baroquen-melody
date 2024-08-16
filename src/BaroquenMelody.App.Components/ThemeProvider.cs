@@ -1,43 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿using MudBlazor;
 
-<Fluxor.Blazor.Web.StoreInitializer/>
+namespace BaroquenMelody.App.Components;
 
-<MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode"/>
-<MudPopoverProvider/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
-
-<MudLayout>
-    <MudAppBar Elevation="1" Dense="false" Gutters="false">
-        <MudSpacer/>
-        <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle"Class="mr-3"/>
-    </MudAppBar>
-    <MudMainContent Class="mt-3 mx-5">
-        @Body
-    </MudMainContent>
-</MudLayout>
-
-@code {
-    private bool _isDarkMode = true;
-
-    private MudTheme? _theme;
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        _theme = new MudTheme
-        {
-            PaletteLight = _lightPalette,
-            PaletteDark = _darkPalette,
-            LayoutProperties = new LayoutProperties()
-        };
-
-        CompositionConfigurationService.ConfigureDefaults();
-    }
-
-    private void DarkModeToggle() => _isDarkMode = !_isDarkMode;
-
+internal sealed class ThemeProvider : IThemeProvider
+{
     private static readonly PaletteLight _lightPalette = new()
     {
         Black = "#110e2d",
@@ -77,10 +43,20 @@
         OverlayLight = "#1e1e2d80"
     };
 
-    public string DarkLightModeButtonIcon => _isDarkMode switch
+    public MudTheme Theme { get; } = new()
+    {
+        PaletteLight = _lightPalette,
+        PaletteDark = _darkPalette,
+        LayoutProperties = new LayoutProperties()
+    };
+
+    public bool IsDarkMode { get; private set; } = true;
+
+    public string DarkLightModeButtonIcon => IsDarkMode switch
     {
         true => Icons.Material.Rounded.LightMode,
         false => Icons.Material.Outlined.DarkMode
     };
 
+    public void ToggleDarkMode() => IsDarkMode = !IsDarkMode;
 }

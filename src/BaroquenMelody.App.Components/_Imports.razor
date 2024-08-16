@@ -1,0 +1,44 @@
+﻿@using Atrea.Utilities.Enums
+@using BaroquenMelody.App
+@using BaroquenMelody.App.Components
+@using BaroquenMelody.App.Components.Shared
+@using BaroquenMelody.Library
+@using BaroquenMelody.Library.Compositions.Enums
+@using BaroquenMelody.Library.Compositions.Configurations
+@using BaroquenMelody.Library.Compositions.Configurations.Services
+@using BaroquenMelody.Library.Compositions.Domain
+@using BaroquenMelody.Library.Compositions.Enums.Extensions
+@using BaroquenMelody.Library.Compositions.MusicTheory.Enums
+@using BaroquenMelody.Library.Compositions.Ornamentation
+@using BaroquenMelody.Library.Compositions.Ornamentation.Enums
+@using BaroquenMelody.Library.Compositions.Rules
+@using BaroquenMelody.Library.Compositions.Rules.Enums
+@using BaroquenMelody.Library.Store.Actions
+@using BaroquenMelody.Library.Store.State
+@using Fluxor
+@using System.Collections.Frozen
+@using System.Globalization
+@using System.Net.Http
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using MudBlazor
+@using Melanchall.DryWetMidi.Common
+@using Melanchall.DryWetMidi.MusicTheory
+@using Melanchall.DryWetMidi.Standards
+
+@inject IState<CompositionOrnamentationConfigurationState> OrnamentationConfigurationState
+@inject IState<CompositionRuleConfigurationState> CompositionRuleConfigurationState
+@inject IState<VoiceConfigurationState> VoiceConfigurationState
+@inject IState<CompositionConfigurationState> CompositionConfigurationState
+@inject IState<CompositionProgressState> CompositionProgressState
+@inject IDispatcher Dispatcher
+@inject IOrnamentationConfigurationService OrnamentationConfigurationService
+@inject ICompositionRuleConfigurationService CompositionRuleConfigurationService
+@inject IVoiceConfigurationService VoiceConfigurationService
+@inject ICompositionConfigurationService CompositionConfigurationService
+@inject IBaroquenMelodyComposerConfigurator ComposerConfigurator
+@inject IThemeProvider ThemeProvider

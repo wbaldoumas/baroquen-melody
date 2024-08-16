@@ -2,7 +2,7 @@
     <MudExpansionPanel Text="Voice Configurations">
         @foreach (var voice in VoiceConfigurationService.ConfigurableVoices)
         {
-            <VoiceConfigurationCard Voice="@voice"/>
+            <VoiceConfigurationCard Voice="voice"/>
         }
     </MudExpansionPanel>
 </MudExpansionPanels>
