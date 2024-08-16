@@ -1,5 +1,4 @@
 ﻿using Atrea.Utilities.Enums;
-using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Store.Actions;
@@ -22,8 +21,6 @@ internal sealed class CompositionConfigurationService(
 
     private const Mode _defaultMode = Mode.Ionian;
 
-    private const int _defaultCompositionLength = 25;
-
     private static readonly FrozenSet<NoteName> _configurableRootNotes = EnumUtils<NoteName>.AsEnumerable().ToFrozenSet();
 
     private static readonly FrozenSet<Mode> _configurableScaleModes = EnumUtils<Mode>.AsEnumerable().ToFrozenSet();
@@ -42,6 +39,6 @@ internal sealed class CompositionConfigurationService(
         compositionRuleConfigurationService.ConfigureDefaults();
         compositionVoiceConfigurationService.ConfigureDefaults();
 
-        dispatcher.Dispatch(new UpdateCompositionConfiguration(_defaultRootNote, _defaultMode, _defaultMeter, _defaultCompositionLength));
+        dispatcher.Dispatch(new UpdateCompositionConfiguration(_defaultRootNote, _defaultMode, _defaultMeter));
     }
 }

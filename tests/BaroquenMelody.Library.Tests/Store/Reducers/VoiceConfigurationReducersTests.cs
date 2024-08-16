@@ -28,20 +28,18 @@ internal sealed class VoiceConfigurationReducersTests
         // assert
         state.Configurations.Should().ContainKeys(Voice.One, Voice.Two, Voice.Three);
 
-        state.Configurations[Voice.One].MinNote.Should().Be(Notes.C7);
-        state.Configurations[Voice.One].MaxNote.Should().Be(Notes.C8);
-        state.Configurations[Voice.One].Instrument.Should().Be(GeneralMidi2Program.Dulcimer);
-        state.Configurations[Voice.One].IsEnabled.Should().BeFalse();
-
-        state.Configurations[Voice.Two].MinNote.Should().Be(Notes.C5);
-        state.Configurations[Voice.Two].MaxNote.Should().Be(Notes.C6);
-        state.Configurations[Voice.Two].Instrument.Should().Be(GeneralMidi2Program.Banjo);
-        state.Configurations[Voice.Two].IsEnabled.Should().BeTrue();
-
-        state.Configurations[Voice.Three].MinNote.Should().Be(Notes.C6);
-        state.Configurations[Voice.Three].MaxNote.Should().Be(Notes.C7);
-        state.Configurations[Voice.Three].Instrument.Should().Be(GeneralMidi2Program.Celesta);
-        state.Configurations[Voice.Three].IsEnabled.Should().BeTrue();
+        state[Voice.One]!.MinNote.Should().Be(Notes.C7);
+        state[Voice.One]!.MaxNote.Should().Be(Notes.C8);
+        state[Voice.One]!.Instrument.Should().Be(GeneralMidi2Program.Dulcimer);
+        state[Voice.One]!.IsEnabled.Should().BeFalse();
+        state[Voice.Two]!.MinNote.Should().Be(Notes.C5);
+        state[Voice.Two]!.MaxNote.Should().Be(Notes.C6);
+        state[Voice.Two]!.Instrument.Should().Be(GeneralMidi2Program.Banjo);
+        state[Voice.Two]!.IsEnabled.Should().BeTrue();
+        state[Voice.Three]!.MinNote.Should().Be(Notes.C6);
+        state[Voice.Three]!.MaxNote.Should().Be(Notes.C7);
+        state[Voice.Three]!.Instrument.Should().Be(GeneralMidi2Program.Celesta);
+        state[Voice.Three]!.IsEnabled.Should().BeTrue();
 
         state.Aggregate.Should().BeEquivalentTo(
             new HashSet<VoiceConfiguration>

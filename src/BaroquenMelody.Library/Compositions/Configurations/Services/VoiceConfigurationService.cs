@@ -9,7 +9,13 @@ namespace BaroquenMelody.Library.Compositions.Configurations.Services;
 
 internal sealed class VoiceConfigurationService(IDispatcher dispatcher) : IVoiceConfigurationService
 {
-    private static readonly FrozenSet<Voice> _configurableVoices = new[] { Voice.One, Voice.Two, Voice.Three, Voice.Four }.ToFrozenSet();
+    private static readonly FrozenSet<Voice> _configurableVoices = new[]
+    {
+        Voice.One,
+        Voice.Two,
+        Voice.Three,
+        Voice.Four
+    }.ToFrozenSet();
 
     public IEnumerable<Voice> ConfigurableVoices => _configurableVoices;
 

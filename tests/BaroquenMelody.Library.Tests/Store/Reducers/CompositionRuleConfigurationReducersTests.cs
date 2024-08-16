@@ -28,14 +28,12 @@ internal sealed class CompositionRuleConfigurationReducersTests
             .Should()
             .ContainKeys(CompositionRule.AvoidDirectFifths, CompositionRule.AvoidDissonance, CompositionRule.AvoidRepeatedChords);
 
-        state.Configurations[CompositionRule.AvoidDirectFifths].Strictness.Should().Be(4);
-        state.Configurations[CompositionRule.AvoidDirectFifths].IsEnabled.Should().BeFalse();
-
-        state.Configurations[CompositionRule.AvoidDissonance].Strictness.Should().Be(2);
-        state.Configurations[CompositionRule.AvoidDissonance].IsEnabled.Should().BeTrue();
-
-        state.Configurations[CompositionRule.AvoidRepeatedChords].Strictness.Should().Be(3);
-        state.Configurations[CompositionRule.AvoidRepeatedChords].IsEnabled.Should().BeTrue();
+        state[CompositionRule.AvoidDirectFifths]!.Strictness.Should().Be(4);
+        state[CompositionRule.AvoidDirectFifths]!.IsEnabled.Should().BeFalse();
+        state[CompositionRule.AvoidDissonance]!.Strictness.Should().Be(2);
+        state[CompositionRule.AvoidDissonance]!.IsEnabled.Should().BeTrue();
+        state[CompositionRule.AvoidRepeatedChords]!.Strictness.Should().Be(3);
+        state[CompositionRule.AvoidRepeatedChords]!.IsEnabled.Should().BeTrue();
 
         state.Aggregate.Should().BeEquivalentTo(
             new AggregateCompositionRuleConfiguration(
