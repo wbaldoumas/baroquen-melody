@@ -7,8 +7,6 @@ namespace BaroquenMelody.Library.Store.Reducers;
 public static class CompositionConfigurationReducers
 {
     [ReducerMethod]
-    public static CompositionConfigurationState ReduceUpdateCompositionConfiguration(CompositionConfigurationState state, UpdateCompositionConfiguration action)
-    {
-        return new CompositionConfigurationState(action.Scale, action.Meter, action.CompositionLength);
-    }
+    public static CompositionConfigurationState ReduceUpdateCompositionConfiguration(CompositionConfigurationState state, UpdateCompositionConfiguration action) =>
+        new(action.RootNote, action.Mode, action.Meter, action.CompositionLength);
 }

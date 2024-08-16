@@ -9,7 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaroquenMelody.Library", "B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaroquenMelody.Library.Tests", "..\tests\BaroquenMelody.Library.Tests\BaroquenMelody.Library.Tests.csproj", "{FCEFE589-8A4A-417A-A2BD-72B6AF1E7A6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaroquenMelody.Benchmarks", "..\benchmarks\BaroquenMelody.Benchmarks\BaroquenMelody.Benchmarks.csproj", "{5829D5BD-6AE1-4BDF-AB7E-4F4ACF12D652}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaroquenMelody.Benchmarks", "..\benchmarks\BaroquenMelody.Benchmarks\BaroquenMelody.Benchmarks.csproj", "{5829D5BD-6AE1-4BDF-AB7E-4F4ACF12D652}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaroquenMelody.App", "BaroquenMelody.App\BaroquenMelody.App.csproj", "{A88ECA10-69E6-433D-AB37-45D6E1C2FF10}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaroquenMelody.App.Components", "BaroquenMelody.App.Components\BaroquenMelody.App.Components.csproj", "{5F8DD91A-D6E6-459A-AFF4-2E5F28F48F64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,16 @@ Global
 		{5829D5BD-6AE1-4BDF-AB7E-4F4ACF12D652}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5829D5BD-6AE1-4BDF-AB7E-4F4ACF12D652}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5829D5BD-6AE1-4BDF-AB7E-4F4ACF12D652}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A88ECA10-69E6-433D-AB37-45D6E1C2FF10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A88ECA10-69E6-433D-AB37-45D6E1C2FF10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A88ECA10-69E6-433D-AB37-45D6E1C2FF10}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A88ECA10-69E6-433D-AB37-45D6E1C2FF10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A88ECA10-69E6-433D-AB37-45D6E1C2FF10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A88ECA10-69E6-433D-AB37-45D6E1C2FF10}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{5F8DD91A-D6E6-459A-AFF4-2E5F28F48F64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F8DD91A-D6E6-459A-AFF4-2E5F28F48F64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F8DD91A-D6E6-459A-AFF4-2E5F28F48F64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F8DD91A-D6E6-459A-AFF4-2E5F28F48F64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

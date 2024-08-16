@@ -1,6 +1,7 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.Enums;
+﻿using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Store.Actions;
 
-public sealed record UpdateCompositionConfiguration(BaroquenScale Scale, Meter Meter, int CompositionLength);
+public sealed record UpdateCompositionConfiguration(NoteName RootNote, Mode Mode, Meter Meter, int CompositionLength = 25);

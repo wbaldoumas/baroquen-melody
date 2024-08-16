@@ -43,9 +43,9 @@ internal sealed class CompositionOrnamentationConfigurationReducersTests
             .Should()
             .ContainKeys(OrnamentationType.Run, OrnamentationType.Turn, OrnamentationType.Mordent);
 
-        state.Configurations[OrnamentationType.Run].Probability.Should().Be(1);
-        state.Configurations[OrnamentationType.Turn].Probability.Should().Be(3);
-        state.Configurations[OrnamentationType.Mordent].Probability.Should().Be(4);
+        state[OrnamentationType.Run]!.Probability.Should().Be(1);
+        state[OrnamentationType.Turn]!.Probability.Should().Be(3);
+        state[OrnamentationType.Mordent]!.Probability.Should().Be(4);
 
         state.Aggregate.Should().BeEquivalentTo(
             new AggregateOrnamentationConfiguration(

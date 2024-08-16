@@ -1,0 +1,7 @@
+[*.cs]
+
+# Identifiers should not have incorrect suffix
+dotnet_diagnostic.CA1711.severity = none
+
+# Type name should not match namespace
+dotnet_diagnostic.MA0049.severity = none

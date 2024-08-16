@@ -1,0 +1,38 @@
+﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+<MudButton
+    FullWidth="true"
+    Color="Color.Tertiary"
+    Variant="Variant.Outlined"
+    OnClick="Compose">
+    Compose!
+</MudButton>
+<MudDivider/>
+<MudText Class="my-4">Composition Progress: @CompositionProgressState.Value.CurrentStep</MudText>
+
+@code {
+
+    private async Task Compose()
+    {
+        var compositionConfiguration = new CompositionConfiguration(
+            VoiceConfigurationState.Value.Aggregate,
+            PhrasingConfiguration.Default,
+            CompositionRuleConfigurationState.Value.Aggregate,
+            OrnamentationConfigurationState.Value.Aggregate,
+            BaroquenScale.Parse($"{CompositionConfigurationState.Value.RootNote.ToString()} {CompositionConfigurationState.Value.Mode.ToString()}"),
+            CompositionConfigurationState.Value.Meter,
+            CompositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
+            CompositionConfigurationState.Value.CompositionLength
+        );
+
+        var baroquenMelody = await Task.Run(() => ComposerConfigurator.Configure(compositionConfiguration).Compose());
+
+        var desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+
+        var path = Path.Combine(desktopDirectory, $"test-{timestamp}.mid");
+
+        baroquenMelody.MidiFile.Write(path);
+    }
+
+}

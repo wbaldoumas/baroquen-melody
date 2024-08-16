@@ -1,0 +1,8 @@
+﻿<MudExpansionPanels>
+    <MudExpansionPanel Text="Composition Rules">
+        @foreach (var compositionRule in CompositionRuleConfigurationService.ConfigurableCompositionRules)
+        {
+            <CompositionRuleConfigurationCard CompositionRule="compositionRule"/>
+        }
+    </MudExpansionPanel>
+</MudExpansionPanels>

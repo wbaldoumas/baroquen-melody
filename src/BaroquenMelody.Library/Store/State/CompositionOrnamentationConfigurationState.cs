@@ -13,4 +13,6 @@ public sealed record CompositionOrnamentationConfigurationState(IDictionary<Orna
         : this(new Dictionary<OrnamentationType, OrnamentationConfiguration>())
     {
     }
+
+    public OrnamentationConfiguration? this[OrnamentationType ornamentationType] => Configurations.TryGetValue(ornamentationType, out var configuration) ? configuration : null;
 }

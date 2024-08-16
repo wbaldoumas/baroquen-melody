@@ -20,7 +20,7 @@ namespace BaroquenMelody.Library;
 /// </summary>
 /// <param name="logger">A logger to be used throughout the composition process.</param>
 /// <param name="dispatcher">A dispatcher to be used to dispatch actions to the store.</param>
-public sealed class BaroquenMelodyComposerConfigurator(ILogger<BaroquenMelody> logger, IDispatcher dispatcher) : IBaroquenMelodyComposerConfigurator
+internal sealed class BaroquenMelodyComposerConfigurator(ILogger<BaroquenMelody> logger, IDispatcher dispatcher) : IBaroquenMelodyComposerConfigurator
 {
     private readonly IMusicalTimeSpanCalculator _musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
 

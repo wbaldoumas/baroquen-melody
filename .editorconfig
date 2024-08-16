@@ -67,6 +67,12 @@ dotnet_diagnostic.SA1204.severity = none
 # force abstraction over implementation
 dotnet_diagnostic.MA0016.severity = none
 
+[*.razor]
+
+# require XML comments
+dotnet_diagnostic.CS1591.severity = none
+dotnet_diagnostic.SA1600.severity = none
+
 [*.csproj]
 indent_style = space
 indent_size = 2
