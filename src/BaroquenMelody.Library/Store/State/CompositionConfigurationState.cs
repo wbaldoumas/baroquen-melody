@@ -1,14 +1,15 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.Enums;
+﻿using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using Fluxor;
+using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Store.State;
 
 [FeatureState]
-public sealed record CompositionConfigurationState(BaroquenScale Scale, Meter Meter, int CompositionLength)
+public sealed record CompositionConfigurationState(NoteName RootNote, Mode Mode, Meter Meter, int CompositionLength = 25)
 {
     public CompositionConfigurationState()
-        : this(BaroquenScale.Parse("C Major"), Meter.FourFour, 25)
+        : this(NoteName.C, Mode.Ionian, Meter.FourFour)
     {
     }
 }

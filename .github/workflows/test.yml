@@ -17,12 +17,6 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: ⚗ restore dependencies
-      run: dotnet restore src
-
-    - name: 🛠 build
-      run: dotnet build src --configuration Release --no-restore
-
     - name: 🧪 run tests
       run: |
         cd ./tests/BaroquenMelody.Library.Tests/

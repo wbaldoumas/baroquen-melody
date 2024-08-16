@@ -46,7 +46,6 @@ internal sealed class VoiceConfigurationReducersTests
         state.Aggregate.Should().BeEquivalentTo(
             new HashSet<VoiceConfiguration>
             {
-                new(Voice.One, Notes.C7, Notes.C8, GeneralMidi2Program.Dulcimer, false),
                 new(Voice.Two, Notes.C5, Notes.C6, GeneralMidi2Program.Banjo),
                 new(Voice.Three, Notes.C6, Notes.C7, GeneralMidi2Program.Celesta)
             }

@@ -1,0 +1,39 @@
+﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+<MudCard Elevation="3" Class="my-2">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText>@OrnamentationType</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudText Color="Color.Primary">Probability</MudText>
+        <MudSlider T="int"
+                   Value="@Probability"
+                   Step="1"
+                   Color="Color.Tertiary"
+                   ValueChanged="HandleProbabilityChange"
+                   Max="100"
+                   Min="0"
+                   ValueLabel="true"
+                   Variant="Variant.Filled"/>
+            <MudText Color="Color.Primary">Enabled</MudText>
+            <MudSwitch T="bool"
+                       Value="@IsEnabled"
+                       ValueChanged="HandleIsEnabledChange"
+                       Color="Color.Primary" />
+    </MudCardContent>
+</MudCard>
+
+@code
+{
+    [Parameter, EditorRequired] public OrnamentationType OrnamentationType { get; set; }
+
+    private int Probability => OrnamentationConfigurationState.Value[OrnamentationType]?.Probability ?? 0;
+
+    private bool IsEnabled => OrnamentationConfigurationState.Value[OrnamentationType]?.IsEnabled ?? false;
+
+    private void HandleProbabilityChange(int value) => Dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(OrnamentationType, IsEnabled, value));
+
+    private void HandleIsEnabledChange(bool value) => Dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(OrnamentationType, value, Probability));
+}

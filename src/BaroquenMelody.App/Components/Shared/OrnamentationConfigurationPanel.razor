@@ -1,0 +1,8 @@
+﻿<MudExpansionPanels>
+    <MudExpansionPanel Text="Composition Ornamentations">
+        @foreach (var ornamentation in OrnamentationConfigurationService.ConfigurableOrnamentations)
+        {
+            <OrnamentationConfigurationCard OrnamentationType="@ornamentation"/>
+        }
+    </MudExpansionPanel>
+</MudExpansionPanels>

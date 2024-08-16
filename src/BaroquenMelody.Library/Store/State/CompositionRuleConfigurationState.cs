@@ -13,4 +13,6 @@ public sealed record CompositionRuleConfigurationState(IDictionary<CompositionRu
         : this(new Dictionary<CompositionRule, CompositionRuleConfiguration>())
     {
     }
+
+    public CompositionRuleConfiguration? this[CompositionRule compositionRule] => Configurations.TryGetValue(compositionRule, out var configuration) ? configuration : null;
 }

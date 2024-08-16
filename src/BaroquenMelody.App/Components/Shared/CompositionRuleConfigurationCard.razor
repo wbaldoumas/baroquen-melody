@@ -1,0 +1,39 @@
+﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+<MudCard Elevation="3" Class="my-2">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText>@CompositionRule</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudText Color="Color.Primary">Strictness</MudText>
+        <MudSlider T="int"
+                   Value="@Strictness"
+                   Step="1"
+                   Color="Color.Tertiary"
+                   ValueChanged="HandleStrictnessChange"
+                   Max="100"
+                   Min="0"
+                   ValueLabel="true"
+                   Variant="Variant.Filled"/>
+        <MudText Color="Color.Primary">Enabled</MudText>
+        <MudSwitch T="bool"
+                   Value="@IsEnabled"
+                   ValueChanged="HandleIsEnabledChange"
+                   Color="Color.Primary"/>
+    </MudCardContent>
+</MudCard>
+
+@code
+{
+    [Parameter, EditorRequired] public CompositionRule CompositionRule { get; set; }
+
+    private int Strictness => CompositionRuleConfigurationState.Value[CompositionRule]?.Strictness ?? 0;
+
+    private bool IsEnabled => CompositionRuleConfigurationState.Value[CompositionRule]?.IsEnabled ?? false;
+
+    private void HandleStrictnessChange(int value) => Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule, IsEnabled, value));
+
+    private void HandleIsEnabledChange(bool value) => Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule, value, Strictness));
+}

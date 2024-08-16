@@ -1,0 +1,63 @@
+﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+<MudCard Elevation="3" Class="my-2">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText>Voice @Voice</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudSelect ValueChanged="HandleMinNoteChange" Value="MinNote" Label="Minimum Note" T="Note">
+                    @foreach (var note in GetNotes())
+                    {
+                        <MudSelectItem Value="note">@note</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudSelect ValueChanged="HandleMaxNoteChange" Value="MaxNote" Label="Maximum Note" T="Note">
+                    @foreach (var note in GetNotes())
+                    {
+                        <MudSelectItem Value="note">@note</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudSelect ValueChanged="HandleInstrumentChange" Value="Instrument" Label="Instrument" T="GeneralMidi2Program">
+                    @foreach (var instrument in EnumUtils<GeneralMidi2Program>.AsEnumerable())
+                    {
+                        <MudSelectItem Value="instrument">@instrument</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudSwitch Value="IsEnabled" ValueChanged="HandleIsEnabledChange" Label="Enabled" T="bool" Color="Color.Primary"/>
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
+
+@code
+{
+    [Parameter, EditorRequired] public Voice Voice { get; set; }
+
+    private Note MinNote => VoiceConfigurationState.Value[Voice]?.MinNote ?? Notes.C3;
+
+    private Note MaxNote => VoiceConfigurationState.Value[Voice]?.MaxNote ?? Notes.C6;
+
+    private GeneralMidi2Program Instrument => VoiceConfigurationState.Value[Voice]?.Instrument ?? GeneralMidi2Program.AcousticGrandPiano;
+
+    private bool IsEnabled => VoiceConfigurationState.Value[Voice]?.IsEnabled ?? false;
+
+    private static IEnumerable<Note> GetNotes() => Enumerable.Range(0, 127).Select(noteNumber => Note.Get((SevenBitNumber)noteNumber));
+
+    private void HandleMinNoteChange(Note note) => Dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice, note, MaxNote, Instrument, IsEnabled));
+
+    private void HandleMaxNoteChange(Note note) => Dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice, MinNote, note, Instrument, IsEnabled));
+
+    private void HandleInstrumentChange(GeneralMidi2Program instrument) => Dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice, MinNote, MaxNote, instrument, IsEnabled));
+
+    private void HandleIsEnabledChange(bool isEnabled) => Dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice, MinNote, MaxNote, Instrument, isEnabled));
+}

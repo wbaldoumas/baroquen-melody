@@ -41,9 +41,9 @@ internal sealed class CompositionRuleConfigurationReducersTests
             new AggregateCompositionRuleConfiguration(
                 new HashSet<CompositionRuleConfiguration>
                 {
-                    new CompositionRuleConfiguration(CompositionRule.AvoidDirectFifths, false, 4),
-                    new CompositionRuleConfiguration(CompositionRule.AvoidDissonance, true, 2),
-                    new CompositionRuleConfiguration(CompositionRule.AvoidRepeatedChords, true, 3)
+                    new(CompositionRule.AvoidDirectFifths, false, 4),
+                    new(CompositionRule.AvoidDissonance, true, 2),
+                    new(CompositionRule.AvoidRepeatedChords, true, 3)
                 }
             )
         );

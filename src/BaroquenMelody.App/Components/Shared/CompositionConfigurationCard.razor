@@ -1,0 +1,58 @@
+﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+<MudCard Elevation="3" Class="my-2">
+    <MudCardContent>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText>Composition Configuration</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudGrid>
+            <MudItem xs="12" md="3">
+                <MudSelect T="NoteName" Label="Root Note" Value="RootNote" ValueChanged="HandleRootNoteChange">
+                    @foreach (var note in CompositionConfigurationService.ConfigurableRootNotes)
+                    {
+                        <MudSelectItem Value="note">@note</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudSelect T="Mode" Label="Mode" Value="Mode" ValueChanged="HandleModeChange">
+                    @foreach (var mode in CompositionConfigurationService.ConfigurableScaleModes)
+                    {
+                        <MudSelectItem Value="mode">@mode</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudSelect T="Meter" Label="Meter" Value="Meter" ValueChanged="HandleMeterChange">
+                    @foreach (var meter in CompositionConfigurationService.ConfigurableMeters)
+                    {
+                        <MudSelectItem Value="meter">@meter</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudNumericField Value="Length" Label="Composition Length"/>
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    private NoteName RootNote => CompositionConfigurationState.Value.RootNote;
+
+    private Mode Mode => CompositionConfigurationState.Value.Mode;
+
+    private Meter Meter => CompositionConfigurationState.Value.Meter;
+
+    private int Length => CompositionConfigurationState.Value.CompositionLength;
+
+    private void HandleRootNoteChange(NoteName note) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(note, Mode, Meter, Length));
+
+    private void HandleModeChange(Mode mode) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, mode, Meter, Length));
+
+    private void HandleMeterChange(Meter meter) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, meter, Length));
+
+    private void HandleCompositionLengthChange(int length) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, length));
+}
