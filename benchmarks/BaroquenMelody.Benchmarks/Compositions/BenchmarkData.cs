@@ -9,12 +9,12 @@ namespace BaroquenMelody.Benchmarks.Compositions;
 internal static class BenchmarkData
 {
     public static readonly CompositionConfiguration CompositionConfiguration = new(
-        new HashSet<VoiceConfiguration>
+        new HashSet<InstrumentConfiguration>
         {
-            new(Voice.One, Notes.C0, Notes.C6),
-            new(Voice.Two, Notes.C0, Notes.C6),
-            new(Voice.Three, Notes.C0, Notes.C6),
-            new(Voice.Four, Notes.C0, Notes.C6)
+            new(Instrument.One, Notes.C0, Notes.C6),
+            new(Instrument.Two, Notes.C0, Notes.C6),
+            new(Instrument.Three, Notes.C0, Notes.C6),
+            new(Instrument.Four, Notes.C0, Notes.C6)
         },
         new PhrasingConfiguration(
             PhraseLengths: [1, 2, 4, 8],
@@ -31,37 +31,37 @@ internal static class BenchmarkData
     );
 
     public static readonly BaroquenChord CMajor = new([
-        new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Three, Notes.G2, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Four, Notes.C1, MusicalTimeSpan.Quarter)
+        new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Three, Notes.G2, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Four, Notes.C1, MusicalTimeSpan.Quarter)
     ]);
 
     public static readonly BaroquenChord EMinor = new([
-        new BaroquenNote(Voice.One, Notes.B4, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Three, Notes.G2, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Four, Notes.B1, MusicalTimeSpan.Quarter)
+        new BaroquenNote(Instrument.One, Notes.B4, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Three, Notes.G2, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Four, Notes.B1, MusicalTimeSpan.Quarter)
     ]);
 
     public static readonly BaroquenChord FMajor = new([
-        new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Two, Notes.F3, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Three, Notes.A2, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Four, Notes.F1, MusicalTimeSpan.Quarter)
+        new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Three, Notes.A2, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Four, Notes.F1, MusicalTimeSpan.Quarter)
     ]);
 
     public static readonly BaroquenChord GMajor = new([
-        new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Two, Notes.G3, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Three, Notes.B2, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Four, Notes.G1, MusicalTimeSpan.Quarter)
+        new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Three, Notes.B2, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Four, Notes.G1, MusicalTimeSpan.Quarter)
     ]);
 
     public static readonly BaroquenChord DMinor = new([
-        new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Two, Notes.F3, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Three, Notes.A2, MusicalTimeSpan.Quarter),
-        new BaroquenNote(Voice.Four, Notes.D1, MusicalTimeSpan.Quarter)
+        new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Three, Notes.A2, MusicalTimeSpan.Quarter),
+        new BaroquenNote(Instrument.Four, Notes.D1, MusicalTimeSpan.Quarter)
     ]);
 }

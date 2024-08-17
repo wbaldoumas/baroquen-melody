@@ -5,13 +5,13 @@ namespace BaroquenMelody.Library.Compositions.Choices;
 /// <inheritdoc cref="IChordChoiceRepository"/>
 internal sealed class ChordChoiceRepositoryFactory(INoteChoiceGenerator noteChoiceGenerator) : IChordChoiceRepositoryFactory
 {
-    public IChordChoiceRepository Create(CompositionConfiguration compositionConfiguration) => compositionConfiguration.Voices.Count switch
+    public IChordChoiceRepository Create(CompositionConfiguration compositionConfiguration) => compositionConfiguration.Instruments.Count switch
     {
-        DuetChordChoiceRepository.NumberOfVoices => new DuetChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),
-        TrioChordChoiceRepository.NumberOfVoices => new TrioChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),
-        QuartetChordChoiceRepository.NumberOfVoices => new QuartetChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),
+        DuetChordChoiceRepository.NumberOfInstruments => new DuetChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),
+        TrioChordChoiceRepository.NumberOfInstruments => new TrioChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),
+        QuartetChordChoiceRepository.NumberOfInstruments => new QuartetChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),
         _ => throw new ArgumentException(
-            "The composition configuration must contain between two and four voice configurations.",
+            "The composition configuration must contain between two and four instrument configurations.",
             nameof(compositionConfiguration)
         )
     };

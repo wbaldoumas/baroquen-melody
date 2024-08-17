@@ -41,19 +41,19 @@ internal sealed class EighthNoteOrnamentationCleanerTests
     {
         get
         {
-            var sopranoC4 = new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half);
-            var sopranoD4 = new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Half);
-            var sopranoE4 = new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half);
-            var sopranoF4 = new BaroquenNote(Voice.One, Notes.F4, MusicalTimeSpan.Half);
+            var sopranoC4 = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+            var sopranoD4 = new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Half);
+            var sopranoE4 = new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half);
+            var sopranoF4 = new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Half);
 
-            var altoD4 = new BaroquenNote(Voice.Two, Notes.D4, MusicalTimeSpan.Half);
-            var altoC4 = new BaroquenNote(Voice.Two, Notes.C4, MusicalTimeSpan.Half);
-            var altoB3 = new BaroquenNote(Voice.Two, Notes.B3, MusicalTimeSpan.Half);
-            var altoA3 = new BaroquenNote(Voice.Two, Notes.A3, MusicalTimeSpan.Half);
-            var altoF3 = new BaroquenNote(Voice.Two, Notes.F3, MusicalTimeSpan.Half);
-            var altoE3 = new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Half);
-            var altoD3 = new BaroquenNote(Voice.Two, Notes.D3, MusicalTimeSpan.Half);
-            var altoC3 = new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half);
+            var altoD4 = new BaroquenNote(Instrument.Two, Notes.D4, MusicalTimeSpan.Half);
+            var altoC4 = new BaroquenNote(Instrument.Two, Notes.C4, MusicalTimeSpan.Half);
+            var altoB3 = new BaroquenNote(Instrument.Two, Notes.B3, MusicalTimeSpan.Half);
+            var altoA3 = new BaroquenNote(Instrument.Two, Notes.A3, MusicalTimeSpan.Half);
+            var altoF3 = new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Half);
+            var altoE3 = new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Half);
+            var altoD3 = new BaroquenNote(Instrument.Two, Notes.D3, MusicalTimeSpan.Half);
+            var altoC3 = new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half);
 
             var sopranoC4WithAscendingRun = new BaroquenNote(sopranoC4)
             {

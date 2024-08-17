@@ -17,20 +17,20 @@ internal sealed class AvoidDirectIntervals(Interval targetInterval) : ICompositi
             return true;
         }
 
-        var voices = nextChord.Notes.Select(static note => note.Voice).ToList();
-        var voiceCombos = new LazyCartesianProduct<Voice, Voice>(voices, voices);
+        var instruments = nextChord.Notes.Select(static note => note.Instrument).ToList();
+        var instrumentCombos = new LazyCartesianProduct<Instrument, Instrument>(instruments, instruments);
         var precedingChord = precedingChords[^1];
 
-        for (var i = 0; i < voiceCombos.Size; ++i)
+        for (var i = 0; i < instrumentCombos.Size; ++i)
         {
-            var (voiceA, voiceB) = voiceCombos[i];
+            var (instrumentA, instrumentB) = instrumentCombos[i];
 
-            if (voiceA == voiceB)
+            if (instrumentA == instrumentB)
             {
                 continue;
             }
 
-            if (HaveTargetInterval(nextChord, voiceA, voiceB, targetInterval) && precedingChord.VoicesMoveInParallel(nextChord, voiceA, voiceB))
+            if (HaveTargetInterval(nextChord, instrumentA, instrumentB, targetInterval) && precedingChord.InstrumentsMoveInParallel(nextChord, instrumentA, instrumentB))
             {
                 return false;
             }
@@ -39,10 +39,10 @@ internal sealed class AvoidDirectIntervals(Interval targetInterval) : ICompositi
         return true;
     }
 
-    private static bool HaveTargetInterval(BaroquenChord nextChord, Voice voiceA, Voice voiceB, Interval targetInterval)
+    private static bool HaveTargetInterval(BaroquenChord nextChord, Instrument instrumentA, Instrument instrumentB, Interval targetInterval)
     {
-        var nextNoteA = nextChord[voiceA];
-        var nextNoteB = nextChord[voiceB];
+        var nextNoteA = nextChord[instrumentA];
+        var nextNoteB = nextChord[instrumentB];
 
         return IntervalExtensions.FromNotes(nextNoteA, nextNoteB) == targetInterval;
     }

@@ -14,9 +14,9 @@ internal sealed class RepeatedNoteProcessor(
 {
     public void Process(OrnamentationItem item)
     {
-        var currentNote = item.CurrentBeat[item.Voice];
+        var currentNote = item.CurrentBeat[item.Instrument];
 
-        var ornamentationNote = new BaroquenNote(item.Voice, currentNote.Raw, musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter));
+        var ornamentationNote = new BaroquenNote(item.Instrument, currentNote.Raw, musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter));
 
         currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, compositionConfiguration.Meter);
         currentNote.Ornamentations.Add(ornamentationNote);

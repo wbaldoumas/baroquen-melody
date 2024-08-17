@@ -3,14 +3,14 @@
 namespace BaroquenMelody.Library.Compositions.Choices;
 
 /// <summary>
-///     Generates the possible note choices for the given voice.
+///     Generates the possible note choices for the given instrument.
 /// </summary>
 internal interface INoteChoiceGenerator
 {
     /// <summary>
-    ///    Generates the possible note choices for the given voice.
+    ///    Generates the possible note choices for the given instrument.
     /// </summary>
-    /// <param name="voice"> The voice to generate note choices for. </param>
-    /// <returns> The possible note choices for the given voice. </returns>
-    ISet<NoteChoice> GenerateNoteChoices(Voice voice);
+    /// <param name="instrument"> The instrument to generate note choices for. </param>
+    /// <returns> The possible note choices for the given instrument. </returns>
+    ISet<NoteChoice> GenerateNoteChoices(Instrument instrument);
 }

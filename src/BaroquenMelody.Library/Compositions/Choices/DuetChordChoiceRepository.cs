@@ -8,28 +8,28 @@ namespace BaroquenMelody.Library.Compositions.Choices;
 /// <inheritdoc cref="IChordChoiceRepository"/>
 internal sealed class DuetChordChoiceRepository : IChordChoiceRepository
 {
-    public const int NumberOfVoices = 2;
+    public const int NumberOfInstruments = 2;
 
     private readonly LazyCartesianProduct<NoteChoice, NoteChoice> _noteChoices;
 
     public DuetChordChoiceRepository(CompositionConfiguration compositionConfiguration, INoteChoiceGenerator noteChoiceGenerator)
     {
-        if (compositionConfiguration.Voices.Count != NumberOfVoices)
+        if (compositionConfiguration.Instruments.Count != NumberOfInstruments)
         {
             throw new ArgumentException(
-                "The composition configuration must contain exactly two voice configurations.",
+                "The composition configuration must contain exactly two instrument configurations.",
                 nameof(compositionConfiguration)
             );
         }
 
-        var noteChoicesForVoices = compositionConfiguration.Voices
-            .OrderBy(static voice => voice)
+        var noteChoicesForInstruments = compositionConfiguration.Instruments
+            .OrderBy(static instrument => instrument)
             .Select(noteChoiceGenerator.GenerateNoteChoices)
             .ToList();
 
         _noteChoices = new LazyCartesianProduct<NoteChoice, NoteChoice>(
-            [.. noteChoicesForVoices[0]],
-            [.. noteChoicesForVoices[1]]
+            [.. noteChoicesForInstruments[0]],
+            [.. noteChoicesForInstruments[1]]
         );
     }
 

@@ -3,19 +3,19 @@
 namespace BaroquenMelody.Library.Compositions.Choices;
 
 /// <summary>
-///     Represents the note choices for the voices in a given chord to move to the next chord.
+///     Represents the note choices for the instruments in a given chord to move to the next chord.
 /// </summary>
 internal sealed record ChordChoice
 {
     private readonly IList<NoteChoice> _noteChoices;
 
     public ChordChoice(IEnumerable<NoteChoice> noteChoices) =>
-        _noteChoices = [.. noteChoices.OrderBy(static noteChoice => noteChoice.Voice)];
+        _noteChoices = [.. noteChoices.OrderBy(static noteChoice => noteChoice.Instrument)];
 
     public IList<NoteChoice> NoteChoices
     {
         get => _noteChoices;
-        init { _noteChoices = [.. value.OrderBy(static noteChoice => noteChoice.Voice)]; }
+        init { _noteChoices = [.. value.OrderBy(static noteChoice => noteChoice.Instrument)]; }
     }
 
     public bool Equals(ChordChoice? other)

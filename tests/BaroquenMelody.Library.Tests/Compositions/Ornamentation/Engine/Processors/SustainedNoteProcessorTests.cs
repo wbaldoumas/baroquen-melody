@@ -31,18 +31,18 @@ internal sealed class SustainedNoteProcessorTests
     {
         // arrange
         var ornamentationItem = new OrnamentationItem(
-            Voice.One,
+            Instrument.One,
             new FixedSizeList<Beat>(1),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)])),
-            new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)]))
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
         // act
         _sustainedNoteProcessor.Process(ornamentationItem);
 
         // assert
-        var noteToAssert = ornamentationItem.CurrentBeat[Voice.One];
-        var nextNoteToAssert = ornamentationItem.NextBeat![Voice.One];
+        var noteToAssert = ornamentationItem.CurrentBeat[Instrument.One];
+        var nextNoteToAssert = ornamentationItem.NextBeat![Instrument.One];
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Sustain);
         noteToAssert.Ornamentations.Should().BeEmpty();

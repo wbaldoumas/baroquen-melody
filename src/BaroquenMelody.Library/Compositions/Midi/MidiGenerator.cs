@@ -15,15 +15,15 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
 {
     public MidiFile Generate(Composition composition)
     {
-        var patternBuildersByVoice = InitializePatternBuildersByVoice();
+        var patternBuildersByInstrument = InitializePatternBuildersByInstrument();
 
         foreach (var measure in composition.Measures)
         {
-            ProcessMeasure(measure, patternBuildersByVoice);
+            ProcessMeasure(measure, patternBuildersByInstrument);
         }
 
         var tempoMap = TempoMap.Create(Tempo.FromBeatsPerMinute(compositionConfiguration.Tempo));
-        var chunks = patternBuildersByVoice.Values.Select((patternBuilder, channelNumber) => patternBuilder.Build().ToTrackChunk(tempoMap, FourBitNumber.Values[channelNumber]));
+        var chunks = patternBuildersByInstrument.Values.Select((patternBuilder, channelNumber) => patternBuilder.Build().ToTrackChunk(tempoMap, FourBitNumber.Values[channelNumber]));
         var midiFile = new MidiFile(chunks);
 
         midiFile.ReplaceTempoMap(tempoMap);
@@ -31,37 +31,37 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
         return midiFile;
     }
 
-    private Dictionary<Voice, PatternBuilder> InitializePatternBuildersByVoice() => compositionConfiguration.VoiceConfigurations.ToDictionary(
-        voiceConfiguration => voiceConfiguration.Voice,
-        voiceConfiguration => new PatternBuilder().ProgramChange(voiceConfiguration.Instrument)
+    private Dictionary<Instrument, PatternBuilder> InitializePatternBuildersByInstrument() => compositionConfiguration.InstrumentConfigurations.ToDictionary(
+        instrumentConfiguration => instrumentConfiguration.Instrument,
+        instrumentConfiguration => new PatternBuilder().ProgramChange(instrumentConfiguration.MidiProgram)
     );
 
-    private void ProcessMeasure(Measure measure, Dictionary<Voice, PatternBuilder> patternBuildersByVoice)
+    private void ProcessMeasure(Measure measure, Dictionary<Instrument, PatternBuilder> patternBuildersByInstrument)
     {
         foreach (var beat in measure.Beats)
         {
-            ProcessBeat(beat, patternBuildersByVoice);
+            ProcessBeat(beat, patternBuildersByInstrument);
         }
     }
 
-    private void ProcessBeat(Beat beat, Dictionary<Voice, PatternBuilder> patternBuildersByVoice)
+    private void ProcessBeat(Beat beat, Dictionary<Instrument, PatternBuilder> patternBuildersByInstrument)
     {
-        foreach (var (voice, patternBuilder) in patternBuildersByVoice)
+        foreach (var (instrument, patternBuilder) in patternBuildersByInstrument)
         {
-            ProcessVoice(voice, beat, patternBuilder);
+            ProcessInstrument(instrument, beat, patternBuilder);
         }
     }
 
-    private void ProcessVoice(Voice voice, Beat beat, PatternBuilder patternBuilder)
+    private void ProcessInstrument(Instrument instrument, Beat beat, PatternBuilder patternBuilder)
     {
-        if (!beat.ContainsVoice(voice))
+        if (!beat.ContainsInstrument(instrument))
         {
             patternBuilder.AddRest(compositionConfiguration.DefaultNoteTimeSpan);
 
             return;
         }
 
-        var note = beat[voice];
+        var note = beat[instrument];
 
         if (HandledRestfulOrnamentation(patternBuilder, note))
         {

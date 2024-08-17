@@ -19,7 +19,7 @@ internal sealed class CompositionRuleFactory(
         aggregateConfiguration.Configurations
             .Where(configuration => configuration.IsEnabled)
             .Select(Create)
-            .Prepend(new EnsureVoiceRange(compositionConfiguration))
+            .Prepend(new EnsureInstrumentRange(compositionConfiguration))
             .ToList()
     );
 

@@ -43,14 +43,14 @@ internal sealed class DoublePassingToneOrnamentationCleanerTests
     {
         get
         {
-            var sopranoC4 = new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half.Dotted(1));
-            var sopranoD4 = new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Half.Dotted(1));
-            var sopranoE4 = new BaroquenNote(Voice.One, Notes.E4, MusicalTimeSpan.Half.Dotted(1));
+            var sopranoC4 = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half.Dotted(1));
+            var sopranoD4 = new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Half.Dotted(1));
+            var sopranoE4 = new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half.Dotted(1));
 
-            var altoD3 = new BaroquenNote(Voice.Two, Notes.D3, MusicalTimeSpan.Half.Dotted(1));
-            var altoE3 = new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Half.Dotted(1));
-            var altoF3 = new BaroquenNote(Voice.Two, Notes.F3, MusicalTimeSpan.Half.Dotted(1));
-            var altoG3 = new BaroquenNote(Voice.Two, Notes.G3, MusicalTimeSpan.Half.Dotted(1));
+            var altoD3 = new BaroquenNote(Instrument.Two, Notes.D3, MusicalTimeSpan.Half.Dotted(1));
+            var altoE3 = new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Half.Dotted(1));
+            var altoF3 = new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Half.Dotted(1));
+            var altoG3 = new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half.Dotted(1));
 
             var sopranoC4WithAscendingDoublePassingTone = new BaroquenNote(sopranoC4)
             {

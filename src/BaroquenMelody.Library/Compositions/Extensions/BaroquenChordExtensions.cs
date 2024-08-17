@@ -22,7 +22,7 @@ internal static class BaroquenChordExtensions
 
         foreach (var noteChoice in chordChoice.NoteChoices)
         {
-            if (chord.ContainsVoice(noteChoice.Voice))
+            if (chord.ContainsInstrument(noteChoice.Instrument))
             {
                 noteChoicesToApply.Add(noteChoice);
             }
@@ -30,8 +30,8 @@ internal static class BaroquenChordExtensions
 
         foreach (var noteChoice in noteChoicesToApply)
         {
-            var voice = noteChoice.Voice;
-            var note = chord[voice];
+            var instrument = noteChoice.Instrument;
+            var note = chord[instrument];
 
             notes.Add(note.ApplyNoteChoice(scale, noteChoice, noteTimeSpan));
         }
@@ -39,12 +39,12 @@ internal static class BaroquenChordExtensions
         return new BaroquenChord(notes);
     }
 
-    public static bool VoicesMoveInParallel(this BaroquenChord precedingChord, BaroquenChord nextChord, Voice voiceA, Voice voiceB)
+    public static bool InstrumentsMoveInParallel(this BaroquenChord precedingChord, BaroquenChord nextChord, Instrument instrumentA, Instrument insrumentB)
     {
-        var lastNoteA = precedingChord[voiceA];
-        var lastNoteB = precedingChord[voiceB];
-        var nextNoteA = nextChord[voiceA];
-        var nextNoteB = nextChord[voiceB];
+        var lastNoteA = precedingChord[instrumentA];
+        var lastNoteB = precedingChord[insrumentB];
+        var nextNoteA = nextChord[instrumentA];
+        var nextNoteB = nextChord[insrumentB];
 
         var noteMotionA = NoteMotionExtensions.FromNotes(lastNoteA, nextNoteA);
         var noteMotionB = NoteMotionExtensions.FromNotes(lastNoteB, nextNoteB);

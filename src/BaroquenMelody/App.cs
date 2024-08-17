@@ -17,7 +17,7 @@ internal sealed class App : IDisposable
 
     private readonly IState<CompositionConfigurationState> _compositionConfigurationState;
 
-    private readonly IState<VoiceConfigurationState> _voiceConfigurationState;
+    private readonly IState<InstrumentConfigurationState> _instrumentConfigurationState;
 
     private readonly IState<CompositionRuleConfigurationState> _compositionRuleConfigurationState;
 
@@ -29,7 +29,7 @@ internal sealed class App : IDisposable
         ICompositionConfigurationService compositionConfigurationService,
         IState<CompositionProgressState> compositionProgressState,
         IState<CompositionConfigurationState> compositionConfigurationState,
-        IState<VoiceConfigurationState> voiceConfigurationState,
+        IState<InstrumentConfigurationState> instrumentConfigurationState,
         IState<CompositionRuleConfigurationState> compositionRuleConfigurationState,
         IState<CompositionOrnamentationConfigurationState> compositionOrnamentationConfigurationState)
     {
@@ -38,7 +38,7 @@ internal sealed class App : IDisposable
 
         _configurator = configurator;
         _compositionConfigurationState = compositionConfigurationState;
-        _voiceConfigurationState = voiceConfigurationState;
+        _instrumentConfigurationState = instrumentConfigurationState;
         _compositionRuleConfigurationState = compositionRuleConfigurationState;
         _compositionOrnamentationConfigurationState = compositionOrnamentationConfigurationState;
 
@@ -50,7 +50,7 @@ internal sealed class App : IDisposable
     public Library.BaroquenMelody Run()
     {
         var compositionConfiguration = new CompositionConfiguration(
-            _voiceConfigurationState.Value.Aggregate,
+            _instrumentConfigurationState.Value.Aggregate,
             PhrasingConfiguration.Default,
             _compositionRuleConfigurationState.Value.Aggregate,
             _compositionOrnamentationConfigurationState.Value.Aggregate,

@@ -13,7 +13,7 @@ internal sealed class IsRootOfChord(
     public InputPolicyResult ShouldProcess(OrnamentationItem item)
     {
         var chordNumber = chordNumberIdentifier.IdentifyChordNumber(item.CurrentBeat.Chord);
-        var noteName = item.CurrentBeat[item.Voice].NoteName;
+        var noteName = item.CurrentBeat[item.Instrument].NoteName;
 
         return chordNumber switch
         {

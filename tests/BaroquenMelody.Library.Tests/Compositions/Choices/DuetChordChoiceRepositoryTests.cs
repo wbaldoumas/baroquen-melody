@@ -18,24 +18,24 @@ internal sealed class DuetChordChoiceRepositoryTests
         _mockNoteChoiceGenerator = Substitute.For<INoteChoiceGenerator>();
 
         _mockNoteChoiceGenerator
-            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.One))
+            .GenerateNoteChoices(Arg.Is<Instrument>(instrument => instrument == Instrument.One))
             .Returns(
                 new HashSet<NoteChoice>
                 {
-                    new(Voice.One, NoteMotion.Oblique, 0),
-                    new(Voice.One, NoteMotion.Ascending, 2),
-                    new(Voice.One, NoteMotion.Descending, 3)
+                    new(Instrument.One, NoteMotion.Oblique, 0),
+                    new(Instrument.One, NoteMotion.Ascending, 2),
+                    new(Instrument.One, NoteMotion.Descending, 3)
                 }
             );
 
         _mockNoteChoiceGenerator
-            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Two))
+            .GenerateNoteChoices(Arg.Is<Instrument>(instrument => instrument == Instrument.Two))
             .Returns(
                 new HashSet<NoteChoice>
                 {
-                    new(Voice.Two, NoteMotion.Oblique, 0),
-                    new(Voice.Two, NoteMotion.Ascending, 2),
-                    new(Voice.Two, NoteMotion.Descending, 3)
+                    new(Instrument.Two, NoteMotion.Oblique, 0),
+                    new(Instrument.Two, NoteMotion.Ascending, 2),
+                    new(Instrument.Two, NoteMotion.Descending, 3)
                 }
             );
     }
@@ -61,13 +61,13 @@ internal sealed class DuetChordChoiceRepositoryTests
         noteChoice.Should().BeEquivalentTo(
             new ChordChoice(
                 [
-                    new NoteChoice(Voice.One, NoteMotion.Ascending, 2),
-                    new NoteChoice(Voice.Two, NoteMotion.Descending, 3)
+                    new NoteChoice(Instrument.One, NoteMotion.Ascending, 2),
+                    new NoteChoice(Instrument.Two, NoteMotion.Descending, 3)
                 ]
             )
         );
 
-        _mockNoteChoiceGenerator.Received(2).GenerateNoteChoices(Arg.Any<Voice>());
+        _mockNoteChoiceGenerator.Received(2).GenerateNoteChoices(Arg.Any<Instrument>());
     }
 
     [Test]
@@ -101,8 +101,8 @@ internal sealed class DuetChordChoiceRepositoryTests
         var id = duetChordChoiceRepository.GetChordChoiceId(
             new ChordChoice(
                 [
-                    new NoteChoice(Voice.One, NoteMotion.Ascending, 2),
-                    new NoteChoice(Voice.Two, NoteMotion.Descending, 3)
+                    new NoteChoice(Instrument.One, NoteMotion.Ascending, 2),
+                    new NoteChoice(Instrument.Two, NoteMotion.Descending, 3)
                 ]
             )
         );

@@ -13,16 +13,16 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Policies.Input;
 
 [TestFixture]
-internal sealed class IsNextNoteIntervalWithinVoiceRangeTests
+internal sealed class IsNextNoteIntervalWithinIntstrumentRangeTests
 {
-    private IsNextNoteIntervalWithinVoiceRange _isIntervalWithinVoiceRange;
+    private IsNextNoteIntervalWithinIntstrumentRange _isIntervalWithinIntstrumentRange;
 
     [SetUp]
     public void SetUp()
     {
         var compositionConfiguration = Configurations.GetCompositionConfiguration();
 
-        _isIntervalWithinVoiceRange = new IsNextNoteIntervalWithinVoiceRange(compositionConfiguration, interval: 5);
+        _isIntervalWithinIntstrumentRange = new IsNextNoteIntervalWithinIntstrumentRange(compositionConfiguration, interval: 5);
     }
 
     [Test]
@@ -30,7 +30,7 @@ internal sealed class IsNextNoteIntervalWithinVoiceRangeTests
     public void ShouldProcess(OrnamentationItem ornamentationItem, InputPolicyResult expectedInputPolicyResult)
     {
         // act
-        var result = _isIntervalWithinVoiceRange.ShouldProcess(ornamentationItem);
+        var result = _isIntervalWithinIntstrumentRange.ShouldProcess(ornamentationItem);
 
         // assert
         result.Should().Be(expectedInputPolicyResult);
@@ -44,23 +44,23 @@ internal sealed class IsNextNoteIntervalWithinVoiceRangeTests
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.One,
+                    Instrument.One,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.G4, MusicalTimeSpan.Half)])),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C5, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.G4, MusicalTimeSpan.Half)]))
+                    new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half), new BaroquenNote(Instrument.Two, Notes.G4, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half), new BaroquenNote(Instrument.Two, Notes.G4, MusicalTimeSpan.Half)]))
                 ),
                 InputPolicyResult.Continue
-            ).SetName($"When added interval is within voice range, then {nameof(InputPolicyResult.Continue)} is returned.");
+            ).SetName($"When added interval is within instrument range, then {nameof(InputPolicyResult.Continue)} is returned.");
 
             yield return new TestCaseData(
                 new OrnamentationItem(
-                    Voice.One,
+                    Instrument.One,
                     testCompositionContext,
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C6, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.G3, MusicalTimeSpan.Half)])),
-                    new Beat(new BaroquenChord([new BaroquenNote(Voice.One, Notes.C6, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.G3, MusicalTimeSpan.Half)]))
+                    new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C6, MusicalTimeSpan.Half), new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)])),
+                    new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C6, MusicalTimeSpan.Half), new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)]))
                 ),
                 InputPolicyResult.Reject
-            ).SetName($"When added interval is not within voice range, then {nameof(InputPolicyResult.Reject)} is returned.");
+            ).SetName($"When added interval is not within instrument range, then {nameof(InputPolicyResult.Reject)} is returned.");
         }
     }
 }

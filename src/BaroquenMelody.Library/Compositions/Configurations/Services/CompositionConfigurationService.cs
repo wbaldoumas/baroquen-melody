@@ -11,7 +11,7 @@ namespace BaroquenMelody.Library.Compositions.Configurations.Services;
 internal sealed class CompositionConfigurationService(
     IOrnamentationConfigurationService compositionOrnamentationConfigurationService,
     ICompositionRuleConfigurationService compositionRuleConfigurationService,
-    IVoiceConfigurationService compositionVoiceConfigurationService,
+    IInstrumentConfigurationService compositionInstrumentConfigurationService,
     IDispatcher dispatcher
 ) : ICompositionConfigurationService
 {
@@ -37,7 +37,7 @@ internal sealed class CompositionConfigurationService(
     {
         compositionOrnamentationConfigurationService.ConfigureDefaults();
         compositionRuleConfigurationService.ConfigureDefaults();
-        compositionVoiceConfigurationService.ConfigureDefaults();
+        compositionInstrumentConfigurationService.ConfigureDefaults();
 
         dispatcher.Dispatch(new UpdateCompositionConfiguration(_defaultRootNote, _defaultMode, _defaultMeter));
     }

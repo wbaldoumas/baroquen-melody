@@ -27,16 +27,16 @@ internal sealed class AvoidOverDoublingTests
 
     private static IEnumerable<TestCaseData> TestCases()
     {
-        var sopranoC4 = new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half);
+        var sopranoC4 = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
 
-        var altoC3 = new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half);
-        var altoE3 = new BaroquenNote(Voice.Two, Notes.E3, MusicalTimeSpan.Half);
+        var altoC3 = new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half);
+        var altoE3 = new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Half);
 
-        var tenorC2 = new BaroquenNote(Voice.Three, Notes.C2, MusicalTimeSpan.Half);
-        var tenorD2 = new BaroquenNote(Voice.Three, Notes.D2, MusicalTimeSpan.Half);
+        var tenorC2 = new BaroquenNote(Instrument.Three, Notes.C2, MusicalTimeSpan.Half);
+        var tenorD2 = new BaroquenNote(Instrument.Three, Notes.D2, MusicalTimeSpan.Half);
 
-        var bassC1 = new BaroquenNote(Voice.Four, Notes.C1, MusicalTimeSpan.Half);
-        var bassF1 = new BaroquenNote(Voice.Four, Notes.F1, MusicalTimeSpan.Half);
+        var bassC1 = new BaroquenNote(Instrument.Four, Notes.C1, MusicalTimeSpan.Half);
+        var bassF1 = new BaroquenNote(Instrument.Four, Notes.F1, MusicalTimeSpan.Half);
 
         var duetChordWithDuplicateNotes = new BaroquenChord([sopranoC4, altoC3]);
         var duetChordWithDifferingNotes = new BaroquenChord([sopranoC4, altoE3]);

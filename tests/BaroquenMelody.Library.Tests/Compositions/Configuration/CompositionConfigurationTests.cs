@@ -21,12 +21,12 @@ internal sealed class CompositionConfigurationTests
     public void SetUp()
     {
         _compositionConfiguration = new CompositionConfiguration(
-            new HashSet<VoiceConfiguration>
+            new HashSet<InstrumentConfiguration>
             {
-                new(Voice.One, MinSopranoPitch.ToNote(), MaxSopranoPitch.ToNote()),
-                new(Voice.Two, 48.ToNote(), 60.ToNote()),
-                new(Voice.Three, 36.ToNote(), 48.ToNote()),
-                new(Voice.Four, 24.ToNote(), 36.ToNote())
+                new(Instrument.One, MinSopranoPitch.ToNote(), MaxSopranoPitch.ToNote()),
+                new(Instrument.Two, 48.ToNote(), 60.ToNote()),
+                new(Instrument.Three, 36.ToNote(), 48.ToNote()),
+                new(Instrument.Four, 24.ToNote(), 36.ToNote())
             },
             PhrasingConfiguration.Default,
             AggregateCompositionRuleConfiguration.Default,
@@ -39,19 +39,19 @@ internal sealed class CompositionConfigurationTests
     }
 
     [Test]
-    [TestCase(Voice.One, MaxSopranoPitch + 1, false)]
-    [TestCase(Voice.One, MinSopranoPitch - 1, false)]
-    [TestCase(Voice.One, MaxSopranoPitch, true)]
-    [TestCase(Voice.One, MinSopranoPitch, true)]
-    [TestCase(Voice.One, MaxSopranoPitch - 1, true)]
-    [TestCase(Voice.One, MinSopranoPitch + 1, true)]
-    public void IsPitchInVoiceRange_returns_expected_result(
-        Voice voice,
+    [TestCase(Instrument.One, MaxSopranoPitch + 1, false)]
+    [TestCase(Instrument.One, MinSopranoPitch - 1, false)]
+    [TestCase(Instrument.One, MaxSopranoPitch, true)]
+    [TestCase(Instrument.One, MinSopranoPitch, true)]
+    [TestCase(Instrument.One, MaxSopranoPitch - 1, true)]
+    [TestCase(Instrument.One, MinSopranoPitch + 1, true)]
+    public void IsNoteInInstrumentRange_returns_expected_result(
+        Instrument instrument,
         byte pitch,
-        bool expectedPitchIsInVoiceRange)
+        bool expectedNoteIsInInstrumentRange)
     {
-        var isPitchInVoiceRange = _compositionConfiguration.IsNoteInVoiceRange(voice, pitch.ToNote());
+        var isNoteInInstrumentRange = _compositionConfiguration.IsNoteInInstrumentRange(instrument, pitch.ToNote());
 
-        isPitchInVoiceRange.Should().Be(expectedPitchIsInVoiceRange);
+        isNoteInInstrumentRange.Should().Be(expectedNoteIsInInstrumentRange);
     }
 }

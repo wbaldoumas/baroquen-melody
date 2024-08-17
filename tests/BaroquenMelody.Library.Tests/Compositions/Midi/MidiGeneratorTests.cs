@@ -27,26 +27,26 @@ internal sealed class MidiGeneratorTests
     public void Generate_returns_midi_file_as_expected()
     {
         // arrange
-        var sopranoWithMidSustain = new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half)
+        var sopranoWithMidSustain = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.MidSustain
         };
 
-        var altoWithRest = new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+        var altoWithRest = new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.Rest
         };
 
-        var sopranoWithPassingTone = new BaroquenNote(Voice.One, Notes.D4, MusicalTimeSpan.Half)
+        var sopranoWithPassingTone = new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.PassingTone,
-            Ornamentations = { new BaroquenNote(Voice.One, Notes.C4, MusicalTimeSpan.Half) }
+            Ornamentations = { new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half) }
         };
 
-        var altoWithDoubleTurn = new BaroquenNote(Voice.Two, Notes.C3, MusicalTimeSpan.Half)
+        var altoWithDoubleTurn = new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
         {
             OrnamentationType = OrnamentationType.DoubleTurn,
-            Ornamentations = { new BaroquenNote(Voice.Two, Notes.B3, MusicalTimeSpan.Half), new BaroquenNote(Voice.Two, Notes.D4, MusicalTimeSpan.Half) }
+            Ornamentations = { new BaroquenNote(Instrument.Two, Notes.B3, MusicalTimeSpan.Half), new BaroquenNote(Instrument.Two, Notes.D4, MusicalTimeSpan.Half) }
         };
 
         var composition = new Composition(
@@ -68,6 +68,6 @@ internal sealed class MidiGeneratorTests
 
         // assert
         midiFile.Should().NotBeNull();
-        midiFile.Chunks.Should().HaveCount(2, "because there are two voices");
+        midiFile.Chunks.Should().HaveCount(2, "because there are two instruments");
     }
 }

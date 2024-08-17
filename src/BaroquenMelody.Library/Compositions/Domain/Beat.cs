@@ -8,9 +8,9 @@ namespace BaroquenMelody.Library.Compositions.Domain;
 /// <param name="Chord"> The chord that is played during the beat. </param>
 internal sealed record Beat(BaroquenChord Chord)
 {
-    public BaroquenNote this[Voice voice] => Chord[voice];
+    public BaroquenNote this[Instrument instrument] => Chord[instrument];
 
-    public bool ContainsVoice(Voice voice) => Chord.ContainsVoice(voice);
+    public bool ContainsInstrument(Instrument instrument) => Chord.ContainsInstrument(instrument);
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="Beat"/> class.

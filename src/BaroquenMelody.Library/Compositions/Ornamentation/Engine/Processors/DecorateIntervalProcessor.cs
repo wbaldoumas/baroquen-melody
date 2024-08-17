@@ -16,7 +16,7 @@ internal sealed class DecorateIntervalProcessor(
 
     public void Process(OrnamentationItem item)
     {
-        var currentNote = item.CurrentBeat[item.Voice];
+        var currentNote = item.CurrentBeat[item.Instrument];
         var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
         var notes = compositionConfiguration.Scale.GetNotes();
 
@@ -30,7 +30,7 @@ internal sealed class DecorateIntervalProcessor(
 
         foreach (var ornamentation in ornamentationNotes)
         {
-            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, ornamentation, ornamentationTimeSpan));
+            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Instrument, ornamentation, ornamentationTimeSpan));
         }
 
         currentNote.OrnamentationType = OrnamentationType.DecorateInterval;

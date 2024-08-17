@@ -17,7 +17,7 @@ internal sealed class NeighborToneProcessor(
 {
     public void Process(OrnamentationItem item)
     {
-        var currentNote = item.CurrentBeat[item.Voice];
+        var currentNote = item.CurrentBeat[item.Instrument];
         var currentNoteScaleIndex = compositionConfiguration.Scale.IndexOf(currentNote);
 
         var nextNoteScaleIndex = weightedRandomBooleanGenerator.IsTrue() ? currentNoteScaleIndex + 1 : currentNoteScaleIndex - 1;
@@ -25,7 +25,7 @@ internal sealed class NeighborToneProcessor(
         var notes = compositionConfiguration.Scale.GetNotes();
         var nextNote = notes[nextNoteScaleIndex];
 
-        var ornamentationNote = new BaroquenNote(item.Voice, nextNote, musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter));
+        var ornamentationNote = new BaroquenNote(item.Instrument, nextNote, musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter));
 
         currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, compositionConfiguration.Meter);
         currentNote.OrnamentationType = ornamentationType;

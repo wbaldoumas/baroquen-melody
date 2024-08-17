@@ -3,7 +3,7 @@
 <MudCard Elevation="3" Class="my-2">
     <MudCardHeader>
         <CardHeaderContent>
-            <MudText>Voice @Voice</MudText>
+            <MudText>Instrument @Instrument</MudText>
         </CardHeaderContent>
     </MudCardHeader>
     <MudCardContent>
@@ -25,7 +25,7 @@
                 </MudSelect>
             </MudItem>
             <MudItem xs="12" md="6">
-                <MudSelect ValueChanged="HandleInstrumentChange" Value="Instrument" Label="Instrument" T="GeneralMidi2Program">
+                <MudSelect ValueChanged="HandleMidiInstrumentChange" Value="MidiInstrument" Label="MidiProgram" T="GeneralMidi2Program">
                     @foreach (var instrument in EnumUtils<GeneralMidi2Program>.AsEnumerable())
                     {
                         <MudSelectItem Value="instrument">@instrument</MudSelectItem>
@@ -41,23 +41,23 @@
 
 @code
 {
-    [Parameter, EditorRequired] public Voice Voice { get; set; }
+    [Parameter, EditorRequired] public Instrument Instrument { get; set; }
 
-    private Note MinNote => VoiceConfigurationState.Value[Voice]?.MinNote ?? Notes.C3;
+    private Note MinNote => InstrumentConfigurationState.Value[Instrument]?.MinNote ?? Notes.C3;
 
-    private Note MaxNote => VoiceConfigurationState.Value[Voice]?.MaxNote ?? Notes.C6;
+    private Note MaxNote => InstrumentConfigurationState.Value[Instrument]?.MaxNote ?? Notes.C6;
 
-    private GeneralMidi2Program Instrument => VoiceConfigurationState.Value[Voice]?.Instrument ?? GeneralMidi2Program.AcousticGrandPiano;
+    private GeneralMidi2Program MidiInstrument => InstrumentConfigurationState.Value[Instrument]?.MidiProgram ?? GeneralMidi2Program.AcousticGrandPiano;
 
-    private bool IsEnabled => VoiceConfigurationState.Value[Voice]?.IsEnabled ?? false;
+    private bool IsEnabled => InstrumentConfigurationState.Value[Instrument]?.IsEnabled ?? false;
 
     private static IEnumerable<Note> GetNotes() => Enumerable.Range(0, 127).Select(noteNumber => Note.Get((SevenBitNumber)noteNumber));
 
-    private void HandleMinNoteChange(Note note) => Dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice, note, MaxNote, Instrument, IsEnabled));
+    private void HandleMinNoteChange(Note note) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, note, MaxNote, MidiInstrument, IsEnabled));
 
-    private void HandleMaxNoteChange(Note note) => Dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice, MinNote, note, Instrument, IsEnabled));
+    private void HandleMaxNoteChange(Note note) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, MinNote, note, MidiInstrument, IsEnabled));
 
-    private void HandleInstrumentChange(GeneralMidi2Program instrument) => Dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice, MinNote, MaxNote, instrument, IsEnabled));
+    private void HandleMidiInstrumentChange(GeneralMidi2Program instrument) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, MinNote, MaxNote, instrument, IsEnabled));
 
-    private void HandleIsEnabledChange(bool isEnabled) => Dispatcher.Dispatch(new UpdateVoiceConfiguration(Voice, MinNote, MaxNote, Instrument, isEnabled));
+    private void HandleIsEnabledChange(bool isEnabled) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, MinNote, MaxNote, MidiInstrument, isEnabled));
 }

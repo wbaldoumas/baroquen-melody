@@ -8,7 +8,7 @@ namespace BaroquenMelody.Library.Compositions.Choices;
 /// <inheritdoc cref="IChordChoiceRepository"/>
 internal sealed class QuartetChordChoiceRepository : IChordChoiceRepository
 {
-    public const int NumberOfVoices = 4;
+    public const int NumberOfInstruments = 4;
 
     private readonly LazyCartesianProduct<NoteChoice, NoteChoice, NoteChoice, NoteChoice> _noteChoices;
 
@@ -16,24 +16,24 @@ internal sealed class QuartetChordChoiceRepository : IChordChoiceRepository
         CompositionConfiguration configuration,
         INoteChoiceGenerator noteChoiceGenerator)
     {
-        if (configuration.VoiceConfigurations.Count != NumberOfVoices)
+        if (configuration.InstrumentConfigurations.Count != NumberOfInstruments)
         {
             throw new ArgumentException(
-                "The composition configuration must contain exactly four voice configurations.",
+                "The composition configuration must contain exactly four instrument configurations.",
                 nameof(configuration)
             );
         }
 
-        var noteChoicesForVoices = configuration.VoiceConfigurations
-            .OrderBy(static voiceConfiguration => voiceConfiguration.Voice)
-            .Select(voiceConfiguration => noteChoiceGenerator.GenerateNoteChoices(voiceConfiguration.Voice))
+        var noteChoicesForInstruments = configuration.InstrumentConfigurations
+            .OrderBy(static instrumentConfiguration => instrumentConfiguration.Instrument)
+            .Select(instrumentConfiguration => noteChoiceGenerator.GenerateNoteChoices(instrumentConfiguration.Instrument))
             .ToList();
 
         _noteChoices = new LazyCartesianProduct<NoteChoice, NoteChoice, NoteChoice, NoteChoice>(
-            [.. noteChoicesForVoices[0]],
-            [.. noteChoicesForVoices[1]],
-            [.. noteChoicesForVoices[2]],
-            [.. noteChoicesForVoices[3]]
+            [.. noteChoicesForInstruments[0]],
+            [.. noteChoicesForInstruments[1]],
+            [.. noteChoicesForInstruments[2]],
+            [.. noteChoicesForInstruments[3]]
         );
     }
 

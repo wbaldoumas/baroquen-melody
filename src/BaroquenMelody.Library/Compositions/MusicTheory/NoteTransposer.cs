@@ -7,26 +7,26 @@ namespace BaroquenMelody.Library.Compositions.MusicTheory;
 /// <inheritdoc cref="INoteTransposer"/>
 internal sealed class NoteTransposer(CompositionConfiguration compositionConfiguration) : INoteTransposer
 {
-    public IEnumerable<BaroquenNote> TransposeToVoice(IEnumerable<BaroquenNote> notesToTranspose, Voice currentVoice, Voice targetVoice)
+    public IEnumerable<BaroquenNote> TransposeToInstrument(IEnumerable<BaroquenNote> notesToTranspose, Instrument sourceInstrument, Instrument targetInstrument)
     {
-        var currentVoiceConfiguration = compositionConfiguration.VoiceConfigurationsByVoice[currentVoice];
-        var targetVoiceConfiguration = compositionConfiguration.VoiceConfigurationsByVoice[targetVoice];
+        var sourceInstrumentConfiguration = compositionConfiguration.InstrumentConfigurationsByInstrument[sourceInstrument];
+        var targetInstrumentConfiguration = compositionConfiguration.InstrumentConfigurationsByInstrument[targetInstrument];
 
         var notes = compositionConfiguration.Scale.GetNotes();
 
-        var currentVoiceMinNoteIndex = notes.IndexOf(currentVoiceConfiguration.MinNote);
-        var currentVoiceMaxNoteIndex = notes.IndexOf(currentVoiceConfiguration.MaxNote);
-        var targetVoiceMinNoteIndex = notes.IndexOf(targetVoiceConfiguration.MinNote);
-        var targetVoiceMaxNoteIndex = notes.IndexOf(targetVoiceConfiguration.MaxNote);
+        var currentInstrumentMinNoteIndex = notes.IndexOf(sourceInstrumentConfiguration.MinNote);
+        var currentInstrumentMaxNoteIndex = notes.IndexOf(sourceInstrumentConfiguration.MaxNote);
+        var targetInstrumentMinNoteIndex = notes.IndexOf(targetInstrumentConfiguration.MinNote);
+        var targetInstrumentMaxNoteIndex = notes.IndexOf(targetInstrumentConfiguration.MaxNote);
 
         var transposedNotes = new List<BaroquenNote>();
 
         foreach (var noteToTranspose in notesToTranspose)
         {
             var noteToTransposeNoteIndex = notes.IndexOf(noteToTranspose.Raw);
-            var transposedNoteIndex = Transpose(currentVoiceMinNoteIndex, currentVoiceMaxNoteIndex, targetVoiceMinNoteIndex, targetVoiceMaxNoteIndex, noteToTransposeNoteIndex);
+            var transposedNoteIndex = Transpose(currentInstrumentMinNoteIndex, currentInstrumentMaxNoteIndex, targetInstrumentMinNoteIndex, targetInstrumentMaxNoteIndex, noteToTransposeNoteIndex);
 
-            var transposedNote = new BaroquenNote(targetVoice, notes[transposedNoteIndex], noteToTranspose.MusicalTimeSpan)
+            var transposedNote = new BaroquenNote(targetInstrument, notes[transposedNoteIndex], noteToTranspose.MusicalTimeSpan)
             {
                 OrnamentationType = noteToTranspose.OrnamentationType
             };
@@ -34,9 +34,9 @@ internal sealed class NoteTransposer(CompositionConfiguration compositionConfigu
             foreach (var ornamentedNote in noteToTranspose.Ornamentations)
             {
                 var ornamentedNoteIndex = notes.IndexOf(ornamentedNote.Raw);
-                var transposedOrnamentedNoteIndex = Transpose(currentVoiceMinNoteIndex, currentVoiceMaxNoteIndex, targetVoiceMinNoteIndex, targetVoiceMaxNoteIndex, ornamentedNoteIndex);
+                var transposedOrnamentedNoteIndex = Transpose(currentInstrumentMinNoteIndex, currentInstrumentMaxNoteIndex, targetInstrumentMinNoteIndex, targetInstrumentMaxNoteIndex, ornamentedNoteIndex);
 
-                var newOrnamentedNote = new BaroquenNote(targetVoice, notes[transposedOrnamentedNoteIndex], ornamentedNote.MusicalTimeSpan)
+                var newOrnamentedNote = new BaroquenNote(targetInstrument, notes[transposedOrnamentedNoteIndex], ornamentedNote.MusicalTimeSpan)
                 {
                     OrnamentationType = ornamentedNote.OrnamentationType
                 };

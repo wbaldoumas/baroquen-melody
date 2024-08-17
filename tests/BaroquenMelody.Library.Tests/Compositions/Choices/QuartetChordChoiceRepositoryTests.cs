@@ -18,46 +18,46 @@ internal sealed class QuartetChordChoiceRepositoryTests
         _mockNoteChoiceGenerator = Substitute.For<INoteChoiceGenerator>();
 
         _mockNoteChoiceGenerator
-            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.One))
+            .GenerateNoteChoices(Arg.Is<Instrument>(instrument => instrument == Instrument.One))
             .Returns(
                 new HashSet<NoteChoice>
                 {
-                    new(Voice.One, NoteMotion.Oblique, 0),
-                    new(Voice.One, NoteMotion.Ascending, 2),
-                    new(Voice.One, NoteMotion.Descending, 3)
+                    new(Instrument.One, NoteMotion.Oblique, 0),
+                    new(Instrument.One, NoteMotion.Ascending, 2),
+                    new(Instrument.One, NoteMotion.Descending, 3)
                 }
             );
 
         _mockNoteChoiceGenerator
-            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Two))
+            .GenerateNoteChoices(Arg.Is<Instrument>(instrument => instrument == Instrument.Two))
             .Returns(
                 new HashSet<NoteChoice>
                 {
-                    new(Voice.Two, NoteMotion.Oblique, 0),
-                    new(Voice.Two, NoteMotion.Ascending, 2),
-                    new(Voice.Two, NoteMotion.Descending, 3)
+                    new(Instrument.Two, NoteMotion.Oblique, 0),
+                    new(Instrument.Two, NoteMotion.Ascending, 2),
+                    new(Instrument.Two, NoteMotion.Descending, 3)
                 }
             );
 
         _mockNoteChoiceGenerator
-            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Three))
+            .GenerateNoteChoices(Arg.Is<Instrument>(instrument => instrument == Instrument.Three))
             .Returns(
                 new HashSet<NoteChoice>
                 {
-                    new(Voice.Three, NoteMotion.Oblique, 0),
-                    new(Voice.Three, NoteMotion.Ascending, 2),
-                    new(Voice.Three, NoteMotion.Descending, 3)
+                    new(Instrument.Three, NoteMotion.Oblique, 0),
+                    new(Instrument.Three, NoteMotion.Ascending, 2),
+                    new(Instrument.Three, NoteMotion.Descending, 3)
                 }
             );
 
         _mockNoteChoiceGenerator
-            .GenerateNoteChoices(Arg.Is<Voice>(voice => voice == Voice.Four))
+            .GenerateNoteChoices(Arg.Is<Instrument>(instrument => instrument == Instrument.Four))
             .Returns(
                 new HashSet<NoteChoice>
                 {
-                    new(Voice.Four, NoteMotion.Oblique, 0),
-                    new(Voice.Four, NoteMotion.Ascending, 2),
-                    new(Voice.Four, NoteMotion.Descending, 3)
+                    new(Instrument.Four, NoteMotion.Oblique, 0),
+                    new(Instrument.Four, NoteMotion.Ascending, 2),
+                    new(Instrument.Four, NoteMotion.Descending, 3)
                 }
             );
     }
@@ -83,15 +83,15 @@ internal sealed class QuartetChordChoiceRepositoryTests
         noteChoice.Should().BeEquivalentTo(
             new ChordChoice(
                 [
-                    new NoteChoice(Voice.One, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Two, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Three, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Four, NoteMotion.Ascending, 2)
+                    new NoteChoice(Instrument.One, NoteMotion.Oblique, 0),
+                    new NoteChoice(Instrument.Two, NoteMotion.Oblique, 0),
+                    new NoteChoice(Instrument.Three, NoteMotion.Oblique, 0),
+                    new NoteChoice(Instrument.Four, NoteMotion.Ascending, 2)
                 ]
             )
         );
 
-        _mockNoteChoiceGenerator.Received(4).GenerateNoteChoices(Arg.Any<Voice>());
+        _mockNoteChoiceGenerator.Received(4).GenerateNoteChoices(Arg.Any<Instrument>());
     }
 
     [Test]
@@ -125,10 +125,10 @@ internal sealed class QuartetChordChoiceRepositoryTests
         var id = quartetChordChoiceRepository.GetChordChoiceId(
             new ChordChoice(
                 [
-                    new NoteChoice(Voice.One, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Two, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Three, NoteMotion.Oblique, 0),
-                    new NoteChoice(Voice.Four, NoteMotion.Ascending, 2)
+                    new NoteChoice(Instrument.One, NoteMotion.Oblique, 0),
+                    new NoteChoice(Instrument.Two, NoteMotion.Oblique, 0),
+                    new NoteChoice(Instrument.Three, NoteMotion.Oblique, 0),
+                    new NoteChoice(Instrument.Four, NoteMotion.Ascending, 2)
                 ]
             )
         );

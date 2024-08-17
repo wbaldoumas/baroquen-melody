@@ -15,8 +15,8 @@ internal sealed class TurnProcessor(
 
     public void Process(OrnamentationItem item)
     {
-        var currentNote = item.CurrentBeat[item.Voice];
-        var nextNote = item.NextBeat![item.Voice];
+        var currentNote = item.CurrentBeat[item.Instrument];
+        var nextNote = item.NextBeat![item.Instrument];
 
         var currentNoteIndex = compositionConfiguration.Scale.IndexOf(currentNote);
         var nextNoteIndex = compositionConfiguration.Scale.IndexOf(nextNote);
@@ -37,7 +37,7 @@ internal sealed class TurnProcessor(
 
         foreach (var note in ornamentationNotes)
         {
-            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Voice, note, ornamentationTimeSpan));
+            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Instrument, note, ornamentationTimeSpan));
         }
 
         currentNote.OrnamentationType = OrnamentationType.Turn;

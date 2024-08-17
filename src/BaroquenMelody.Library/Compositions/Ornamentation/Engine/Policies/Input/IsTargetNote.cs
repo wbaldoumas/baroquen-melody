@@ -5,5 +5,5 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Inpu
 
 internal sealed class IsTargetNote(NoteName noteName) : IInputPolicy<OrnamentationItem>
 {
-    public InputPolicyResult ShouldProcess(OrnamentationItem item) => item.CurrentBeat[item.Voice].NoteName == noteName ? InputPolicyResult.Continue : InputPolicyResult.Reject;
+    public InputPolicyResult ShouldProcess(OrnamentationItem item) => item.CurrentBeat[item.Instrument].NoteName == noteName ? InputPolicyResult.Continue : InputPolicyResult.Reject;
 }

@@ -14,7 +14,7 @@ public class AggregateCompositionRuleBenchmarks
     private static readonly AggregateCompositionRule AggregateCompositionRule = new(
         [
             new HandleAscendingSeventh(BenchmarkData.CompositionConfiguration),
-            new EnsureVoiceRange(BenchmarkData.CompositionConfiguration),
+            new EnsureInstrumentRange(BenchmarkData.CompositionConfiguration),
             new AvoidDissonance(),
             new AvoidDissonantLeaps(BenchmarkData.CompositionConfiguration),
             new AvoidRepetition(),

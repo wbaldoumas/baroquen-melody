@@ -48,23 +48,23 @@ internal sealed class ThemeComposer(
         var initialMeasures = ComposeInitialMeasures();
         var initialComposition = new Composition(initialMeasures);
 
-        var voices = compositionConfiguration.VoiceConfigurations
-            .OrderByDescending(static voiceConfiguration => voiceConfiguration.MinNote)
-            .Select(static voiceConfiguration => voiceConfiguration.Voice)
+        var instruments = compositionConfiguration.InstrumentConfigurations
+            .OrderByDescending(static instrumentConfiguration => instrumentConfiguration.MinNote)
+            .Select(static instrumentConfiguration => instrumentConfiguration.Instrument)
             .ToList();
 
-        var fugueSubjectVoice = voices[0];
+        var fugueSubjectInstrument = instruments[0];
 
-        compositionDecorator.Decorate(initialComposition, fugueSubjectVoice);
+        compositionDecorator.Decorate(initialComposition, fugueSubjectInstrument);
 
         var fugueSubject = initialComposition.Measures
             .SelectMany(static measure => measure.Beats)
-            .Select(beat => beat.Chord[fugueSubjectVoice])
+            .Select(beat => beat.Chord[fugueSubjectInstrument])
             .ToList();
 
         var workingChords = initialComposition.Measures.SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord)).ToList();
 
-        workingChords = ContinueFugueSubject(fugueSubject, fugueSubjectVoice, workingChords, voices);
+        workingChords = ContinueFugueSubject(fugueSubject, fugueSubjectInstrument, workingChords, instruments);
 
         if (workingChords.Count == 0)
         {
@@ -72,7 +72,7 @@ internal sealed class ThemeComposer(
             return false;
         }
 
-        theme = StripVoicesFromFugueSubject(workingChords, voices);
+        theme = StripInstrumentsFromFugueSubject(workingChords, instruments);
 
         return true;
     }
@@ -97,16 +97,16 @@ internal sealed class ThemeComposer(
         };
     }
 
-    private List<BaroquenChord> ContinueFugueSubject(List<BaroquenNote> fugueSubject, Voice fugueSubjectVoice, List<BaroquenChord> workingChords, List<Voice> voices)
+    private List<BaroquenChord> ContinueFugueSubject(List<BaroquenNote> fugueSubject, Instrument fugueSubjectInstrument, List<BaroquenChord> workingChords, List<Instrument> instruments)
     {
-        var processedVoices = new List<Voice> { fugueSubjectVoice };
+        var processedInstruments = new List<Instrument> { fugueSubjectInstrument };
 
-        foreach (var voice in voices.Where(voice => voice != fugueSubjectVoice))
+        foreach (var instrument in instruments.Where(instrument => instrument != fugueSubjectInstrument))
         {
             var precedingChord = workingChords[^1];
             var nextChords = new List<BaroquenChord>();
 
-            var transposedSubjectChords = noteTransposer.TransposeToVoice(fugueSubject, fugueSubjectVoice, voice)
+            var transposedSubjectChords = noteTransposer.TransposeToInstrument(fugueSubject, fugueSubjectInstrument, instrument)
                 .Select(static note => new BaroquenChord([note]))
                 .ToList();
 
@@ -120,8 +120,8 @@ internal sealed class ThemeComposer(
                 }
 
                 var nextChord = possibleChords.OrderBy(static _ => ThreadLocalRandom.Next()).First();
-                var transposedSubjectNote = transposedSubjectChord[voice];
-                var otherNotes = nextChord.Notes.Where(note => note.Voice != voice).ToList();
+                var transposedSubjectNote = transposedSubjectChord[instrument];
+                var otherNotes = nextChord.Notes.Where(note => note.Instrument != instrument).ToList();
                 var workingChord = new BaroquenChord([.. otherNotes, transposedSubjectNote]);
 
                 nextChords.Add(workingChord);
@@ -130,28 +130,28 @@ internal sealed class ThemeComposer(
 
             var tempComposition = new Composition([new Measure(nextChords.Select(static chord => new Beat(chord)).ToList(), compositionConfiguration.Meter)]);
 
-            foreach (var processedVoice in processedVoices)
+            foreach (var processedInstrument in processedInstruments)
             {
-                compositionDecorator.Decorate(tempComposition, processedVoice);
+                compositionDecorator.Decorate(tempComposition, processedInstrument);
             }
 
             workingChords.AddRange(tempComposition.Measures.SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord)));
-            processedVoices.Add(voice);
+            processedInstruments.Add(instrument);
         }
 
         return workingChords;
     }
 
-    private BaroquenTheme StripVoicesFromFugueSubject(List<BaroquenChord> workingChords, List<Voice> voices)
+    private BaroquenTheme StripInstrumentsFromFugueSubject(List<BaroquenChord> workingChords, List<Instrument> instruments)
     {
         var beatIndex = 0;
         var expositionMeasures = new List<Measure>();
         var recapitulationMeasures = new List<Measure>();
-        var inProcessVoices = new List<Voice>();
+        var inProcessInstruments = new List<Instrument>();
 
-        foreach (var voice in voices)
+        foreach (var instrument in instruments)
         {
-            inProcessVoices.Add(voice);
+            inProcessInstruments.Add(instrument);
 
             var beats = workingChords
                 .Skip(beatIndex)
@@ -160,7 +160,7 @@ internal sealed class ThemeComposer(
                 .ToList();
 
             var strippedBeats = beats
-                .Select(beat => new BaroquenChord(beat.Chord.Notes.Where(note => inProcessVoices.Contains(note.Voice)).ToList()))
+                .Select(beat => new BaroquenChord(beat.Chord.Notes.Where(note => inProcessInstruments.Contains(note.Instrument)).ToList()))
                 .Select(static newChord => new Beat(newChord))
                 .ToList();
 

@@ -10,15 +10,15 @@ namespace BaroquenMelody.Library.Compositions.Domain;
 /// <summary>
 ///    Represents a note in a composition.
 /// </summary>
-/// <param name="voice">The voice that the note is played in.</param>
+/// <param name="instrument">The instrument that the note is played by.</param>
 /// <param name="raw">The raw note that is played.</param>
 /// <param name="musicalTimeSpan">The musical time span of the note. May be modified if the note is ornamented.</param>
-public sealed class BaroquenNote(Voice voice, Note raw, MusicalTimeSpan musicalTimeSpan) : IEquatable<BaroquenNote>
+public sealed class BaroquenNote(Instrument instrument, Note raw, MusicalTimeSpan musicalTimeSpan) : IEquatable<BaroquenNote>
 {
     /// <summary>
-    ///     The voice that the note is played in.
+    ///     The instrument that the note is played by.
     /// </summary>
-    public Voice Voice { get; } = voice;
+    public Instrument Instrument { get; } = instrument;
 
     /// <summary>
     ///     The raw note that is played.
@@ -60,7 +60,7 @@ public sealed class BaroquenNote(Voice voice, Note raw, MusicalTimeSpan musicalT
     /// </summary>
     /// <param name="note">The note to copy.</param>
     public BaroquenNote(BaroquenNote note)
-        : this(note.Voice, note.Raw, note.MusicalTimeSpan)
+        : this(note.Instrument, note.Raw, note.MusicalTimeSpan)
     {
         Ornamentations = note.Ornamentations.Select(ornamentation => new BaroquenNote(ornamentation)).ToList();
         OrnamentationType = note.OrnamentationType;
@@ -94,7 +94,7 @@ public sealed class BaroquenNote(Voice voice, Note raw, MusicalTimeSpan musicalT
             return true;
         }
 
-        return Voice == other.Voice &&
+        return Instrument == other.Instrument &&
                Raw == other.Raw &&
                MusicalTimeSpan == other.MusicalTimeSpan &&
                Ornamentations.SequenceEqual(other.Ornamentations);
