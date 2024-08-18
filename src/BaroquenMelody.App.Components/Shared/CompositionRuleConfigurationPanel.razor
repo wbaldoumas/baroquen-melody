@@ -1,8 +1,8 @@
-﻿<MudExpansionPanels>
-    <MudExpansionPanel Text="Composition Rules">
-        @foreach (var compositionRule in CompositionRuleConfigurationService.ConfigurableCompositionRules)
-        {
-            <CompositionRuleConfigurationCard CompositionRule="compositionRule"/>
-        }
-    </MudExpansionPanel>
-</MudExpansionPanels>
+﻿<RandomizeResetButtonGroup />
+@foreach (var compositionRule in CompositionRuleConfigurationService.ConfigurableCompositionRules)
+{
+    <CompositionRuleConfigurationCard CompositionRule="compositionRule"/>
+}
+<MudScrollToTop>
+    <MudFab Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.KeyboardArrowUp" />
+</MudScrollToTop>

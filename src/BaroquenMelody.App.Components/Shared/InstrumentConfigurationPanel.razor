@@ -1,8 +1,8 @@
-﻿<MudExpansionPanels>
-    <MudExpansionPanel Text="Instrument Configurations">
-        @foreach (var instrument in InstrumentConfigurationService.ConfigurableInstruments)
-        {
-            <InstrumentConfigurationCard Instrument="instrument"/>
-        }
-    </MudExpansionPanel>
-</MudExpansionPanels>
+﻿<RandomizeResetButtonGroup />
+@foreach (var instrument in InstrumentConfigurationService.ConfigurableInstruments)
+{
+    <InstrumentConfigurationCard Instrument="instrument"/>
+}
+<MudScrollToTop>
+    <MudFab Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.KeyboardArrowUp" />
+</MudScrollToTop>

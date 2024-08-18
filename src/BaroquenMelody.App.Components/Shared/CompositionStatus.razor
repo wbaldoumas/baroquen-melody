@@ -1,0 +1,13 @@
+﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+<MudGrid Class="my-3" Justify="Justify.Center">
+    <MudItem xs="11" sm="11" md="11" lg="11" xl="11" xxl="11">
+        <MudText>Composition Status: @CompositionProgressState.Value.CurrentStep</MudText>
+    </MudItem>
+    @if (CompositionProgressState.Value.CurrentStep != CompositionStep.Waiting && CompositionProgressState.Value.CurrentStep != CompositionStep.Complete)
+    {
+        <MudItem xs="11" sm="11" md="11" lg="11" xl="11" xxl="11">
+            <MudProgressLinear Color="Color.Primary" Striped="true" Size="Size.Large" Indeterminate="true"/>
+        </MudItem>
+    }
+</MudGrid>

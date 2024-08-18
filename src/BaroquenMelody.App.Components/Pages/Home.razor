@@ -1,21 +1,84 @@
 ﻿@page "/"
 
-<MudContainer MaxWidth="MaxWidth.False">
-    <MudGrid Spacing="3">
-        <MudItem xs="12" md="12">
-            <CompositionConfigurationPanel/>
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+<PageTitle>Home</PageTitle>
+
+<MudContainer>
+    <MudGrid Class="mb-2" Justify="Justify.FlexEnd" Spacing="1">
+        <MudItem >
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Folder" IconColor="Color.Primary">Load Configuration</MudButton>
         </MudItem>
-        <MudItem xs="12" md="12">
-            <InstrumentConfigurationPanel/>
-        </MudItem>
-        <MudItem xs="12" md="12">
-            <CompositionRuleConfigurationPanel />
-        </MudItem>
-        <MudItem xs="12" md="12">
-            <OrnamentationConfigurationPanel />
-        </MudItem>
-        <MudItem xs="12" md="12">
-            <InitiateCompositionCard />
+        <MudItem >
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" IconColor="Color.Secondary">Save Configuration</MudButton>
+        </MudItem >
+        <MudItem >
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.ElectricBolt" Color="Color.Tertiary" OnClick="Compose">Compose</MudButton>
         </MudItem>
     </MudGrid>
+    <MudTabs Outlined="true"
+             Rounded="true"
+             Elevation="3"
+             Centered="true"
+             ApplyEffectsToContainer="true"
+             IconColor="Color.Secondary"
+             Border="true"
+             SliderAnimation="true"
+             @ref="_tabs">
+        <MudTabPanel Text="General" Icon="@Icons.Material.Outlined.Settings">
+            <CompositionConfigurationPanel/>
+        </MudTabPanel>
+        <MudTabPanel Text="Instrumentation" Icon="@Icons.Material.Outlined.Piano">
+            <InstrumentConfigurationPanel/>
+        </MudTabPanel>
+        <MudTabPanel Text="Rules" Icon="@Icons.Material.Outlined.Rule">
+            <CompositionRuleConfigurationPanel/>
+        </MudTabPanel>
+        <MudTabPanel Text="Ornamentation" Icon="@Icons.Material.Outlined.AutoAwesome">
+            <OrnamentationConfigurationPanel/>
+        </MudTabPanel>
+        <MudTabPanel @ref="_compositionTab" Text="Composition" Icon="@Icons.Material.Outlined.MusicNote">
+            <CompositionStatus/>
+        </MudTabPanel>
+    </MudTabs>
 </MudContainer>
+
+@code {
+    private MudTabs? _tabs;
+
+    private MudTabPanel? _compositionTab;
+
+    private async Task Compose()
+    {
+        ActivateCompositionTab();
+
+        var compositionConfiguration = new CompositionConfiguration(
+            InstrumentConfigurationState.Value.Aggregate,
+            PhrasingConfiguration.Default,
+            CompositionRuleConfigurationState.Value.Aggregate,
+            OrnamentationConfigurationState.Value.Aggregate,
+            BaroquenScale.Parse($"{CompositionConfigurationState.Value.RootNote.ToString()} {CompositionConfigurationState.Value.Mode.ToString()}"),
+            CompositionConfigurationState.Value.Meter,
+            CompositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
+            CompositionConfigurationState.Value.CompositionLength
+        );
+
+        var baroquenMelody = await Task.Run(() => ComposerConfigurator.Configure(compositionConfiguration).Compose());
+
+        var desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+
+        var path = Path.Combine(desktopDirectory, $"test-{timestamp}.mid");
+
+        baroquenMelody.MidiFile.Write(path);
+    }
+
+    private void ActivateCompositionTab()
+    {
+        if (_tabs?.ActivePanel != _compositionTab)
+        {
+            _tabs?.ActivatePanel(_compositionTab);
+        }
+    }
+
+}

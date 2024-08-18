@@ -27,7 +27,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <!-- Display name -->
-        <ApplicationTitle>BaroquenMelody.App</ApplicationTitle>
+        <ApplicationTitle>Baroquen Melody</ApplicationTitle>
 
         <!-- App Identifier -->
         <ApplicationId>com.companyname.baroquenmelody.app</ApplicationId>
