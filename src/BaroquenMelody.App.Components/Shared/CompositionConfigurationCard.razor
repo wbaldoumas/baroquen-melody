@@ -1,6 +1,6 @@
 ﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
-<MudCard Elevation="3" Class="my-2">
+<MudCard Class="rounded my-3 mx-3" Elevation="3" Outlined="true">
     <MudCardContent>
         <MudCardHeader>
             <CardHeaderContent>
@@ -8,7 +8,8 @@
             </CardHeaderContent>
         </MudCardHeader>
         <MudGrid>
-            <MudItem xs="12" md="3">
+
+            <MudItem xs="12" sm="6" md="3">
                 <MudSelect T="NoteName" Label="Root Note" Value="RootNote" ValueChanged="HandleRootNoteChange">
                     @foreach (var note in CompositionConfigurationService.ConfigurableRootNotes)
                     {
@@ -16,7 +17,7 @@
                     }
                 </MudSelect>
             </MudItem>
-            <MudItem xs="12" md="3">
+            <MudItem xs="12" sm="6" md="3">
                 <MudSelect T="Mode" Label="Mode" Value="Mode" ValueChanged="HandleModeChange">
                     @foreach (var mode in CompositionConfigurationService.ConfigurableScaleModes)
                     {
@@ -24,7 +25,7 @@
                     }
                 </MudSelect>
             </MudItem>
-            <MudItem xs="12" md="3">
+            <MudItem xs="12" sm="6" md="3">
                 <MudSelect T="Meter" Label="Meter" Value="Meter" ValueChanged="HandleMeterChange">
                     @foreach (var meter in CompositionConfigurationService.ConfigurableMeters)
                     {
@@ -32,8 +33,8 @@
                     }
                 </MudSelect>
             </MudItem>
-            <MudItem xs="12" md="3">
-                <MudNumericField Value="Length" Label="Composition Length"/>
+            <MudItem xs="12" sm="6" md="3">
+                <MudNumericField Value="Length" Label="Minimum Measures"/>
             </MudItem>
         </MudGrid>
     </MudCardContent>

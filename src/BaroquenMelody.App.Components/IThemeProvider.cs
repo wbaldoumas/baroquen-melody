@@ -11,4 +11,12 @@ public interface IThemeProvider
     void ToggleDarkMode();
 
     string DarkLightModeButtonIcon { get; }
+
+    Color DarkLightModeIconColor { get; }
+
+    string DarkLightModeTooltipText { get; }
+
+    double TooltipDelay { get; }
+
+    double TooltipDuration { get; }
 }

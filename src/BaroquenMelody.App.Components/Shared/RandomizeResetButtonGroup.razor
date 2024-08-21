@@ -1,0 +1,28 @@
+﻿<MudGrid Class="my-3" Justify="Justify.FlexStart">
+    <MudItem Class="ml-3">
+        <MudButton
+            Variant="Variant.Filled"
+            StartIcon="@RandomizeIcon"
+            IconColor="Color.Secondary"
+            OnClick="@OnRandomizeClick">
+            Randomize
+        </MudButton>
+        <MudButton
+            Variant="Variant.Filled"
+            StartIcon="@ResetIcon"
+            IconColor="Color.Primary"
+            OnClick="@OnResetClick">
+            Reset
+        </MudButton>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter] public EventCallback OnRandomizeClick { get; set; }
+
+    [Parameter] public EventCallback OnResetClick { get; set; }
+
+    [Parameter] public string RandomizeIcon { get; set; } = Icons.Material.Outlined.Shuffle;
+
+    [Parameter] public string ResetIcon { get; set; } = Icons.Material.Outlined.Refresh;
+}

@@ -55,8 +55,24 @@ internal sealed class ThemeProvider : IThemeProvider
     public string DarkLightModeButtonIcon => IsDarkMode switch
     {
         true => Icons.Material.Rounded.LightMode,
-        false => Icons.Material.Outlined.DarkMode
+        false => Icons.Material.Rounded.DarkMode
     };
+
+    public Color DarkLightModeIconColor => IsDarkMode switch
+    {
+        true => Color.Warning,
+        false => Color.Primary
+    };
+
+    public string DarkLightModeTooltipText => IsDarkMode switch
+    {
+        true => "Switch to Light mode",
+        false => "Switch to Dark mode"
+    };
+
+    public double TooltipDelay => 250;
+
+    public double TooltipDuration => 250;
 
     public void ToggleDarkMode() => IsDarkMode = !IsDarkMode;
 }
