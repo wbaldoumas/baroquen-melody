@@ -64,10 +64,10 @@ internal sealed class ThemeProvider : IThemeProvider
         false => Color.Primary
     };
 
-    public string DarkLightTooltipText => IsDarkMode switch
+    public string DarkLightModeTooltipText => IsDarkMode switch
     {
-        true => "light mode",
-        false => "dark mode"
+        true => "Switch to Light mode",
+        false => "Switch to Dark mode"
     };
 
     public double TooltipDelay => 250;

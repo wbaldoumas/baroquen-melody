@@ -14,7 +14,7 @@ public interface IThemeProvider
 
     Color DarkLightModeIconColor { get; }
 
-    string DarkLightTooltipText { get; }
+    string DarkLightModeTooltipText { get; }
 
     double TooltipDelay { get; }
 
