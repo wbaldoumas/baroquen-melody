@@ -117,4 +117,14 @@ internal sealed class CompositionConfigurationServiceTests
         _mockInstrumentConfigurationService.Received(1).ConfigureDefaults();
         _mockDispatcher.Received(1).Dispatch(Arg.Any<UpdateCompositionConfiguration>());
     }
+
+    [Test]
+    public void Randomize_dispatches_expected_update()
+    {
+        // act
+        _compositionConfigurationService.Randomize();
+
+        // assert
+        _mockDispatcher.Received(1).Dispatch(Arg.Any<UpdateCompositionConfiguration>());
+    }
 }

@@ -118,7 +118,7 @@ public sealed class BaroquenScale
     }
 
     public BaroquenScale(NoteName tonic, Mode mode)
-        : this(Scale.Parse($"{tonic.ToString()} {mode.ToString()}"))
+        : this(Scale.Parse($"{tonic} {mode}"))
     {
     }
 
