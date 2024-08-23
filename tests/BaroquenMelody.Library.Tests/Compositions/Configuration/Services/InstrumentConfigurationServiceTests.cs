@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations.Services;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Store.Actions;
+using BaroquenMelody.Library.Store.State;
 using FluentAssertions;
 using Fluxor;
 using NSubstitute;
@@ -13,14 +14,17 @@ internal sealed class InstrumentConfigurationServiceTests
 {
     private IDispatcher _mockDispatcher = null!;
 
+    private IState<CompositionConfigurationState> _mockCompositionConfigurationState = null!;
+
     private InstrumentConfigurationService _instrumentConfigurationService = null!;
 
     [SetUp]
     public void SetUp()
     {
         _mockDispatcher = Substitute.For<IDispatcher>();
+        _mockCompositionConfigurationState = Substitute.For<IState<CompositionConfigurationState>>();
 
-        _instrumentConfigurationService = new InstrumentConfigurationService(_mockDispatcher);
+        _instrumentConfigurationService = new InstrumentConfigurationService(_mockDispatcher, _mockCompositionConfigurationState);
     }
 
     [Test]

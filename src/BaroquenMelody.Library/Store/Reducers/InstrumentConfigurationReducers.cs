@@ -16,6 +16,16 @@ public static class InstrumentConfigurationReducers
             [action.Instrument] = new(action.Instrument, action.MinNote, action.MaxNote, action.MidiProgram, action.IsEnabled)
         };
 
-        return new InstrumentConfigurationState(configurations);
+        if (!action.IsUserApplied)
+        {
+            return state with { Configurations = configurations };
+        }
+
+        var lastUserAppliedConfigurations = new Dictionary<Instrument, InstrumentConfiguration>(state.LastUserAppliedConfigurations)
+        {
+            [action.Instrument] = new(action.Instrument, action.MinNote, action.MaxNote, action.MidiProgram, action.IsEnabled)
+        };
+
+        return new InstrumentConfigurationState(configurations, lastUserAppliedConfigurations);
     }
 }

@@ -14,6 +14,7 @@
 @using BaroquenMelody.Library.Compositions.Rules
 @using BaroquenMelody.Library.Compositions.Rules.Enums
 @using BaroquenMelody.Library.Infrastructure.Extensions
+@using BaroquenMelody.Library.Infrastructure.State
 @using BaroquenMelody.Library.Store.Actions
 @using BaroquenMelody.Library.Store.State
 @using Fluxor
@@ -26,10 +27,11 @@
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.JSInterop
-@using MudBlazor
 @using Melanchall.DryWetMidi.Common
 @using Melanchall.DryWetMidi.MusicTheory
 @using Melanchall.DryWetMidi.Standards
+@using MudBlazor
+@using MudExtensions
 
 @inject IState<CompositionOrnamentationConfigurationState> OrnamentationConfigurationState
 @inject IState<CompositionRuleConfigurationState> CompositionRuleConfigurationState
@@ -43,3 +45,4 @@
 @inject ICompositionConfigurationService CompositionConfigurationService
 @inject IBaroquenMelodyComposerConfigurator ComposerConfigurator
 @inject IThemeProvider ThemeProvider
+@inject IBrowserViewportService BrowserViewportService

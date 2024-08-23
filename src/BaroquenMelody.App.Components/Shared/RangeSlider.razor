@@ -1,0 +1,109 @@
+﻿@inherits MudComponentBase
+
+@typeparam T
+
+@{
+    var width = CalculateWidth().ToString(CultureInfo.InvariantCulture);
+    var left = CalculateLeft().ToString(CultureInfo.InvariantCulture);
+    var upperLeft = (CalculateWidth() + CalculateLeft()).ToString(CultureInfo.InvariantCulture);
+}
+
+<div class="@Classname" style="@Style">
+    @if (ChildContent != null)
+    {
+        <MudText Typo="Typo.body1">@ChildContent</MudText>
+    }
+
+    <div class="@(Range ? "mud-slider-container mud-range-container" : "mud-slider-container")">
+
+        @if (Variant == Variant.Filled)
+        {
+            <div class="mud-slider-inner-container">
+                <div class="mud-slider-filled" style="@(Range ? $"width:{width}%; margin-left:{left}%;" : $"width:{width}%;")"></div>
+            </div>
+        }
+
+        @if (TickMarks)
+        {
+            <div class="mud-slider-inner-container">
+                @SliderTickMarks()
+            </div>
+        }
+
+        @if (Range)
+        {
+            <input class="mud-slider-input"
+                   aria-valuenow="@_upperValue.Value"
+                   aria-valuemin="@(Converter.Set(Min))"
+                   aria-valuemax="@@(Converter.Set(Max))"
+                   role="slider"
+                   @attributes="UserAttributes"
+                   type="range"
+                   min="@(Converter.Set(Min))"
+                   max="@(Converter.Set(Max))"
+                   step="@(Converter.Set(Step))"
+                   disabled="@(Disabled || (Range && DisableMax))"
+                   @bind-value:get="@GetUpperValueText"
+                   @bind-value:set="@SetUpperValueTextAsync"
+                   @bind-value:event="@((Immediate ? "oninput" : "onchange"))"/>
+
+            @SliderValueLabel(upperLeft, string.IsNullOrEmpty(UpperLabelText) ? _upperValue.Value.ToString() : UpperLabelText)
+        }
+
+        <input class="mud-slider-input"
+               aria-valuenow="@_value.Value"
+               aria-valuemin="@(Converter.Set(Min))"
+               aria-valuemax="@(Converter.Set(Max))"
+               role="slider"
+               @attributes="UserAttributes"
+               type="range"
+               min="@(Converter.Set(Min))"
+               max="@(Converter.Set(Max))"
+               step="@(Converter.Set(Step))"
+               disabled="@(Disabled || (Range && DisableMin))"
+               @bind-value:get="@GetValueText"
+               @bind-value:set="@SetValueTextAsync"
+               @bind-value:event="@((Immediate ? "oninput" : "onchange"))"/>
+
+        @SliderValueLabel(left, string.IsNullOrEmpty(LabelText) ? _value.Value.ToString() : LabelText)
+
+    </div>
+
+    @if (Display)
+    {
+        <MudText Typo="Typo.body1" Class="mud-range-display" Color="Color.Secondary">@DisplayText</MudText>
+    }
+</div>
+
+@code
+{
+    private RenderFragment? SliderValueLabel(string? left, string? value)
+    {
+        @if (ValueLabel)
+        {
+            return @<div class="mud-slider-value-label" style="@($"left:{left}%;")">
+                       @value
+                   </div>;
+        }
+
+        return null;
+    }
+
+    private RenderFragment SliderTickMarks()
+    {
+        return @<div class="mud-slider-tickmarks">
+                   @for (var i = 0; i < _tickMarkCount; i++)
+                   {
+                       var current = i;
+
+                       <div class="d-flex flex-column relative">
+                           <span class="mud-slider-track-tick"/>
+                           @if (TickMarkLabels != null && current < TickMarkLabels.Length)
+                           {
+                               <MudText Class="mud-slider-track-tick-label" Typo="Typo.body2">@TickMarkLabels[current]</MudText>
+                           }
+                       </div>
+                   }
+               </div>;
+    }
+}

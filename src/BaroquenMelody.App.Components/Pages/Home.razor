@@ -4,7 +4,7 @@
 
 <PageTitle>Home</PageTitle>
 
-<MudContainer>
+<MudContainer Class="mb-3" Gutters="false">
     <MudGrid Class="mb-2" Justify="Justify.FlexEnd" Spacing="1">
         <MudItem >
             <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Folder" IconColor="Color.Primary">Load Configuration</MudButton>
@@ -53,7 +53,7 @@
         ActivateCompositionTab();
 
         var compositionConfiguration = new CompositionConfiguration(
-            InstrumentConfigurationState.Value.Aggregate,
+            InstrumentConfigurationState.Value.EnabledConfigurations,
             PhrasingConfiguration.Default,
             CompositionRuleConfigurationState.Value.Aggregate,
             OrnamentationConfigurationState.Value.Aggregate,

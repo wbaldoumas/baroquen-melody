@@ -1,6 +1,7 @@
-﻿<RandomizeResetButtonGroup />
+﻿<RandomizeResetButtonGroup OnRandomizeClick="InstrumentConfigurationService.Randomize"
+                           OnResetClick="InstrumentConfigurationService.ConfigureDefaults"/>
 @foreach (var instrument in InstrumentConfigurationService.ConfigurableInstruments)
 {
     <InstrumentConfigurationCard Instrument="instrument"/>
 }
-<ScrollToTop />
+<ScrollToTop/>

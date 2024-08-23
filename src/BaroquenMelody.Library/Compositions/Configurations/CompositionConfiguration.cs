@@ -31,6 +31,8 @@ public sealed record CompositionConfiguration(
     int CompositionContextSize = 8,
     int Tempo = 120)
 {
+    public const int MaxScaleStepChange = 5;
+
     public IDictionary<Instrument, InstrumentConfiguration> InstrumentConfigurationsByInstrument { get; } = InstrumentConfigurations.ToDictionary(
         instrumentConfiguration => instrumentConfiguration.Instrument
     );

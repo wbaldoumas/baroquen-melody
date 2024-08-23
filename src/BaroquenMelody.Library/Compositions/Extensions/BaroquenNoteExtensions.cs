@@ -12,15 +12,23 @@ internal static class BaroquenNoteExtensions
 {
     public static BaroquenNote ApplyNoteChoice(this BaroquenNote note, BaroquenScale scale, NoteChoice noteChoice, MusicalTimeSpan noteTimeSpan)
     {
-        var nextNote = noteChoice.Motion switch
+        try
         {
-            NoteMotion.Ascending => scale.GetAscendingNotes(note.Raw)[noteChoice.ScaleStepChange],
-            NoteMotion.Descending => scale.GetDescendingNotes(note.Raw)[noteChoice.ScaleStepChange],
-            NoteMotion.Oblique => note.Raw,
-            _ => throw new ArgumentOutOfRangeException(nameof(noteChoice))
-        };
+            var nextNote = noteChoice.Motion switch
+            {
+                NoteMotion.Ascending => scale.GetAscendingNotes(note.Raw)[noteChoice.ScaleStepChange],
+                NoteMotion.Descending => scale.GetDescendingNotes(note.Raw)[noteChoice.ScaleStepChange],
+                NoteMotion.Oblique => note.Raw,
+                _ => throw new ArgumentOutOfRangeException(nameof(noteChoice))
+            };
 
-        return new BaroquenNote(note.Instrument, nextNote, noteTimeSpan);
+            return new BaroquenNote(note.Instrument, nextNote, noteTimeSpan);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public static bool IsDissonantWith(this BaroquenNote note, BaroquenNote otherNote) => note.Raw.IsDissonantWith(otherNote.Raw);

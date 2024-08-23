@@ -1,12 +1,12 @@
 ﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
-<MudCard Class="rounded my-3 mx-3" Elevation="3" Outlined="true">
+<MudCard Class="rounded my-3 mx-3" Elevation="7" Outlined="true">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">Composition Configuration</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
     <MudCardContent>
-        <MudCardHeader>
-            <CardHeaderContent>
-                <MudText>Composition Configuration</MudText>
-            </CardHeaderContent>
-        </MudCardHeader>
         <MudGrid>
             <MudItem xs="12" sm="6" md="3" lg="3" xl="3" xxl="3">
                 <SelectWithPopover T="NoteName"

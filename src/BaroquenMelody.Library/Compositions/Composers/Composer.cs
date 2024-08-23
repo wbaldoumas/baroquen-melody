@@ -21,14 +21,22 @@ internal sealed class Composer(
 {
     public Composition Compose()
     {
-        var theme = ComposeMainTheme();
-        var compositionBody = ComposeBodyOfComposition(theme);
-        var compositionWithOrnamentation = AddOrnamentation(compositionBody);
-        var compositionWithPhrasing = ApplyPhrasing(compositionWithOrnamentation, theme);
-        var compositionWithEnding = ComposeEnding(compositionWithPhrasing, theme);
-        var compositionWithSustain = ApplySustain(compositionWithEnding);
+        try
+        {
+            var theme = ComposeMainTheme();
+            var compositionBody = ComposeBodyOfComposition(theme);
+            var compositionWithOrnamentation = AddOrnamentation(compositionBody);
+            var compositionWithPhrasing = ApplyPhrasing(compositionWithOrnamentation, theme);
+            var compositionWithEnding = ComposeEnding(compositionWithPhrasing, theme);
+            var compositionWithSustain = ApplySustain(compositionWithEnding);
 
-        return CompleteComposition(theme, compositionWithSustain);
+            return CompleteComposition(theme, compositionWithSustain);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     private BaroquenTheme ComposeMainTheme()
