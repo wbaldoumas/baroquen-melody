@@ -1,5 +1,4 @@
 ﻿using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
-using BaroquenMelody.Library.Store.State;
 using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Domain;

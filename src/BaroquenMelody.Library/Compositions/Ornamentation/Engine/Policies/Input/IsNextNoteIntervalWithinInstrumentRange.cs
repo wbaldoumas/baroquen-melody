@@ -3,7 +3,7 @@ using BaroquenMelody.Library.Compositions.Configurations;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 
-internal sealed class IsNextNoteIntervalWithinIntstrumentRange(CompositionConfiguration compositionConfiguration, int interval) : IInputPolicy<OrnamentationItem>
+internal sealed class IsNextNoteIntervalWithinInstrumentRange(CompositionConfiguration compositionConfiguration, int interval) : IInputPolicy<OrnamentationItem>
 {
     public InputPolicyResult ShouldProcess(OrnamentationItem item)
     {

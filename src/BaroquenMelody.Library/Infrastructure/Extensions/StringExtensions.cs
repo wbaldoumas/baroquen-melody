@@ -14,6 +14,6 @@ public static partial class StringExtensions
     /// <returns>The space-separated string.</returns>
     public static string ToSpaceSeparatedString(this string source) => PascalRegex().Replace(source, " ");
 
-    [GeneratedRegex(@"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", RegexOptions.Compiled, 10000)]
+    [GeneratedRegex("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", RegexOptions.Compiled, matchTimeoutMilliseconds: 1000)]
     private static partial Regex PascalRegex();
 }

@@ -328,7 +328,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new HasNextBeat(),
             new Not<OrnamentationItem>(new IsRepeatedNote()),
-            new IsNextNoteIntervalWithinIntstrumentRange(compositionConfiguration, 1).And(new IsNextNoteIntervalWithinIntstrumentRange(compositionConfiguration, -1))
+            new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, 1).And(new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, -1))
         )
         .WithProcessors(new PickupProcessor(musicalTimeSpanCalculator, compositionConfiguration, ornamentationType))
         .WithOutputPolicies(new LogOrnamentation(ornamentationType, logger))
