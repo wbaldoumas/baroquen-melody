@@ -13,16 +13,16 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Policies.Input;
 
 [TestFixture]
-internal sealed class IsNextNoteIntervalWithinIntstrumentRangeTests
+internal sealed class IsNextNoteIntervalWithinInstrumentRangeTests
 {
-    private IsNextNoteIntervalWithinIntstrumentRange _isIntervalWithinIntstrumentRange;
+    private IsNextNoteIntervalWithinInstrumentRange _isIntervalWithinInstrumentRange;
 
     [SetUp]
     public void SetUp()
     {
         var compositionConfiguration = Configurations.GetCompositionConfiguration();
 
-        _isIntervalWithinIntstrumentRange = new IsNextNoteIntervalWithinIntstrumentRange(compositionConfiguration, interval: 5);
+        _isIntervalWithinInstrumentRange = new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, interval: 5);
     }
 
     [Test]
@@ -30,7 +30,7 @@ internal sealed class IsNextNoteIntervalWithinIntstrumentRangeTests
     public void ShouldProcess(OrnamentationItem ornamentationItem, InputPolicyResult expectedInputPolicyResult)
     {
         // act
-        var result = _isIntervalWithinIntstrumentRange.ShouldProcess(ornamentationItem);
+        var result = _isIntervalWithinInstrumentRange.ShouldProcess(ornamentationItem);
 
         // assert
         result.Should().Be(expectedInputPolicyResult);

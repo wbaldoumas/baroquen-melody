@@ -19,6 +19,18 @@ internal sealed class ThreadLocalRandomTests
         result.Should().BeGreaterOrEqualTo(0).And.BeLessThan(maxValue);
     }
 
+    [TestCase(10, 20)]
+    [TestCase(100, 200)]
+    [TestCase(1000, 2000)]
+    public void Next_ShouldReturnNumberInRange(int minValue, int maxValue)
+    {
+        // act
+        var result = ThreadLocalRandom.Next(minValue, maxValue);
+
+        // assert
+        result.Should().BeGreaterOrEqualTo(minValue).And.BeLessThan(maxValue);
+    }
+
     [Test]
     public void MultipleThreads_ShouldProduceDifferentNumbers()
     {

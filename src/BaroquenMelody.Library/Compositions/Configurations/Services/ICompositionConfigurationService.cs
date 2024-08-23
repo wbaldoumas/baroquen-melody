@@ -28,4 +28,14 @@ public interface ICompositionConfigurationService
     ///     Configure the default composition configuration.
     /// </summary>
     void ConfigureDefaults();
+
+    /// <summary>
+    ///     Randomize the composition configuration.
+    /// </summary>
+    void Randomize();
+
+    /// <summary>
+    ///     Reset the composition configuration to its default state.
+    /// </summary>
+    void Reset();
 }

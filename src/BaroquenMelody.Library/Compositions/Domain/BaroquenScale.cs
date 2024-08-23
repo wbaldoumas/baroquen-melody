@@ -1,4 +1,5 @@
-﻿using Melanchall.DryWetMidi.MusicTheory;
+﻿using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Domain;
 
@@ -114,6 +115,11 @@ public sealed class BaroquenScale
         V = [Dominant, LeadingTone, Supertonic];
         VI = [Submediant, Tonic, Mediant];
         VII = [LeadingTone, Supertonic, Subdominant];
+    }
+
+    public BaroquenScale(NoteName tonic, Mode mode)
+        : this(Scale.Parse($"{tonic} {mode}"))
+    {
     }
 
     /// <summary>

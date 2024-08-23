@@ -39,12 +39,12 @@ internal static class BaroquenChordExtensions
         return new BaroquenChord(notes);
     }
 
-    public static bool InstrumentsMoveInParallel(this BaroquenChord precedingChord, BaroquenChord nextChord, Instrument instrumentA, Instrument insrumentB)
+    public static bool InstrumentsMoveInParallel(this BaroquenChord precedingChord, BaroquenChord nextChord, Instrument instrumentA, Instrument instrumentB)
     {
         var lastNoteA = precedingChord[instrumentA];
-        var lastNoteB = precedingChord[insrumentB];
+        var lastNoteB = precedingChord[instrumentB];
         var nextNoteA = nextChord[instrumentA];
-        var nextNoteB = nextChord[insrumentB];
+        var nextNoteB = nextChord[instrumentB];
 
         var noteMotionA = NoteMotionExtensions.FromNotes(lastNoteA, nextNoteA);
         var noteMotionB = NoteMotionExtensions.FromNotes(lastNoteB, nextNoteB);
