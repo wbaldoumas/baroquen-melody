@@ -60,7 +60,7 @@
             CompositionConfigurationState.Value.Scale,
             CompositionConfigurationState.Value.Meter,
             CompositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
-            CompositionConfigurationState.Value.CompositionLength
+            CompositionConfigurationState.Value.MinimumMeasures
         );
 
         var baroquenMelody = await Task.Run(() => ComposerConfigurator.Configure(compositionConfiguration).Compose());

@@ -54,10 +54,10 @@ internal sealed class App : IDisposable
             PhrasingConfiguration.Default,
             _compositionRuleConfigurationState.Value.Aggregate,
             _compositionOrnamentationConfigurationState.Value.Aggregate,
-            BaroquenScale.Parse($"{_compositionConfigurationState.Value.RootNote} {_compositionConfigurationState.Value.Mode}"),
+            BaroquenScale.Parse($"{_compositionConfigurationState.Value.TonicNote} {_compositionConfigurationState.Value.Mode}"),
             _compositionConfigurationState.Value.Meter,
             _compositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
-            _compositionConfigurationState.Value.CompositionLength
+            _compositionConfigurationState.Value.MinimumMeasures
         );
 
         return _configurator.Configure(compositionConfiguration).Compose();
