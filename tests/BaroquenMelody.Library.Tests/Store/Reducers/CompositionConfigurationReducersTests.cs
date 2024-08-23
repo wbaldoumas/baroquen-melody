@@ -25,8 +25,8 @@ internal sealed class CompositionConfigurationReducersTests
 
         // assert
         state.Meter.Should().Be(Meter.ThreeFour);
-        state.CompositionLength.Should().Be(8);
-        state.RootNote.Should().Be(rootNote);
+        state.MinimumMeasures.Should().Be(8);
+        state.TonicNote.Should().Be(rootNote);
         state.Mode.Should().Be(mode);
     }
 }
