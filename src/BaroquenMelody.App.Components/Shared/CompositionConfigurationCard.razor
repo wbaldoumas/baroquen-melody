@@ -8,33 +8,80 @@
             </CardHeaderContent>
         </MudCardHeader>
         <MudGrid>
-
-            <MudItem xs="12" sm="6" md="3">
-                <MudSelect T="NoteName" Label="Root Note" Value="RootNote" ValueChanged="HandleRootNoteChange">
+            <MudItem xs="12" sm="6" md="3" lg="3" xl="3" xxl="3">
+                <MudOverlay @bind-Visible="IsTonicPopoverOpen" AutoClose="true"/>
+                <MudPopover AnchorOrigin="Origin.TopCenter"
+                            Open="IsTonicPopoverOpen"
+                            Elevation="3"
+                            Delay="ThemeProvider.TooltipDelay"
+                            Duration="ThemeProvider.TooltipDuration">
+                    <MudCard Class="rounded" Outlined="true" Elevation="3">
+                        <MudCardContent>
+                            <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Tonic_(music)">tonic</MudLink> of the scale used in the composition.</MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudPopover>
+                <MudSelect T="NoteName" OnAdornmentClick="OpenTonicPopover" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Label="Tonic Note" AdornmentIcon="@Icons.Material.Outlined.QuestionMark" IconSize="Size.Small" Adornment="Adornment.End" Value="RootNote" ValueChanged="HandleRootNoteChange">
                     @foreach (var note in CompositionConfigurationService.ConfigurableRootNotes)
                     {
-                        <MudSelectItem Value="note">@note</MudSelectItem>
+                        <MudSelectItem Value="note">@note.ToSpaceSeparatedString()</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
-            <MudItem xs="12" sm="6" md="3">
-                <MudSelect T="Mode" Label="Mode" Value="Mode" ValueChanged="HandleModeChange">
+            <MudItem xs="12" sm="6" md="3" lg="3" xl="3" xxl="3">
+                <MudOverlay @bind-Visible="IsModePopoverOpen" AutoClose="true"/>
+                <MudPopover AnchorOrigin="Origin.TopCenter"
+                            Open="IsModePopoverOpen"
+                            Elevation="3"
+                            Delay="ThemeProvider.TooltipDelay"
+                            Duration="ThemeProvider.TooltipDuration">
+                    <MudCard Class="rounded" Outlined="true" Elevation="3">
+                        <MudCardContent>
+                            <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Mode_(music)">mode</MudLink> of the scale used in the composition.</MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudPopover>
+                <MudSelect T="Mode" OnAdornmentClick="OpenModePopover" AdornmentIcon="@Icons.Material.Outlined.QuestionMark" Adornment="Adornment.End" IconSize="Size.Small" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Label="Mode" Value="Mode" ValueChanged="HandleModeChange">
                     @foreach (var mode in CompositionConfigurationService.ConfigurableScaleModes)
                     {
                         <MudSelectItem Value="mode">@mode</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
-            <MudItem xs="12" sm="6" md="3">
-                <MudSelect T="Meter" Label="Meter" Value="Meter" ValueChanged="HandleMeterChange">
+            <MudItem xs="12" sm="6" md="3" lg="3" xl="3" xxl="3">
+                <MudOverlay @bind-Visible="IsMeterPopoverOpen" AutoClose="true"/>
+                <MudPopover AnchorOrigin="Origin.TopCenter"
+                            Open="IsMeterPopoverOpen"
+                            Elevation="3"
+                            Delay="ThemeProvider.TooltipDelay"
+                            Duration="ThemeProvider.TooltipDuration">
+                    <MudCard Class="rounded" Outlined="true" Elevation="3">
+                        <MudCardContent>
+                            <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Metre_(music)">meter</MudLink> of the composition.</MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudPopover>
+                <MudSelect T="Meter" OnAdornmentClick="OpenMeterPopover" AdornmentIcon="@Icons.Material.Outlined.QuestionMark" Adornment="Adornment.End" IconSize="Size.Small" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Label="Meter" Value="Meter" ValueChanged="HandleMeterChange">
                     @foreach (var meter in CompositionConfigurationService.ConfigurableMeters)
                     {
-                        <MudSelectItem Value="meter">@meter</MudSelectItem>
+                        <MudSelectItem Value="meter">@meter.AsString()</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
-            <MudItem xs="12" sm="6" md="3">
-                <MudNumericField Value="Length" Label="Minimum Measures"/>
+            <MudItem xs="12" sm="6" md="3" lg="3" xl="3" xxl="3">
+                <MudOverlay @bind-Visible="IsMeasuresPopoverOpen" AutoClose="true"/>
+                <MudPopover AnchorOrigin="Origin.TopCenter"
+                            Open="IsMeasuresPopoverOpen"
+                            Elevation="3"
+                            Delay="ThemeProvider.TooltipDelay"
+                            Duration="ThemeProvider.TooltipDuration">
+                    <MudCard Class="rounded" Outlined="true" Elevation="3">
+                        <MudCardContent>
+                            <MudText>The minimum number of <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Bar_(music)">measures</MudLink> in the composition.</MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </MudPopover>
+                <MudNumericField T="int" OnAdornmentClick="OpenMeasuresPopover" AdornmentIcon="@Icons.Material.Outlined.QuestionMark" Adornment="Adornment.End" IconSize="Size.Small" Variant="Variant.Outlined" Value="Length" Label="Minimum Measures" ValueChanged="HandleCompositionLengthChange" />
             </MudItem>
         </MudGrid>
     </MudCardContent>
@@ -47,6 +94,14 @@
 
     private Meter Meter => CompositionConfigurationState.Value.Meter;
 
+    private bool IsTonicPopoverOpen = false;
+
+    private bool IsModePopoverOpen = false;
+
+    private bool IsMeterPopoverOpen = false;
+
+    private bool IsMeasuresPopoverOpen = false;
+
     private int Length => CompositionConfigurationState.Value.CompositionLength;
 
     private void HandleRootNoteChange(NoteName note) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(note, Mode, Meter, Length));
@@ -56,4 +111,37 @@
     private void HandleMeterChange(Meter meter) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, meter, Length));
 
     private void HandleCompositionLengthChange(int length) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, length));
+
+    private void CloseAllPopovers()
+    {
+        IsTonicPopoverOpen = false;
+        IsModePopoverOpen = false;
+        IsMeterPopoverOpen = false;
+        IsMeasuresPopoverOpen = false;
+    }
+
+    private void OpenTonicPopover()
+    {
+        CloseAllPopovers();
+        IsTonicPopoverOpen = true;
+    }
+
+    private void OpenModePopover()
+    {
+        CloseAllPopovers();
+        IsModePopoverOpen = true;
+    }
+
+    private void OpenMeterPopover()
+    {
+        CloseAllPopovers();
+        IsMeterPopoverOpen = true;
+    }
+
+    private void OpenMeasuresPopover()
+    {
+        CloseAllPopovers();
+        IsMeasuresPopoverOpen = true;
+    }
+
 }

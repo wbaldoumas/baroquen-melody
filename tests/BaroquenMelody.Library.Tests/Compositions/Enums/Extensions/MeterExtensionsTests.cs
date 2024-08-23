@@ -36,6 +36,22 @@ internal sealed class MeterExtensionsTests
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
+    [Test]
+    [TestCase(Meter.FourFour, "4/4")]
+    [TestCase(Meter.ThreeFour, "3/4")]
+    public void AsString_generates_expected_string(Meter meter, string expected)
+    {
+        meter.AsString().Should().Be(expected);
+    }
+
+    [Test]
+    public void AsString_throws_on_unsupported_meter()
+    {
+        var act = () => ((Meter)int.MaxValue).AsString();
+
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
     private static IEnumerable<TestCaseData> DefaultMusicalTimeSpanTestCases
     {
         get

@@ -1,6 +1,7 @@
 ﻿using Atrea.Utilities.Enums;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+using BaroquenMelody.Library.Infrastructure.Random;
 using BaroquenMelody.Library.Store.Actions;
 using Fluxor;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -39,6 +40,18 @@ internal sealed class CompositionConfigurationService(
         compositionRuleConfigurationService.ConfigureDefaults();
         compositionInstrumentConfigurationService.ConfigureDefaults();
 
-        dispatcher.Dispatch(new UpdateCompositionConfiguration(_defaultRootNote, _defaultMode, _defaultMeter));
+        Reset();
     }
+
+    public void Randomize()
+    {
+        var randomRootNote = _configurableRootNotes.MinBy(_ => ThreadLocalRandom.Next());
+        var randomScaleMode = _configurableScaleModes.MinBy(_ => ThreadLocalRandom.Next());
+        var randomMeter = _configurableMeters.MinBy(_ => ThreadLocalRandom.Next());
+        var randomMinimumMeasures = ThreadLocalRandom.Next(1, 101);
+
+        dispatcher.Dispatch(new UpdateCompositionConfiguration(randomRootNote, randomScaleMode, randomMeter, randomMinimumMeasures));
+    }
+
+    public void Reset() => dispatcher.Dispatch(new UpdateCompositionConfiguration(_defaultRootNote, _defaultMode, _defaultMeter));
 }

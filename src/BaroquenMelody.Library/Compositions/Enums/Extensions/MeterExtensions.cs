@@ -32,4 +32,17 @@ public static class MeterExtensions
         Meter.ThreeFour => MusicalTimeSpan.Half.Dotted(1),
         _ => throw new ArgumentOutOfRangeException(nameof(meter), meter, "Meter not supported.")
     };
+
+    /// <summary>
+    ///     Gets the <see cref="Meter"/> as a human-readable string.
+    /// </summary>
+    /// <param name="meter">The <see cref="Meter"/> to get as a human-readable string.</param>
+    /// <returns>The <see cref="Meter"/> as a human-readable string.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the given <see cref="Meter"/> is not supported.</exception>
+    public static string AsString(this Meter meter) => meter switch
+    {
+        Meter.FourFour => "4/4",
+        Meter.ThreeFour => "3/4",
+        _ => throw new ArgumentOutOfRangeException(nameof(meter), meter, "Meter not supported.")
+    };
 }
