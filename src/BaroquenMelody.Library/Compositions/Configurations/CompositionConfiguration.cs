@@ -33,6 +33,10 @@ public sealed record CompositionConfiguration(
 {
     public const int MaxScaleStepChange = 5;
 
+    public const int MinInstrumentRange = 7;
+
+    public const int MaxInstrumentRange = 21;
+
     public IDictionary<Instrument, InstrumentConfiguration> InstrumentConfigurationsByInstrument { get; } = InstrumentConfigurations.ToDictionary(
         instrumentConfiguration => instrumentConfiguration.Instrument
     );

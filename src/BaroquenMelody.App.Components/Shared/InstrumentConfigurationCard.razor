@@ -41,7 +41,7 @@
                              MinSlideableMax="MinSlideableMax"
                              MaxSlideableMin="MaxSlideableMin"
                              Step="1"
-                             MinDistance="Constants.MinInstrumentRange"
+                             MinDistance="CompositionConfiguration.MinInstrumentRange"
                              LabelText="@LowestPitchNote.ToString()"
                              UpperLabelText="@HighestPitchNote.ToString()"/>
             </MudItem>
@@ -93,9 +93,9 @@
 
     private int SliderMax => CompositionConfigurationState.Value.Notes.Count - 1;
 
-    private int MinSlideableMax => SliderMax - Constants.MinInstrumentRange;
+    private int MinSlideableMax => SliderMax - CompositionConfiguration.MinInstrumentRange;
 
-    private int MaxSlideableMin => SliderMin + Constants.MinInstrumentRange;
+    private int MaxSlideableMin => SliderMin + CompositionConfiguration.MinInstrumentRange;
 
     private int _lowestPitchNoteIndex;
 
@@ -114,8 +114,8 @@
 
             HighestPitchNoteIndex = (HighestPitchNoteIndex - _lowestPitchNoteIndex) switch
             {
-                > Constants.MaxInstrumentRange => _lowestPitchNoteIndex + Constants.MaxInstrumentRange,
-                < Constants.MinInstrumentRange => Math.Min(_lowestPitchNoteIndex + Constants.MinInstrumentRange, SliderMax),
+                > CompositionConfiguration.MaxInstrumentRange => _lowestPitchNoteIndex + CompositionConfiguration.MaxInstrumentRange,
+                < CompositionConfiguration.MinInstrumentRange => Math.Min(_lowestPitchNoteIndex + CompositionConfiguration.MinInstrumentRange, SliderMax),
                 _ => HighestPitchNoteIndex
             };
         }
@@ -138,8 +138,8 @@
 
             LowestPitchNoteIndex = (_highestPitchNoteIndex - LowestPitchNoteIndex) switch
             {
-                > Constants.MaxInstrumentRange => _highestPitchNoteIndex - Constants.MaxInstrumentRange,
-                < Constants.MinInstrumentRange => Math.Max(_highestPitchNoteIndex - Constants.MinInstrumentRange, SliderMin),
+                > CompositionConfiguration.MaxInstrumentRange => _highestPitchNoteIndex - CompositionConfiguration.MaxInstrumentRange,
+                < CompositionConfiguration.MinInstrumentRange => Math.Max(_highestPitchNoteIndex - CompositionConfiguration.MinInstrumentRange, SliderMin),
                 _ => LowestPitchNoteIndex
             };
         }
@@ -147,9 +147,9 @@
 
     private IEnumerable<int> NoteIndices => Enumerable.Range(SliderMin, SliderMax + 1);
 
-    private IEnumerable<int> LowestPitchNoteIndices => NoteIndices.Take(CompositionConfigurationState.Value.Notes.Count - Constants.MinInstrumentRange);
+    private IEnumerable<int> LowestPitchNoteIndices => NoteIndices.Take(CompositionConfigurationState.Value.Notes.Count - CompositionConfiguration.MinInstrumentRange);
 
-    private IEnumerable<int> HighestPitchNoteIndices => NoteIndices.Skip(Constants.MinInstrumentRange);
+    private IEnumerable<int> HighestPitchNoteIndices => NoteIndices.Skip(CompositionConfiguration.MinInstrumentRange);
 
     private IDisposable? InstrumentConfigurationStateSubscription;
 

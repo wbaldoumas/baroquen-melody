@@ -73,8 +73,8 @@ internal sealed class InstrumentConfigurationService(
 
     private void Randomize(Instrument instrument)
     {
-        var minNoteIndex = ThreadLocalRandom.Next(0, compositionConfigurationState.Value.Notes.Count - Constants.MinInstrumentRange);
-        var maxNoteIndex = ThreadLocalRandom.Next(minNoteIndex + Constants.MinInstrumentRange, Math.Min(compositionConfigurationState.Value.Notes.Count, minNoteIndex + Constants.MaxInstrumentRange));
+        var minNoteIndex = ThreadLocalRandom.Next(0, compositionConfigurationState.Value.Notes.Count - CompositionConfiguration.MinInstrumentRange);
+        var maxNoteIndex = ThreadLocalRandom.Next(minNoteIndex + CompositionConfiguration.MinInstrumentRange, Math.Min(compositionConfigurationState.Value.Notes.Count, minNoteIndex + CompositionConfiguration.MaxInstrumentRange));
 
         var minNote = compositionConfigurationState.Value.Notes[minNoteIndex];
         var maxNote = compositionConfigurationState.Value.Notes[maxNoteIndex];
