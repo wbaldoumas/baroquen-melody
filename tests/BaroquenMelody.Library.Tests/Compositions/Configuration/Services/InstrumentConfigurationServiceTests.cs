@@ -52,4 +52,14 @@ internal sealed class InstrumentConfigurationServiceTests
         // assert
         _mockDispatcher.Received(4).Dispatch(Arg.Any<UpdateInstrumentConfiguration>());
     }
+
+    [Test]
+    public void Randomize_dispatches_expected_actions()
+    {
+        // act
+        _instrumentConfigurationService.Randomize();
+
+        // assert
+        _mockDispatcher.Received(4).Dispatch(Arg.Any<UpdateInstrumentConfiguration>());
+    }
 }

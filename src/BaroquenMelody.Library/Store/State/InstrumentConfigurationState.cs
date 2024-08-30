@@ -9,8 +9,6 @@ public sealed record InstrumentConfigurationState(IDictionary<Instrument, Instru
 {
     public ISet<InstrumentConfiguration> EnabledConfigurations => Configurations.Values.Where(configuration => configuration.IsEnabled).ToHashSet();
 
-    public ISet<InstrumentConfiguration> All => Configurations.Values.ToHashSet();
-
     public InstrumentConfigurationState()
         : this(new Dictionary<Instrument, InstrumentConfiguration>(), new Dictionary<Instrument, InstrumentConfiguration>())
     {
