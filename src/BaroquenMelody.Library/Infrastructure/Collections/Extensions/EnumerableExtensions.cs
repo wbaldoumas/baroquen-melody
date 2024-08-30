@@ -3,7 +3,7 @@
 /// <summary>
 ///     A home for extension methods for <see cref="IEnumerable{T}"/>.
 /// </summary>
-internal static class EnumerableExtensions
+public static class EnumerableExtensions
 {
     /// <summary>
     ///     Trims the edges (both beginning and ending) for the given <paramref name="source"/> enumerable.

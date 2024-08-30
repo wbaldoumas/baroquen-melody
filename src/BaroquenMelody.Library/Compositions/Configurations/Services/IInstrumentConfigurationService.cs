@@ -16,4 +16,9 @@ public interface IInstrumentConfigurationService
     ///     Configure the default instrument configurations.
     /// </summary>
     void ConfigureDefaults();
+
+    /// <summary>
+    ///     Randomize the instrument configurations.
+    /// </summary>
+    void Randomize();
 }

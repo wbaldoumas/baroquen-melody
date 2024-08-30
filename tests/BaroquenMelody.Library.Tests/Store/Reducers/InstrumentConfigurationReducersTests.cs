@@ -20,28 +20,68 @@ internal sealed class InstrumentConfigurationReducersTests
         var state = new InstrumentConfigurationState();
 
         // act
-        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentConfiguration(state, new UpdateInstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, GeneralMidi2Program.Accordion, true));
-        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentConfiguration(state, new UpdateInstrumentConfiguration(Instrument.Two, Notes.C5, Notes.C6, GeneralMidi2Program.Banjo, true));
-        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentConfiguration(state, new UpdateInstrumentConfiguration(Instrument.Three, Notes.C6, Notes.C7, GeneralMidi2Program.Celesta, true));
-        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentConfiguration(state, new UpdateInstrumentConfiguration(Instrument.One, Notes.C7, Notes.C8, GeneralMidi2Program.Dulcimer, false));
+        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentConfiguration(
+            state,
+            new UpdateInstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, GeneralMidi2Program.Accordion, IsEnabled: true, IsUserApplied: true)
+        );
+
+        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentConfiguration(
+            state,
+            new UpdateInstrumentConfiguration(Instrument.Two, Notes.C5, Notes.C6, GeneralMidi2Program.Banjo, IsEnabled: true, IsUserApplied: true)
+        );
+
+        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentConfiguration(
+            state,
+            new UpdateInstrumentConfiguration(Instrument.Three, Notes.C6, Notes.C7, GeneralMidi2Program.Celesta, IsEnabled: true, IsUserApplied: true)
+        );
+
+        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentConfiguration(
+            state,
+            new UpdateInstrumentConfiguration(Instrument.One, Notes.C7, Notes.C8, GeneralMidi2Program.Dulcimer, IsEnabled: false, IsUserApplied: false)
+        );
 
         // assert
         state.Configurations.Should().ContainKeys(Instrument.One, Instrument.Two, Instrument.Three);
 
-        state[Instrument.One]!.MinNote.Should().Be(Notes.C7);
-        state[Instrument.One]!.MaxNote.Should().Be(Notes.C8);
-        state[Instrument.One]!.MidiProgram.Should().Be(GeneralMidi2Program.Dulcimer);
-        state[Instrument.One]!.IsEnabled.Should().BeFalse();
-        state[Instrument.Two]!.MinNote.Should().Be(Notes.C5);
-        state[Instrument.Two]!.MaxNote.Should().Be(Notes.C6);
-        state[Instrument.Two]!.MidiProgram.Should().Be(GeneralMidi2Program.Banjo);
-        state[Instrument.Two]!.IsEnabled.Should().BeTrue();
-        state[Instrument.Three]!.MinNote.Should().Be(Notes.C6);
-        state[Instrument.Three]!.MaxNote.Should().Be(Notes.C7);
-        state[Instrument.Three]!.MidiProgram.Should().Be(GeneralMidi2Program.Celesta);
-        state[Instrument.Three]!.IsEnabled.Should().BeTrue();
+        var instrumentOneState = state[Instrument.One]!;
+        var instrumentTwoState = state[Instrument.Two]!;
+        var instrumentThreeState = state[Instrument.Three]!;
 
-        state.Aggregate.Should().BeEquivalentTo(
+        instrumentOneState.MinNote.Should().Be(Notes.C7);
+        instrumentOneState.MaxNote.Should().Be(Notes.C8);
+        instrumentOneState.MidiProgram.Should().Be(GeneralMidi2Program.Dulcimer);
+        instrumentOneState.IsEnabled.Should().BeFalse();
+
+        instrumentTwoState.MinNote.Should().Be(Notes.C5);
+        instrumentTwoState.MaxNote.Should().Be(Notes.C6);
+        instrumentTwoState.MidiProgram.Should().Be(GeneralMidi2Program.Banjo);
+        instrumentTwoState.IsEnabled.Should().BeTrue();
+
+        instrumentThreeState.MinNote.Should().Be(Notes.C6);
+        instrumentThreeState.MaxNote.Should().Be(Notes.C7);
+        instrumentThreeState.MidiProgram.Should().Be(GeneralMidi2Program.Celesta);
+        instrumentThreeState.IsEnabled.Should().BeTrue();
+
+        var lastUserAppliedInstrumentOneState = state.LastUserAppliedConfigurations[Instrument.One];
+        var lastUserAppliedInstrumentTwoState = state.LastUserAppliedConfigurations[Instrument.Two];
+        var lastUserAppliedInstrumentThreeState = state.LastUserAppliedConfigurations[Instrument.Three];
+
+        lastUserAppliedInstrumentOneState.MinNote.Should().Be(Notes.C4);
+        lastUserAppliedInstrumentOneState.MaxNote.Should().Be(Notes.C5);
+        lastUserAppliedInstrumentOneState.MidiProgram.Should().Be(GeneralMidi2Program.Accordion);
+        lastUserAppliedInstrumentOneState.IsEnabled.Should().BeTrue();
+
+        lastUserAppliedInstrumentTwoState.MinNote.Should().Be(Notes.C5);
+        lastUserAppliedInstrumentTwoState.MaxNote.Should().Be(Notes.C6);
+        lastUserAppliedInstrumentTwoState.MidiProgram.Should().Be(GeneralMidi2Program.Banjo);
+        lastUserAppliedInstrumentTwoState.IsEnabled.Should().BeTrue();
+
+        lastUserAppliedInstrumentThreeState.MinNote.Should().Be(Notes.C6);
+        lastUserAppliedInstrumentThreeState.MaxNote.Should().Be(Notes.C7);
+        lastUserAppliedInstrumentThreeState.MidiProgram.Should().Be(GeneralMidi2Program.Celesta);
+        lastUserAppliedInstrumentThreeState.IsEnabled.Should().BeTrue();
+
+        state.EnabledConfigurations.Should().BeEquivalentTo(
             new HashSet<InstrumentConfiguration>
             {
                 new(Instrument.Two, Notes.C5, Notes.C6, GeneralMidi2Program.Banjo),

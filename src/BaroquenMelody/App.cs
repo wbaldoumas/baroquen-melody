@@ -50,7 +50,7 @@ internal sealed class App : IDisposable
     public Library.BaroquenMelody Run()
     {
         var compositionConfiguration = new CompositionConfiguration(
-            _instrumentConfigurationState.Value.Aggregate,
+            _instrumentConfigurationState.Value.EnabledConfigurations,
             PhrasingConfiguration.Default,
             _compositionRuleConfigurationState.Value.Aggregate,
             _compositionOrnamentationConfigurationState.Value.Aggregate,

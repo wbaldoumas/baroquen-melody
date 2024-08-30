@@ -1,0 +1,52 @@
+﻿@typeparam T
+
+<MudOverlay @bind-Visible="IsPopoverOpen" AutoClose="true"/>
+<MudPopover AnchorOrigin="Origin.TopCenter"
+            Open="IsPopoverOpen"
+            Elevation="3"
+            Delay="ThemeProvider.TooltipDelay"
+            Duration="ThemeProvider.TooltipDuration">
+    <MudCard Class="rounded" Outlined="true" Elevation="3">
+        <MudCardContent>
+            @PopoverContent
+        </MudCardContent>
+    </MudCard>
+</MudPopover>
+<MudAutocomplete T="T"
+                 SearchFunc="SearchFunc"
+                 ToStringFunc="ToStringFunc"
+                 Value="Value"
+                 ValueChanged="ValueChanged"
+                 Label="@Label"
+                 MaxItems="null"
+                 OnAdornmentClick="OpenPopover"
+                 AdornmentIcon="@Icons.Material.Outlined.QuestionMark"
+                 Adornment="Adornment.End"
+                 IconSize="Size.Small"
+                 Variant="Variant.Outlined"
+                 AnchorOrigin="Origin.BottomCenter"
+                 Clearable="true"
+                 OpenOnFocus="false"
+                 AutoFocus="false">
+</MudAutocomplete>
+
+@code
+{
+    [Parameter, EditorRequired] public required RenderFragment PopoverContent { get; set; }
+
+    [Parameter, EditorRequired] public required string Label { get; set; }
+
+    [Parameter, EditorRequired] public required Func<T> ValueProvider { get; set; }
+
+    [Parameter, EditorRequired] public required Func<T, string> ToStringFunc { get; set; }
+
+    [Parameter, EditorRequired] public required Func<string, CancellationToken, Task<IEnumerable<T>>> SearchFunc { get; set; }
+
+    [Parameter, EditorRequired] public required EventCallback<T> ValueChanged { get; set; }
+
+    private void OpenPopover() => IsPopoverOpen = true;
+
+    private bool IsPopoverOpen;
+
+    private T Value => ValueProvider();
+}

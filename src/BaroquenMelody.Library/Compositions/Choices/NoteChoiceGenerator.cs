@@ -1,9 +1,10 @@
-﻿using BaroquenMelody.Library.Compositions.Enums;
+﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Enums;
 
 namespace BaroquenMelody.Library.Compositions.Choices;
 
 /// <inheritdoc cref="INoteChoiceGenerator"/>
-internal sealed class NoteChoiceGenerator(byte minScaleStepChange = 1, byte maxScaleStepChange = 5) : INoteChoiceGenerator
+internal sealed class NoteChoiceGenerator(byte minScaleStepChange = 1, byte maxScaleStepChange = CompositionConfiguration.MaxScaleStepChange) : INoteChoiceGenerator
 {
     private readonly NoteMotion[] noteMotions = [NoteMotion.Ascending, NoteMotion.Descending];
 
