@@ -1,6 +1,5 @@
 ﻿using BaroquenMelody.Library;
 using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Configurations.Services;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums.Extensions;
 using BaroquenMelody.Library.Infrastructure.State;
@@ -26,7 +25,6 @@ internal sealed class App : IDisposable
     public App(
         IStore store,
         IBaroquenMelodyComposerConfigurator configurator,
-        ICompositionConfigurationService compositionConfigurationService,
         IState<CompositionProgressState> compositionProgressState,
         IState<CompositionConfigurationState> compositionConfigurationState,
         IState<InstrumentConfigurationState> instrumentConfigurationState,
@@ -34,7 +32,6 @@ internal sealed class App : IDisposable
         IState<CompositionOrnamentationConfigurationState> compositionOrnamentationConfigurationState)
     {
         store.InitializeAsync().Wait();
-        compositionConfigurationService.ConfigureDefaults();
 
         _configurator = configurator;
         _compositionConfigurationState = compositionConfigurationState;

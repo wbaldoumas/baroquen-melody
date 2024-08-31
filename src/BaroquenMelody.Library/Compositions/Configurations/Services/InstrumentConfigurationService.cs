@@ -4,7 +4,6 @@ using BaroquenMelody.Library.Infrastructure.Random;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using Fluxor;
-using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
 using System.Collections.Frozen;
 
@@ -15,14 +14,6 @@ internal sealed class InstrumentConfigurationService(
     IState<CompositionConfigurationState> compositionConfigurationState
 ) : IInstrumentConfigurationService
 {
-    private static readonly IDictionary<Instrument, (Note Min, Note Max)> _defaultInstrumentRanges = new Dictionary<Instrument, (Note Min, Note Max)>
-    {
-        { Instrument.One, (Notes.C5, Notes.E6) },
-        { Instrument.Two, (Notes.G3, Notes.B4) },
-        { Instrument.Three, (Notes.D3, Notes.F4) },
-        { Instrument.Four, (Notes.C2, Notes.E3) }
-    };
-
     private static readonly FrozenSet<Instrument> _configurableInstruments = new[]
     {
         Instrument.One,
@@ -51,12 +42,14 @@ internal sealed class InstrumentConfigurationService(
 
     private void ConfigureDefaults(Instrument instrument, bool isEnabled = true)
     {
+        var defaultConfiguration = InstrumentConfiguration.DefaultConfigurations[instrument];
+
         var closestMinNote = compositionConfigurationState.Value.Scale.GetNotes()
-            .OrderBy(note => Math.Abs(note.NoteNumber - _defaultInstrumentRanges[instrument].Min.NoteNumber))
+            .OrderBy(note => Math.Abs(note.NoteNumber - defaultConfiguration.MinNote.NoteNumber))
             .First();
 
         var closestMaxNote = compositionConfigurationState.Value.Scale.GetNotes()
-            .OrderBy(note => Math.Abs(note.NoteNumber - _defaultInstrumentRanges[instrument].Max.NoteNumber))
+            .OrderBy(note => Math.Abs(note.NoteNumber - defaultConfiguration.MaxNote.NoteNumber))
             .First();
 
         dispatcher.Dispatch(
@@ -64,7 +57,7 @@ internal sealed class InstrumentConfigurationService(
                 instrument,
                 closestMinNote,
                 closestMaxNote,
-                GeneralMidi2Program.AcousticGuitarNylon,
+                defaultConfiguration.MidiProgram,
                 isEnabled,
                 IsUserApplied: true
             )

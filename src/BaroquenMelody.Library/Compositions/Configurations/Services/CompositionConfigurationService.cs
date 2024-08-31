@@ -9,12 +9,7 @@ using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Compositions.Configurations.Services;
 
-internal sealed class CompositionConfigurationService(
-    IOrnamentationConfigurationService compositionOrnamentationConfigurationService,
-    ICompositionRuleConfigurationService compositionRuleConfigurationService,
-    IInstrumentConfigurationService compositionInstrumentConfigurationService,
-    IDispatcher dispatcher
-) : ICompositionConfigurationService
+internal sealed class CompositionConfigurationService(IDispatcher dispatcher) : ICompositionConfigurationService
 {
     private const Meter _defaultMeter = Meter.FourFour;
 
@@ -33,15 +28,6 @@ internal sealed class CompositionConfigurationService(
     public IEnumerable<Mode> ConfigurableScaleModes => _configurableScaleModes;
 
     public IEnumerable<Meter> ConfigurableMeters => _configurableMeters;
-
-    public void ConfigureDefaults()
-    {
-        compositionOrnamentationConfigurationService.ConfigureDefaults();
-        compositionRuleConfigurationService.ConfigureDefaults();
-        compositionInstrumentConfigurationService.ConfigureDefaults();
-
-        Reset();
-    }
 
     public void Randomize()
     {

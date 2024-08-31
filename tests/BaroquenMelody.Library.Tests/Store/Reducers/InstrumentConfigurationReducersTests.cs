@@ -81,12 +81,9 @@ internal sealed class InstrumentConfigurationReducersTests
         lastUserAppliedInstrumentThreeState.MidiProgram.Should().Be(GeneralMidi2Program.Celesta);
         lastUserAppliedInstrumentThreeState.IsEnabled.Should().BeTrue();
 
-        state.EnabledConfigurations.Should().BeEquivalentTo(
-            new HashSet<InstrumentConfiguration>
-            {
-                new(Instrument.Two, Notes.C5, Notes.C6, GeneralMidi2Program.Banjo),
-                new(Instrument.Three, Notes.C6, Notes.C7, GeneralMidi2Program.Celesta)
-            }
-        );
+        var otherConfiguration = InstrumentConfiguration.DefaultConfigurations[Instrument.Four];
+
+        state[Instrument.Four]!.Should().BeEquivalentTo(otherConfiguration);
+        state.LastUserAppliedConfigurations[Instrument.Four].Should().BeEquivalentTo(otherConfiguration);
     }
 }

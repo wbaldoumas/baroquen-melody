@@ -13,12 +13,6 @@ namespace BaroquenMelody.Library.Tests.Compositions.Configuration.Services;
 [TestFixture]
 internal sealed class CompositionConfigurationServiceTests
 {
-    private IOrnamentationConfigurationService _mockOrnamentationConfigurationService = null!;
-
-    private ICompositionRuleConfigurationService _mockCompositionRuleConfigurationService = null!;
-
-    private IInstrumentConfigurationService _mockInstrumentConfigurationService = null!;
-
     private IDispatcher _mockDispatcher = null!;
 
     private CompositionConfigurationService _compositionConfigurationService = null!;
@@ -26,17 +20,9 @@ internal sealed class CompositionConfigurationServiceTests
     [SetUp]
     public void SetUp()
     {
-        _mockOrnamentationConfigurationService = Substitute.For<IOrnamentationConfigurationService>();
-        _mockCompositionRuleConfigurationService = Substitute.For<ICompositionRuleConfigurationService>();
-        _mockInstrumentConfigurationService = Substitute.For<IInstrumentConfigurationService>();
         _mockDispatcher = Substitute.For<IDispatcher>();
 
-        _compositionConfigurationService = new CompositionConfigurationService(
-            _mockOrnamentationConfigurationService,
-            _mockCompositionRuleConfigurationService,
-            _mockInstrumentConfigurationService,
-            _mockDispatcher
-        );
+        _compositionConfigurationService = new CompositionConfigurationService(_mockDispatcher);
     }
 
     [Test]
@@ -103,19 +89,6 @@ internal sealed class CompositionConfigurationServiceTests
 
         // assert
         actualConfigurableMeters.Should().BeEquivalentTo(expectedConfigurableMeters);
-    }
-
-    [Test]
-    public void ConfigureDefaults_dispatches_expected_actions()
-    {
-        // act
-        _compositionConfigurationService.ConfigureDefaults();
-
-        // assert
-        _mockOrnamentationConfigurationService.Received(1).ConfigureDefaults();
-        _mockCompositionRuleConfigurationService.Received(1).ConfigureDefaults();
-        _mockInstrumentConfigurationService.Received(1).ConfigureDefaults();
-        _mockDispatcher.Received(1).Dispatch(Arg.Any<UpdateCompositionConfiguration>());
     }
 
     [Test]
