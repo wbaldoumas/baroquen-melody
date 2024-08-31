@@ -16,4 +16,9 @@ public interface IOrnamentationConfigurationService
     ///     Configure the default ornamentations.
     /// </summary>
     void ConfigureDefaults();
+
+    /// <summary>
+    ///     Randomly the ornamentations used in the composition.
+    /// </summary>
+    void Randomize();
 }

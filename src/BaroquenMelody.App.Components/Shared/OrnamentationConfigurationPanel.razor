@@ -1,6 +1,11 @@
-﻿<RandomizeResetButtonGroup />
-@foreach (var ornamentation in OrnamentationConfigurationService.ConfigurableOrnamentations)
-{
-    <OrnamentationConfigurationCard OrnamentationType="ornamentation"/>
-}
+﻿<RandomizeResetButtonGroup OnRandomizeClick="OrnamentationConfigurationService.Randomize"
+                           OnResetClick="OrnamentationConfigurationService.ConfigureDefaults"/>
+<MudGrid Spacing="1" Justify="Justify.Center">
+    @foreach (var ornamentation in OrnamentationConfigurationService.ConfigurableOrnamentations)
+    {
+        <MudItem xs="12" sm="12" md="6" lg="6" xl="6" xxl="6">
+            <OrnamentationConfigurationCard OrnamentationType="ornamentation"/>
+        </MudItem>
+    }
+</MudGrid>
 <ScrollToTop />

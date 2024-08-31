@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations.Services;
+﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Configurations.Services;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using FluentAssertions;
@@ -64,6 +65,20 @@ internal sealed class OrnamentationConfigurationServiceTests
         _ornamentationConfigurationService.ConfigureDefaults();
 
         // assert
-        _mockDispatcher.Received(19).Dispatch(Arg.Any<UpdateCompositionOrnamentationConfiguration>());
+        _mockDispatcher
+            .Received(AggregateOrnamentationConfiguration.Default.Configurations.Count)
+            .Dispatch(Arg.Any<UpdateCompositionOrnamentationConfiguration>());
+    }
+
+    [Test]
+    public void Randomize_dispatches_expected_actions()
+    {
+        // act
+        _ornamentationConfigurationService.Randomize();
+
+        // assert
+        _mockDispatcher
+            .Received(AggregateOrnamentationConfiguration.Default.Configurations.Count)
+            .Dispatch(Arg.Any<UpdateCompositionOrnamentationConfiguration>());
     }
 }
