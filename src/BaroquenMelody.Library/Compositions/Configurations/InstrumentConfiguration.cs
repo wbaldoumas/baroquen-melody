@@ -20,4 +20,12 @@ public sealed record InstrumentConfiguration(
     bool IsEnabled = true)
 {
     public bool IsNoteWithinInstrumentRange(Note note) => MinNote.NoteNumber <= note.NoteNumber && note.NoteNumber <= MaxNote.NoteNumber;
+
+    public static readonly IDictionary<Instrument, InstrumentConfiguration> DefaultConfigurations = new Dictionary<Instrument, InstrumentConfiguration>
+    {
+        { Instrument.One, new(Instrument.One, Notes.C5, Notes.E6) },
+        { Instrument.Two, new(Instrument.Two, Notes.G3, Notes.B4) },
+        { Instrument.Three, new(Instrument.Three, Notes.D3, Notes.F4) },
+        { Instrument.Four, new(Instrument.Four, Notes.C2, Notes.E3) }
+    };
 }

@@ -47,15 +47,16 @@ internal sealed class CompositionOrnamentationConfigurationReducersTests
         state[OrnamentationType.Turn]!.Probability.Should().Be(3);
         state[OrnamentationType.Mordent]!.Probability.Should().Be(4);
 
-        state.Aggregate.Should().BeEquivalentTo(
-            new AggregateOrnamentationConfiguration(
-                new HashSet<OrnamentationConfiguration>
-                {
-                    new(OrnamentationType.Run, true, 1),
-                    new(OrnamentationType.Turn, true, 3),
-                    new(OrnamentationType.Mordent, true, 4)
-                }
-            )
-        );
+        var otherConfigurations = AggregateOrnamentationConfiguration.Default.Configurations
+            .Where(configuration => configuration.OrnamentationType
+                is not OrnamentationType.Run
+                and not OrnamentationType.Turn
+                and not OrnamentationType.Mordent
+            );
+
+        foreach (var defaultConfiguration in otherConfigurations)
+        {
+            state[defaultConfiguration.OrnamentationType]!.Should().BeEquivalentTo(defaultConfiguration);
+        }
     }
 }

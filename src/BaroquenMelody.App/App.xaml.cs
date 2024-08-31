@@ -1,17 +1,13 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations.Services;
-
-namespace BaroquenMelody.App;
+﻿namespace BaroquenMelody.App;
 
 /// <summary>
 ///     The entrypoint of the application.
 /// </summary>
 public partial class App : Application
 {
-    public App(ICompositionConfigurationService compositionConfigurationService)
+    public App()
     {
         InitializeComponent();
-
-        compositionConfigurationService.ConfigureDefaults();
 
         MainPage = new MainPage();
     }

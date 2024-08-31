@@ -35,15 +35,16 @@ internal sealed class CompositionRuleConfigurationReducersTests
         state[CompositionRule.AvoidRepeatedChords]!.Strictness.Should().Be(3);
         state[CompositionRule.AvoidRepeatedChords]!.IsEnabled.Should().BeTrue();
 
-        state.Aggregate.Should().BeEquivalentTo(
-            new AggregateCompositionRuleConfiguration(
-                new HashSet<CompositionRuleConfiguration>
-                {
-                    new(CompositionRule.AvoidDirectFifths, false, 4),
-                    new(CompositionRule.AvoidDissonance, true, 2),
-                    new(CompositionRule.AvoidRepeatedChords, true, 3)
-                }
-            )
-        );
+        var otherConfigurations = AggregateCompositionRuleConfiguration.Default.Configurations
+            .Where(configuration => configuration.Rule
+                is not CompositionRule.AvoidDirectFifths
+                and not CompositionRule.AvoidDissonance
+                and not CompositionRule.AvoidRepeatedChords
+            );
+
+        foreach (var defaultConfiguration in otherConfigurations)
+        {
+            state[defaultConfiguration.Rule]!.Should().BeEquivalentTo(defaultConfiguration);
+        }
     }
 }

@@ -25,11 +25,6 @@ public interface ICompositionConfigurationService
     IEnumerable<Meter> ConfigurableMeters { get; }
 
     /// <summary>
-    ///     Configure the default composition configuration.
-    /// </summary>
-    void ConfigureDefaults();
-
-    /// <summary>
     ///     Randomize the composition configuration.
     /// </summary>
     void Randomize();
