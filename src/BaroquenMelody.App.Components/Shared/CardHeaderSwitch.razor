@@ -1,0 +1,20 @@
+﻿<MudCardHeader>
+    <CardHeaderContent>
+        <MudText Typo="Typo.h6">@HeaderText</MudText>
+    </CardHeaderContent>
+    <CardHeaderActions>
+        <MudSwitch T="bool" Value="IsEnabled" ValueChanged="ValueChanged" Label="Enabled" Color="Color.Tertiary" />
+    </CardHeaderActions>
+</MudCardHeader>
+
+@code
+{
+    [Parameter, EditorRequired]
+    public required string HeaderText { get; set; }
+
+    [Parameter, EditorRequired]
+    public required bool IsEnabled { get; set; }
+
+    [Parameter, EditorRequired]
+    public required EventCallback<bool> ValueChanged { get; set; }
+}

@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations.Services;
+﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Configurations.Services;
 using BaroquenMelody.Library.Compositions.Rules.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using FluentAssertions;
@@ -58,6 +59,20 @@ internal sealed class CompositionRuleConfigurationServiceTests
         _compositionRuleConfigurationService.ConfigureDefaults();
 
         // assert
-        _mockDispatcher.Received(13).Dispatch(Arg.Any<UpdateCompositionRuleConfiguration>());
+        _mockDispatcher
+            .Received(AggregateCompositionRuleConfiguration.Default.Configurations.Count)
+            .Dispatch(Arg.Any<UpdateCompositionRuleConfiguration>());
+    }
+
+    [Test]
+    public void Randomize_dispatches_expected_actions()
+    {
+        // act
+        _compositionRuleConfigurationService.Randomize();
+
+        // assert
+        _mockDispatcher
+            .Received(AggregateCompositionRuleConfiguration.Default.Configurations.Count)
+            .Dispatch(Arg.Any<UpdateCompositionRuleConfiguration>());
     }
 }

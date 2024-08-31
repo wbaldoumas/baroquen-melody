@@ -16,4 +16,9 @@ public interface ICompositionRuleConfigurationService
     ///     Configure the default composition rules.
     /// </summary>
     void ConfigureDefaults();
+
+    /// <summary>
+    ///     Randomize the configuration of the composition rules.
+    /// </summary>
+    void Randomize();
 }

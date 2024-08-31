@@ -2,14 +2,9 @@
 @implements IDisposable
 
 <MudCard Class="rounded my-3 mx-3" Elevation="3" Outlined="true">
-    <MudCardHeader>
-        <CardHeaderContent>
-            <MudText Typo="Typo.h6">Instrument @Instrument</MudText>
-        </CardHeaderContent>
-        <CardHeaderActions>
-            <MudSwitch T="bool" Value="IsEnabled" ValueChanged="HandleIsEnabledChange" Label="Enabled" Color="Color.Tertiary"/>
-        </CardHeaderActions>
-    </MudCardHeader>
+    <CardHeaderSwitch HeaderText="@($"Instrument {Instrument}")"
+                      IsEnabled="@IsEnabled"
+                      ValueChanged="HandleIsEnabledChange"/>
     <MudCardContent>
         <MudGrid Justify="Justify.SpaceBetween">
             <MudItem xs="12" sm="6" md="5" lg="4" xl="3" xxl="2">

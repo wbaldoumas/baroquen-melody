@@ -12,7 +12,15 @@
         </MudCardContent>
     </MudCard>
 </MudPopover>
-<MudNumericField T="T" OnAdornmentClick="OpenMeterPopover" AdornmentIcon="@Icons.Material.Outlined.QuestionMark" Adornment="Adornment.End" IconSize="Size.Small" Variant="Variant.Outlined" Value="Value" Label="@Label" ValueChanged="ValueChanged"/>
+<MudNumericField T="T" 
+                 OnAdornmentClick="OpenMeterPopover" 
+                 AdornmentIcon="@Icons.Material.Outlined.QuestionMark" 
+                 Adornment="Adornment.End" 
+                 IconSize="Size.Small" 
+                 Variant="Variant.Outlined" 
+                 Value="Value" 
+                 Label="@Label" 
+                 ValueChanged="ValueChanged"/>
 
 @code
 {
@@ -23,6 +31,10 @@
     [Parameter, EditorRequired] public required Func<T> ValueProvider { get; set; }
 
     [Parameter, EditorRequired] public required EventCallback<T> ValueChanged { get; set; }
+
+    [Parameter] public int? Min { get; set; }
+
+    [Parameter] public int? Max { get; set; }
 
     private void OpenMeterPopover() => IsPopoverOpen = true;
 

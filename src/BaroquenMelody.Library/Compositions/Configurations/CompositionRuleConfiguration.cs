@@ -11,5 +11,5 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 public sealed record CompositionRuleConfiguration(
     CompositionRule Rule,
     bool IsEnabled = true,
-    int Strictness = int.MaxValue
+    int Strictness = 100
 );

@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Rules.Enums;
+using BaroquenMelody.Library.Infrastructure.Random;
 using BaroquenMelody.Library.Store.Actions;
 using Fluxor;
 using System.Collections.Frozen;
@@ -20,6 +21,17 @@ internal sealed class CompositionRuleConfigurationService(IDispatcher dispatcher
         foreach (var configuration in AggregateCompositionRuleConfiguration.Default.Configurations)
         {
             dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(configuration.Rule, configuration.IsEnabled, configuration.Strictness));
+        }
+    }
+
+    public void Randomize()
+    {
+        foreach (var configuration in AggregateCompositionRuleConfiguration.Default.Configurations)
+        {
+            var isEnabled = ThreadLocalRandom.Next() % 2 == 0;
+            var strictness = ThreadLocalRandom.Next(0, 101);
+
+            dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(configuration.Rule, isEnabled, strictness));
         }
     }
 }
