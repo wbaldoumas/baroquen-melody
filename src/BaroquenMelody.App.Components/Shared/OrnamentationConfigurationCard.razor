@@ -1,27 +1,42 @@
 ﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
 <MudCard Class="rounded mb-3 mx-3" Elevation="3" Outlined="true">
-    <MudCardHeader>
-        <CardHeaderContent>
-            <MudText>@OrnamentationType</MudText>
-        </CardHeaderContent>
-    </MudCardHeader>
+    <CardHeaderSwitch HeaderText="@(OrnamentationType.ToSpaceSeparatedString())"
+                      IsEnabled="@IsEnabled"
+                      ValueChanged="HandleIsEnabledChange"/>
     <MudCardContent>
-        <MudText Color="Color.Primary">Probability</MudText>
-        <MudSlider T="int"
-                   Value="@Probability"
-                   Step="1"
-                   Color="Color.Tertiary"
-                   ValueChanged="HandleProbabilityChange"
-                   Max="100"
-                   Min="0"
-                   ValueLabel="true"
-                   Variant="Variant.Filled"/>
-            <MudText Color="Color.Primary">Enabled</MudText>
-            <MudSwitch T="bool"
-                       Value="@IsEnabled"
-                       ValueChanged="HandleIsEnabledChange"
-                       Color="Color.Primary" />
+        <MudGrid>
+            <MudItem xs="12" sm="4" md="4" lg="4" xl="4" xxl="4">
+                <NumericInputWithPopover T="int"
+                                         Label="Probability"
+                                         ValueChanged="HandleProbabilityChange"
+                                         ValueProvider="() => Probability"
+                                         Min="0"
+                                         Max="100">
+                    <PopoverContent>
+                        <MudText>The probability of the ornamentation being applied to the composition.</MudText>
+                    </PopoverContent>
+                </NumericInputWithPopover>
+            </MudItem>
+            <MudFlexBreak/>
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" xxl="12" Class="d-none d-sm-flex">
+                <MudSlider T="int"
+                           Value="@Probability"
+                           Class="mx-1 mt-n3"
+                           ValueChanged="HandleProbabilityChange"
+                           Size="Size.Medium"
+                           Variant="Variant.Filled"
+                           Color="Color.Tertiary"
+                           ValueLabel="true"
+                           TickMarks="true"
+                           Immediate="true"
+                           Min="0"
+                           Max="100"
+                           Step="1"
+                           ValueLabelFormat="0'%'"
+                           Culture="CultureInfo.CurrentCulture"/>
+            </MudItem>
+        </MudGrid>
     </MudCardContent>
 </MudCard>
 
