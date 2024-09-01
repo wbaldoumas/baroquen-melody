@@ -26,6 +26,6 @@ public sealed record InstrumentConfiguration(
         { Instrument.One, new(Instrument.One, Notes.C5, Notes.E6) },
         { Instrument.Two, new(Instrument.Two, Notes.G3, Notes.B4) },
         { Instrument.Three, new(Instrument.Three, Notes.D3, Notes.F4) },
-        { Instrument.Four, new(Instrument.Four, Notes.C2, Notes.E3) }
+        { Instrument.Four, new(Instrument.Four, Notes.C2, Notes.E3, IsEnabled: false) }
     };
 }

@@ -12,6 +12,8 @@ using BaroquenMelody.Library.Infrastructure.Collections.Extensions;
 using BaroquenMelody.Library.Infrastructure.Exceptions;
 using BaroquenMelody.Library.Infrastructure.Logging;
 using BaroquenMelody.Library.Infrastructure.Random;
+using BaroquenMelody.Library.Store.Actions;
+using Fluxor;
 using Melanchall.DryWetMidi.Interaction;
 using Microsoft.Extensions.Logging;
 
@@ -22,6 +24,7 @@ internal sealed class EndingComposer(
     ICompositionStrategy compositionStrategy,
     ICompositionDecorator compositionDecorator,
     IChordNumberIdentifier chordNumberIdentifier,
+    IDispatcher dispatcher,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
 ) : IEndingComposer
@@ -86,6 +89,8 @@ internal sealed class EndingComposer(
 
         while (true)
         {
+            DispatchBridgingChordsProgress(chords.Count);
+
             var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords(compositionContext, firstChordOfRecapitulation);
 
             if (possibleChords.Count > 0)
@@ -110,7 +115,16 @@ internal sealed class EndingComposer(
             break;
         }
 
+        DispatchBridgingChordsProgress(MaxBridgingChords);
+
         return chords;
+    }
+
+    private void DispatchBridgingChordsProgress(int currentChordCount)
+    {
+        var progress = (double)currentChordCount / MaxBridgingChords * 100 / 2;
+
+        dispatcher.Dispatch(new ProgressCompositionEndingProgress(progress));
     }
 
     private BaroquenChord GetBridgingChord(IReadOnlyList<BaroquenChord> compositionContext, BaroquenChord targetChord)
@@ -162,6 +176,8 @@ internal sealed class EndingComposer(
             }
         }
 
+        DispatchChordsToTonicProgress(MaxChordsToTonic);
+
         var finalChordOfComposition = composition.Measures[^1].Beats[^1].Chord;
 
         finalChordOfComposition.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
@@ -195,6 +211,8 @@ internal sealed class EndingComposer(
 
         while (true)
         {
+            DispatchChordsToTonicProgress(chords.Count);
+
             var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(compositionContext);
             var foundTonicChord = false;
 
@@ -240,6 +258,13 @@ internal sealed class EndingComposer(
         compositionDecorator.Decorate(compositionWithTonicFinalChord);
 
         return compositionWithTonicFinalChord;
+    }
+
+    private void DispatchChordsToTonicProgress(int currentChordCount)
+    {
+        var progress = (double)currentChordCount / MaxChordsToTonic * 100 / 2 + 50;
+
+        dispatcher.Dispatch(new ProgressCompositionEndingProgress(progress));
     }
 
     private BaroquenChord GetNextChord(IReadOnlyList<ChordChoice> possibleChordChoices, IReadOnlyList<BaroquenChord> compositionContext)

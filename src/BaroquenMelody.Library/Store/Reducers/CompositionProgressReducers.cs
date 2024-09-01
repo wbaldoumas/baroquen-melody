@@ -8,13 +8,37 @@ namespace BaroquenMelody.Library.Store.Reducers;
 public static class CompositionProgressReducers
 {
     [ReducerMethod]
-    public static CompositionProgressState ReduceUpdateCompositionProgressAction(CompositionProgressState state, ProgressCompositionStepAction action)
+    public static CompositionProgressState ReduceUpdateCompositionProgressAction(CompositionProgressState state, ProgressCompositionStep action)
     {
         var completedSteps = new HashSet<CompositionStep>(state.CompletedSteps)
         {
             state.CurrentStep
         };
 
-        return new CompositionProgressState(completedSteps, action.Step);
+        return state with { CompletedSteps = completedSteps, CurrentStep = action.Step };
+    }
+
+    [ReducerMethod]
+    public static CompositionProgressState ReduceProgressCompositionThemeProgressAction(CompositionProgressState state, ProgressCompositionThemeProgress action)
+    {
+        return state with { ThemeProgress = action.Progress };
+    }
+
+    [ReducerMethod]
+    public static CompositionProgressState ReduceProgressCompositionBodyProgressAction(CompositionProgressState state, ProgressCompositionBodyProgress action)
+    {
+        return state with { BodyProgress = action.Progress };
+    }
+
+    [ReducerMethod]
+    public static CompositionProgressState ReduceProgressCompositionEndingProgressAction(CompositionProgressState state, ProgressCompositionEndingProgress action)
+    {
+        return state with { EndingProgress = action.Progress };
+    }
+
+    [ReducerMethod]
+    public static CompositionProgressState ReduceResetCompositionProgressAction(CompositionProgressState state, ResetCompositionProgress action)
+    {
+        return new CompositionProgressState();
     }
 }

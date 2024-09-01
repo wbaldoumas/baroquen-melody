@@ -9,6 +9,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
+using Fluxor;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Microsoft.Extensions.Logging;
@@ -28,6 +29,8 @@ internal sealed class EndingComposerTests
 
     private IChordNumberIdentifier _mockChordNumberIdentifier = null!;
 
+    private IDispatcher _mockDispatcher = null!;
+
     private ILogger _mockLogger = null!;
 
     private CompositionConfiguration _compositionConfiguration = null!;
@@ -38,13 +41,21 @@ internal sealed class EndingComposerTests
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
         _mockCompositionDecorator = Substitute.For<ICompositionDecorator>();
         _mockChordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
+        _mockDispatcher = Substitute.For<IDispatcher>();
         _mockLogger = Substitute.For<ILogger>();
 
         _compositionConfiguration = Configurations.GetCompositionConfiguration();
 
         _mockChordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
 
-        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, _mockLogger, _compositionConfiguration);
+        _endingComposer = new EndingComposer(
+            _mockCompositionStrategy,
+            _mockCompositionDecorator,
+            _mockChordNumberIdentifier,
+            _mockDispatcher,
+            _mockLogger,
+            _compositionConfiguration
+        );
     }
 
     [Test]

@@ -21,6 +21,8 @@ internal sealed class Composer(
 {
     public Composition Compose()
     {
+        dispatcher.Dispatch(new ResetCompositionProgress());
+
         var theme = ComposeMainTheme();
         var compositionBody = ComposeBodyOfComposition(theme);
         var compositionWithOrnamentation = AddOrnamentation(compositionBody);
@@ -33,14 +35,14 @@ internal sealed class Composer(
 
     private BaroquenTheme ComposeMainTheme()
     {
-        dispatcher.Dispatch(new ProgressCompositionStepAction(CompositionStep.Theme));
+        dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Theme));
 
         return themeComposer.Compose();
     }
 
     private Composition ComposeBodyOfComposition(BaroquenTheme theme)
     {
-        dispatcher.Dispatch(new ProgressCompositionStepAction(CompositionStep.Body));
+        dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Body));
 
         var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
@@ -65,14 +67,21 @@ internal sealed class Composer(
             }
 
             compositionBody.Add(new Measure(beats, compositionConfiguration.Meter));
+
+            DispatchProgress(compositionBody.Count);
         }
 
         return new Composition(compositionBody);
     }
 
+    private void DispatchProgress(int currentMeasureCount)
+    {
+        dispatcher.Dispatch(new ProgressCompositionBodyProgress((double)currentMeasureCount / compositionConfiguration.CompositionLength * 100));
+    }
+
     private Composition AddOrnamentation(Composition composition)
     {
-        dispatcher.Dispatch(new ProgressCompositionStepAction(CompositionStep.Ornamentation));
+        dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Ornamentation));
 
         compositionDecorator.Decorate(composition);
 
@@ -81,7 +90,7 @@ internal sealed class Composer(
 
     private Composition ApplyPhrasing(Composition initialComposition, BaroquenTheme theme)
     {
-        dispatcher.Dispatch(new ProgressCompositionStepAction(CompositionStep.Phrasing));
+        dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Phrasing));
 
         compositionPhraser.AddTheme(theme);
 
@@ -112,7 +121,7 @@ internal sealed class Composer(
 
     private Composition ComposeEnding(Composition composition, BaroquenTheme theme)
     {
-        dispatcher.Dispatch(new ProgressCompositionStepAction(CompositionStep.Ending));
+        dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Ending));
 
         return endingComposer.Compose(composition, theme);
     }
@@ -126,7 +135,7 @@ internal sealed class Composer(
 
     private Composition CompleteComposition(BaroquenTheme theme, Composition composition)
     {
-        dispatcher.Dispatch(new ProgressCompositionStepAction(CompositionStep.Complete));
+        dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Complete));
 
         return new Composition([.. theme.Exposition, .. composition.Measures]);
     }
