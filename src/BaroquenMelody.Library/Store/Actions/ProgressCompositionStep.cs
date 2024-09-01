@@ -2,4 +2,4 @@
 
 namespace BaroquenMelody.Library.Store.Actions;
 
-public sealed record ProgressCompositionStepAction(CompositionStep Step);
+public sealed record ProgressCompositionStep(CompositionStep Step);

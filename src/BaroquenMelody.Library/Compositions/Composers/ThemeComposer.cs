@@ -6,6 +6,8 @@ using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Infrastructure.Logging;
 using BaroquenMelody.Library.Infrastructure.Random;
+using BaroquenMelody.Library.Store.Actions;
+using Fluxor;
 using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library.Compositions.Composers;
@@ -16,6 +18,7 @@ internal sealed class ThemeComposer(
     ICompositionDecorator compositionDecorator,
     IChordComposer chordComposer,
     INoteTransposer noteTransposer,
+    IDispatcher dispatcher,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
 ) : IThemeComposer
@@ -28,8 +31,12 @@ internal sealed class ThemeComposer(
 
         while (attempt++ < MaxFugueCompositionAttempts)
         {
+            DispatchProgress(attempt);
+
             if (TryComposeFugalTheme(out var fugueSubject))
             {
+                DispatchProgress(MaxFugueCompositionAttempts);
+
                 return fugueSubject!;
             }
 
@@ -41,6 +48,11 @@ internal sealed class ThemeComposer(
         var initialMeasures = ComposeInitialMeasures();
 
         return new BaroquenTheme(initialMeasures, initialMeasures);
+    }
+
+    private void DispatchProgress(int attempt)
+    {
+        dispatcher.Dispatch(new ProgressCompositionThemeProgress(((double)attempt / MaxFugueCompositionAttempts) * 100));
     }
 
     private bool TryComposeFugalTheme(out BaroquenTheme? theme)

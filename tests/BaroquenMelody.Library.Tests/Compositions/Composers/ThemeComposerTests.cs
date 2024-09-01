@@ -7,6 +7,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
+using Fluxor;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Microsoft.Extensions.Logging;
@@ -26,6 +27,8 @@ internal sealed class ThemeComposerTests
 
     private INoteTransposer _mockNoteTransposer = null!;
 
+    private IDispatcher _mockDispatcher = null!;
+
     private ILogger _mockLogger = null!;
 
     private CompositionConfiguration _compositionConfiguration = null!;
@@ -39,11 +42,12 @@ internal sealed class ThemeComposerTests
         _mockCompositionDecorator = Substitute.For<ICompositionDecorator>();
         _mockChordComposer = Substitute.For<IChordComposer>();
         _mockNoteTransposer = Substitute.For<INoteTransposer>();
+        _mockDispatcher = Substitute.For<IDispatcher>();
         _mockLogger = Substitute.For<ILogger>();
 
         _compositionConfiguration = Configurations.GetCompositionConfiguration();
 
-        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockNoteTransposer, _mockLogger, _compositionConfiguration);
+        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockNoteTransposer, _mockDispatcher, _mockLogger, _compositionConfiguration);
     }
 
     [Test]
