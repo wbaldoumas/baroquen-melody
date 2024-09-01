@@ -36,6 +36,19 @@ internal sealed class CompositionProgressStateTests
     }
 
     [Test]
+    public void Message_throws_when_current_step_is_unknown()
+    {
+        // arrange
+        var state = new CompositionProgressState(new HashSet<CompositionStep>(), (CompositionStep)byte.MaxValue);
+
+        // act
+        var act = () => _ = state.Message;
+
+        // assert
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
     public void IsComplete_returns_true_when_current_step_is_complete()
     {
         // arrange

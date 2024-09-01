@@ -77,7 +77,6 @@ internal sealed class Composer(
     private void DispatchProgress(int currentMeasureCount)
     {
         dispatcher.Dispatch(new ProgressCompositionBodyProgress((double)currentMeasureCount / compositionConfiguration.CompositionLength * 100));
-
     }
 
     private Composition AddOrnamentation(Composition composition)

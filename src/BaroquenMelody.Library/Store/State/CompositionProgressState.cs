@@ -27,7 +27,7 @@ public sealed record CompositionProgressState(
         CompositionStep.Phrasing => "Composing ending...", // Step completes too quickly to show a different message to the user.
         CompositionStep.Ending => "Composing ending...",
         CompositionStep.Complete => "Composition complete!",
-        _ => throw new ArgumentOutOfRangeException(nameof(CurrentStep), $"Unknown composition step: {CurrentStep}."),
+        _ => throw new ArgumentOutOfRangeException(nameof(CurrentStep), $"Unknown composition step: {CurrentStep}.")
     };
 
     public CompositionProgressState()

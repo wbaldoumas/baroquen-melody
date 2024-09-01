@@ -55,4 +55,23 @@ internal sealed class CompositionProgressReducersTests
         newState.EndingProgress.Should().Be(0.25d);
         newState.OverallProgress.Should().Be(0.25d);
     }
+
+    [Test]
+    public void ReduceResetCompositionProgressAction_returns_new_state_with_expected_values()
+    {
+        // arrange
+        var state = new CompositionProgressState(new HashSet<CompositionStep> { CompositionStep.Theme }, CompositionStep.Theme);
+
+        // act
+        var newState = CompositionProgressReducers.ReduceResetCompositionProgressAction(state, new ResetCompositionProgress());
+
+        // assert
+        newState.CompletedSteps.Should().BeEmpty();
+        newState.CurrentStep.Should().Be(CompositionStep.Waiting);
+        newState.Message.Should().Be("Waiting to compose...");
+        newState.ThemeProgress.Should().Be(0.0d);
+        newState.BodyProgress.Should().Be(0.0d);
+        newState.EndingProgress.Should().Be(0.0d);
+        newState.OverallProgress.Should().Be(0.0d);
+    }
 }

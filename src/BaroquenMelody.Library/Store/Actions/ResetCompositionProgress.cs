@@ -1,3 +1,3 @@
 ﻿namespace BaroquenMelody.Library.Store.Actions;
 
-public sealed record ResetCompositionProgress();
+public sealed record ResetCompositionProgress;

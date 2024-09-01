@@ -16,7 +16,6 @@ using BaroquenMelody.Library.Store.Actions;
 using Fluxor;
 using Melanchall.DryWetMidi.Interaction;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
 namespace BaroquenMelody.Library.Compositions.Composers;
 
@@ -126,8 +125,6 @@ internal sealed class EndingComposer(
         var progress = (double)currentChordCount / MaxBridgingChords * 100 / 2;
 
         dispatcher.Dispatch(new ProgressCompositionEndingProgress(progress));
-
-        Debug.WriteLine($"Bridging chords progress: {progress}");
     }
 
     private BaroquenChord GetBridgingChord(IReadOnlyList<BaroquenChord> compositionContext, BaroquenChord targetChord)
@@ -268,8 +265,6 @@ internal sealed class EndingComposer(
         var progress = (double)currentChordCount / MaxChordsToTonic * 100 / 2 + 50;
 
         dispatcher.Dispatch(new ProgressCompositionEndingProgress(progress));
-
-        Debug.WriteLine($"Chords to tonic progress: {progress}");
     }
 
     private BaroquenChord GetNextChord(IReadOnlyList<ChordChoice> possibleChordChoices, IReadOnlyList<BaroquenChord> compositionContext)
