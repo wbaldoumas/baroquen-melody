@@ -1,3 +1,3 @@
 ﻿namespace BaroquenMelody.Library.Store.Actions;
 
-public record Compose;
+public sealed record Compose;

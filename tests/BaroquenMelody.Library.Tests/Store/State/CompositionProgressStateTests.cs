@@ -69,12 +69,19 @@ internal sealed class CompositionProgressStateTests
     }
 
     [Test]
-    public void IsLoading_returns_true_when_current_step_is_not_complete_and_not_waiting()
+    [TestCase(CompositionStep.Waiting, false)]
+    [TestCase(CompositionStep.Theme, true)]
+    [TestCase(CompositionStep.Body, true)]
+    [TestCase(CompositionStep.Ornamentation, true)]
+    [TestCase(CompositionStep.Phrasing, true)]
+    [TestCase(CompositionStep.Ending, true)]
+    [TestCase(CompositionStep.Complete, false)]
+    public void IsLoading_returns_expected_value_based_on_current_composition_step(CompositionStep step, bool expectedIsLoading)
     {
         // arrange
-        var state = new CompositionProgressState(new HashSet<CompositionStep>(), CompositionStep.Theme);
+        var state = new CompositionProgressState(new HashSet<CompositionStep>(), step);
 
         // act
-        state.IsLoading.Should().BeTrue();
+        state.IsLoading.Should().Be(expectedIsLoading);
     }
 }
