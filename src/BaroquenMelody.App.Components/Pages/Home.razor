@@ -1,19 +1,38 @@
 ﻿@page "/"
 
 @inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@implements IDisposable
 
 <PageTitle>Home</PageTitle>
 
 <MudContainer Class="mb-3" Gutters="false">
     <MudGrid Class="mb-2" Justify="Justify.FlexEnd" Spacing="1">
-        <MudItem >
+        <MudItem>
             <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Folder" IconColor="Color.Primary">Load Configuration</MudButton>
         </MudItem>
-        <MudItem >
+        <MudItem>
             <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" IconColor="Color.Secondary">Save Configuration</MudButton>
-        </MudItem >
-        <MudItem >
-            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.ElectricBolt" Color="Color.Tertiary" OnClick="Compose">Compose</MudButton>
+        </MudItem>
+        <MudItem>
+            @if (!CompositionProgressState.Value.IsLoading)
+            {
+                <MudButton Variant="Variant.Filled"
+                           StartIcon="@Icons.Material.Filled.ElectricBolt"
+                           Color="Color.Tertiary"
+                           OnClick="Compose"
+                           Disabled="@CompositionProgressState.Value.IsLoading">
+                    Compose
+                </MudButton>
+            }
+            else
+            {
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Tertiary"
+                           Disabled="@CompositionProgressState.Value.IsLoading">
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                    <MudText Class="ms-2" Typo="Typo.button">Compose</MudText>
+                </MudButton>
+            }
         </MudItem>
     </MudGrid>
     <MudTabs Outlined="true"
@@ -48,29 +67,28 @@
 
     private MudTabPanel? _compositionTab;
 
-    private async Task Compose()
+    private IDisposable? _baroquenMelodySubscription;
+
+    protected override void OnInitialized()
     {
+        base.OnInitialized();
+
+        _baroquenMelodySubscription = BaroquenMelodyState
+            .ObserveChanges()
+            .Subscribe(state =>
+            {
+                if (state.Value.BaroquenMelody is not null)
+                {
+                    WriteMidiFile(state.Value.BaroquenMelody);
+                }
+            });
+    }
+
+    private void Compose()
+    {
+        Dispatcher.Dispatch(new Compose());
+
         ActivateCompositionTab();
-
-        var compositionConfiguration = new CompositionConfiguration(
-            InstrumentConfigurationState.Value.EnabledConfigurations,
-            PhrasingConfiguration.Default,
-            CompositionRuleConfigurationState.Value.Aggregate,
-            OrnamentationConfigurationState.Value.Aggregate,
-            CompositionConfigurationState.Value.Scale,
-            CompositionConfigurationState.Value.Meter,
-            CompositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
-            CompositionConfigurationState.Value.MinimumMeasures
-        );
-
-        var baroquenMelody = await Task.Run(() => ComposerConfigurator.Configure(compositionConfiguration).Compose());
-
-        var desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
-
-        var path = Path.Combine(desktopDirectory, $"test-{timestamp}.mid");
-
-        baroquenMelody.MidiFile.Write(path);
     }
 
     private void ActivateCompositionTab()
@@ -79,6 +97,30 @@
         {
             _tabs?.ActivatePanel(_compositionTab);
         }
+    }
+
+    private static void WriteMidiFile(BaroquenMelody baroquenMelody)
+    {
+        var desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
+
+        var path = Path.Combine(desktopDirectory, $"test-{timestamp}.mid");
+
+        baroquenMelody.MidiFile.Write(path);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _baroquenMelodySubscription?.Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
 }
