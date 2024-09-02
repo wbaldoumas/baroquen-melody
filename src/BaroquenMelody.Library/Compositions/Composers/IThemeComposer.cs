@@ -12,6 +12,7 @@ internal interface IThemeComposer
     ///     is the opening subject of a fugue. If a suitable fugue subject cannot be found, then the
     ///     composition begins with all four instruments sounding at once.
     /// </summary>
+    /// <param name="cancellationToken">A cancellation token to cooperatively cancel composition.</param>
     /// <returns>A <see cref="BaroquenTheme"/>.</returns>
-    BaroquenTheme Compose();
+    BaroquenTheme Compose(CancellationToken cancellationToken);
 }

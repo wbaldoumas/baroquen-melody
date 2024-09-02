@@ -12,11 +12,16 @@ public sealed class BaroquenMelodyEffects(
     IState<CompositionRuleConfigurationState> compositionRuleConfigurationState,
     IState<CompositionOrnamentationConfigurationState> compositionOrnamentationConfigurationState,
     IBaroquenMelodyComposerConfigurator baroquenMelodyComposerConfigurator
-)
+) : IDisposable
 {
+    private CancellationTokenSource? _cancellationTokenSource;
+
     [EffectMethod]
     public async Task HandleCompose(Compose action, IDispatcher dispatcher)
     {
+        _cancellationTokenSource?.Dispose();
+        _cancellationTokenSource = new CancellationTokenSource();
+
         var compositionConfiguration = new CompositionConfiguration(
             instrumentConfigurationState.Value.EnabledConfigurations,
             PhrasingConfiguration.Default,
@@ -28,10 +33,36 @@ public sealed class BaroquenMelodyEffects(
             compositionConfigurationState.Value.MinimumMeasures
         );
 
-        var baroquenMelody = await Task.Run(
-            () => baroquenMelodyComposerConfigurator.Configure(compositionConfiguration).Compose()
-        ).ConfigureAwait(false);
+        await Task.Run(
+            () =>
+            {
+                try
+                {
+                    var baroquenMelody = baroquenMelodyComposerConfigurator.Configure(compositionConfiguration).Compose(_cancellationTokenSource.Token);
 
-        dispatcher.Dispatch(new UpdateBaroquenMelody(baroquenMelody));
+                    dispatcher.Dispatch(new UpdateBaroquenMelody(baroquenMelody));
+                }
+                catch (OperationCanceledException)
+                {
+                    dispatcher.Dispatch(new ResetCompositionProgress());
+
+                    _cancellationTokenSource?.Dispose();
+                }
+            },
+            _cancellationTokenSource.Token
+        ).ConfigureAwait(false);
     }
+
+    [EffectMethod]
+    public async Task HandleCancelCompose(CancelComposition action, IDispatcher dispatcher)
+    {
+        var cancellationRequestTask = _cancellationTokenSource?.CancelAsync();
+
+        if (cancellationRequestTask is not null)
+        {
+            await cancellationRequestTask.ConfigureAwait(false);
+        }
+    }
+
+    public void Dispose() => _cancellationTokenSource?.Dispose();
 }

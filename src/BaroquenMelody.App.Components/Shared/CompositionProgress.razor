@@ -39,6 +39,7 @@ else
                        Variant="Variant.Filled"
                        IconColor="Color.Primary"
                        Disabled="@(!CompositionProgressState.Value.IsLoading)"
+                       OnClick="() => Dispatcher.Dispatch(new CancelComposition())"
                        FullWidth="true">
                 Cancel
             </MudButton>

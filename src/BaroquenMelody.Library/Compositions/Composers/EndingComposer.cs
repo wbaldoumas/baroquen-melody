@@ -33,9 +33,11 @@ internal sealed class EndingComposer(
 
     private const int MaxChordsToTonic = 25;
 
-    public Composition Compose(Composition composition, BaroquenTheme theme)
+    public Composition Compose(Composition composition, BaroquenTheme theme, CancellationToken cancellationToken)
     {
-        var bridgingComposition = GetBridgingComposition(composition, theme);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var bridgingComposition = GetBridgingComposition(composition, theme, cancellationToken);
 
         composition.Measures[^1].Beats[^1] = bridgingComposition.Measures[0].Beats[0];
 
@@ -49,18 +51,20 @@ internal sealed class EndingComposer(
             composition.Measures.Add(measure);
         }
 
-        ApplyFinalCadence(composition);
+        ApplyFinalCadence(composition, cancellationToken);
 
         return composition;
     }
 
-    private Composition GetBridgingComposition(Composition composition, BaroquenTheme theme)
+    private Composition GetBridgingComposition(Composition composition, BaroquenTheme theme, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var firstChordOfRecapitulation = new BaroquenChord(theme.Recapitulation[0].Beats[0].Chord);
 
         firstChordOfRecapitulation.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
 
-        var bridgingChords = GetBridgingChords(composition, firstChordOfRecapitulation);
+        var bridgingChords = GetBridgingChords(composition, firstChordOfRecapitulation, cancellationToken);
         var lastChordOfComposition = new BaroquenChord(composition.Measures[^1].Beats[^1].Chord);
 
         lastChordOfComposition.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
@@ -78,8 +82,10 @@ internal sealed class EndingComposer(
         return bridgingComposition;
     }
 
-    private List<BaroquenChord> GetBridgingChords(Composition composition, BaroquenChord firstChordOfRecapitulation)
+    private List<BaroquenChord> GetBridgingChords(Composition composition, BaroquenChord firstChordOfRecapitulation, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
             composition.Measures.SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord))
@@ -89,6 +95,8 @@ internal sealed class EndingComposer(
 
         while (true)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             DispatchBridgingChordsProgress(chords.Count);
 
             var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords(compositionContext, firstChordOfRecapitulation);
@@ -98,7 +106,7 @@ internal sealed class EndingComposer(
                 break;
             }
 
-            var nextChord = GetBridgingChord(compositionContext, firstChordOfRecapitulation);
+            var nextChord = GetBridgingChord(compositionContext, firstChordOfRecapitulation, cancellationToken);
 
             compositionContext.Add(nextChord);
             chords.Add(nextChord);
@@ -127,12 +135,16 @@ internal sealed class EndingComposer(
         dispatcher.Dispatch(new ProgressCompositionEndingProgress(progress));
     }
 
-    private BaroquenChord GetBridgingChord(IReadOnlyList<BaroquenChord> compositionContext, BaroquenChord targetChord)
+    private BaroquenChord GetBridgingChord(IReadOnlyList<BaroquenChord> compositionContext, BaroquenChord targetChord, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(compositionContext);
 
         foreach (var chordChoice in possibleChordChoices)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var workingCompositionContext = new FixedSizeList<BaroquenChord>(compositionConfiguration.CompositionContextSize);
 
             foreach (var chord in compositionContext)
@@ -157,11 +169,13 @@ internal sealed class EndingComposer(
         return GetNextChord(possibleChordChoices, compositionContext);
     }
 
-    private void ApplyFinalCadence(Composition composition)
+    private void ApplyFinalCadence(Composition composition, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (chordNumberIdentifier.IdentifyChordNumber(composition.Measures[^1].Beats[^1].Chord) != ChordNumber.I)
         {
-            var compositionWithTonicFinalChord = GetCompositionWithTonicFinalChord(composition);
+            var compositionWithTonicFinalChord = GetCompositionWithTonicFinalChord(composition, cancellationToken);
 
             composition.Measures[^1].Beats[^1] = compositionWithTonicFinalChord.Measures[0].Beats[0];
 
@@ -199,8 +213,12 @@ internal sealed class EndingComposer(
         composition.Measures[^1].Beats.Add(new Beat(restingChord));
     }
 
-    private Composition GetCompositionWithTonicFinalChord(Composition composition)
+#pragma warning disable MA0051 // Method is too long
+    private Composition GetCompositionWithTonicFinalChord(Composition composition, CancellationToken cancellationToken)
+#pragma warning restore MA0051 // Method is too long
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
             composition.Measures.SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord))
@@ -211,6 +229,8 @@ internal sealed class EndingComposer(
 
         while (true)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             DispatchChordsToTonicProgress(chords.Count);
 
             var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(compositionContext);
@@ -218,6 +238,8 @@ internal sealed class EndingComposer(
 
             foreach (var possibleChordChoice in possibleChordChoices)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var potentialTonicChord = compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, possibleChordChoice, compositionConfiguration.DefaultNoteTimeSpan);
 
                 if (chordNumberIdentifier.IdentifyChordNumber(potentialTonicChord) != ChordNumber.I)

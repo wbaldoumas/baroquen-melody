@@ -102,7 +102,7 @@ internal sealed class ComposerTests
             ]);
 
         // act
-        var composition = _composer.Compose();
+        var composition = _composer.Compose(CancellationToken.None);
 
         // assert
         composition.Should().NotBeNull();

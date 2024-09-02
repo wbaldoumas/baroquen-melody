@@ -61,12 +61,18 @@ internal sealed class BaroquenMelodyEffectsTests
 
         var baroquenMelody = new BaroquenMelody(new MidiFile());
 
-        _mockComposer.Compose().Returns(baroquenMelody);
+        _mockComposer.Compose(Arg.Any<CancellationToken>()).Returns(baroquenMelody);
 
         // act
         await _baroquenMelodyEffects.HandleCompose(new Compose(), _mockDispatcher);
 
         // assert
         _mockDispatcher.Received().Dispatch(Arg.Is<UpdateBaroquenMelody>(action => action.BaroquenMelody == baroquenMelody));
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _baroquenMelodyEffects.Dispose();
     }
 }

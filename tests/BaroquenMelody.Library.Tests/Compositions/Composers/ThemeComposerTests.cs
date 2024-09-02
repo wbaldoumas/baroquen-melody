@@ -70,7 +70,7 @@ internal sealed class ThemeComposerTests
             .Returns(new BaroquenChord(mockBaroquenChord));
 
         // act
-        var result = _themeComposer.Compose();
+        var result = _themeComposer.Compose(CancellationToken.None);
 
         // assert
         result.Should().NotBeNull();

@@ -76,7 +76,7 @@ internal sealed class EndingComposerTests
             .Returns(ChordNumber.V, ChordNumber.V, ChordNumber.V, ChordNumber.I);
 
         // act
-        var result = _endingComposer.Compose(composition, theme);
+        var result = _endingComposer.Compose(composition, theme, CancellationToken.None);
 
         // assert
         result.Should().NotBeNull();
@@ -116,7 +116,7 @@ internal sealed class EndingComposerTests
             .Returns([fallbackChordChoice]);
 
         // act
-        var result = _endingComposer.Compose(composition, theme);
+        var result = _endingComposer.Compose(composition, theme, CancellationToken.None);
 
         // assert
         result.Should().NotBeNull();
@@ -141,7 +141,7 @@ internal sealed class EndingComposerTests
             .Returns(ChordNumber.V, ChordNumber.V);
 
         // act
-        var result = _endingComposer.Compose(composition, theme);
+        var result = _endingComposer.Compose(composition, theme, CancellationToken.None);
 
         // assert
         result.Should().NotBeNull();
