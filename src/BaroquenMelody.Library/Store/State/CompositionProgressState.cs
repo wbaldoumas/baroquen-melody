@@ -18,6 +18,8 @@ public sealed record CompositionProgressState(
 
     public bool IsWaiting => CurrentStep == CompositionStep.Waiting;
 
+    public bool IsLoading => !IsComplete && !IsWaiting;
+
     public string Message => CurrentStep switch
     {
         CompositionStep.Waiting => "Waiting to compose...",

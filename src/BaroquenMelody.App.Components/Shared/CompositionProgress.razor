@@ -23,7 +23,8 @@
                            Variant="Variant.Filled"
                            StartIcon="@Icons.Material.Filled.ElectricBolt"
                            Color="Color.Tertiary"
-                           Style="width: 300px; height: 100px;">
+                           Style="width: 300px; height: 100px;"
+                           OnClick="() => Dispatcher.Dispatch(new Compose())">
                     <MudText Typo="Typo.button" Style="font-size:large">Compose</MudText>
                 </MudButton>
             </div>
@@ -37,7 +38,7 @@ else
             <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
                        Variant="Variant.Filled"
                        IconColor="Color.Primary"
-                       Disabled="@(CompositionProgressState.Value.IsComplete)"
+                       Disabled="@(!CompositionProgressState.Value.IsLoading)"
                        FullWidth="true">
                 Cancel
             </MudButton>
