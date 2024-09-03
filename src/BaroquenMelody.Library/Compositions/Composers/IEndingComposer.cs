@@ -12,6 +12,7 @@ internal interface IEndingComposer
     /// </summary>
     /// <param name="composition">The composition to complete.</param>
     /// <param name="theme">The theme to try using to complete the composition.</param>
+    /// <param name="cancellationToken">A cancellation token to cooperatively cancel composition.</param>
     /// <returns>The completed composition.</returns>
-    Composition Compose(Composition composition, BaroquenTheme theme);
+    Composition Compose(Composition composition, BaroquenTheme theme, CancellationToken cancellationToken);
 }

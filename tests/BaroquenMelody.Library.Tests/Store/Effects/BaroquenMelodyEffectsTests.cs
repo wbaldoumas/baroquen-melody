@@ -6,6 +6,7 @@ using BaroquenMelody.Library.Store.State;
 using Fluxor;
 using Melanchall.DryWetMidi.Core;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests.Store.Effects;
@@ -61,12 +62,47 @@ internal sealed class BaroquenMelodyEffectsTests
 
         var baroquenMelody = new BaroquenMelody(new MidiFile());
 
-        _mockComposer.Compose().Returns(baroquenMelody);
+        _mockComposer.Compose(Arg.Any<CancellationToken>()).Returns(baroquenMelody);
 
         // act
         await _baroquenMelodyEffects.HandleCompose(new Compose(), _mockDispatcher);
 
         // assert
         _mockDispatcher.Received().Dispatch(Arg.Is<UpdateBaroquenMelody>(action => action.BaroquenMelody == baroquenMelody));
+    }
+
+    [Test]
+    public async Task HandleCancelCompose_CancelsCompose()
+    {
+        // arrange
+        _mockInstrumentConfigurationState.Value.Returns(new InstrumentConfigurationState());
+        _mockCompositionRuleConfigurationState.Value.Returns(new CompositionRuleConfigurationState());
+        _mockCompositionOrnamentationConfigurationState.Value.Returns(new CompositionOrnamentationConfigurationState());
+        _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState());
+        _mockBaroquenMelodyComposerConfigurator.Configure(Arg.Any<CompositionConfiguration>()).Returns(_mockComposer);
+
+        _mockComposer.Compose(Arg.Any<CancellationToken>()).Throws<OperationCanceledException>();
+
+        // act
+        await _baroquenMelodyEffects.HandleCompose(new Compose(), _mockDispatcher);
+
+        // assert
+        _mockDispatcher.Received().Dispatch(Arg.Any<ResetCompositionProgress>());
+    }
+
+    [Test]
+    public async Task HandleCancelComposition_gracefully_handles_cancellation()
+    {
+        // act
+        await _baroquenMelodyEffects.HandleCancelComposition(new CancelComposition(), _mockDispatcher);
+
+        // assert
+        _mockDispatcher.DidNotReceiveWithAnyArgs().Dispatch(Arg.Any<object>());
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _baroquenMelodyEffects.Dispose();
     }
 }

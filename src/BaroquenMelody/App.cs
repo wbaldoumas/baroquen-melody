@@ -57,7 +57,7 @@ internal sealed class App : IDisposable
             _compositionConfigurationState.Value.MinimumMeasures
         );
 
-        return _configurator.Configure(compositionConfiguration).Compose();
+        return _configurator.Configure(compositionConfiguration).Compose(CancellationToken.None);
     }
 
     public void Dispose() => _stateSubscription.Dispose();

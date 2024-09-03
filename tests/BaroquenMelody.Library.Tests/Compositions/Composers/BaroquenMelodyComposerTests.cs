@@ -33,14 +33,14 @@ internal sealed class BaroquenMelodyComposerTests
         var testComposition = new Composition([]);
         var midiFile = new MidiFile();
 
-        _mockComposer.Compose().Returns(testComposition);
+        _mockComposer.Compose(CancellationToken.None).Returns(testComposition);
         _mockMidiGenerator.Generate(testComposition).Returns(midiFile);
 
         // act
-        var result = _baroquenMelodyComposer.Compose();
+        var result = _baroquenMelodyComposer.Compose(CancellationToken.None);
 
         // assert
-        _mockComposer.Received(1).Compose();
+        _mockComposer.Received(1).Compose(CancellationToken.None);
         _mockMidiGenerator.Received(1).Generate(testComposition);
 
         result.Should().NotBeNull();

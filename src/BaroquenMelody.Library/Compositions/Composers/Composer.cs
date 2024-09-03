@@ -19,29 +19,33 @@ internal sealed class Composer(
     CompositionConfiguration compositionConfiguration
 ) : IComposer
 {
-    public Composition Compose()
+    public Composition Compose(CancellationToken cancellationToken)
     {
         dispatcher.Dispatch(new ResetCompositionProgress());
 
-        var theme = ComposeMainTheme();
-        var compositionBody = ComposeBodyOfComposition(theme);
-        var compositionWithOrnamentation = AddOrnamentation(compositionBody);
-        var compositionWithPhrasing = ApplyPhrasing(compositionWithOrnamentation, theme);
-        var compositionWithEnding = ComposeEnding(compositionWithPhrasing, theme);
-        var compositionWithSustain = ApplySustain(compositionWithEnding);
+        var theme = ComposeMainTheme(cancellationToken);
+        var compositionBody = ComposeBodyOfComposition(theme, cancellationToken);
+        var compositionWithOrnamentation = AddOrnamentation(compositionBody, cancellationToken);
+        var compositionWithPhrasing = ApplyPhrasing(compositionWithOrnamentation, theme, cancellationToken);
+        var compositionWithEnding = ComposeEnding(compositionWithPhrasing, theme, cancellationToken);
+        var compositionWithSustain = ApplySustain(compositionWithEnding, cancellationToken);
 
-        return CompleteComposition(theme, compositionWithSustain);
+        return CompleteComposition(theme, compositionWithSustain, cancellationToken);
     }
 
-    private BaroquenTheme ComposeMainTheme()
+    private BaroquenTheme ComposeMainTheme(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Theme));
 
-        return themeComposer.Compose();
+        return themeComposer.Compose(cancellationToken);
     }
 
-    private Composition ComposeBodyOfComposition(BaroquenTheme theme)
+    private Composition ComposeBodyOfComposition(BaroquenTheme theme, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Body));
 
         var compositionContext = new FixedSizeList<BaroquenChord>(
@@ -53,6 +57,8 @@ internal sealed class Composer(
 
         while (compositionBody.Count < compositionConfiguration.CompositionLength)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var initialChord = chordComposer.Compose(compositionContext);
             var beats = new List<Beat>(compositionConfiguration.BeatsPerMeasure) { new(initialChord) };
 
@@ -79,8 +85,10 @@ internal sealed class Composer(
         dispatcher.Dispatch(new ProgressCompositionBodyProgress((double)currentMeasureCount / compositionConfiguration.CompositionLength * 100));
     }
 
-    private Composition AddOrnamentation(Composition composition)
+    private Composition AddOrnamentation(Composition composition, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Ornamentation));
 
         compositionDecorator.Decorate(composition);
@@ -88,8 +96,10 @@ internal sealed class Composer(
         return composition;
     }
 
-    private Composition ApplyPhrasing(Composition initialComposition, BaroquenTheme theme)
+    private Composition ApplyPhrasing(Composition initialComposition, BaroquenTheme theme, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Phrasing));
 
         compositionPhraser.AddTheme(theme);
@@ -99,6 +109,8 @@ internal sealed class Composer(
 
         foreach (var measure in initialComposition.Measures)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             phrasedMeasures.Add(measure);
 
             if (currentMeasureIndex++ % compositionConfiguration.PhrasingConfiguration.MinPhraseLength == 0)
@@ -119,22 +131,28 @@ internal sealed class Composer(
         return phrasedComposition;
     }
 
-    private Composition ComposeEnding(Composition composition, BaroquenTheme theme)
+    private Composition ComposeEnding(Composition composition, BaroquenTheme theme, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Ending));
 
-        return endingComposer.Compose(composition, theme);
+        return endingComposer.Compose(composition, theme, cancellationToken);
     }
 
-    private Composition ApplySustain(Composition composition)
+    private Composition ApplySustain(Composition composition, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         compositionDecorator.ApplySustain(composition);
 
         return composition;
     }
 
-    private Composition CompleteComposition(BaroquenTheme theme, Composition composition)
+    private Composition CompleteComposition(BaroquenTheme theme, Composition composition, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Complete));
 
         return new Composition([.. theme.Exposition, .. composition.Measures]);

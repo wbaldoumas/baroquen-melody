@@ -25,15 +25,17 @@ internal sealed class ThemeComposer(
 {
     private const int MaxFugueCompositionAttempts = 50;
 
-    public BaroquenTheme Compose()
+    public BaroquenTheme Compose(CancellationToken cancellationToken)
     {
         var attempt = 0;
 
         while (attempt++ < MaxFugueCompositionAttempts)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             DispatchProgress(attempt);
 
-            if (TryComposeFugalTheme(out var fugueSubject))
+            if (TryComposeFugalTheme(out var fugueSubject, cancellationToken))
             {
                 DispatchProgress(MaxFugueCompositionAttempts);
 
@@ -45,7 +47,7 @@ internal sealed class ThemeComposer(
 
         logger.FailedToComposeFugalTheme(MaxFugueCompositionAttempts);
 
-        var initialMeasures = ComposeInitialMeasures();
+        var initialMeasures = ComposeInitialMeasures(cancellationToken);
 
         return new BaroquenTheme(initialMeasures, initialMeasures);
     }
@@ -55,9 +57,9 @@ internal sealed class ThemeComposer(
         dispatcher.Dispatch(new ProgressCompositionThemeProgress(((double)attempt / MaxFugueCompositionAttempts) * 100));
     }
 
-    private bool TryComposeFugalTheme(out BaroquenTheme? theme)
+    private bool TryComposeFugalTheme(out BaroquenTheme? theme, CancellationToken cancellationToken)
     {
-        var initialMeasures = ComposeInitialMeasures();
+        var initialMeasures = ComposeInitialMeasures(cancellationToken);
         var initialComposition = new Composition(initialMeasures);
 
         var instruments = compositionConfiguration.InstrumentConfigurations
@@ -76,7 +78,7 @@ internal sealed class ThemeComposer(
 
         var workingChords = initialComposition.Measures.SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord)).ToList();
 
-        workingChords = ContinueFugueSubject(fugueSubject, fugueSubjectInstrument, workingChords, instruments);
+        workingChords = ContinueFugueSubject(fugueSubject, fugueSubjectInstrument, workingChords, instruments, cancellationToken);
 
         if (workingChords.Count == 0)
         {
@@ -89,7 +91,7 @@ internal sealed class ThemeComposer(
         return true;
     }
 
-    private List<Measure> ComposeInitialMeasures()
+    private List<Measure> ComposeInitialMeasures(CancellationToken cancellationToken)
     {
         var initialChord = compositionStrategy.GenerateInitialChord();
         var beats = new List<Beat>(compositionConfiguration.BeatsPerMeasure) { new(initialChord) };
@@ -97,6 +99,8 @@ internal sealed class ThemeComposer(
 
         while (beats.Count < compositionConfiguration.BeatsPerMeasure)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var nextChord = chordComposer.Compose(precedingChords);
 
             precedingChords.Add(nextChord);
@@ -109,12 +113,16 @@ internal sealed class ThemeComposer(
         };
     }
 
-    private List<BaroquenChord> ContinueFugueSubject(List<BaroquenNote> fugueSubject, Instrument fugueSubjectInstrument, List<BaroquenChord> workingChords, List<Instrument> instruments)
+    private List<BaroquenChord> ContinueFugueSubject(List<BaroquenNote> fugueSubject, Instrument fugueSubjectInstrument, List<BaroquenChord> workingChords, List<Instrument> instruments, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var processedInstruments = new List<Instrument> { fugueSubjectInstrument };
 
         foreach (var instrument in instruments.Where(instrument => instrument != fugueSubjectInstrument))
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var precedingChord = workingChords[^1];
             var nextChords = new List<BaroquenChord>();
 
@@ -124,6 +132,8 @@ internal sealed class ThemeComposer(
 
             foreach (var transposedSubjectChord in transposedSubjectChords)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChord], transposedSubjectChord);
 
                 if (possibleChords.Count == 0)

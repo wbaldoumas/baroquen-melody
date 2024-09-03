@@ -24,7 +24,7 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
         var baroquenMelodyComposer = _baroquenMelodyComposerConfigurator.Configure(compositionConfiguration);
 
         // act
-        var baroquenMelody = baroquenMelodyComposer.Compose();
+        var baroquenMelody = baroquenMelodyComposer.Compose(CancellationToken.None);
 
         // assert
         baroquenMelody.Should().NotBeNull();
