@@ -213,9 +213,7 @@ internal sealed class EndingComposer(
         composition.Measures[^1].Beats.Add(new Beat(restingChord));
     }
 
-#pragma warning disable MA0051 // Method is too long
     private Composition GetCompositionWithTonicFinalChord(Composition composition, CancellationToken cancellationToken)
-#pragma warning restore MA0051 // Method is too long
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -234,26 +232,8 @@ internal sealed class EndingComposer(
             DispatchChordsToTonicProgress(chords.Count);
 
             var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(compositionContext);
-            var foundTonicChord = false;
 
-            foreach (var possibleChordChoice in possibleChordChoices)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var potentialTonicChord = compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, possibleChordChoice, compositionConfiguration.DefaultNoteTimeSpan);
-
-                if (chordNumberIdentifier.IdentifyChordNumber(potentialTonicChord) != ChordNumber.I)
-                {
-                    continue;
-                }
-
-                chords.Add(potentialTonicChord);
-                foundTonicChord = true;
-
-                break;
-            }
-
-            if (foundTonicChord)
+            if (TryFindTonicChord(possibleChordChoices, compositionContext, chords, cancellationToken))
             {
                 break;
             }
@@ -280,6 +260,34 @@ internal sealed class EndingComposer(
         compositionDecorator.Decorate(compositionWithTonicFinalChord);
 
         return compositionWithTonicFinalChord;
+    }
+
+    private bool TryFindTonicChord(
+        IReadOnlyList<ChordChoice> possibleChordChoices,
+        FixedSizeList<BaroquenChord> compositionContext,
+        List<BaroquenChord> chords,
+        CancellationToken cancellationToken)
+    {
+        var foundTonicChord = false;
+
+        foreach (var possibleChordChoice in possibleChordChoices)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var potentialTonicChord = compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, possibleChordChoice, compositionConfiguration.DefaultNoteTimeSpan);
+
+            if (chordNumberIdentifier.IdentifyChordNumber(potentialTonicChord) != ChordNumber.I)
+            {
+                continue;
+            }
+
+            chords.Add(potentialTonicChord);
+            foundTonicChord = true;
+
+            break;
+        }
+
+        return foundTonicChord;
     }
 
     private void DispatchChordsToTonicProgress(int currentChordCount)

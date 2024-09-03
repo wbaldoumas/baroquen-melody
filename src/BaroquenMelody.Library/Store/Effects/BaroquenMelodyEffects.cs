@@ -54,7 +54,7 @@ public sealed class BaroquenMelodyEffects(
     }
 
     [EffectMethod]
-    public async Task HandleCancelCompose(CancelComposition action, IDispatcher dispatcher)
+    public async Task HandleCancelComposition(CancelComposition action, IDispatcher dispatcher)
     {
         var cancellationRequestTask = _cancellationTokenSource?.CancelAsync();
 
