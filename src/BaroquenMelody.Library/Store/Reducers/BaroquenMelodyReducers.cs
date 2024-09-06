@@ -7,5 +7,5 @@ namespace BaroquenMelody.Library.Store.Reducers;
 public static class BaroquenMelodyReducers
 {
     [ReducerMethod]
-    public static BaroquenMelodyState ReduceUpdateBaroquenMelody(BaroquenMelodyState state, UpdateBaroquenMelody action) => new(action.BaroquenMelody);
+    public static BaroquenMelodyState ReduceUpdateBaroquenMelody(BaroquenMelodyState state, UpdateBaroquenMelody action) => new(action.BaroquenMelody, action.Path);
 }

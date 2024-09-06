@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using MudBlazor;
 using MudBlazor.Services;
 using MudExtensions.Services;
 using System.Diagnostics.CodeAnalysis;
@@ -10,7 +11,11 @@ namespace BaroquenMelody.App.Components.Extensions;
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddBaroquenMelodyComponents(this IServiceCollection services) => services
-        .AddMudServices()
+        .AddMudServices(config =>
+        {
+            config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
+            config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
+        })
         .AddMudExtensions()
         .AddBaroquenMelody()
         .AddSingleton<IThemeProvider, ThemeProvider>();

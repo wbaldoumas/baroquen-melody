@@ -1,3 +1,3 @@
 ﻿namespace BaroquenMelody.Library.Store.Actions;
 
-public sealed record CancelComposition();
+public sealed record CancelComposition;
