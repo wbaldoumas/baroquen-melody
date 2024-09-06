@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Composers;
 using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Infrastructure.FileSystem;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Effects;
 using BaroquenMelody.Library.Store.State;
@@ -28,6 +29,8 @@ internal sealed class BaroquenMelodyEffectsTests
 
     private IDispatcher _mockDispatcher = null!;
 
+    private IMidiSaver _mockMidiSaver = null!;
+
     private BaroquenMelodyEffects _baroquenMelodyEffects = null!;
 
     [SetUp]
@@ -40,12 +43,14 @@ internal sealed class BaroquenMelodyEffectsTests
         _mockBaroquenMelodyComposerConfigurator = Substitute.For<IBaroquenMelodyComposerConfigurator>();
         _mockComposer = Substitute.For<IBaroquenMelodyComposer>();
         _mockDispatcher = Substitute.For<IDispatcher>();
+        _mockMidiSaver = Substitute.For<IMidiSaver>();
 
         _baroquenMelodyEffects = new BaroquenMelodyEffects(
             _mockCompositionConfigurationState,
             _mockInstrumentConfigurationState,
             _mockCompositionRuleConfigurationState,
             _mockCompositionOrnamentationConfigurationState,
+            _mockMidiSaver,
             _mockBaroquenMelodyComposerConfigurator
         );
     }

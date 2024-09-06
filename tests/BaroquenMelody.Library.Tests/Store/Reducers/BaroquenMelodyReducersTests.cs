@@ -15,12 +15,13 @@ internal sealed class BaroquenMelodyReducersTests
     {
         // arrange
         var state = new BaroquenMelodyState();
-        var action = new UpdateBaroquenMelody(new BaroquenMelody(new MidiFile()));
+        var action = new UpdateBaroquenMelody(new BaroquenMelody(new MidiFile()), "Test");
 
         // act
         var newState = BaroquenMelodyReducers.ReduceUpdateBaroquenMelody(state, action);
 
         // assert
         newState.BaroquenMelody.Should().Be(action.BaroquenMelody);
+        newState.Path.Should().Be(action.Path);
     }
 }

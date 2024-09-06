@@ -33,39 +33,99 @@
 }
 else
 {
-    <MudGrid Class="my-3" Justify="Justify.FlexStart">
-        <MudItem Class="ml-3">
-            <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
-                       Variant="Variant.Filled"
-                       IconColor="Color.Primary"
-                       Disabled="@(!CompositionProgressState.Value.IsLoading)"
-                       OnClick="() => Dispatcher.Dispatch(new CancelComposition())"
-                       FullWidth="true">
-                Cancel
-            </MudButton>
-        </MudItem>
-    </MudGrid>
     <MudCard Class="rounded my-3 mx-3 px-4 py-4" Elevation="3" Outlined="true">
         <MudGrid Justify="Justify.Center">
-            @if (!CompositionProgressState.Value.IsWaiting)
-            {
-                <MudItem xs="12" sm="12" md="12" lg="12" xl="12" xxl="12">
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" xxl="12">
+                @if (!CompositionProgressState.Value.IsLoading && BaroquenMelodyState.Value.BaroquenMelody is not null)
+                {
+                    <MudText Typo="Typo.h6">Composition complete!</MudText>
+                }
+                else
+                {
                     <MudText Typo="Typo.h6">@CompositionProgressState.Value.Message</MudText>
-                </MudItem>
-                <MudItem xs="12" sm="12" md="12" lg="12" xl="12" xxl="12">
-                    <MudProgressLinear Min="0"
-                                       Max="100"
-                                       Value="@(CompositionProgressState.Value.OverallProgress)"
-                                       Size="Size.Large"
-                                       Color="Color.Primary"
-                                       Striped="@(CompositionProgressState.Value.OverallProgress < 100)">
+                }
+            </MudItem>
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" xxl="12">
+                <MudProgressLinear Min="0"
+                                   Max="100"
+                                   Value="@(CompositionProgressState.Value.OverallProgress)"
+                                   Size="Size.Large"
+                                   Color="Color.Primary"
+                                   Striped="@(CompositionProgressState.Value.OverallProgress < 100)">
 
-                        <MudText Typo="Typo.button">
-                            <b>@($"{double.Round(CompositionProgressState.Value.OverallProgress, MidpointRounding.ToEven)}%")</b>
-                        </MudText>
-                    </MudProgressLinear>
+                    <MudText Typo="Typo.button">
+                        <b>@($"{double.Round(CompositionProgressState.Value.OverallProgress, MidpointRounding.ToEven)}%")</b>
+                    </MudText>
+                </MudProgressLinear>
+            </MudItem>
+            @if (CompositionProgressState.Value.IsLoading)
+            {
+                <MudItem>
+                    <MudButton StartIcon="@Icons.Material.Sharp.Cancel"
+                               Size="Size.Large"
+                               Variant="Variant.Filled"
+                               IconColor="Color.Primary"
+                               Disabled="@(!CompositionProgressState.Value.IsLoading)"
+                               OnClick="() => Dispatcher.Dispatch(new CancelComposition())"
+                               FullWidth="true">
+                        Cancel Composition
+                    </MudButton>
+                </MudItem>
+            }
+            else
+            {
+                <MudItem xs="12" sm="6" md="6" lg="6" xl="6" xxl="6" Class="d-flex justify-center justify-sm-end">
+                    <MudButton Size="Size.Large"
+                               StartIcon="@Icons.Material.Sharp.PlayArrow"
+                               Variant="Variant.Filled"
+                               Color="Color.Tertiary"
+                               Class="d-flex flex-grow-1 flex-sm-grow-0"
+                               OnClick="Play"
+                               Disabled="CompositionProgressState.Value.IsLoading">
+                        Play Composition
+                    </MudButton>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="6" lg="6" xl="6" xxl="6" Class="d-flex justify-center justify-sm-start">
+                    <MudButton Size="Size.Large"
+                               StartIcon="@Icons.Material.Sharp.Save"
+                               IconColor="Color.Secondary"
+                               Variant="Variant.Filled"
+                               Class="d-flex flex-grow-1 flex-sm-grow-0"
+                               OnClick="Save"
+                               Disabled="CompositionProgressState.Value.IsLoading">
+                        Save Composition
+                    </MudButton>
                 </MudItem>
             }
         </MudGrid>
     </MudCard>
+}
+
+@code {
+
+    private async Task Play()
+    {
+        var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(10));
+
+        await MidiLauncher.LaunchAsync(BaroquenMelodyState.Value.Path, cancellationTokenSource.Token);
+    }
+
+    private async Task Save()
+    {
+        var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(10));
+
+        var isSaved = await MidiSaver.SaveAsync(
+            BaroquenMelodyState.Value.BaroquenMelody!,
+            BaroquenMelodyState.Value.Path,
+            cancellationTokenSource.Token
+        );
+
+        if (isSaved)
+        {
+            Snackbar.Add("Saved composition!", Severity.Success);
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums.Extensions;
+using BaroquenMelody.Library.Infrastructure.FileSystem;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using Fluxor;
@@ -11,6 +12,7 @@ public sealed class BaroquenMelodyEffects(
     IState<InstrumentConfigurationState> instrumentConfigurationState,
     IState<CompositionRuleConfigurationState> compositionRuleConfigurationState,
     IState<CompositionOrnamentationConfigurationState> compositionOrnamentationConfigurationState,
+    IMidiSaver midiSaver,
     IBaroquenMelodyComposerConfigurator baroquenMelodyComposerConfigurator
 ) : IDisposable
 {
@@ -34,13 +36,14 @@ public sealed class BaroquenMelodyEffects(
         );
 
         await Task.Run(
-            () =>
+            async () =>
             {
                 try
                 {
                     var baroquenMelody = baroquenMelodyComposerConfigurator.Configure(compositionConfiguration).Compose(_cancellationTokenSource.Token);
+                    var path = await midiSaver.SaveTempAsync(baroquenMelody, _cancellationTokenSource.Token).ConfigureAwait(false);
 
-                    dispatcher.Dispatch(new UpdateBaroquenMelody(baroquenMelody));
+                    dispatcher.Dispatch(new UpdateBaroquenMelody(baroquenMelody, path));
                 }
                 catch (OperationCanceledException)
                 {

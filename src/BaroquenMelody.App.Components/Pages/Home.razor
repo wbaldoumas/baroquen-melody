@@ -1,7 +1,6 @@
 ﻿@page "/"
 
 @inherits Fluxor.Blazor.Web.Components.FluxorComponent
-@implements IDisposable
 
 <PageTitle>Home</PageTitle>
 
@@ -67,23 +66,6 @@
 
     private MudTabPanel? _compositionTab;
 
-    private IDisposable? _baroquenMelodySubscription;
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        _baroquenMelodySubscription = BaroquenMelodyState
-            .ObserveChanges()
-            .Subscribe(state =>
-            {
-                if (state.Value.BaroquenMelody is not null)
-                {
-                    WriteMidiFile(state.Value.BaroquenMelody);
-                }
-            });
-    }
-
     private void Compose()
     {
         Dispatcher.Dispatch(new Compose());
@@ -98,29 +80,4 @@
             _tabs?.ActivatePanel(_compositionTab);
         }
     }
-
-    private static void WriteMidiFile(BaroquenMelody baroquenMelody)
-    {
-        var desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
-
-        var path = Path.Combine(desktopDirectory, $"test-{timestamp}.mid");
-
-        baroquenMelody.MidiFile.Write(path);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _baroquenMelodySubscription?.Dispose();
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
 }

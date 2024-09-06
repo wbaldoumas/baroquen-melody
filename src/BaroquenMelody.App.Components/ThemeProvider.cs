@@ -11,7 +11,8 @@ internal sealed class ThemeProvider : IThemeProvider
         AppbarBackground = "rgba(255,255,255,0.8)",
         DrawerBackground = "#ffffff",
         GrayLight = "#e8e8e8",
-        GrayLighter = "#f9f9f9"
+        GrayLighter = "#f9f9f9",
+        Success = "#1ec8a5"
     };
 
     private static readonly PaletteDark _darkPalette = new()
@@ -34,7 +35,7 @@ internal sealed class ThemeProvider : IThemeProvider
         GrayLight = "#2a2833",
         GrayLighter = "#1e1e2d",
         Info = "#4a86ff",
-        Success = "#3dcb6c",
+        Success = "#1ec8a5",
         Warning = "#ffb545",
         Error = "#ff3f5f",
         LinesDefault = "#33323e",
