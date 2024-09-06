@@ -36,14 +36,7 @@ else
     <MudCard Class="rounded my-3 mx-3 px-4 py-4" Elevation="3" Outlined="true">
         <MudGrid Justify="Justify.Center">
             <MudItem xs="12" sm="12" md="12" lg="12" xl="12" xxl="12">
-                @if (!CompositionProgressState.Value.IsLoading && BaroquenMelodyState.Value.BaroquenMelody is not null)
-                {
-                    <MudText Typo="Typo.h6">Composition complete!</MudText>
-                }
-                else
-                {
-                    <MudText Typo="Typo.h6">@CompositionProgressState.Value.Message</MudText>
-                }
+                <MudText Typo="Typo.h6">@CompositionProgressState.Value.Message</MudText>
             </MudItem>
             <MudItem xs="12" sm="12" md="12" lg="12" xl="12" xxl="12">
                 <MudProgressLinear Min="0"
@@ -52,7 +45,6 @@ else
                                    Size="Size.Large"
                                    Color="Color.Primary"
                                    Striped="@(CompositionProgressState.Value.OverallProgress < 100)">
-
                     <MudText Typo="Typo.button">
                         <b>@($"{double.Round(CompositionProgressState.Value.OverallProgress, MidpointRounding.ToEven)}%")</b>
                     </MudText>
@@ -103,23 +95,14 @@ else
 
 @code {
 
-    private async Task Play()
-    {
-        var cancellationTokenSource = new CancellationTokenSource();
-        cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(10));
-
-        await MidiLauncher.LaunchAsync(BaroquenMelodyState.Value.Path, cancellationTokenSource.Token);
-    }
+    private async Task Play() => await MidiLauncher.LaunchAsync(BaroquenMelodyState.Value.Path, GetTimedCancellationToken(10));
 
     private async Task Save()
     {
-        var cancellationTokenSource = new CancellationTokenSource();
-        cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(10));
-
         var isSaved = await MidiSaver.SaveAsync(
             BaroquenMelodyState.Value.BaroquenMelody!,
             BaroquenMelodyState.Value.Path,
-            cancellationTokenSource.Token
+            GetTimedCancellationToken(10)
         );
 
         if (isSaved)
@@ -127,5 +110,7 @@ else
             Snackbar.Add("Saved composition!", Severity.Success);
         }
     }
+
+    private CancellationToken GetTimedCancellationToken(int timeout) => new CancellationTokenSource(TimeSpan.FromSeconds(timeout)).Token;
 
 }
