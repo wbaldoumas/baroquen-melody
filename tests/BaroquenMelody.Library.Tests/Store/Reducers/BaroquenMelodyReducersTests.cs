@@ -25,4 +25,18 @@ internal sealed class BaroquenMelodyReducersTests
         newState.Path.Should().Be(action.Path);
         newState.HasBeenSaved.Should().BeTrue();
     }
+
+    [Test]
+    public void ReduceMarkCompositionSaved()
+    {
+        // arrange
+        var state = new BaroquenMelodyState { HasBeenSaved = false };
+        var action = new MarkCompositionSaved();
+
+        // act
+        var newState = BaroquenMelodyReducers.ReduceMarkCompositionSaved(state, action);
+
+        // assert
+        newState.HasBeenSaved.Should().BeTrue();
+    }
 }
