@@ -43,7 +43,7 @@ public sealed class BaroquenMelodyEffects(
                     var baroquenMelody = baroquenMelodyComposerConfigurator.Configure(compositionConfiguration).Compose(_cancellationTokenSource.Token);
                     var path = await midiSaver.SaveTempAsync(baroquenMelody, _cancellationTokenSource.Token).ConfigureAwait(false);
 
-                    dispatcher.Dispatch(new UpdateBaroquenMelody(baroquenMelody, path));
+                    dispatcher.Dispatch(new UpdateBaroquenMelody(baroquenMelody, path, false));
                 }
                 catch (OperationCanceledException)
                 {
