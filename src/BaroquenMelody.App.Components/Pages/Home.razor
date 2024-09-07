@@ -15,13 +15,19 @@
         <MudItem>
             @if (!CompositionProgressState.Value.IsLoading)
             {
-                <MudButton Variant="Variant.Filled"
-                           StartIcon="@Icons.Material.Filled.ElectricBolt"
-                           Color="Color.Tertiary"
-                           OnClick="Compose"
-                           Disabled="@CompositionProgressState.Value.IsLoading">
-                    Compose
-                </MudButton>
+                <MudTooltip Text="@InstrumentConfigurationState.Value.ValidationMessage"
+                            Color="Color.Warning"
+                            Delay="ThemeProvider.TooltipDelay"
+                            Duration="ThemeProvider.TooltipDuration"
+                            Disabled="@InstrumentConfigurationState.Value.IsValid">
+                    <MudButton Variant="Variant.Filled"
+                               StartIcon="@Icons.Material.Filled.ElectricBolt"
+                               Color="Color.Tertiary"
+                               OnClick="Compose"
+                               Disabled="@(CompositionProgressState.Value.IsLoading || !InstrumentConfigurationState.Value.IsValid)">
+                        Compose
+                    </MudButton>
+                </MudTooltip>
             }
             else
             {
@@ -46,8 +52,26 @@
         <MudTabPanel Text="General" Icon="@Icons.Material.Outlined.Settings">
             <CompositionConfigurationPanel/>
         </MudTabPanel>
-        <MudTabPanel Text="Instrumentation" Icon="@Icons.Material.Outlined.Piano">
-            <InstrumentConfigurationPanel/>
+        <MudTabPanel Text="Instrumentation" Icon="@InstrumentationTabIcon" IconColor="@InstrumentationTabIconColor">
+            <TabContent>
+                <MudText Typo="Typo.button" Class="d-flex align-content-center">
+                    <MudIcon Icon="@InstrumentationTabIcon" Color="@InstrumentationTabIconColor" Class="mr-2"/> Instrumentation
+                </MudText>
+            </TabContent>
+            <TabWrapperContent>
+                <MudTooltip Text="@InstrumentConfigurationState.Value.ValidationMessage"
+                            Placement="Placement.Top"
+                            Arrow="true"
+                            Color="Color.Warning"
+                            Disabled="@InstrumentConfigurationState.Value.IsValid"
+                            Delay="ThemeProvider.TooltipDelay"
+                            Duration="ThemeProvider.TooltipDuration">
+                    @context
+                </MudTooltip>
+            </TabWrapperContent>
+            <ChildContent>
+                <InstrumentConfigurationPanel/>
+            </ChildContent>
         </MudTabPanel>
         <MudTabPanel Text="Rules" Icon="@Icons.Material.Outlined.Rule">
             <CompositionRuleConfigurationPanel/>
@@ -65,6 +89,14 @@
     private MudTabs? _tabs;
 
     private MudTabPanel? _compositionTab;
+
+    private string InstrumentationTabIcon => InstrumentConfigurationState.Value.IsValid
+        ? Icons.Material.Outlined.Piano
+        : Icons.Material.Outlined.Warning;
+
+    private Color InstrumentationTabIconColor => InstrumentConfigurationState.Value.IsValid
+        ? Color.Secondary
+        : Color.Warning;
 
     private async Task Compose()
     {
@@ -111,4 +143,5 @@
             Dispatcher.Dispatch(new MarkCompositionSaved());
         }
     }
+
 }

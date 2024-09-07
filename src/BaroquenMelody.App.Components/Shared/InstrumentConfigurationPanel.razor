@@ -1,5 +1,12 @@
-﻿<RandomizeResetButtonGroup OnRandomizeClick="InstrumentConfigurationService.Randomize"
+﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+<RandomizeResetButtonGroup OnRandomizeClick="InstrumentConfigurationService.Randomize"
                            OnResetClick="InstrumentConfigurationService.ConfigureDefaults"/>
+
+@if (!InstrumentConfigurationState.Value.IsValid)
+{
+    <MudAlert Severity="Severity.Warning" Class="mx-3" Variant="Variant.Outlined">Please enable at least two instruments.</MudAlert>
+}
 @foreach (var instrument in InstrumentConfigurationService.ConfigurableInstruments)
 {
     <InstrumentConfigurationCard Instrument="instrument"/>

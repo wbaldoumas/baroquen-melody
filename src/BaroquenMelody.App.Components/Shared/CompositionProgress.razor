@@ -2,7 +2,7 @@
 
 @if (CompositionProgressState.Value.IsWaiting)
 {
-    <MudGrid Justify="Justify.Center">
+    <MudGrid Class="my-3" Justify="Justify.Center">
         <MudAnimate
             Selector=".id1"
             Duration="2"
@@ -19,14 +19,21 @@
             Paused="false"/>
         <MudItem xs="12" sm="12" md="12" lg="12" xl="12" xxl="12">
             <div class="d-flex flex-shrink align-center justify-center ma-0" style="height:300px;">
-                <MudButton Class="id1 d-flex align-center justify-center"
-                           Variant="Variant.Filled"
-                           StartIcon="@Icons.Material.Filled.ElectricBolt"
-                           Color="Color.Tertiary"
-                           Style="width: 300px; height: 100px;"
-                           OnClick="Compose">
-                    <MudText Typo="Typo.button" Style="font-size:large">Compose</MudText>
-                </MudButton>
+                <MudTooltip Text="@InstrumentConfigurationState.Value.ValidationMessage"
+                            Color="Color.Warning"
+                            Delay="ThemeProvider.TooltipDelay"
+                            Duration="ThemeProvider.TooltipDuration"
+                            Disabled="@InstrumentConfigurationState.Value.IsValid">
+                    <MudButton Class="id1 d-flex align-center justify-center"
+                               Variant="Variant.Filled"
+                               StartIcon="@Icons.Material.Filled.ElectricBolt"
+                               Color="Color.Tertiary"
+                               Style="width: 300px; height: 100px;"
+                               OnClick="Compose"
+                               Disabled="@(!InstrumentConfigurationState.Value.IsValid)">
+                        <MudText Typo="Typo.button" Style="font-size:large">Compose</MudText>
+                    </MudButton>
+                </MudTooltip>
             </div>
         </MudItem>
     </MudGrid>
