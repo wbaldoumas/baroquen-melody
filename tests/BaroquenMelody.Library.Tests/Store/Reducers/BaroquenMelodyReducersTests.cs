@@ -15,7 +15,7 @@ internal sealed class BaroquenMelodyReducersTests
     {
         // arrange
         var state = new BaroquenMelodyState();
-        var action = new UpdateBaroquenMelody(new BaroquenMelody(new MidiFile()), "Test");
+        var action = new UpdateBaroquenMelody(new BaroquenMelody(new MidiFile()), "Test", true);
 
         // act
         var newState = BaroquenMelodyReducers.ReduceUpdateBaroquenMelody(state, action);
@@ -23,5 +23,20 @@ internal sealed class BaroquenMelodyReducersTests
         // assert
         newState.BaroquenMelody.Should().Be(action.BaroquenMelody);
         newState.Path.Should().Be(action.Path);
+        newState.HasBeenSaved.Should().BeTrue();
+    }
+
+    [Test]
+    public void ReduceMarkCompositionSaved()
+    {
+        // arrange
+        var state = new BaroquenMelodyState { HasBeenSaved = false };
+        var action = new MarkCompositionSaved();
+
+        // act
+        var newState = BaroquenMelodyReducers.ReduceMarkCompositionSaved(state, action);
+
+        // assert
+        newState.HasBeenSaved.Should().BeTrue();
     }
 }

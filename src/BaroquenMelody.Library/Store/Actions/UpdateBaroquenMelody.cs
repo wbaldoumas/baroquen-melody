@@ -1,3 +1,3 @@
 ﻿namespace BaroquenMelody.Library.Store.Actions;
 
-public sealed record UpdateBaroquenMelody(BaroquenMelody BaroquenMelody, string Path);
+public sealed record UpdateBaroquenMelody(BaroquenMelody BaroquenMelody, string Path, bool HasBeenSaved);

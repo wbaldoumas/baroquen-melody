@@ -24,7 +24,7 @@
                            StartIcon="@Icons.Material.Filled.ElectricBolt"
                            Color="Color.Tertiary"
                            Style="width: 300px; height: 100px;"
-                           OnClick="() => Dispatcher.Dispatch(new Compose())">
+                           OnClick="Compose">
                     <MudText Typo="Typo.button" Style="font-size:large">Compose</MudText>
                 </MudButton>
             </div>
@@ -95,22 +95,47 @@ else
 
 @code {
 
-    private async Task Play() => await MidiLauncher.LaunchAsync(BaroquenMelodyState.Value.Path, GetTimedCancellationToken(10));
+    private async Task Compose()
+    {
+        if (!BaroquenMelodyState.Value.HasBeenSaved && BaroquenMelodyState.Value.BaroquenMelody is not null)
+        {
+            var dialogReference = await Dialog.ShowAsync<ConfirmCompositionDialogue>("Save composition?", new DialogOptions());
+            var dialogResult = await dialogReference.Result;
+
+            if (dialogResult?.Canceled ?? false)
+            {
+                return;
+            }
+
+            if (dialogResult?.Data is true)
+            {
+                await Save();
+            }
+        }
+
+        Dispatcher.Dispatch(new Compose());
+    }
+
+    private async Task Play()
+    {
+        var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+        await MidiLauncher.LaunchAsync(BaroquenMelodyState.Value.Path, cancellationTokenSource.Token);
+    }
 
     private async Task Save()
     {
         var isSaved = await MidiSaver.SaveAsync(
             BaroquenMelodyState.Value.BaroquenMelody!,
             BaroquenMelodyState.Value.Path,
-            GetTimedCancellationToken(10)
-        );
+            new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token
+        ).ConfigureAwait(false);
 
         if (isSaved)
         {
             Snackbar.Add("Saved composition!", Severity.Success);
+            Dispatcher.Dispatch(new MarkCompositionSaved());
         }
     }
-
-    private CancellationToken GetTimedCancellationToken(int timeout) => new CancellationTokenSource(TimeSpan.FromSeconds(timeout)).Token;
 
 }

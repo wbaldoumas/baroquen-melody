@@ -1,0 +1,33 @@
+﻿<MudDialog>
+    <DialogContent>
+        Previous composition has not yet been saved. Do you want to save it before creating a new one?
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Tertiary"
+                   Variant="Variant.Outlined"
+                   OnClick="SaveComposition">
+            Yes
+        </MudButton>
+        <MudButton Color="Color.Error"
+                   Variant="Variant.Outlined"
+                   OnClick="ContinueWithoutSave">
+            No
+        </MudButton>
+        <MudButton OnClick="Cancel"
+                   Variant="Variant.Outlined">
+            Cancel
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+
+    private void SaveComposition() => MudDialog?.Close(DialogResult.Ok(true));
+
+    private void ContinueWithoutSave() => MudDialog?.Close(DialogResult.Ok(false));
+
+    private void Cancel() => MudDialog?.Cancel();
+
+}
