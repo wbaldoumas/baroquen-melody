@@ -43,6 +43,8 @@ internal sealed class ChordChoiceRepositoryFactoryTests
         var act = () => _chordChoiceRepositoryFactory.Create(Configurations.GetCompositionConfiguration(0));
 
         // assert
-        act.Should().Throw<ArgumentException>();
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage("The composition configuration must contain between one and four instrument configurations. (Parameter 'compositionConfiguration')");
     }
 }
