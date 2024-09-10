@@ -21,6 +21,7 @@ internal sealed class ChordChoiceRepositoryFactoryTests
     }
 
     [Test]
+    [TestCase(1, typeof(SoloChordChoiceRepository))]
     [TestCase(2, typeof(DuetChordChoiceRepository))]
     [TestCase(3, typeof(TrioChordChoiceRepository))]
     [TestCase(4, typeof(QuartetChordChoiceRepository))]
@@ -39,7 +40,7 @@ internal sealed class ChordChoiceRepositoryFactoryTests
     public void WhenChordChoiceRepositoryIsPassedInvalidConfiguration_ItThrows()
     {
         // act
-        var act = () => _chordChoiceRepositoryFactory.Create(Configurations.GetCompositionConfiguration(1));
+        var act = () => _chordChoiceRepositoryFactory.Create(Configurations.GetCompositionConfiguration(int.MaxValue));
 
         // assert
         act.Should().Throw<ArgumentException>();

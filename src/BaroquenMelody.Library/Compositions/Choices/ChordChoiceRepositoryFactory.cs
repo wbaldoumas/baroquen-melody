@@ -7,6 +7,7 @@ internal sealed class ChordChoiceRepositoryFactory(INoteChoiceGenerator noteChoi
 {
     public IChordChoiceRepository Create(CompositionConfiguration compositionConfiguration) => compositionConfiguration.Instruments.Count switch
     {
+        SoloChordChoiceRepository.NumberOfInstruments => new SoloChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),
         DuetChordChoiceRepository.NumberOfInstruments => new DuetChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),
         TrioChordChoiceRepository.NumberOfInstruments => new TrioChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),
         QuartetChordChoiceRepository.NumberOfInstruments => new QuartetChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),

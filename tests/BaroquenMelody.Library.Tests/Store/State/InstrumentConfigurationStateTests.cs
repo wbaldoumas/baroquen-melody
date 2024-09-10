@@ -13,7 +13,8 @@ internal sealed class InstrumentConfigurationStateTests
 {
     [Test]
     [TestCase(true, true, true)]
-    [TestCase(true, false, false)]
+    [TestCase(true, false, true)]
+    [TestCase(false, false, false)]
     public void IsValid_returns_expected_value(bool isInstrumentOneEnabled, bool isInstrumentTwoEnabled, bool expectedIsValid)
     {
         // act
