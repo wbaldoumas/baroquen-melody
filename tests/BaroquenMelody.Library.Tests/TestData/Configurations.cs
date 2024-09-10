@@ -24,6 +24,7 @@ internal static class Configurations
 
     private static HashSet<InstrumentConfiguration> GenerateInstrumentConfigurations(int numberOfInstruments) => numberOfInstruments switch
     {
+        0 => [],
         1 =>
         [
             new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C6)

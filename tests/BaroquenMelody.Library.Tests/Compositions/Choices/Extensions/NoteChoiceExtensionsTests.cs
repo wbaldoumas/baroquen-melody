@@ -10,6 +10,19 @@ namespace BaroquenMelody.Library.Tests.Compositions.Choices.Extensions;
 internal sealed class NoteChoiceExtensionsTests
 {
     [Test]
+    public void ToChordChoice_OneNote_CreatesExpectedChordChoice()
+    {
+        // arrange
+        var note = new NoteChoice(Instrument.One, NoteMotion.Oblique, 0);
+
+        // act
+        var result = note.ToChordChoice();
+
+        // assert
+        result.Should().BeEquivalentTo(new ChordChoice([note]));
+    }
+
+    [Test]
     public void ToChordChoice_TwoNotes_CreatesExpectedChordChoice()
     {
         // arrange

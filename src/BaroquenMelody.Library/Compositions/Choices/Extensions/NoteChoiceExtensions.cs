@@ -6,6 +6,13 @@
 internal static class NoteChoiceExtensions
 {
     /// <summary>
+    ///     Convert a <see cref="NoteChoice"/> to a <see cref="ChordChoice"/>.
+    /// </summary>
+    /// <param name="source"> The <see cref="NoteChoice"/> to convert. </param>
+    /// <returns> The <see cref="ChordChoice"/> representing the given <see cref="NoteChoice"/>. </returns>
+    public static ChordChoice ToChordChoice(this NoteChoice source) => new([source]);
+
+    /// <summary>
     ///     Convert a tuple of <see cref="NoteChoice"/>s to a <see cref="ChordChoice"/>.
     /// </summary>
     /// <param name="source"> The tuple of <see cref="NoteChoice"/>s to convert. </param>

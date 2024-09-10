@@ -7,7 +7,7 @@ namespace BaroquenMelody.Library.Store.State;
 [FeatureState]
 public sealed record InstrumentConfigurationState(IDictionary<Instrument, InstrumentConfiguration> Configurations, IDictionary<Instrument, InstrumentConfiguration> LastUserAppliedConfigurations)
 {
-    private const int MinimumEnabledConfigurations = 2;
+    private const int MinimumEnabledConfigurations = 1;
 
     public ISet<InstrumentConfiguration> EnabledConfigurations => Configurations.Values.Where(configuration => configuration.IsEnabled).ToHashSet();
 
