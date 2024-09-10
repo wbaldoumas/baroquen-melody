@@ -12,7 +12,7 @@ internal sealed class ChordChoiceRepositoryFactory(INoteChoiceGenerator noteChoi
         TrioChordChoiceRepository.NumberOfInstruments => new TrioChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),
         QuartetChordChoiceRepository.NumberOfInstruments => new QuartetChordChoiceRepository(compositionConfiguration, noteChoiceGenerator),
         _ => throw new ArgumentException(
-            "The composition configuration must contain between two and four instrument configurations.",
+            "The composition configuration must contain between one and four instrument configurations.",
             nameof(compositionConfiguration)
         )
     };

@@ -40,7 +40,7 @@ internal sealed class ChordChoiceRepositoryFactoryTests
     public void WhenChordChoiceRepositoryIsPassedInvalidConfiguration_ItThrows()
     {
         // act
-        var act = () => _chordChoiceRepositoryFactory.Create(Configurations.GetCompositionConfiguration(int.MaxValue));
+        var act = () => _chordChoiceRepositoryFactory.Create(Configurations.GetCompositionConfiguration(0));
 
         // assert
         act.Should().Throw<ArgumentException>();

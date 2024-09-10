@@ -48,4 +48,44 @@ internal sealed class SoloChordChoiceRepositoryTests
         noteChoiceCount.Should().Be(3);
         noteChoice.Should().BeEquivalentTo(new ChordChoice([new NoteChoice(Instrument.One, NoteMotion.Descending, 3)]));
     }
+
+    [Test]
+    public void WhenInvalidCompositionConfigurationIsPassedToSoloChordChoiceRepository_ItThrows()
+    {
+        // arrange
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(3);
+
+        // act
+        var act = () => _ = new SoloChordChoiceRepository(
+            compositionConfiguration,
+            _mockNoteChoiceGenerator
+        );
+
+        // assert
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Test]
+    public void GetChordChoiceId_ReturnsExpectedId()
+    {
+        // arrange
+        var compositionConfiguration = Configurations.GetCompositionConfiguration(1);
+
+        var soloChordChoiceRepository = new SoloChordChoiceRepository(
+            compositionConfiguration,
+            _mockNoteChoiceGenerator
+        );
+
+        // act
+        var id = soloChordChoiceRepository.GetChordChoiceId(
+            new ChordChoice(
+                [
+                    new NoteChoice(Instrument.One, NoteMotion.Ascending, 2),
+                ]
+            )
+        );
+
+        // assert
+        id.Should().Be(1);
+    }
 }
