@@ -1,5 +1,7 @@
-﻿using BaroquenMelody.App.Components.Extensions;
+﻿using BaroquenMelody.App.Components;
+using BaroquenMelody.App.Components.Extensions;
 using BaroquenMelody.App.Infrastructure.FileSystem;
+using BaroquenMelody.App.Infrastructure.Theme;
 using BaroquenMelody.Library.Infrastructure.FileSystem;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.WebView.Maui;
@@ -20,6 +22,7 @@ public static class MauiProgram
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddSingleton<IMidiLauncher, MauiMidiLauncher>();
         builder.Services.AddSingleton<IMidiSaver, MauiMidiSaver>();
+        builder.Services.AddSingleton<IThemeProvider, MauiThemeProvider>();
         builder.Services.AddBaroquenMelodyComponents();
 
 #if DEBUG

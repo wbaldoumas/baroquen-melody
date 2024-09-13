@@ -1,8 +1,9 @@
-﻿using MudBlazor;
+﻿using BaroquenMelody.App.Components;
+using MudBlazor;
 
-namespace BaroquenMelody.App.Components;
+namespace BaroquenMelody.App.Infrastructure.Theme;
 
-internal sealed class ThemeProvider : IThemeProvider
+internal sealed class MauiThemeProvider : IThemeProvider
 {
     private static readonly PaletteLight _lightPalette = new()
     {
@@ -51,7 +52,11 @@ internal sealed class ThemeProvider : IThemeProvider
         LayoutProperties = new LayoutProperties()
     };
 
-    public bool IsDarkMode { get; private set; } = true;
+    public bool IsDarkMode
+    {
+        get => Preferences.Get("IsDarkMode", true);
+        private set => Preferences.Set("IsDarkMode", value);
+    }
 
     public string DarkLightModeButtonIcon => IsDarkMode switch
     {
@@ -59,10 +64,10 @@ internal sealed class ThemeProvider : IThemeProvider
         false => Icons.Material.Rounded.DarkMode
     };
 
-    public Color DarkLightModeIconColor => IsDarkMode switch
+    public MudBlazor.Color DarkLightModeIconColor => IsDarkMode switch
     {
-        true => Color.Warning,
-        false => Color.Primary
+        true => MudBlazor.Color.Warning,
+        false => MudBlazor.Color.Primary
     };
 
     public string DarkLightModeTooltipText => IsDarkMode switch
