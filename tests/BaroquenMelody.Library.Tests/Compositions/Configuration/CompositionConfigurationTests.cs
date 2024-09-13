@@ -1,9 +1,10 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
+using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests.Compositions.Configuration;
@@ -31,10 +32,11 @@ internal sealed class CompositionConfigurationTests
             PhrasingConfiguration.Default,
             AggregateCompositionRuleConfiguration.Default,
             AggregateOrnamentationConfiguration.Default,
-            BaroquenScale.Parse("C Major"),
+            NoteName.C,
+            Mode.Aeolian,
             Meter.FourFour,
             MusicalTimeSpan.Half,
-            CompositionLength: 100
+            MinimumMeasures: 100
         );
     }
 

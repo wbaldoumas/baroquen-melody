@@ -1,7 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Enums.Extensions;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using Melanchall.DryWetMidi.Interaction;
+using Melanchall.DryWetMidi.MusicTheory;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
 namespace BaroquenMelody.Library.Compositions.Configurations;
@@ -13,8 +15,9 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 /// <param name="PhrasingConfiguration"> The phrasing configuration to be used in the composition. </param>
 /// <param name="AggregateCompositionRuleConfiguration"> The configuration of the composition rules to use in the composition. </param>
 /// <param name="AggregateOrnamentationConfiguration"> The configuration of the ornamentations to use in the composition. </param>
-/// <param name="Scale"> The scale to be used in the composition. </param>
-/// <param name="CompositionLength"> The length of the composition in measures. </param>
+/// <param name="Tonic"> The tonic note of the composition. </param>
+/// <param name="Mode"> The mode of the composition. </param>
+/// <param name="MinimumMeasures"> The length of the composition in measures. </param>
 /// <param name="Meter"> The meter to be used in the composition. </param>
 /// <param name="DefaultNoteTimeSpan"> The default note time span to be used in the composition. </param>
 /// <param name="CompositionContextSize"> The size of the context to be used in the composition. </param>
@@ -24,10 +27,11 @@ public sealed record CompositionConfiguration(
     PhrasingConfiguration PhrasingConfiguration,
     AggregateCompositionRuleConfiguration AggregateCompositionRuleConfiguration,
     AggregateOrnamentationConfiguration AggregateOrnamentationConfiguration,
-    BaroquenScale Scale,
+    NoteName Tonic,
+    Mode Mode,
     Meter Meter,
     MusicalTimeSpan DefaultNoteTimeSpan,
-    int CompositionLength,
+    int MinimumMeasures,
     int CompositionContextSize = 8,
     int Tempo = 120)
 {
@@ -44,6 +48,8 @@ public sealed record CompositionConfiguration(
     public List<Instrument> Instruments { get; } = InstrumentConfigurations.Select(static instrumentConfiguration => instrumentConfiguration.Instrument).ToList();
 
     public int BeatsPerMeasure => Meter.BeatsPerMeasure();
+
+    public BaroquenScale Scale { get; } = new(Tonic, Mode);
 
     /// <summary>
     ///     Determine if the given note is within the range of the given instrument for the composition.

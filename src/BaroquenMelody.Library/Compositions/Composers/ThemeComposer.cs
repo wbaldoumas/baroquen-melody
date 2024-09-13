@@ -107,7 +107,7 @@ internal sealed class ThemeComposer(
             beats.Add(new Beat(nextChord));
         }
 
-        return new List<Measure>(compositionConfiguration.CompositionLength)
+        return new List<Measure>(compositionConfiguration.MinimumMeasures)
         {
             new(beats, compositionConfiguration.Meter)
         };

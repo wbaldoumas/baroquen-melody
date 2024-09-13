@@ -55,7 +55,7 @@ internal sealed class Composer(
 
         var compositionBody = new List<Measure>();
 
-        while (compositionBody.Count < compositionConfiguration.CompositionLength)
+        while (compositionBody.Count < compositionConfiguration.MinimumMeasures)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -82,7 +82,7 @@ internal sealed class Composer(
 
     private void DispatchProgress(int currentMeasureCount)
     {
-        dispatcher.Dispatch(new ProgressCompositionBodyProgress((double)currentMeasureCount / compositionConfiguration.CompositionLength * 100));
+        dispatcher.Dispatch(new ProgressCompositionBodyProgress((double)currentMeasureCount / compositionConfiguration.MinimumMeasures * 100));
     }
 
     private Composition AddOrnamentation(Composition composition, CancellationToken cancellationToken)
@@ -118,7 +118,7 @@ internal sealed class Composer(
                 compositionPhraser.AttemptPhraseRepetition(phrasedMeasures);
             }
 
-            if (phrasedMeasures.Count >= compositionConfiguration.CompositionLength)
+            if (phrasedMeasures.Count >= compositionConfiguration.MinimumMeasures)
             {
                 break;
             }

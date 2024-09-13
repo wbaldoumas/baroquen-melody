@@ -13,7 +13,7 @@ internal sealed class BaroquenScaleTests
     public void ScaleDegrees_ReturnExpectedNoteNames()
     {
         // arrange
-        var scale = BaroquenScale.Parse("C Major");
+        var scale = new BaroquenScale(NoteName.C, Mode.Ionian);
 
         // act + assert
         scale.Tonic.Should().Be(NoteName.C);

@@ -106,7 +106,7 @@ internal sealed class ComposerTests
 
         // assert
         composition.Should().NotBeNull();
-        composition.Measures.Should().HaveCountGreaterOrEqualTo(_compositionConfiguration.CompositionLength);
+        composition.Measures.Should().HaveCountGreaterOrEqualTo(_compositionConfiguration.MinimumMeasures);
 
         foreach (var measure in composition.Measures)
         {
@@ -116,7 +116,7 @@ internal sealed class ComposerTests
         _mockCompositionStrategy.Received(1).GenerateInitialChord();
 
         _mockCompositionStrategy
-            .Received(_compositionConfiguration.CompositionLength * _compositionConfiguration.BeatsPerMeasure + 4) // 4 more to account for theme generation and cadence handling
+            .Received(_compositionConfiguration.MinimumMeasures * _compositionConfiguration.BeatsPerMeasure + 4) // 4 more to account for theme generation and cadence handling
             .GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>());
 
         _mockCompositionDecorator.Received(4).Decorate(Arg.Any<Composition>());
