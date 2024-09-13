@@ -17,6 +17,5 @@ public static class ServiceCollectionExtensions
             config.SnackbarConfiguration.SnackbarVariant = Variant.Outlined;
         })
         .AddMudExtensions()
-        .AddBaroquenMelody()
-        .AddSingleton<IThemeProvider, ThemeProvider>();
+        .AddBaroquenMelody();
 }
