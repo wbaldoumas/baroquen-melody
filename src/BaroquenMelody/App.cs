@@ -51,7 +51,8 @@ internal sealed class App : IDisposable
             PhrasingConfiguration.Default,
             _compositionRuleConfigurationState.Value.Aggregate,
             _compositionOrnamentationConfigurationState.Value.Aggregate,
-            BaroquenScale.Parse($"{_compositionConfigurationState.Value.TonicNote} {_compositionConfigurationState.Value.Mode}"),
+            _compositionConfigurationState.Value.TonicNote,
+            _compositionConfigurationState.Value.Mode,
             _compositionConfigurationState.Value.Meter,
             _compositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
             _compositionConfigurationState.Value.MinimumMeasures

@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 
@@ -16,10 +17,11 @@ internal static class Configurations
         PhrasingConfiguration.Default,
         AggregateCompositionRuleConfiguration.Default,
         AggregateOrnamentationConfiguration.Default,
-        BaroquenScale.Parse("C Major"),
+        NoteName.C,
+        Mode.Ionian,
         Meter.FourFour,
         MusicalTimeSpan.Half,
-        CompositionLength: compositionLength
+        MinimumMeasures: compositionLength
     );
 
     private static HashSet<InstrumentConfiguration> GenerateInstrumentConfigurations(int numberOfInstruments) => numberOfInstruments switch

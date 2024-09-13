@@ -29,7 +29,8 @@ public sealed class BaroquenMelodyEffects(
             PhrasingConfiguration.Default,
             compositionRuleConfigurationState.Value.Aggregate,
             compositionOrnamentationConfigurationState.Value.Aggregate,
-            compositionConfigurationState.Value.Scale,
+            compositionConfigurationState.Value.TonicNote,
+            compositionConfigurationState.Value.Mode,
             compositionConfigurationState.Value.Meter,
             compositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
             compositionConfigurationState.Value.MinimumMeasures

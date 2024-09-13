@@ -41,4 +41,8 @@
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Infrastructure\Serialization\JsonSerializerContexts\" />
+  </ItemGroup>
+
 </Project>

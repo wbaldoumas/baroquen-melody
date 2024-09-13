@@ -89,7 +89,18 @@ public sealed class BaroquenScale
     /// </summary>
     public Scale Raw { get; }
 
-    public BaroquenScale(Scale raw)
+    /// <summary>
+    ///     The mode of the scale.
+    /// </summary>
+    public Mode Mode { get; }
+
+    public BaroquenScale(NoteName tonic, Mode mode)
+        : this(Scale.Parse($"{tonic} {mode}"))
+    {
+        Mode = mode;
+    }
+
+    private BaroquenScale(Scale raw)
     {
         Raw = raw;
         _notes = raw.GetNotes().ToList();
@@ -116,18 +127,6 @@ public sealed class BaroquenScale
         VI = [Submediant, Tonic, Mediant];
         VII = [LeadingTone, Supertonic, Subdominant];
     }
-
-    public BaroquenScale(NoteName tonic, Mode mode)
-        : this(Scale.Parse($"{tonic} {mode}"))
-    {
-    }
-
-    /// <summary>
-    ///     Converts a string representation of a musical scale into its equivalent <see cref="BaroquenScale"/>.
-    /// </summary>
-    /// <param name="scale">The string representation of a musical scale.</param>
-    /// <returns>The equivalent <see cref="BaroquenScale"/>.</returns>
-    public static BaroquenScale Parse(string scale) => new(Scale.Parse(scale));
 
     /// <summary>
     ///     Retrieve all notes in the scale.

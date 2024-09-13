@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Extensions;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -17,7 +18,7 @@ internal sealed class BaroquenNoteExtensionsTests
     {
         // arrange
         var note = new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half);
-        var scale = BaroquenScale.Parse("C Major");
+        var scale = new BaroquenScale(NoteName.C, Mode.Ionian);
         var noteChoice = new NoteChoice(Instrument.One, NoteMotion.Ascending, 2);
 
         // act
@@ -32,7 +33,7 @@ internal sealed class BaroquenNoteExtensionsTests
     {
         // arrange
         var note = new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half);
-        var scale = BaroquenScale.Parse("C Major");
+        var scale = new BaroquenScale(NoteName.C, Mode.Ionian);
         var noteChoice = new NoteChoice(Instrument.One, NoteMotion.Descending, 2);
 
         // act
@@ -47,7 +48,7 @@ internal sealed class BaroquenNoteExtensionsTests
     {
         // arrange
         var note = new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half);
-        var scale = BaroquenScale.Parse("C Major");
+        var scale = new BaroquenScale(NoteName.C, Mode.Aeolian);
         var noteChoice = new NoteChoice(Instrument.One, NoteMotion.Oblique, 0);
 
         // act
@@ -62,7 +63,7 @@ internal sealed class BaroquenNoteExtensionsTests
     {
         // arrange
         var note = new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half);
-        var scale = BaroquenScale.Parse("C Major");
+        var scale = new BaroquenScale(NoteName.C, Mode.Aeolian);
         var noteChoice = new NoteChoice(Instrument.One, (NoteMotion)99, 0);
 
         // act

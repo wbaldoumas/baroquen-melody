@@ -5,6 +5,7 @@ using BaroquenMelody.App.Infrastructure.Theme;
 using BaroquenMelody.Library.Infrastructure.FileSystem;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.WebView.Maui;
+using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.App;
 

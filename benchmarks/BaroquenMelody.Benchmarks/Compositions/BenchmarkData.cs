@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 
@@ -24,7 +25,8 @@ internal static class BenchmarkData
         ),
         AggregateCompositionRuleConfiguration.Default,
         AggregateOrnamentationConfiguration.Default,
-        BaroquenScale.Parse("D Dorian"),
+        NoteName.D,
+        Mode.Dorian,
         Meter.FourFour,
         MusicalTimeSpan.Half,
         25
