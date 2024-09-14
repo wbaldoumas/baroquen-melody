@@ -1,6 +1,8 @@
 ﻿using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Infrastructure.Serialization.JsonConverters;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
+using System.Text.Json.Serialization;
 
 namespace BaroquenMelody.Library.Compositions.Configurations;
 
@@ -14,8 +16,8 @@ namespace BaroquenMelody.Library.Compositions.Configurations;
 /// <param name="MidiProgram"> The instrument's midi program. </param>
 public sealed record InstrumentConfiguration(
     Instrument Instrument,
-    Note MinNote,
-    Note MaxNote,
+    [property: JsonConverter(typeof(NoteJsonConverter))] Note MinNote,
+    [property: JsonConverter(typeof(NoteJsonConverter))] Note MaxNote,
     GeneralMidi2Program MidiProgram = GeneralMidi2Program.AcousticGrandPiano,
     bool IsEnabled = true)
 {
@@ -23,9 +25,9 @@ public sealed record InstrumentConfiguration(
 
     public static readonly IDictionary<Instrument, InstrumentConfiguration> DefaultConfigurations = new Dictionary<Instrument, InstrumentConfiguration>
     {
-        { Instrument.One, new(Instrument.One, Notes.C5, Notes.E6) },
-        { Instrument.Two, new(Instrument.Two, Notes.G3, Notes.B4) },
-        { Instrument.Three, new(Instrument.Three, Notes.D3, Notes.F4) },
-        { Instrument.Four, new(Instrument.Four, Notes.C2, Notes.E3, IsEnabled: false) }
+        { Instrument.One, new InstrumentConfiguration(Instrument.One, Notes.C5, Notes.E6) },
+        { Instrument.Two, new InstrumentConfiguration(Instrument.Two, Notes.G3, Notes.B4) },
+        { Instrument.Three, new InstrumentConfiguration(Instrument.Three, Notes.D3, Notes.F4) },
+        { Instrument.Four, new InstrumentConfiguration(Instrument.Four, Notes.C2, Notes.E3, IsEnabled: false) }
     };
 }

@@ -81,7 +81,7 @@ internal sealed class CompositionConfigurationEffectsTests
         var action = new UpdateCompositionConfiguration(NoteName.D, Mode.Ionian, Meter.FourFour);
 
         // act
-        await _compositionConfigurationEffects.HandleUpdateCompositionConfiguration(action, _mockDispatcher);
+        await _compositionConfigurationEffects.HandleUpdateCompositionConfigurationAsync(action, _mockDispatcher);
 
         // assert
         _mockDispatcher.Received().Dispatch(

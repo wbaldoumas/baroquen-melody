@@ -2,16 +2,10 @@
 
 @inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Baroquen Melody</PageTitle>
 
 <MudContainer Class="mb-3" Gutters="false">
-    <MudGrid Class="mb-2" Justify="Justify.FlexEnd" Spacing="1">
-        <MudItem>
-            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Folder" IconColor="Color.Primary">Load Configuration</MudButton>
-        </MudItem>
-        <MudItem>
-            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" IconColor="Color.Secondary">Save Configuration</MudButton>
-        </MudItem>
+    <MudGrid Class="mb-2 d-flex justify-center justify-sm-end flex-grow-1 flex-sm-grow-0" Spacing="2">
         <MudItem>
             @if (!CompositionProgressState.Value.IsLoading)
             {
@@ -24,7 +18,8 @@
                                StartIcon="@Icons.Material.Filled.ElectricBolt"
                                Color="Color.Tertiary"
                                OnClick="Compose"
-                               Disabled="@(CompositionProgressState.Value.IsLoading || !InstrumentConfigurationState.Value.IsValid)">
+                               Disabled="@(CompositionProgressState.Value.IsLoading || !InstrumentConfigurationState.Value.IsValid)"
+                               FullWidth="true">
                         Compose
                     </MudButton>
                 </MudTooltip>
@@ -33,11 +28,21 @@
             {
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Tertiary"
-                           Disabled="@CompositionProgressState.Value.IsLoading">
+                           Disabled="@CompositionProgressState.Value.IsLoading"
+                           FullWidth="true">
                     <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
                     <MudText Class="ms-2" Typo="Typo.button">Compose</MudText>
                 </MudButton>
             }
+        </MudItem>
+        <MudItem>
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Material.Filled.Save"
+                       IconColor="Color.Primary"
+                       FullWidth="true"
+                       OnClick="SaveCompositionConfiguration">
+                Save Configuration
+            </MudButton>
         </MudItem>
     </MudGrid>
     <MudTabs Outlined="true"
@@ -102,7 +107,7 @@
     {
         if (!BaroquenMelodyState.Value.HasBeenSaved && BaroquenMelodyState.Value.BaroquenMelody is not null)
         {
-            var dialogReference = await Dialog.ShowAsync<ConfirmCompositionDialogue>("Save composition?", new DialogOptions());
+            var dialogReference = await Dialog.ShowAsync<ConfirmCompositionDialogue>("Save composition?");
             var dialogResult = await dialogReference.Result;
 
             if (dialogResult?.Canceled ?? false)
@@ -141,6 +146,27 @@
         {
             Snackbar.Add("Saved composition!", Severity.Success);
             Dispatcher.Dispatch(new MarkCompositionSaved());
+        }
+    }
+
+    private async Task SaveCompositionConfiguration()
+    {
+        var dialogReference = await Dialog.ShowAsync<SaveCompositionConfigurationDialog>("Save composition configuration?");
+
+        var dialogResult = await dialogReference.Result;
+
+        if (dialogResult?.Canceled is true)
+        {
+            return;
+        }
+
+        if (dialogResult?.Data is true)
+        {
+            Snackbar.Add("Saved composition configuration!", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Failed to save composition configuration!", Severity.Error);
         }
     }
 

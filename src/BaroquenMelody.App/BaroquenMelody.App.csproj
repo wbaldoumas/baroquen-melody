@@ -30,7 +30,7 @@
         <ApplicationTitle>Baroquen Melody</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.baroquenmelody.app</ApplicationId>
+        <ApplicationId>com.wbaldoumas.baroquenmelody.app</ApplicationId>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>

@@ -54,7 +54,7 @@ internal sealed class ThemeComposer(
 
     private void DispatchProgress(int attempt)
     {
-        dispatcher.Dispatch(new ProgressCompositionThemeProgress(((double)attempt / MaxFugueCompositionAttempts) * 100));
+        dispatcher.Dispatch(new ProgressCompositionThemeProgress((double)attempt / MaxFugueCompositionAttempts * 100));
     }
 
     private bool TryComposeFugalTheme(out BaroquenTheme? theme, CancellationToken cancellationToken)

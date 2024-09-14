@@ -28,7 +28,7 @@ internal sealed class InstrumentConfigurationStateTests
                 {
                     Instrument.Two,
                     new InstrumentConfiguration(Instrument.Two, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer, isInstrumentTwoEnabled)
-                },
+                }
             },
             new Dictionary<Instrument, InstrumentConfiguration>()
         );

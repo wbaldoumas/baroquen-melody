@@ -63,11 +63,10 @@ internal sealed class BaroquenChordTests
         cMajor.ResetOrnamentation(MusicalTimeSpan.Half);
 
         // assert
-        cMajor.Notes.Should().BeEquivalentTo(new[]
-        {
+        cMajor.Notes.Should().BeEquivalentTo([
             new BaroquenNote(Instrument.One, Notes.C1, MusicalTimeSpan.Half),
             new BaroquenNote(Instrument.Two, Notes.E1, MusicalTimeSpan.Half)
-        });
+        ]);
     }
 
     private static IEnumerable<TestCaseData> ContainsInstrumentTestCases

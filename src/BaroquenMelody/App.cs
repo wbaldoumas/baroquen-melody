@@ -1,6 +1,5 @@
 ﻿using BaroquenMelody.Library;
 using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums.Extensions;
 using BaroquenMelody.Library.Infrastructure.State;
 using BaroquenMelody.Library.Store.State;

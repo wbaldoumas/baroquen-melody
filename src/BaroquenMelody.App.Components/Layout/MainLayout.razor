@@ -4,27 +4,30 @@
 
 <MudThemeProvider Theme="@ThemeProvider.Theme" IsDarkMode="ThemeProvider.IsDarkMode"/>
 <MudPopoverProvider/>
-<MudDialogProvider/>
 <MudSnackbarProvider/>
+<MudDialogProvider 
+    BackdropClick="false"
+    FullWidth="true"
+    MaxWidth="MaxWidth.Small"/>
 
 <MudLayout>
     <MudAppBar Elevation="3" Dense="true" Gutters="false">
-        <MudIconButton Class="ml-3" Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(_ => ToggleDrawer())"/>
+        <MudIconButton Class="ml-3" Icon="@Icons.Material.Sharp.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(_ => _isDrawerOpen = !_isDrawerOpen)"/>
         <MudSpacer/>
-        <MudTooltip  Delay="@ThemeProvider.TooltipDelay" Duration="@ThemeProvider.TooltipDuration" Text="source code">
-            <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://www.github.com/wbaldoumas/baroquen-melody"/>    
+        <MudTooltip Delay="@ThemeProvider.TooltipDelay" Duration="@ThemeProvider.TooltipDuration" Text="source code">
+            <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://www.github.com/wbaldoumas/baroquen-melody"/>
         </MudTooltip>
         <MudTooltip Delay="@ThemeProvider.TooltipDelay" Duration="@ThemeProvider.TooltipDuration" Text="@ThemeProvider.DarkLightModeTooltipText">
             <MudIconButton Icon="@(ThemeProvider.DarkLightModeButtonIcon)" Color="@(ThemeProvider.DarkLightModeIconColor)" OnClick="@ThemeProvider.ToggleDarkMode"/>
         </MudTooltip>
         <MudTooltip Delay="@ThemeProvider.TooltipDelay" Duration="@ThemeProvider.TooltipDuration" Text="more options" Placement="Placement.Left">
-            <MudMenu Icon="@Icons.Material.Filled.MoreVert"
+            <MudMenu Icon="@Icons.Material.Sharp.MoreVert"
                      Class="mr-3"
                      AriaLabel="more options">
-                <MudMenuItem Icon="@Icons.Material.Filled.Lightbulb" IconColor="Color.Warning" Href="https://github.com/wbaldoumas/baroquen-melody/issues/new?template=FEATURE_REQUEST.md">Feature request</MudMenuItem>
-                <MudMenuItem Icon="@Icons.Material.Outlined.BugReport" IconColor="Color.Tertiary" Href="https://github.com/wbaldoumas/baroquen-melody/issues/new?template=BUG_REPORT.md">Report a bug</MudMenuItem>
-                <MudMenuItem Icon="@Icons.Material.Outlined.Shield" IconColor="Color.Info" Href="https://github.com/wbaldoumas/baroquen-melody/security/policy">Report a vulnerability</MudMenuItem>
-                <MudMenuItem Icon="@Icons.Material.Filled.Favorite" IconColor="Color.Secondary">Donate</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Sharp.Lightbulb" IconColor="Color.Warning" Href="https://github.com/wbaldoumas/baroquen-melody/issues/new?template=FEATURE_REQUEST.md">Feature request</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Sharp.BugReport" IconColor="Color.Tertiary" Href="https://github.com/wbaldoumas/baroquen-melody/issues/new?template=BUG_REPORT.md">Report a bug</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Sharp.Shield" IconColor="Color.Info" Href="https://github.com/wbaldoumas/baroquen-melody/security/policy">Report a vulnerability</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Sharp.Favorite" IconColor="Color.Secondary">Donate</MudMenuItem>
             </MudMenu>
         </MudTooltip>
     </MudAppBar>
@@ -42,6 +45,4 @@
 @code
 {
     private bool _isDrawerOpen;
-
-    private void ToggleDrawer() => _isDrawerOpen = !_isDrawerOpen;
 }

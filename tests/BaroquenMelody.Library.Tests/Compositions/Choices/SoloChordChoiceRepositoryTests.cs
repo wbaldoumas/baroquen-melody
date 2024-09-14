@@ -80,7 +80,7 @@ internal sealed class SoloChordChoiceRepositoryTests
         var id = soloChordChoiceRepository.GetChordChoiceId(
             new ChordChoice(
                 [
-                    new NoteChoice(Instrument.One, NoteMotion.Ascending, 2),
+                    new NoteChoice(Instrument.One, NoteMotion.Ascending, 2)
                 ]
             )
         );
