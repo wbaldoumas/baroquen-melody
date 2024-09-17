@@ -10,5 +10,18 @@ public partial class App : Application
         InitializeComponent();
 
         MainPage = new MainPage();
+        MainPage.Title = "Baroquen Melody";
+    }
+
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+        var window = base.CreateWindow(activationState);
+
+        if (window is not null)
+        {
+            window.Title = "Baroquen Melody";
+        }
+
+        return window ?? throw new InvalidOperationException("Window is null");
     }
 }
