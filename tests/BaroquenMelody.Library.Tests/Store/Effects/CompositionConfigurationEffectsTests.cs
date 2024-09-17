@@ -4,6 +4,7 @@ using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Effects;
 using BaroquenMelody.Library.Store.State;
+using BaroquenMelody.Library.Tests.TestData;
 using Fluxor;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
@@ -81,7 +82,7 @@ internal sealed class CompositionConfigurationEffectsTests
         var action = new UpdateCompositionConfiguration(NoteName.D, Mode.Ionian, Meter.FourFour);
 
         // act
-        await _compositionConfigurationEffects.HandleUpdateCompositionConfiguration(action, _mockDispatcher);
+        await _compositionConfigurationEffects.HandleUpdateCompositionConfigurationAsync(action, _mockDispatcher);
 
         // assert
         _mockDispatcher.Received().Dispatch(
@@ -93,5 +94,60 @@ internal sealed class CompositionConfigurationEffectsTests
                                                  updateInstrumentConfiguration.IsUserApplied == false
             )
         );
+    }
+
+    [Test]
+    public async Task HandleLoadSavedCompositionConfigurationAsync_dispatches_expected_actions()
+    {
+        // arrange
+        var configuration = Configurations.GetCompositionConfiguration();
+
+        var action = new LoadSavedCompositionConfiguration(configuration);
+
+        // act
+        await CompositionConfigurationEffects.HandleLoadSavedCompositionConfigurationAsync(action, _mockDispatcher);
+
+        // assert
+        _mockDispatcher.Received().Dispatch(
+            Arg.Is<LoadCompositionConfiguration>(
+                loadCompositionConfiguration => loadCompositionConfiguration.CompositionConfiguration == configuration
+            )
+        );
+
+        foreach (var instrumentConfiguration in configuration.InstrumentConfigurations)
+        {
+            _mockDispatcher.Received().Dispatch(
+                Arg.Is<UpdateInstrumentConfiguration>(
+                    updateInstrumentConfiguration => updateInstrumentConfiguration.Instrument == instrumentConfiguration.Instrument &&
+                                                     updateInstrumentConfiguration.MinNote == instrumentConfiguration.MinNote &&
+                                                     updateInstrumentConfiguration.MaxNote == instrumentConfiguration.MaxNote &&
+                                                     updateInstrumentConfiguration.MidiProgram == instrumentConfiguration.MidiProgram &&
+                                                     updateInstrumentConfiguration.IsEnabled == instrumentConfiguration.IsEnabled &&
+                                                     updateInstrumentConfiguration.IsUserApplied == true
+                )
+            );
+        }
+
+        foreach (var compositionRule in configuration.AggregateCompositionRuleConfiguration.Configurations)
+        {
+            _mockDispatcher.Received().Dispatch(
+                Arg.Is<UpdateCompositionRuleConfiguration>(
+                    updateCompositionRuleConfiguration => updateCompositionRuleConfiguration.CompositionRule == compositionRule.Rule &&
+                                                          updateCompositionRuleConfiguration.IsEnabled == compositionRule.IsEnabled &&
+                                                          updateCompositionRuleConfiguration.Strictness == compositionRule.Strictness
+                )
+            );
+        }
+
+        foreach (var ornamentation in configuration.AggregateOrnamentationConfiguration.Configurations)
+        {
+            _mockDispatcher.Received().Dispatch(
+                Arg.Is<UpdateCompositionOrnamentationConfiguration>(
+                    updateCompositionOrnamentationConfiguration => updateCompositionOrnamentationConfiguration.OrnamentationType == ornamentation.OrnamentationType &&
+                                                                   updateCompositionOrnamentationConfiguration.IsEnabled == ornamentation.IsEnabled &&
+                                                                   updateCompositionOrnamentationConfiguration.Probability == ornamentation.Probability
+                )
+            );
+        }
     }
 }

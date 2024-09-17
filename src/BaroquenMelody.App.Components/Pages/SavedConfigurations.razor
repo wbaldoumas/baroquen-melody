@@ -1,0 +1,122 @@
+﻿@page "/configurations"
+
+<PageTitle>Saved Configurations</PageTitle>
+
+<MudContainer Class="my-3" Gutters="false">
+    <MudTable Items="@ConfigurationFiles"
+              Loading="@Loading"
+              Outlined="true"
+              LoadingProgressColor="Color.Primary"
+              Hover="true"
+              Filter="configuration => configuration.ConfigurationFile.Name.Contains(Search, StringComparison.OrdinalIgnoreCase)">
+        <ToolBarContent>
+            <MudTextField @bind-Value="Search"
+                          Placeholder="Search"
+                          Immediate="true"
+                          InputMode="InputMode.text"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Outlined.Search"
+                          IconSize="Size.Medium"/>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Configuration</MudTh>
+            <MudTh>Date Created</MudTh>
+            <MudTh/>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Configuration">
+                <MudLink Color="Color.Tertiary" Class="cursor-pointer" OnClick="_ => LoadConfiguration(context.Configuration)">
+                    @(Path.GetFileNameWithoutExtension(context.ConfigurationFile.Name))
+                </MudLink>
+            </MudTd>
+            <MudTd DataLabel="Created" HideSmall="true">
+                @context.ConfigurationFile.CreationTime
+            </MudTd>
+            <MudTd>
+                <MudStack Row="true" Justify="Justify.Center">
+                    <MudTooltip Text="load configuration" Delay="@ThemeProvider.TooltipDelay" Duration="@ThemeProvider.TooltipDuration">
+                        <MudIconButton Icon="@Icons.Material.Filled.FileOpen"
+                                       Color="Color.Primary"
+                                       Variant="Variant.Outlined"
+                                       OnClick="_ => LoadConfiguration(context.Configuration)"/>
+                    </MudTooltip>
+                    <MudTooltip Text="delete configuration" Delay="@ThemeProvider.TooltipDelay" Duration="@ThemeProvider.TooltipDuration">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Secondary"
+                                       Variant="Variant.Outlined"
+                                       OnClick="_ => DeleteConfigurationAsync(context.ConfigurationFile.Name)"/>
+                    </MudTooltip>
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <div class="d-flex flex-shrink align-center justify-center ma-0" style="height:200px;">
+                <MudText Typo="Typo.h6">no configurations found</MudText>
+            </div>
+        </NoRecordsContent>
+        <PagerContent>
+            <MudTablePager/>
+        </PagerContent>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private IEnumerable<SavedCompositionConfiguration> ConfigurationFiles = [];
+
+    private bool Loading = true;
+
+    private string Search = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ConfigurationFiles = await CompositionConfigurationPersistenceService.LoadConfigurationsAsync(CancellationToken.None);
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Failed to load configurations!", Severity.Error);
+        }
+        finally
+        {
+            Loading = false;
+        }
+    }
+
+    private async Task DeleteConfigurationAsync(string configurationName)
+    {
+        var shouldDelete = await DialogService.ShowMessageBox(
+            "Warning",
+            "Delete existing configuration?",
+            yesText: "Delete",
+            cancelText: "Cancel"
+        );
+
+        if (shouldDelete is not true)
+        {
+            return;
+        }
+
+        var isDeleted = await CompositionConfigurationPersistenceService.DeleteConfigurationAsync(configurationName, CancellationToken.None);
+
+        if (!isDeleted)
+        {
+            Snackbar.Add("Failed to delete configuration!", Severity.Error);
+
+            return;
+        }
+
+        ConfigurationFiles = ConfigurationFiles.Where(configurationFile => !configurationFile.ConfigurationFile.Name.Equals(
+            configurationName,
+            StringComparison.OrdinalIgnoreCase
+        ));
+    }
+
+    private void LoadConfiguration(CompositionConfiguration compositionConfiguration)
+    {
+        Dispatcher.Dispatch(new LoadSavedCompositionConfiguration(compositionConfiguration));
+
+        NavigationManager.NavigateTo("");
+    }
+
+}

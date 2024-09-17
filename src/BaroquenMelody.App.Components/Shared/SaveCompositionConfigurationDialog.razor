@@ -1,0 +1,76 @@
+﻿<MudDialog>
+    <TitleContent>
+        Save Composition Configuration
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="ConfigurationName" 
+                      Label="Configuration Name" 
+                      Variant="Variant.Outlined"
+                      Immediate="true"
+                      Mask="FileNameMask"/>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary"
+                   OnClick="SaveCompositionConfiguration"
+                   Disabled="string.IsNullOrEmpty(ConfigurationName)">
+            Save
+        </MudButton>
+        <MudButton OnClick="Cancel">
+            Cancel
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private string? ConfigurationName { get; set; }
+
+    private static readonly IMask FileNameMask = new RegexMask(@"^[\w\s-]+$");
+
+    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+
+    private async Task SaveCompositionConfiguration()
+    {
+        var configurationFileExists = await CompositionConfigurationPersistenceService.DoesConfigurationExist(
+            ConfigurationName!,
+            new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token
+        );
+
+        if (configurationFileExists)
+        {
+            var shouldOverwrite = await DialogService.ShowMessageBox(
+                "Warning",
+                "Configuration already exists. Overwrite?",
+                yesText: "Overwrite",
+                cancelText: "Cancel"
+            );
+
+            if (shouldOverwrite is not true)
+            {
+                return;
+            }
+        }
+
+        var compositionConfiguration = new CompositionConfiguration(
+            InstrumentConfigurationState.Value.AllConfigurations,
+            PhrasingConfiguration.Default,
+            CompositionRuleConfigurationState.Value.Aggregate,
+            OrnamentationConfigurationState.Value.Aggregate,
+            CompositionConfigurationState.Value.TonicNote,
+            CompositionConfigurationState.Value.Mode,
+            CompositionConfigurationState.Value.Meter,
+            CompositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
+            CompositionConfigurationState.Value.MinimumMeasures
+        );
+
+        var isSaved = await CompositionConfigurationPersistenceService.SaveConfigurationAsync(
+            compositionConfiguration,
+            ConfigurationName!,
+            new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token
+        );
+
+        MudDialog?.Close(DialogResult.Ok(isSaved));
+    }
+
+    private void Cancel() => MudDialog?.Cancel();
+
+}

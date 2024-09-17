@@ -8,6 +8,4 @@ namespace BaroquenMelody.Library.Infrastructure.Serialization.JsonSerializerCont
 /// </summary>
 [JsonSourceGenerationOptions(WriteIndented = true)]
 [JsonSerializable(typeof(CompositionConfiguration))]
-public partial class CompositionConfigurationJsonSerializerContext : JsonSerializerContext
-{
-}
+public partial class CompositionConfigurationJsonSerializerContext : JsonSerializerContext;

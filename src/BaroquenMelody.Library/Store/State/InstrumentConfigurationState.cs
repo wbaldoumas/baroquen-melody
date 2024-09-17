@@ -11,6 +11,8 @@ public sealed record InstrumentConfigurationState(IDictionary<Instrument, Instru
 
     public ISet<InstrumentConfiguration> EnabledConfigurations => Configurations.Values.Where(configuration => configuration.IsEnabled).ToHashSet();
 
+    public ISet<InstrumentConfiguration> AllConfigurations => Configurations.Values.ToHashSet();
+
     public InstrumentConfigurationState()
         : this(InstrumentConfiguration.DefaultConfigurations, InstrumentConfiguration.DefaultConfigurations)
     {

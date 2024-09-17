@@ -39,10 +39,13 @@ internal sealed class MauiMidiSaver : IMidiSaver
             return false;
         }
 
-        using var stream = File.OpenRead(tempPath);
+        var stream = File.OpenRead(tempPath);
 
-        var fileSaverResult = await FileSaver.Default.SaveAsync("Baroquen Melody.mid", stream, cancellationToken).ConfigureAwait(false);
+        await using (stream.ConfigureAwait(false))
+        {
+            var fileSaverResult = await FileSaver.Default.SaveAsync("Baroquen Melody.mid", stream, cancellationToken).ConfigureAwait(false);
 
-        return fileSaverResult.IsSuccessful;
+            return fileSaverResult.IsSuccessful;
+        }
     }
 }

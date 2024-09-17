@@ -1,7 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
-using BaroquenMelody.Library.Infrastructure.Serialization.JsonConverters;
 using BaroquenMelody.Library.Infrastructure.Serialization.JsonSerializerContexts;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
@@ -37,19 +36,9 @@ internal sealed class CompositionConfigurationSerializationTests
             MinimumMeasures: 100
         );
 
-        var jsonSerializerOptions = new JsonSerializerOptions
-        {
-            TypeInfoResolver = CompositionConfigurationJsonSerializerContext.Default,
-            Converters =
-            {
-                new MusicalTimespanJsonConverter(),
-                new NoteJsonConverter()
-            }
-        };
-
         // act
-        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, jsonSerializerOptions);
-        var deserializedConfiguration = JsonSerializer.Deserialize<CompositionConfiguration>(serializedConfiguration, jsonSerializerOptions)!;
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var deserializedConfiguration = JsonSerializer.Deserialize(serializedConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
 
         // assert
         deserializedConfiguration.Tonic.Should().Be(compositionConfiguration.Tonic);
