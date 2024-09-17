@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Reducers;
 using BaroquenMelody.Library.Store.State;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
@@ -28,5 +29,22 @@ internal sealed class CompositionConfigurationReducersTests
         state.MinimumMeasures.Should().Be(8);
         state.TonicNote.Should().Be(rootNote);
         state.Mode.Should().Be(mode);
+    }
+
+    [Test]
+    public void ReduceLoadCompositionConfiguration_updates_composition_configurations_as_expected()
+    {
+        // arrange
+        var configuration = Configurations.GetCompositionConfiguration();
+        var state = new CompositionConfigurationState();
+
+        // act
+        state = CompositionConfigurationReducers.ReduceLoadCompositionConfiguration(state, new LoadCompositionConfiguration(configuration));
+
+        // assert
+        state.Meter.Should().Be(configuration.Meter);
+        state.MinimumMeasures.Should().Be(configuration.MinimumMeasures);
+        state.TonicNote.Should().Be(configuration.Tonic);
+        state.Mode.Should().Be(configuration.Mode);
     }
 }

@@ -45,4 +45,32 @@ internal sealed class InstrumentConfigurationStateTests
             state.ValidationMessage.Should().BeNullOrEmpty();
         }
     }
+
+    [Test]
+    public void AllConfigurations_returns_expected_configurations()
+    {
+        // act
+        var state = new InstrumentConfigurationState(
+            new Dictionary<Instrument, InstrumentConfiguration>
+            {
+                {
+                    Instrument.One,
+                    new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer)
+                },
+                {
+                    Instrument.Two,
+                    new InstrumentConfiguration(Instrument.Two, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer)
+                }
+            },
+            new Dictionary<Instrument, InstrumentConfiguration>()
+        );
+
+        // assert
+        state.AllConfigurations.Should().BeEquivalentTo(
+            [
+                new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer),
+                new InstrumentConfiguration(Instrument.Two, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer)
+            ]
+        );
+    }
 }

@@ -11,6 +11,7 @@ internal sealed class CompositionConfigurationPersistenceService(
     IDeviceDirectoryProvider deviceDirectoryProvider,
     IDirectory directory,
     IFile file,
+    IFileSystem fileSystem,
     ILogger<BaroquenMelody> logger
 ) : ICompositionConfigurationPersistenceService
 {
@@ -24,7 +25,7 @@ internal sealed class CompositionConfigurationPersistenceService(
             );
 
             var filePath = Path.Combine(deviceDirectoryProvider.AppDataDirectory, $"{name}.dat");
-            var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
+            var fileStream = fileSystem.FileStream.New(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
 
             await using (fileStream.ConfigureAwait(false))
             {
@@ -109,9 +110,9 @@ internal sealed class CompositionConfigurationPersistenceService(
         )
     );
 
-    private static async Task<CompositionConfiguration> LoadCompositionConfiguration(string file)
+    private async Task<CompositionConfiguration> LoadCompositionConfiguration(string name)
     {
-        var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+        var fileStream = fileSystem.FileStream.New(name, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
 
         await using (fileStream.ConfigureAwait(false))
         {
