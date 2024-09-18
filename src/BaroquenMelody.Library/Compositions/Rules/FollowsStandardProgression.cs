@@ -1,53 +1,70 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
+using BaroquenMelody.Library.Infrastructure.Collections.Extensions;
 using Melanchall.DryWetMidi.MusicTheory;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Compositions.Rules;
 
 /// <inheritdoc cref="ICompositionRule"/>
-internal sealed class FollowsStandardProgression(CompositionConfiguration compositionConfiguration) : ICompositionRule
+internal sealed class FollowsStandardProgression : ICompositionRule
 {
-    private readonly List<(HashSet<NoteName>, HashSet<NoteName>)> _validProgressions =
-    [
-        (compositionConfiguration.Scale.I, compositionConfiguration.Scale.I),
-        (compositionConfiguration.Scale.I, compositionConfiguration.Scale.II),
-        (compositionConfiguration.Scale.I, compositionConfiguration.Scale.III),
-        (compositionConfiguration.Scale.I, compositionConfiguration.Scale.IV),
-        (compositionConfiguration.Scale.I, compositionConfiguration.Scale.V),
-        (compositionConfiguration.Scale.I, compositionConfiguration.Scale.VI),
-        (compositionConfiguration.Scale.I, compositionConfiguration.Scale.VII),
+    private readonly FrozenSet<(int, int)> _validProgressionHashes;
 
-        (compositionConfiguration.Scale.II, compositionConfiguration.Scale.I),
-        (compositionConfiguration.Scale.II, compositionConfiguration.Scale.II),
-        (compositionConfiguration.Scale.II, compositionConfiguration.Scale.III),
-        (compositionConfiguration.Scale.II, compositionConfiguration.Scale.V),
-        (compositionConfiguration.Scale.II, compositionConfiguration.Scale.VI),
-        (compositionConfiguration.Scale.II, compositionConfiguration.Scale.VII),
+    /// <inheritdoc cref="ICompositionRule"/>
+    public FollowsStandardProgression(CompositionConfiguration compositionConfiguration)
+    {
+        List<(HashSet<NoteName>, HashSet<NoteName>)> validProgressions =
+        [
+            (compositionConfiguration.Scale.I, compositionConfiguration.Scale.I),
+            (compositionConfiguration.Scale.I, compositionConfiguration.Scale.II),
+            (compositionConfiguration.Scale.I, compositionConfiguration.Scale.III),
+            (compositionConfiguration.Scale.I, compositionConfiguration.Scale.IV),
+            (compositionConfiguration.Scale.I, compositionConfiguration.Scale.V),
+            (compositionConfiguration.Scale.I, compositionConfiguration.Scale.VI),
+            (compositionConfiguration.Scale.I, compositionConfiguration.Scale.VII),
 
-        (compositionConfiguration.Scale.III, compositionConfiguration.Scale.II),
-        (compositionConfiguration.Scale.III, compositionConfiguration.Scale.III),
-        (compositionConfiguration.Scale.III, compositionConfiguration.Scale.IV),
-        (compositionConfiguration.Scale.III, compositionConfiguration.Scale.VI),
+            (compositionConfiguration.Scale.II, compositionConfiguration.Scale.I),
+            (compositionConfiguration.Scale.II, compositionConfiguration.Scale.II),
+            (compositionConfiguration.Scale.II, compositionConfiguration.Scale.III),
+            (compositionConfiguration.Scale.II, compositionConfiguration.Scale.V),
+            (compositionConfiguration.Scale.II, compositionConfiguration.Scale.VI),
+            (compositionConfiguration.Scale.II, compositionConfiguration.Scale.VII),
 
-        (compositionConfiguration.Scale.IV, compositionConfiguration.Scale.I),
-        (compositionConfiguration.Scale.IV, compositionConfiguration.Scale.III),
-        (compositionConfiguration.Scale.IV, compositionConfiguration.Scale.IV),
-        (compositionConfiguration.Scale.IV, compositionConfiguration.Scale.V),
-        (compositionConfiguration.Scale.IV, compositionConfiguration.Scale.VII),
+            (compositionConfiguration.Scale.III, compositionConfiguration.Scale.II),
+            (compositionConfiguration.Scale.III, compositionConfiguration.Scale.III),
+            (compositionConfiguration.Scale.III, compositionConfiguration.Scale.IV),
+            (compositionConfiguration.Scale.III, compositionConfiguration.Scale.VI),
 
-        (compositionConfiguration.Scale.V, compositionConfiguration.Scale.I),
-        (compositionConfiguration.Scale.V, compositionConfiguration.Scale.V),
-        (compositionConfiguration.Scale.V, compositionConfiguration.Scale.VI),
+            (compositionConfiguration.Scale.IV, compositionConfiguration.Scale.I),
+            (compositionConfiguration.Scale.IV, compositionConfiguration.Scale.III),
+            (compositionConfiguration.Scale.IV, compositionConfiguration.Scale.IV),
+            (compositionConfiguration.Scale.IV, compositionConfiguration.Scale.V),
+            (compositionConfiguration.Scale.IV, compositionConfiguration.Scale.VII),
 
-        (compositionConfiguration.Scale.VI, compositionConfiguration.Scale.II),
-        (compositionConfiguration.Scale.VI, compositionConfiguration.Scale.IV),
-        (compositionConfiguration.Scale.VI, compositionConfiguration.Scale.VI),
+            (compositionConfiguration.Scale.V, compositionConfiguration.Scale.I),
+            (compositionConfiguration.Scale.V, compositionConfiguration.Scale.V),
+            (compositionConfiguration.Scale.V, compositionConfiguration.Scale.VI),
 
-        (compositionConfiguration.Scale.VII, compositionConfiguration.Scale.I),
-        (compositionConfiguration.Scale.VII, compositionConfiguration.Scale.III),
-        (compositionConfiguration.Scale.VII, compositionConfiguration.Scale.VI),
-        (compositionConfiguration.Scale.VII, compositionConfiguration.Scale.VII)
-    ];
+            (compositionConfiguration.Scale.VI, compositionConfiguration.Scale.II),
+            (compositionConfiguration.Scale.VI, compositionConfiguration.Scale.IV),
+            (compositionConfiguration.Scale.VI, compositionConfiguration.Scale.VI),
+
+            (compositionConfiguration.Scale.VII, compositionConfiguration.Scale.I),
+            (compositionConfiguration.Scale.VII, compositionConfiguration.Scale.III),
+            (compositionConfiguration.Scale.VII, compositionConfiguration.Scale.VI),
+            (compositionConfiguration.Scale.VII, compositionConfiguration.Scale.VII)
+        ];
+
+        var validProgressionHashes = new HashSet<(int, int)>();
+
+        foreach (var (precedingChord, nextChord) in validProgressions)
+        {
+            PreProcessProgressionHashes(precedingChord, nextChord, ref validProgressionHashes);
+        }
+
+        _validProgressionHashes = validProgressionHashes.ToFrozenSet();
+    }
 
     public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
     {
@@ -56,22 +73,33 @@ internal sealed class FollowsStandardProgression(CompositionConfiguration compos
             return true;
         }
 
-        var precedingChordNoteNames = precedingChords[^1].Notes.Select(note => note.NoteName).ToHashSet();
-        var nextChordNoteNames = nextChord.Notes.Select(note => note.NoteName).ToHashSet();
+        var precedingChordHash = precedingChords[^1].Notes
+            .Select(note => note.NoteName)
+            .ToHashSet()
+            .GetContentHashCode();
 
-        return IsValidProgression(precedingChordNoteNames, nextChordNoteNames);
+        var nextChordHash = nextChord.Notes
+            .Select(note => note.NoteName)
+            .ToHashSet()
+            .GetContentHashCode();
+
+        return _validProgressionHashes.Contains((precedingChordHash, nextChordHash));
     }
 
-    private bool IsValidProgression(HashSet<NoteName> precedingChordNoteNames, HashSet<NoteName> nextChordNoteNames)
+    private static void PreProcessProgressionHashes(
+        HashSet<NoteName> precedingChord,
+        HashSet<NoteName> nextChord,
+        ref HashSet<(int, int)> validProgressions)
     {
-        foreach (var (validPrecedingChordNoteNames, validNextChordNoteNames) in _validProgressions)
+        var precedingPowerSet = precedingChord.ToPowerSet();
+        var nextPowerSet = nextChord.ToPowerSet().ToList();
+
+        foreach (var precedingSet in precedingPowerSet)
         {
-            if (precedingChordNoteNames.IsSubsetOf(validPrecedingChordNoteNames) && nextChordNoteNames.IsSubsetOf(validNextChordNoteNames))
+            foreach (var nextSet in nextPowerSet)
             {
-                return true;
+                validProgressions.Add((precedingSet.GetContentHashCode(), nextSet.GetContentHashCode()));
             }
         }
-
-        return false;
     }
 }

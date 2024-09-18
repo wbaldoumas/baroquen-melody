@@ -41,7 +41,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(ILogger<BaroquenMelody>
         var compositionDecorator = new CompositionDecorator(ornamentationEngineBuilder.BuildOrnamentationEngine(), ornamentationEngineBuilder.BuildSustainedNoteEngine(), compositionConfiguration);
         var compositionPhraser = new CompositionPhraser(compositionRule, _themeSplitter, _weightedRandomBooleanGenerator, logger, compositionConfiguration);
         var noteTransposer = new NoteTransposer(compositionConfiguration);
-        var chordComposer = new ChordComposer(compositionStrategy, compositionConfiguration, logger);
+        var chordComposer = new ChordComposer(compositionStrategy, logger);
         var themeComposer = new ThemeComposer(compositionStrategy, compositionDecorator, chordComposer, noteTransposer, dispatcher, logger, compositionConfiguration);
         var endingComposer = new EndingComposer(compositionStrategy, compositionDecorator, chordNumberIdentifier, dispatcher, logger, compositionConfiguration);
         var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, themeComposer, endingComposer, dispatcher, compositionConfiguration);

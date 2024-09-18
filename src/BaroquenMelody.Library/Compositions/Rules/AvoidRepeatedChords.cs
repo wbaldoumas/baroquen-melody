@@ -14,10 +14,9 @@ internal sealed class AvoidRepeatedChords(IChordNumberIdentifier chordNumberIden
             return true;
         }
 
-        var precedingChordsToCheck = precedingChords.Skip(precedingChords.Count - MinimumPrecedingChords).ToList();
         var nextChordNumber = chordNumberIdentifier.IdentifyChordNumber(nextChord);
 
-        foreach (var precedingChord in precedingChordsToCheck)
+        foreach (var precedingChord in precedingChords.Skip(precedingChords.Count - MinimumPrecedingChords))
         {
             if (chordNumberIdentifier.IdentifyChordNumber(precedingChord) != nextChordNumber)
             {

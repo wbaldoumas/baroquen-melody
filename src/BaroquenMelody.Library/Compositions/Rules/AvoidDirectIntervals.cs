@@ -1,14 +1,17 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums.Extensions;
-using LazyCart;
 using Interval = BaroquenMelody.Library.Compositions.MusicTheory.Enums.Interval;
 
 namespace BaroquenMelody.Library.Compositions.Rules;
 
 /// <inheritdoc cref="ICompositionRule"/>
-internal sealed class AvoidDirectIntervals(Interval targetInterval) : ICompositionRule
+internal sealed class AvoidDirectIntervals(
+    Interval targetInterval,
+    CompositionConfiguration compositionConfiguration
+) : ICompositionRule
 {
     public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
     {
@@ -17,15 +20,13 @@ internal sealed class AvoidDirectIntervals(Interval targetInterval) : ICompositi
             return true;
         }
 
-        var instruments = nextChord.Notes.Select(static note => note.Instrument).ToList();
-        var instrumentCombos = new LazyCartesianProduct<Instrument, Instrument>(instruments, instruments);
         var precedingChord = precedingChords[^1];
 
-        for (var i = 0; i < instrumentCombos.Size; ++i)
+        for (var i = 0; i < compositionConfiguration.InstrumentPairs.Size; ++i)
         {
-            var (instrumentA, instrumentB) = instrumentCombos[i];
+            var (instrumentA, instrumentB) = compositionConfiguration.InstrumentPairs[i];
 
-            if (instrumentA == instrumentB)
+            if (instrumentA == instrumentB || !nextChord.ContainsInstrument(instrumentA) || !nextChord.ContainsInstrument(instrumentB))
             {
                 continue;
             }

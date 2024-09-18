@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
+using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Compositions.Rules;
 
@@ -13,7 +14,8 @@ internal sealed class AvoidOverDoubling : ICompositionRule
 
     public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
     {
-        var uniqueNoteNameCount = nextChord.Notes.GroupBy(static note => note.NoteName).Count();
+        var seenNoteNames = new HashSet<NoteName>(nextChord.Notes.Count);
+        var uniqueNoteNameCount = nextChord.Notes.Count(note => seenNoteNames.Add(note.NoteName));
 
         return nextChord.Notes.Count switch
         {

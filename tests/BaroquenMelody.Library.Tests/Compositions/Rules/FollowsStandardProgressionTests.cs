@@ -1,11 +1,15 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
+﻿using Atrea.Utilities.Enums;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
+using BaroquenMelody.Library.Infrastructure.Collections.Extensions;
+using BaroquenMelody.Library.Infrastructure.Extensions;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
+using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
 namespace BaroquenMelody.Library.Tests.Compositions.Rules;
 
@@ -31,147 +35,132 @@ internal sealed class FollowsStandardProgressionTests
     {
         get
         {
-            var sopranoC4 = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
-            var altoE3 = new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Half);
-            var tenorG2 = new BaroquenNote(Instrument.Three, Notes.G2, MusicalTimeSpan.Half);
+            var i = new List<Note> { Notes.C4, Notes.E3, Notes.G2 };
+            var ii = new List<Note> { Notes.D4, Notes.F3, Notes.A2 };
+            var iii = new List<Note> { Notes.E4, Notes.G3, Notes.B2 };
+            var iv = new List<Note> { Notes.F4, Notes.A3, Notes.C3 };
+            var v = new List<Note> { Notes.G4, Notes.B3, Notes.D3 };
+            var vi = new List<Note> { Notes.A4, Notes.C4, Notes.E3 };
+            var vii = new List<Note> { Notes.B4, Notes.D4, Notes.F3 };
 
-            var i = new BaroquenChord([sopranoC4, altoE3, tenorG2]);
+            var powerSetI = i.ToPowerSet().ToList();
+            var powerSetII = ii.ToPowerSet().ToList();
+            var powerSetIII = iii.ToPowerSet().ToList();
+            var powerSetIV = iv.ToPowerSet().ToList();
+            var powerSetV = v.ToPowerSet().ToList();
+            var powerSetVI = vi.ToPowerSet().ToList();
+            var powerSetVII = vii.ToPowerSet().ToList();
 
-            var sopranoD4 = new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Half);
-            var altoF3 = new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Half);
-            var tenorA2 = new BaroquenNote(Instrument.Three, Notes.A2, MusicalTimeSpan.Half);
+            var validPowerSetProgressions = new List<(List<HashSet<Note>>, List<HashSet<Note>>)>
+            {
+                (powerSetI, powerSetI),
+                (powerSetI, powerSetII),
+                (powerSetI, powerSetIII),
+                (powerSetI, powerSetIV),
+                (powerSetI, powerSetV),
+                (powerSetI, powerSetVI),
+                (powerSetI, powerSetVII),
 
-            var ii = new BaroquenChord([sopranoD4, altoF3, tenorA2]);
+                (powerSetII, powerSetI),
+                (powerSetII, powerSetII),
+                (powerSetII, powerSetIII),
+                (powerSetII, powerSetV),
+                (powerSetII, powerSetVI),
+                (powerSetII, powerSetVII),
 
-            var sopranoE4 = new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half);
-            var altoG3 = new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half);
-            var tenorB2 = new BaroquenNote(Instrument.Three, Notes.B2, MusicalTimeSpan.Half);
+                (powerSetIII, powerSetII),
+                (powerSetIII, powerSetIII),
+                (powerSetIII, powerSetIV),
+                (powerSetIII, powerSetVI),
 
-            var iii = new BaroquenChord([sopranoE4, altoG3, tenorB2]);
+                (powerSetIV, powerSetI),
+                (powerSetIV, powerSetIII),
+                (powerSetIV, powerSetIV),
+                (powerSetIV, powerSetV),
+                (powerSetIV, powerSetVII),
 
-            var sopranoF4 = new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Half);
-            var altoA3 = new BaroquenNote(Instrument.Two, Notes.A3, MusicalTimeSpan.Half);
-            var tenorC3 = new BaroquenNote(Instrument.Three, Notes.C3, MusicalTimeSpan.Half);
+                (powerSetV, powerSetI),
+                (powerSetV, powerSetV),
+                (powerSetV, powerSetVI),
 
-            var iv = new BaroquenChord([sopranoF4, altoA3, tenorC3]);
+                (powerSetVI, powerSetII),
+                (powerSetVI, powerSetIV),
+                (powerSetVI, powerSetVI),
 
-            var sopranoG4 = new BaroquenNote(Instrument.One, Notes.G4, MusicalTimeSpan.Half);
-            var altoB3 = new BaroquenNote(Instrument.Two, Notes.B3, MusicalTimeSpan.Half);
-            var tenorD3 = new BaroquenNote(Instrument.Three, Notes.D3, MusicalTimeSpan.Half);
+                (powerSetVII, powerSetI),
+                (powerSetVII, powerSetIII),
+                (powerSetVII, powerSetVI),
+                (powerSetVII, powerSetVII)
+            };
 
-            var v = new BaroquenChord([sopranoG4, altoB3, tenorD3]);
+            var instruments = EnumUtils<Instrument>.AsEnumerable().ToArray();
 
-            var sopranoA4 = new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half);
-            var altoC4 = new BaroquenNote(Instrument.Two, Notes.C4, MusicalTimeSpan.Half);
-            var tenorE3 = new BaroquenNote(Instrument.Three, Notes.E3, MusicalTimeSpan.Half);
+            var invalidProgressions = new List<(List<Note>, List<Note>)>
+            {
+                (ii, iv),
 
-            var vi = new BaroquenChord([sopranoA4, altoC4, tenorE3]);
+                (iii, i),
+                (iii, v),
+                (iii, vii),
 
-            var sopranoB4 = new BaroquenNote(Instrument.One, Notes.B4, MusicalTimeSpan.Half);
-            var altoD4 = new BaroquenNote(Instrument.Two, Notes.D4, MusicalTimeSpan.Half);
-            var tenorF3 = new BaroquenNote(Instrument.Three, Notes.F3, MusicalTimeSpan.Half);
+                (iv, ii),
+                (iv, vi),
 
-            var vii = new BaroquenChord([sopranoB4, altoD4, tenorF3]);
+                (v, ii),
+                (v, iv),
+                (v, vii),
 
-            yield return new TestCaseData(new List<BaroquenChord>(), i, true).SetName("First chord is always valid.");
+                (vi, i),
+                (vi, iii),
+                (vi, v),
+                (vi, vii),
 
-            yield return new TestCaseData(new List<BaroquenChord> { i }, i, true).SetName("I -> I is always valid.");
+                (vii, ii),
+                (vii, iv),
+                (vii, v)
+            };
 
-            yield return new TestCaseData(new List<BaroquenChord> { i }, ii, true).SetName("I -> II is always valid.");
+            foreach (var (precedingPowerSet, nextPowerSet) in validPowerSetProgressions)
+            {
+                foreach (var precedingChord in precedingPowerSet.Where(subset => subset.Count > 0))
+                {
+                    var indexablePrecedingChord = precedingChord.ToList();
 
-            yield return new TestCaseData(new List<BaroquenChord> { i }, iii, true).SetName("I -> III is always valid.");
+                    foreach (var nextChord in nextPowerSet.Where(subset => subset.Count > 0))
+                    {
+                        var indexableNextChord = nextChord.ToList();
 
-            yield return new TestCaseData(new List<BaroquenChord> { i }, iv, true).SetName("I -> IV is always valid.");
+                        yield return GenerateTestCase(indexablePrecedingChord, indexableNextChord, true);
+                    }
+                }
+            }
 
-            yield return new TestCaseData(new List<BaroquenChord> { i }, v, true).SetName("I -> V is always valid.");
+            foreach (var (precedingChord, nextChord) in invalidProgressions)
+            {
+                yield return GenerateTestCase(precedingChord, nextChord, false);
+            }
 
-            yield return new TestCaseData(new List<BaroquenChord> { i }, vi, true).SetName("I -> VI is always valid.");
+            yield break;
 
-            yield return new TestCaseData(new List<BaroquenChord> { i }, vii, true).SetName("I -> VII is always valid.");
+            TestCaseData GenerateTestCase(List<Note> precedingChord, List<Note> nextChord, bool isValid)
+            {
+                var precedingNotes = precedingChord.Select((precedingNote, precedingIndex) =>
+                    new BaroquenNote(instruments[precedingIndex], precedingNote, MusicalTimeSpan.Quarter)
+                ).ToList();
 
-            yield return new TestCaseData(new List<BaroquenChord> { ii }, i, true).SetName("II -> I is always valid.");
+                var nextNotes = nextChord.Select((note, nextIndex) =>
+                    new BaroquenNote(instruments[nextIndex], note, MusicalTimeSpan.Quarter)
+                ).ToList();
 
-            yield return new TestCaseData(new List<BaroquenChord> { ii }, ii, true).SetName("II -> II is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { ii }, iii, true).SetName("II -> III is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { ii }, v, true).SetName("II -> V is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { ii }, vi, true).SetName("II -> VI is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { ii }, vii, true).SetName("II -> VII is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iii }, ii, true).SetName("III -> II is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iii }, iii, true).SetName("III -> III is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iii }, iv, true).SetName("III -> IV is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iii }, vi, true).SetName("III -> VI is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iv }, i, true).SetName("IV -> I is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iv }, iii, true).SetName("IV -> III is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iv }, iv, true).SetName("IV -> IV is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iv }, v, true).SetName("IV -> V is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iv }, vii, true).SetName("IV -> VII is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { v }, i, true).SetName("V -> I is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { v }, v, true).SetName("V -> V is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { v }, vi, true).SetName("V -> VI is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vi }, ii, true).SetName("VI -> II is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vi }, iv, true).SetName("VI -> IV is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vi }, vi, true).SetName("VI -> VI is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vii }, i, true).SetName("VII -> I is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vii }, iii, true).SetName("VII -> III is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vii }, vi, true).SetName("VII -> VI is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vii }, vii, true).SetName("VII -> VII is always valid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { ii }, iv, false).SetName("II -> IV is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iii }, i, false).SetName("III -> I is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iii }, v, false).SetName("III -> V is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iii }, vii, false).SetName("III -> VII is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iv }, ii, false).SetName("IV -> II is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { iv }, vi, false).SetName("IV -> VI is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { v }, ii, false).SetName("V -> II is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { v }, iii, false).SetName("V -> III is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { v }, iv, false).SetName("V -> IV is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { v }, vii, false).SetName("V -> VII is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vi }, i, false).SetName("VI -> I is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vi }, iii, false).SetName("VI -> III is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vi }, v, false).SetName("VI -> V is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vi }, vii, false).SetName("VI -> VII is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vii }, ii, false).SetName("VII -> II is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vii }, iv, false).SetName("VII -> IV is invalid.");
-
-            yield return new TestCaseData(new List<BaroquenChord> { vii }, v, false).SetName("VII -> V is invalid.");
+                return new TestCaseData(
+                    new List<BaroquenChord>
+                    {
+                        new(precedingNotes)
+                    },
+                    new BaroquenChord(nextNotes),
+                    isValid
+                );
+            }
         }
     }
 }

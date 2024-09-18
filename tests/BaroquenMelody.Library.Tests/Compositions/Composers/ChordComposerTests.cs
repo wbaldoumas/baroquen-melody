@@ -1,11 +1,9 @@
 ﻿using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Composers;
-using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Strategies;
 using BaroquenMelody.Library.Infrastructure.Exceptions;
-using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -22,8 +20,6 @@ internal sealed class ChordComposerTests
 
     private ILogger _mockLogger = null!;
 
-    private CompositionConfiguration _compositionConfiguration = null!;
-
     private ChordComposer _chordComposer = null!;
 
     [SetUp]
@@ -32,38 +28,13 @@ internal sealed class ChordComposerTests
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
         _mockLogger = Substitute.For<ILogger>();
 
-        _compositionConfiguration = Configurations.GetCompositionConfiguration(2);
-
-        _chordComposer = new ChordComposer(_mockCompositionStrategy, _compositionConfiguration, _mockLogger);
+        _chordComposer = new ChordComposer(_mockCompositionStrategy, _mockLogger);
     }
 
     [Test]
     public void WhenComposeIsInvoked_ThenCompositionIsReturned()
     {
         // arrange
-        _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns(
-        [
-            new ChordChoice(
-            [
-                new NoteChoice(Instrument.One, NoteMotion.Ascending, 3),
-                new NoteChoice(Instrument.Two, NoteMotion.Descending, 3)
-            ]),
-            new ChordChoice(
-            [
-                new NoteChoice(Instrument.One, NoteMotion.Descending, 3),
-                new NoteChoice(Instrument.Two, NoteMotion.Ascending, 3)
-            ])
-        ]);
-
-        var precedingChords = new List<BaroquenChord>
-        {
-            new(
-            [
-                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
-                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
-            ])
-        };
-
         var expectedChordA = new BaroquenChord(
         [
             new BaroquenNote(Instrument.One, Notes.D5, MusicalTimeSpan.Half),
@@ -75,6 +46,21 @@ internal sealed class ChordComposerTests
             new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half),
             new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Half)
         ]);
+
+        _mockCompositionStrategy.GetPossibleChords(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns(
+        [
+            expectedChordA,
+            expectedChordB,
+        ]);
+
+        var precedingChords = new List<BaroquenChord>
+        {
+            new(
+            [
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
+            ])
+        };
 
         // act
         var resultChord = _chordComposer.Compose(precedingChords);

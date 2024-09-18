@@ -66,7 +66,7 @@ internal sealed class ComposerTests
         _compositionConfiguration = Configurations.GetCompositionConfiguration(2);
 
         _noteTransposer = new NoteTransposer(_compositionConfiguration);
-        _chordComposer = new ChordComposer(_mockCompositionStrategy, _compositionConfiguration, _mockLogger);
+        _chordComposer = new ChordComposer(_mockCompositionStrategy, _mockLogger);
         _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _noteTransposer, _mockDispatcher, _mockLogger, _compositionConfiguration);
         _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, _mockDispatcher, _mockLogger, _compositionConfiguration);
         _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, _themeComposer, _endingComposer, _mockDispatcher, _compositionConfiguration);
@@ -89,6 +89,15 @@ internal sealed class ComposerTests
                 new ChordChoice([
                     new NoteChoice(Instrument.One, NoteMotion.Oblique, 0),
                     new NoteChoice(Instrument.Two, NoteMotion.Oblique, 0)
+                ])
+            ]);
+
+        _mockCompositionStrategy
+            .GetPossibleChords(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns([
+                new BaroquenChord([
+                    new BaroquenNote(Instrument.One, MinSopranoNote, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, MinAltoNote, MusicalTimeSpan.Half)
                 ])
             ]);
 
@@ -116,7 +125,11 @@ internal sealed class ComposerTests
         _mockCompositionStrategy.Received(1).GenerateInitialChord();
 
         _mockCompositionStrategy
-            .Received(_compositionConfiguration.MinimumMeasures * _compositionConfiguration.BeatsPerMeasure + 4) // 4 more to account for theme generation and cadence handling
+            .Received(_compositionConfiguration.MinimumMeasures * 4 + 3) // minimum measures * beats per measure + initial measure - initial chord
+            .GetPossibleChords(Arg.Any<IReadOnlyList<BaroquenChord>>());
+
+        _mockCompositionStrategy
+            .Received()
             .GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>());
 
         _mockCompositionDecorator.Received(4).Decorate(Arg.Any<Composition>());
