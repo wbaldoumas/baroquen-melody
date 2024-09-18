@@ -14,8 +14,8 @@ internal sealed class MauiMidiSaver : IMidiSaver
             return Task.FromCanceled<string>(cancellationToken);
         }
 
-        var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
-        var path = Path.Combine(MauiFileSystem.CacheDirectory, $"temp-composition-{timestamp}.mid");
+        var timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff", CultureInfo.InvariantCulture);
+        var path = Path.Combine(MauiFileSystem.CacheDirectory, $"Baroquen Melody ({timestamp}).mid");
 
         baroquenMelody.MidiFile.Write(path);
 

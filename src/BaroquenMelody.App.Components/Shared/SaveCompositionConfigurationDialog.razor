@@ -6,13 +6,13 @@
         <MudTextField @bind-Value="ConfigurationName" 
                       Label="Configuration Name" 
                       Variant="Variant.Outlined"
-                      Immediate="true"
-                      Mask="FileNameMask"/>
+                      Validation="ValidateFilename"
+                      Immediate="true"/>
     </DialogContent>
     <DialogActions>
         <MudButton Color="Color.Primary"
                    OnClick="SaveCompositionConfiguration"
-                   Disabled="string.IsNullOrEmpty(ConfigurationName)">
+                   Disabled="!IsValidFilename(ConfigurationName)">
             Save
         </MudButton>
         <MudButton OnClick="Cancel">
@@ -22,16 +22,14 @@
 </MudDialog>
 
 @code {
-    private string? ConfigurationName { get; set; }
-
-    private static readonly IMask FileNameMask = new RegexMask(@"^[\w\s-]+$");
+    private string ConfigurationName { get; set; } = string.Empty;
 
     [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
 
     private async Task SaveCompositionConfiguration()
     {
         var configurationFileExists = await CompositionConfigurationPersistenceService.DoesConfigurationExist(
-            ConfigurationName!,
+            ConfigurationName,
             new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token
         );
 
@@ -64,7 +62,7 @@
 
         var isSaved = await CompositionConfigurationPersistenceService.SaveConfigurationAsync(
             compositionConfiguration,
-            ConfigurationName!,
+            ConfigurationName,
             new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token
         );
 
@@ -73,4 +71,18 @@
 
     private void Cancel() => MudDialog?.Cancel();
 
+    private static readonly Func<string, IEnumerable<string>> ValidateFilename = filename =>
+    {
+        return ValidateFilename();
+
+        IEnumerable<string> ValidateFilename()
+        {
+            if (!IsValidFilename(filename))
+            {
+                yield return "Enter a valid filename";
+            }
+        }
+    };
+
+    private static bool IsValidFilename(string filename) => !string.IsNullOrEmpty(filename) && ValidFilenameRegex().IsMatch(filename);
 }

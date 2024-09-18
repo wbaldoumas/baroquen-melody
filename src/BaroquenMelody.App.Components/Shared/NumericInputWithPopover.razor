@@ -20,7 +20,9 @@
                  Variant="Variant.Outlined" 
                  Value="Value" 
                  Label="@Label" 
-                 ValueChanged="ValueChanged"/>
+                 ValueChanged="ValueChanged"
+                 Min="Min"
+                 Max="Max"/>
 
 @code
 {
@@ -32,9 +34,9 @@
 
     [Parameter, EditorRequired] public required EventCallback<T> ValueChanged { get; set; }
 
-    [Parameter] public int? Min { get; set; }
+    [Parameter] public T? Min { get; set; }
 
-    [Parameter] public int? Max { get; set; }
+    [Parameter] public T? Max { get; set; }
 
     private void OpenMeterPopover() => IsPopoverOpen = true;
 

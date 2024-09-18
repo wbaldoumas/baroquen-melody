@@ -1,6 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
+// ReSharper disable once CheckNamespace
 namespace BaroquenMelody.App;
 
 public class Program

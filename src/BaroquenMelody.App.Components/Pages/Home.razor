@@ -107,17 +107,22 @@
     {
         if (!BaroquenMelodyState.Value.HasBeenSaved && BaroquenMelodyState.Value.BaroquenMelody is not null)
         {
-            var dialogReference = await Dialog.ShowAsync<ConfirmCompositionDialogue>("Save composition?");
+            var dialogReference = await DialogService.ShowAsync<ConfirmCompositionDialogue>("Save composition?", new DialogOptions());
             var dialogResult = await dialogReference.Result;
 
-            if (dialogResult?.Canceled ?? false)
+            if (dialogResult?.Canceled is true)
             {
                 return;
             }
 
             if (dialogResult?.Data is true)
             {
-                await Save();
+                var isSaved = await Save();
+
+                if (!isSaved)
+                {
+                    return;
+                }
             }
         }
 
@@ -134,7 +139,7 @@
         }
     }
 
-    private async Task Save()
+    private async Task<bool> Save()
     {
         var isSaved = await MidiSaver.SaveAsync(
             BaroquenMelodyState.Value.BaroquenMelody!,
@@ -147,11 +152,13 @@
             Snackbar.Add("Saved composition!", Severity.Success);
             Dispatcher.Dispatch(new MarkCompositionSaved());
         }
+
+        return isSaved;
     }
 
     private async Task SaveCompositionConfiguration()
     {
-        var dialogReference = await Dialog.ShowAsync<SaveCompositionConfigurationDialog>("Save composition configuration?");
+        var dialogReference = await DialogService.ShowAsync<SaveCompositionConfigurationDialog>("Save composition configuration?");
 
         var dialogResult = await dialogReference.Result;
 
