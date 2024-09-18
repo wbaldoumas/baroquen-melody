@@ -150,6 +150,7 @@
 
     private Dictionary<string, GeneralMidi2Program> MidiInstruments = EnumUtils<GeneralMidi2Program>
         .AsEnumerable()
+        .OrderBy(instrument => instrument.ToSpaceSeparatedString())
         .ToDictionary(
             instrument => instrument.ToSpaceSeparatedString(),
             instrument => instrument

@@ -48,7 +48,9 @@
                 <NumericInputWithPopover T="int"
                                          Label="Minimum Measures"
                                          ValueChanged="HandleCompositionLengthChange"
-                                         ValueProvider="() => MinimumMeasures">
+                                         ValueProvider="() => MinimumMeasures"
+                                         Min="1"
+                                         Max="int.MaxValue">
                     <PopoverContent>
                         <MudText>The minimum number of <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Bar_(music)">measures</MudLink> in the composition.</MudText>
                     </PopoverContent>

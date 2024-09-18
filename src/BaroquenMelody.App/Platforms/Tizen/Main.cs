@@ -2,6 +2,7 @@ using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
 using System;
 
+// ReSharper disable once CheckNamespace
 namespace BaroquenMelody.App;
 
 internal class Program : MauiApplication
