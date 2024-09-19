@@ -54,7 +54,7 @@ internal sealed class App : IDisposable
             _compositionConfigurationState.Value.Mode,
             _compositionConfigurationState.Value.Meter,
             _compositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
-            50000
+            _compositionConfigurationState.Value.MinimumMeasures
         );
 
         return _configurator.Configure(compositionConfiguration).Compose(CancellationToken.None);
