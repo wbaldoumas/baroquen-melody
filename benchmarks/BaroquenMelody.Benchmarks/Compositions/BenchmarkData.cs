@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
+﻿using BaroquenMelody.Library.Compositions.Choices;
+using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
@@ -9,6 +10,8 @@ namespace BaroquenMelody.Benchmarks.Compositions;
 
 internal static class BenchmarkData
 {
+    public static readonly BaroquenScale BaroquenScale = new(NoteName.C, Mode.Ionian);
+
     public static readonly CompositionConfiguration CompositionConfiguration = new(
         new HashSet<InstrumentConfiguration>
         {
@@ -66,4 +69,13 @@ internal static class BenchmarkData
         new BaroquenNote(Instrument.Three, Notes.A2, MusicalTimeSpan.Quarter),
         new BaroquenNote(Instrument.Four, Notes.D1, MusicalTimeSpan.Quarter)
     ]);
+
+    public static readonly ChordChoice ChordChoice = new(
+        [
+            new NoteChoice(Instrument.One, NoteMotion.Ascending, 3),
+            new NoteChoice(Instrument.Two, NoteMotion.Descending, 3),
+            new NoteChoice(Instrument.Three, NoteMotion.Ascending, 3),
+            new NoteChoice(Instrument.Four, NoteMotion.Oblique, 0)
+        ]
+    );
 }

@@ -17,23 +17,16 @@ internal static class BaroquenChordExtensions
         ChordChoice chordChoice,
         MusicalTimeSpan noteTimeSpan)
     {
-        var notes = new List<BaroquenNote>();
-        var noteChoicesToApply = new List<NoteChoice>();
+        var notes = new List<BaroquenNote>(chordChoice.NoteChoices.Count);
 
         foreach (var noteChoice in chordChoice.NoteChoices)
         {
-            if (chord.ContainsInstrument(noteChoice.Instrument))
+            if (!chord.ContainsInstrument(noteChoice.Instrument))
             {
-                noteChoicesToApply.Add(noteChoice);
+                continue;
             }
-        }
 
-        foreach (var noteChoice in noteChoicesToApply)
-        {
-            var instrument = noteChoice.Instrument;
-            var note = chord[instrument];
-
-            notes.Add(note.ApplyNoteChoice(scale, noteChoice, noteTimeSpan));
+            notes.Add(chord[noteChoice.Instrument].ApplyNoteChoice(scale, noteChoice, noteTimeSpan));
         }
 
         return new BaroquenChord(notes);

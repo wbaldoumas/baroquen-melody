@@ -1,5 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.MusicTheory;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Compositions.Domain;
 
@@ -10,9 +12,9 @@ public sealed class BaroquenScale
 {
     private readonly List<Note> _notes;
 
-    private readonly IDictionary<Note, List<Note>> _ascendingNotes = new Dictionary<Note, List<Note>>();
+    private readonly FrozenDictionary<SevenBitNumber, List<Note>> _ascendingNotesByNoteNumber;
 
-    private readonly IDictionary<Note, List<Note>> _descendingNotes = new Dictionary<Note, List<Note>>();
+    private readonly FrozenDictionary<SevenBitNumber, List<Note>> _descendingNotesByNoteNumber;
 
     /// <summary>
     ///     The tonic note of the scale (1st scale degree).
@@ -105,11 +107,17 @@ public sealed class BaroquenScale
         Raw = raw;
         _notes = raw.GetNotes().ToList();
 
+        var ascendingNotesByNoteNumber = new Dictionary<SevenBitNumber, List<Note>>();
+        var descendingNotesByNoteNumber = new Dictionary<SevenBitNumber, List<Note>>();
+
         foreach (var note in _notes)
         {
-            _ascendingNotes[note] = Raw.GetAscendingNotes(note).ToList();
-            _descendingNotes[note] = Raw.GetDescendingNotes(note).ToList();
+            ascendingNotesByNoteNumber[note.NoteNumber] = Raw.GetAscendingNotes(note).ToList();
+            descendingNotesByNoteNumber[note.NoteNumber] = Raw.GetDescendingNotes(note).ToList();
         }
+
+        _ascendingNotesByNoteNumber = ascendingNotesByNoteNumber.ToFrozenDictionary();
+        _descendingNotesByNoteNumber = descendingNotesByNoteNumber.ToFrozenDictionary();
 
         Tonic = raw.GetDegree(ScaleDegree.Tonic);
         Supertonic = raw.GetDegree(ScaleDegree.Supertonic);
@@ -139,14 +147,14 @@ public sealed class BaroquenScale
     /// </summary>
     /// <param name="note">The note to retrieve the ascending notes from.</param>
     /// <returns>The ascending notes from the given note.</returns>
-    public List<Note> GetAscendingNotes(Note note) => _ascendingNotes[note];
+    public List<Note> GetAscendingNotes(Note note) => _ascendingNotesByNoteNumber[note.NoteNumber];
 
     /// <summary>
     ///     Retrieve the descending notes from the given note.
     /// </summary>
     /// <param name="note">The note to retrieve the descending notes from.</param>
     /// <returns>The descending notes from the given note.</returns>
-    public List<Note> GetDescendingNotes(Note note) => _descendingNotes[note];
+    public List<Note> GetDescendingNotes(Note note) => _descendingNotesByNoteNumber[note.NoteNumber];
 
     /// <summary>
     ///     Retrieve the index of the given note in the scale.

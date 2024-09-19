@@ -54,14 +54,25 @@ internal sealed class CompositionStrategy(
         return new BaroquenChord(notes);
     }
 
-    private List<BaroquenChord> GetPossibleChords(IReadOnlyList<BaroquenChord> precedingChords)
+    public IEnumerable<BaroquenChord> GetPossibleChords(IReadOnlyList<BaroquenChord> precedingChords) =>
+        GetValidChordChoicesAndChords(precedingChords)
+            .Where(chordChoiceAndChord => HasSubsequentChordChoices([.. precedingChords, chordChoiceAndChord.Chord]))
+            .Select(static chordChoiceAndChord => chordChoiceAndChord.Chord);
+
+    public ParallelQuery<(ChordChoice ChordChoice, BaroquenChord Chord)> GetValidChordChoicesAndChords(IReadOnlyList<BaroquenChord> precedingChords)
     {
         var currentChord = precedingChords[^1];
-        var possibleChordChoices = GetPossibleChordChoices(precedingChords);
 
-        return possibleChordChoices
-            .Select(chordChoice => currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan))
-            .ToList();
+        return Enumerable.Range(0, (int)chordChoiceRepository.Count)
+            .AsParallel()
+            .Select(chordChoiceId =>
+            {
+                var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceId);
+                var nextChord = currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan);
+
+                return (chordChoice, nextChord);
+            })
+            .Where(chordChoiceAndChord => compositionRule.Evaluate(precedingChords, chordChoiceAndChord.nextChord));
     }
 
     private Note ChooseStartingNote(
@@ -93,7 +104,8 @@ internal sealed class CompositionStrategy(
             logger.CouldNotFindStartingNoteForInstrument(instrumentConfiguration.Instrument);
 
             throw new CouldNotFindStartingNoteForInstrumentException(instrumentConfiguration.Instrument);
-        } while (startingNoteCounts.TryGetValue(chosenNote.NoteName, out var count) && count >= maxRepeatedNotes);
+        }
+        while (startingNoteCounts.TryGetValue(chosenNote.NoteName, out var count) && count >= maxRepeatedNotes);
 
         startingNoteCounts[chosenNote.NoteName]++;
 
@@ -111,21 +123,5 @@ internal sealed class CompositionStrategy(
 
         return GetValidChordChoicesAndChords(precedingChords)
             .Any(chordChoiceAndChord => HasSubsequentChordChoices([.. precedingChords, chordChoiceAndChord.Chord], depth + 1) && ++possibleChordChoicesCount >= minLookAheadChordChoices);
-    }
-
-    private IEnumerable<(ChordChoice ChordChoice, BaroquenChord Chord)> GetValidChordChoicesAndChords(IReadOnlyList<BaroquenChord> precedingChords)
-    {
-        var currentChord = precedingChords[^1];
-
-        for (var chordChoiceId = 0; chordChoiceId < chordChoiceRepository.Count; ++chordChoiceId)
-        {
-            var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceId);
-            var nextChord = currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan);
-
-            if (compositionRule.Evaluate(precedingChords, nextChord))
-            {
-                yield return (chordChoice, nextChord);
-            }
-        }
     }
 }

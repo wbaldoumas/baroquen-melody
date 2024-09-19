@@ -28,4 +28,11 @@ internal interface ICompositionStrategy
     /// <param name="nextChord">The proposed next chord.</param>
     /// <returns>All the possible next chords for the given partially voiced chord.</returns>
     public IReadOnlyList<BaroquenChord> GetPossibleChordsForPartiallyVoicedChords(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord);
+
+    /// <summary>
+    ///     Gets the possible chords for the given preceding chords.
+    /// </summary>
+    /// <param name="precedingChords">The chords which precede the proposed next chord.</param>
+    /// <returns>The possible chords for the given preceding chords.</returns>
+    public IEnumerable<BaroquenChord> GetPossibleChords(IReadOnlyList<BaroquenChord> precedingChords);
 }

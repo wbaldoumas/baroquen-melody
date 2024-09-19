@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -15,7 +16,7 @@ internal sealed class AvoidDirectIntervalsTest
     private AvoidDirectIntervals _avoidDirectIntervals = null!;
 
     [SetUp]
-    public void SetUp() => _avoidDirectIntervals = new AvoidDirectIntervals(Interval.PerfectFifth);
+    public void SetUp() => _avoidDirectIntervals = new AvoidDirectIntervals(Interval.PerfectFifth, Configurations.GetCompositionConfiguration());
 
     [Test]
     [TestCaseSource(nameof(TestCases))]

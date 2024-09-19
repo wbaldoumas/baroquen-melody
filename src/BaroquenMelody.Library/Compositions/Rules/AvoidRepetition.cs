@@ -14,11 +14,9 @@ internal sealed class AvoidRepetition : ICompositionRule
             return true;
         }
 
-        var precedingChordsToCheck = precedingChords.Skip(precedingChords.Count - MinimumPrecedingChords).ToList();
-
-        foreach (var note in nextChord.Notes)
+        foreach (var precedingChord in precedingChords.Skip(precedingChords.Count - MinimumPrecedingChords))
         {
-            foreach (var precedingChord in precedingChordsToCheck)
+            foreach (var note in nextChord.Notes)
             {
                 if (precedingChord[note.Instrument].Raw != nextChord[note.Instrument].Raw)
                 {

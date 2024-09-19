@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Enums.Extensions;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Infrastructure.Serialization.JsonConverters;
+using LazyCart;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using System.Text.Json.Serialization;
@@ -32,9 +33,10 @@ public sealed record CompositionConfiguration(
     NoteName Tonic,
     Mode Mode,
     Meter Meter,
-    [property: JsonConverter(typeof(MusicalTimespanJsonConverter))] MusicalTimeSpan DefaultNoteTimeSpan,
+    [property: JsonConverter(typeof(MusicalTimespanJsonConverter))]
+    MusicalTimeSpan DefaultNoteTimeSpan,
     int MinimumMeasures,
-    int CompositionContextSize = 8,
+    int CompositionContextSize = 4,
     int Tempo = 120)
 {
     public const int MaxScaleStepChange = 5;
@@ -45,6 +47,11 @@ public sealed record CompositionConfiguration(
 
     public IDictionary<Instrument, InstrumentConfiguration> InstrumentConfigurationsByInstrument { get; } = InstrumentConfigurations.ToDictionary(
         instrumentConfiguration => instrumentConfiguration.Instrument
+    );
+
+    public LazyCartesianProduct<Instrument, Instrument> InstrumentPairs { get; } = new(
+        InstrumentConfigurations.Select(instrumentConfiguration => instrumentConfiguration.Instrument).ToList(),
+        InstrumentConfigurations.Select(instrumentConfiguration => instrumentConfiguration.Instrument).ToList()
     );
 
     public List<Instrument> Instruments { get; } = InstrumentConfigurations.Select(static instrumentConfiguration => instrumentConfiguration.Instrument).ToList();
