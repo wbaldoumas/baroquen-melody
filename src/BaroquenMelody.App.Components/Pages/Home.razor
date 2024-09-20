@@ -1,6 +1,7 @@
 ﻿@page "/"
 
 @inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@implements IDisposable
 
 <PageTitle>Baroquen Melody</PageTitle>
 
@@ -103,6 +104,23 @@
         ? Color.Secondary
         : Color.Warning;
 
+    private IDisposable? _compositionProgressSubscription;
+
+    protected override Task OnInitializedAsync()
+    {
+        _compositionProgressSubscription = CompositionProgressState
+            .ObserveChanges()
+            .Subscribe(state =>
+            {
+                if (state.Value.CurrentStep == CompositionStep.Failed && _tabs?.ActivePanel != _compositionTab)
+                {
+                    Snackbar.Add("Composition failed! Try again or try a different configuration.", Severity.Error);
+                }
+            });
+
+        return base.OnInitializedAsync();
+    }
+
     private async Task Compose()
     {
         if (!BaroquenMelodyState.Value.HasBeenSaved && BaroquenMelodyState.Value.BaroquenMelody is not null)
@@ -144,7 +162,7 @@
         var isSaved = await MidiSaver.SaveAsync(
             BaroquenMelodyState.Value.BaroquenMelody!,
             BaroquenMelodyState.Value.Path,
-            new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token
+            CancellationToken.None
         ).ConfigureAwait(false);
 
         if (isSaved)
@@ -175,6 +193,20 @@
         {
             Snackbar.Add("Failed to save composition configuration!", Severity.Error);
         }
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _compositionProgressSubscription?.Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
 }

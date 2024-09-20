@@ -58,7 +58,7 @@ internal sealed class EnumerableExtensionsTests
             new() { NoteName.B },
             new() { NoteName.D },
             new() { NoteName.F },
-            new(),
+            new()
         };
 
         // act

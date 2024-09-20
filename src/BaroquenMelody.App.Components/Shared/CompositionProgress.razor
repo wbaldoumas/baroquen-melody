@@ -4,7 +4,7 @@
 {
     <MudGrid Class="my-3" Justify="Justify.Center">
         <MudAnimate
-            Selector=".id1"
+            Selector=".compose-button"
             Duration="2"
             AnimationType="AnimationType.ShadowInset"
             Value="360"
@@ -24,7 +24,7 @@
                             Delay="ThemeProvider.TooltipDelay"
                             Duration="ThemeProvider.TooltipDuration"
                             Disabled="@InstrumentConfigurationState.Value.IsValid">
-                    <MudButton Class="id1 d-flex align-center justify-center"
+                    <MudButton Class="compose-button d-flex align-center justify-center"
                                Variant="Variant.Filled"
                                StartIcon="@Icons.Material.Filled.ElectricBolt"
                                Color="Color.Tertiary"
@@ -34,6 +34,36 @@
                         <MudText Typo="Typo.button" Style="font-size:large">Compose</MudText>
                     </MudButton>
                 </MudTooltip>
+            </div>
+        </MudItem>
+    </MudGrid>
+}
+else if (CompositionProgressState.Value.IsFailed)
+{
+    <MudGrid Class="my-3" Justify="Justify.Center">
+        <MudAnimate 
+            Selector=".composition-failed"
+            Duration="2"
+            AnimationType="AnimationType.ShadowInset"
+            Value="360"
+            ValueSecondary="null"
+            Hover="false"
+            Delay="0"
+            Infinite="true"
+            IterationCount="1"
+            AnimationTiming="AnimationTiming.EaseInOut"
+            AnimationDirection="AnimationDirection.AlternateReverse"
+            AnimationFillMode="AnimationFillMode.None"
+            Paused="false"/>
+        <MudItem xs="12" sm="12" md="12" lg="12" xl="12" xxl="12">
+            <div class="d-flex flex-shrink align-center justify-center ma-0" style="height:300px;">
+                <MudAlert Severity="Severity.Error"
+                          Class="composition-failed"
+                          Variant="Variant.Outlined"
+                          ShowCloseIcon="true"
+                          CloseIconClicked="() => Dispatcher.Dispatch(new ResetCompositionProgress())">
+                    Failed to compose. Try again, or try a different configuration.
+                </MudAlert>
             </div>
         </MudItem>
     </MudGrid>
@@ -140,7 +170,7 @@ else
         var isSaved = await MidiSaver.SaveAsync(
             BaroquenMelodyState.Value.BaroquenMelody!,
             BaroquenMelodyState.Value.Path,
-            new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token
+            CancellationToken.None
         ).ConfigureAwait(false);
 
         if (isSaved)

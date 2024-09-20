@@ -105,6 +105,24 @@ internal sealed class BaroquenMelodyEffectsTests
         _mockDispatcher.DidNotReceiveWithAnyArgs().Dispatch(Arg.Any<object>());
     }
 
+    [Test]
+    public async Task HandleCompose_handles_exception_and_marks_composition_failed()
+    {
+        // arrange
+        _mockInstrumentConfigurationState.Value.Returns(new InstrumentConfigurationState());
+        _mockCompositionRuleConfigurationState.Value.Returns(new CompositionRuleConfigurationState());
+        _mockCompositionOrnamentationConfigurationState.Value.Returns(new CompositionOrnamentationConfigurationState());
+        _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState());
+        _mockBaroquenMelodyComposerConfigurator.Configure(Arg.Any<CompositionConfiguration>()).Returns(_mockComposer);
+        _mockComposer.Compose(Arg.Any<CancellationToken>()).Throws<Exception>();
+
+        // act
+        await _baroquenMelodyEffects.HandleCompose(new Compose(), _mockDispatcher);
+
+        // assert
+        _mockDispatcher.Received().Dispatch(Arg.Any<MarkCompositionFailed>());
+    }
+
     [TearDown]
     public void TearDown()
     {

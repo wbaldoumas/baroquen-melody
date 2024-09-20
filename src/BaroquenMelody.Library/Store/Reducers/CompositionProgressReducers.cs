@@ -41,4 +41,10 @@ public static class CompositionProgressReducers
     {
         return new CompositionProgressState();
     }
+
+    [ReducerMethod]
+    public static CompositionProgressState ReduceMarkCompositionFailed(CompositionProgressState state, MarkCompositionFailed _)
+    {
+        return new CompositionProgressState { CurrentStep = CompositionStep.Failed };
+    }
 }

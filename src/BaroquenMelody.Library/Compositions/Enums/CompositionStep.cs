@@ -38,5 +38,10 @@ public enum CompositionStep : byte
     /// <summary>
     ///     The composer has completed composing the composition.
     /// </summary>
-    Complete
+    Complete,
+
+    /// <summary>
+    ///     The composer has failed to compose the composition.
+    /// </summary>
+    Failed
 }
