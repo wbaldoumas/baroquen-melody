@@ -1,18 +1,19 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Rules.Enums;
 using Fluxor;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Store.State;
 
 [FeatureState]
 public sealed record CompositionRuleConfigurationState(IDictionary<CompositionRule, CompositionRuleConfiguration> Configurations)
 {
-    private static readonly IDictionary<CompositionRule, CompositionRuleConfiguration> Defaults = AggregateCompositionRuleConfiguration.Default.Configurations.ToDictionary(
+    private static readonly FrozenDictionary<CompositionRule, CompositionRuleConfiguration> Defaults = AggregateCompositionRuleConfiguration.Default.Configurations.ToFrozenDictionary(
         configuration => configuration.Rule,
         configuration => configuration
     );
 
-    public AggregateCompositionRuleConfiguration Aggregate => new(Configurations.Values.ToHashSet());
+    public AggregateCompositionRuleConfiguration Aggregate => new(Configurations.Values.ToFrozenSet());
 
     public CompositionRuleConfigurationState()
         : this(Defaults)

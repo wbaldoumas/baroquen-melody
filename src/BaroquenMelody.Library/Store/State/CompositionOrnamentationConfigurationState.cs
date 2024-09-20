@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using Fluxor;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Store.State;
 
@@ -12,7 +13,7 @@ public sealed record CompositionOrnamentationConfigurationState(IDictionary<Orna
         configuration => configuration
     );
 
-    public AggregateOrnamentationConfiguration Aggregate => new(Configurations.Values.ToHashSet());
+    public AggregateOrnamentationConfiguration Aggregate => new(Configurations.Values.ToFrozenSet());
 
     public CompositionOrnamentationConfigurationState()
         : this(Defaults)

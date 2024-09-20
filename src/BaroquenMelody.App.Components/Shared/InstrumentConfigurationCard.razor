@@ -148,10 +148,10 @@
 
     private IDisposable? InstrumentConfigurationStateSubscription;
 
-    private Dictionary<string, GeneralMidi2Program> MidiInstruments = EnumUtils<GeneralMidi2Program>
+    private FrozenDictionary<string, GeneralMidi2Program> MidiInstruments = EnumUtils<GeneralMidi2Program>
         .AsEnumerable()
         .OrderBy(instrument => instrument.ToSpaceSeparatedString())
-        .ToDictionary(
+        .ToFrozenDictionary(
             instrument => instrument.ToSpaceSeparatedString(),
             instrument => instrument
         );

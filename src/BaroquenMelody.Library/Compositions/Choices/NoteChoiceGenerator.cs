@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Compositions.Choices;
 
@@ -13,5 +14,5 @@ internal sealed class NoteChoiceGenerator(byte minScaleStepChange = 1, byte maxS
         .Select(static scaleStepChange => (byte)scaleStepChange)
         .SelectMany(scaleStepChange => noteMotions.Select(noteMotion => new NoteChoice(instrument, noteMotion, scaleStepChange)))
         .Append(new NoteChoice(instrument, NoteMotion.Oblique, 0))
-        .ToHashSet();
+        .ToFrozenSet();
 }

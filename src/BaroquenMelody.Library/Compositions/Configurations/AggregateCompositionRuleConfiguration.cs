@@ -1,5 +1,6 @@
 ﻿using Atrea.Utilities.Enums;
 using BaroquenMelody.Library.Compositions.Rules.Enums;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Compositions.Configurations;
 
@@ -9,6 +10,6 @@ public sealed record AggregateCompositionRuleConfiguration(ISet<CompositionRuleC
         EnumUtils<CompositionRule>
             .AsEnumerable()
             .Select(static compositionRule => new CompositionRuleConfiguration(compositionRule))
-            .ToHashSet()
+            .ToFrozenSet()
     );
 }
