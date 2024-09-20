@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
 using Fluxor;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Store.State;
 
@@ -11,7 +12,7 @@ public sealed record InstrumentConfigurationState(IDictionary<Instrument, Instru
 
     public ISet<InstrumentConfiguration> EnabledConfigurations => Configurations.Values.Where(configuration => configuration.IsEnabled).ToHashSet();
 
-    public ISet<InstrumentConfiguration> AllConfigurations => Configurations.Values.ToHashSet();
+    public ISet<InstrumentConfiguration> AllConfigurations => Configurations.Values.ToFrozenSet();
 
     public InstrumentConfigurationState()
         : this(InstrumentConfiguration.DefaultConfigurations, InstrumentConfiguration.DefaultConfigurations)

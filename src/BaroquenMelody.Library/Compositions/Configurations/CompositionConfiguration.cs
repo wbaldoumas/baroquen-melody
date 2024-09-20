@@ -6,6 +6,7 @@ using BaroquenMelody.Library.Infrastructure.Serialization.JsonConverters;
 using LazyCart;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using System.Collections.Frozen;
 using System.Text.Json.Serialization;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
@@ -45,7 +46,7 @@ public sealed record CompositionConfiguration(
 
     public const int MaxInstrumentRange = 21;
 
-    public IDictionary<Instrument, InstrumentConfiguration> InstrumentConfigurationsByInstrument { get; } = InstrumentConfigurations.ToDictionary(
+    public FrozenDictionary<Instrument, InstrumentConfiguration> InstrumentConfigurationsByInstrument { get; } = InstrumentConfigurations.ToFrozenDictionary(
         instrumentConfiguration => instrumentConfiguration.Instrument
     );
 

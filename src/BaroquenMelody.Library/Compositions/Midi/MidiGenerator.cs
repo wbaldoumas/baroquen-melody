@@ -7,6 +7,7 @@ using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Composing;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Compositions.Midi;
 
@@ -31,12 +32,12 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
         return midiFile;
     }
 
-    private Dictionary<Instrument, PatternBuilder> InitializePatternBuildersByInstrument() => compositionConfiguration.InstrumentConfigurations.ToDictionary(
+    private FrozenDictionary<Instrument, PatternBuilder> InitializePatternBuildersByInstrument() => compositionConfiguration.InstrumentConfigurations.ToDictionary(
         instrumentConfiguration => instrumentConfiguration.Instrument,
         instrumentConfiguration => new PatternBuilder().ProgramChange(instrumentConfiguration.MidiProgram)
-    );
+    ).ToFrozenDictionary();
 
-    private void ProcessMeasure(Measure measure, Dictionary<Instrument, PatternBuilder> patternBuildersByInstrument)
+    private void ProcessMeasure(Measure measure, FrozenDictionary<Instrument, PatternBuilder> patternBuildersByInstrument)
     {
         foreach (var beat in measure.Beats)
         {
@@ -44,7 +45,7 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
         }
     }
 
-    private void ProcessBeat(Beat beat, Dictionary<Instrument, PatternBuilder> patternBuildersByInstrument)
+    private void ProcessBeat(Beat beat, FrozenDictionary<Instrument, PatternBuilder> patternBuildersByInstrument)
     {
         foreach (var (instrument, patternBuilder) in patternBuildersByInstrument)
         {
