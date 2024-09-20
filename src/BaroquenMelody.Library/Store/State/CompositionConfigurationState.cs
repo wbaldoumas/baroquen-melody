@@ -11,7 +11,7 @@ namespace BaroquenMelody.Library.Store.State;
 
 [FeatureState]
 [ExcludeFromCodeCoverage(Justification = "Simple record without logic")]
-public sealed record CompositionConfigurationState(NoteName TonicNote, Mode Mode, Meter Meter, int MinimumMeasures = 25)
+public sealed record CompositionConfigurationState(NoteName TonicNote, Mode Mode, Meter Meter, int MinimumMeasures = 25, int Tempo = 120)
 {
     public BaroquenScale Scale { get; } = new(TonicNote, Mode);
 

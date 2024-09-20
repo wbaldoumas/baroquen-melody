@@ -57,7 +57,8 @@
             CompositionConfigurationState.Value.Mode,
             CompositionConfigurationState.Value.Meter,
             CompositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
-            CompositionConfigurationState.Value.MinimumMeasures
+            CompositionConfigurationState.Value.MinimumMeasures,
+            Tempo: CompositionConfigurationState.Value.Tempo
         );
 
         var isSaved = await CompositionConfigurationPersistenceService.SaveConfigurationAsync(
