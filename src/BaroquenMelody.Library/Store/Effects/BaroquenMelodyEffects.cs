@@ -49,7 +49,13 @@ public sealed class BaroquenMelodyEffects(
                 catch (OperationCanceledException)
                 {
                     dispatcher.Dispatch(new ResetCompositionProgress());
-
+                }
+                catch (Exception)
+                {
+                    dispatcher.Dispatch(new MarkCompositionFailed());
+                }
+                finally
+                {
                     _cancellationTokenSource?.Dispose();
                 }
             },

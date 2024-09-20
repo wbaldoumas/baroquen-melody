@@ -5,7 +5,6 @@ using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
-using System.Collections.Frozen;
 
 namespace BaroquenMelody.Benchmarks.Compositions.Rules;
 

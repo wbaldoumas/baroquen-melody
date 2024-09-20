@@ -50,7 +50,7 @@ internal sealed class ChordComposerTests
         _mockCompositionStrategy.GetPossibleChords(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns(
         [
             expectedChordA,
-            expectedChordB,
+            expectedChordB
         ]);
 
         var precedingChords = new List<BaroquenChord>

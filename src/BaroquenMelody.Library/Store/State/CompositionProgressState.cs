@@ -18,7 +18,9 @@ public sealed record CompositionProgressState(
 
     public bool IsWaiting => CurrentStep == CompositionStep.Waiting;
 
-    public bool IsLoading => !IsComplete && !IsWaiting;
+    public bool IsLoading => !IsComplete && !IsWaiting && !IsFailed;
+
+    public bool IsFailed => CurrentStep == CompositionStep.Failed;
 
     public string Message => CurrentStep switch
     {
@@ -29,6 +31,7 @@ public sealed record CompositionProgressState(
         CompositionStep.Phrasing => "Composing ending...", // Step completes too quickly to show a different message to the user.
         CompositionStep.Ending => "Composing ending...",
         CompositionStep.Complete => "Composition complete!",
+        CompositionStep.Failed => "Failed to compose composition.",
         _ => throw new ArgumentOutOfRangeException(nameof(CurrentStep), $"Unknown composition step: {CurrentStep}.")
     };
 

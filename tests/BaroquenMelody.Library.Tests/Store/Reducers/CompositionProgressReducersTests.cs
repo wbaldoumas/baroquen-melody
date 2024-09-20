@@ -74,4 +74,31 @@ internal sealed class CompositionProgressReducersTests
         newState.EndingProgress.Should().Be(0.0d);
         newState.OverallProgress.Should().Be(0.0d);
     }
+
+    [Test]
+    public void ReduceMarkCompositionFailed_returns_new_state_with_expected_values()
+    {
+        // arrange
+        var state = new CompositionProgressState(
+            new HashSet<CompositionStep> { CompositionStep.Theme },
+            CompositionStep.Theme,
+            ThemeProgress: 0.25d,
+            BodyProgress: 0.25d,
+            EndingProgress: 0.25d
+        );
+
+        var action = new MarkCompositionFailed();
+
+        // act
+        var newState = CompositionProgressReducers.ReduceMarkCompositionFailed(state, action);
+
+        // assert
+        newState.CompletedSteps.Should().BeEmpty();
+        newState.CurrentStep.Should().Be(CompositionStep.Failed);
+        newState.Message.Should().Be("Failed to compose composition.");
+        newState.ThemeProgress.Should().Be(0.0d);
+        newState.BodyProgress.Should().Be(0.0d);
+        newState.EndingProgress.Should().Be(0.0d);
+        newState.OverallProgress.Should().Be(0.0d);
+    }
 }
