@@ -26,6 +26,7 @@ internal sealed class CompositionProgressStateTests
     [TestCase(CompositionStep.Phrasing, "Composing ending...")]
     [TestCase(CompositionStep.Ending, "Composing ending...")]
     [TestCase(CompositionStep.Complete, "Composition complete!")]
+    [TestCase(CompositionStep.Failed, "Failed to compose composition.")]
     public void Message_returns_expected_message_for_current_step(CompositionStep step, string expectedMessage)
     {
         // arrange
