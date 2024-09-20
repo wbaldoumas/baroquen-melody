@@ -7,11 +7,12 @@
         </CardHeaderContent>
     </MudCardHeader>
     <MudCardContent>
-        <MudGrid>
-            <MudItem xs="12" sm="6" md="3" lg="3" xl="3" xxl="3">
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" sm="6" md="3">
                 <SelectWithPopover T="NoteName"
                                    Items="CompositionConfigurationService.ConfigurableRootNotes"
                                    Label="Tonic Note"
+                                   Class="d-flex flex-grow-1"
                                    ValueProvider="() => RootNote"
                                    ValueChanged="HandleTonicNoteChange"
                                    ConvertToDisplay="noteName => noteName.ToSpaceSeparatedString()">
@@ -20,7 +21,7 @@
                     </PopoverContent>
                 </SelectWithPopover>
             </MudItem>
-            <MudItem xs="12" sm="6" md="3" lg="3" xl="3" xxl="3">
+            <MudItem xs="12" sm="6" md="2">
                 <SelectWithPopover T="Mode"
                                    Items="CompositionConfigurationService.ConfigurableScaleModes"
                                    Label="Mode"
@@ -32,7 +33,7 @@
                     </PopoverContent>
                 </SelectWithPopover>
             </MudItem>
-            <MudItem xs="12" sm="6" md="3" lg="3" xl="3" xxl="3">
+            <MudItem xs="12" sm="6" md="2">
                 <SelectWithPopover T="Meter"
                                    Items="CompositionConfigurationService.ConfigurableMeters"
                                    Label="Meter"
@@ -44,7 +45,7 @@
                     </PopoverContent>
                 </SelectWithPopover>
             </MudItem>
-            <MudItem xs="12" sm="6" md="3" lg="3" xl="3" xxl="3">
+            <MudItem xs="12" sm="6" md="3">
                 <NumericInputWithPopover T="int"
                                          Label="Minimum Measures"
                                          ValueChanged="HandleCompositionLengthChange"
@@ -53,6 +54,18 @@
                                          Max="int.MaxValue">
                     <PopoverContent>
                         <MudText>The minimum number of <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Bar_(music)">measures</MudLink> in the composition.</MudText>
+                    </PopoverContent>
+                </NumericInputWithPopover>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="2">
+                <NumericInputWithPopover T="int"
+                                         Label="Tempo"
+                                         ValueChanged="HandleTempoChange"
+                                         ValueProvider="() => Tempo"
+                                         Min="1"
+                                         Max="int.MaxValue">
+                    <PopoverContent>
+                        <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Tempo">tempo</MudLink>, or beats per minute (BPM) of the composition.</MudText>
                     </PopoverContent>
                 </NumericInputWithPopover>
             </MudItem>
@@ -69,11 +82,15 @@
 
     private int MinimumMeasures => CompositionConfigurationState.Value.MinimumMeasures;
 
-    private void HandleTonicNoteChange(NoteName note) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(note, Mode, Meter, MinimumMeasures));
+    private int Tempo => CompositionConfigurationState.Value.Tempo;
 
-    private void HandleModeChange(Mode mode) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, mode, Meter, MinimumMeasures));
+    private void HandleTonicNoteChange(NoteName note) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(note, Mode, Meter, MinimumMeasures, Tempo));
 
-    private void HandleMeterChange(Meter meter) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, meter, MinimumMeasures));
+    private void HandleModeChange(Mode mode) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, mode, Meter, MinimumMeasures, Tempo));
 
-    private void HandleCompositionLengthChange(int length) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, length));
+    private void HandleMeterChange(Meter meter) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, meter, MinimumMeasures, Tempo));
+
+    private void HandleCompositionLengthChange(int length) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, length, Tempo));
+
+    private void HandleTempoChange(int tempo) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, tempo));
 }

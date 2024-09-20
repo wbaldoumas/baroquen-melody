@@ -12,7 +12,17 @@
         </MudCardContent>
     </MudCard>
 </MudPopover>
-<MudSelect T="T" OnAdornmentClick="OpenPopover" AdornmentIcon="@Icons.Material.Outlined.QuestionMark" Adornment="Adornment.End" IconSize="Size.Small" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Label="@Label" Value="Value" ValueChanged="ValueChanged">
+<MudSelect T="T" 
+           OnAdornmentClick="OpenPopover" 
+           AdornmentIcon="@Icons.Material.Outlined.QuestionMark" 
+           Adornment="Adornment.End" 
+           IconSize="Size.Small" 
+           Variant="Variant.Outlined"
+           Class="@Class"
+           AnchorOrigin="Origin.BottomCenter" 
+           Label="@Label" 
+           Value="Value" 
+           ValueChanged="ValueChanged">
     @foreach (var item in Items)
     {
         <MudSelectItem Value="item">@ConvertToDisplay(item)</MudSelectItem>
@@ -32,6 +42,8 @@
     [Parameter, EditorRequired] public required EventCallback<T> ValueChanged { get; set; }
 
     [Parameter, EditorRequired] public required Func<T, string> ConvertToDisplay { get; set; }
+
+    [Parameter] public string? Class { get; set; }
 
     private void OpenPopover() => IsPopoverOpen = true;
 

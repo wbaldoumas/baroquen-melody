@@ -22,13 +22,14 @@ internal sealed class CompositionConfigurationReducersTests
         var state = new CompositionConfigurationState();
 
         // act
-        state = CompositionConfigurationReducers.ReduceUpdateCompositionConfiguration(state, new UpdateCompositionConfiguration(rootNote, mode, Meter.ThreeFour, 8));
+        state = CompositionConfigurationReducers.ReduceUpdateCompositionConfiguration(state, new UpdateCompositionConfiguration(rootNote, mode, Meter.ThreeFour, 8, 555));
 
         // assert
         state.Meter.Should().Be(Meter.ThreeFour);
         state.MinimumMeasures.Should().Be(8);
         state.TonicNote.Should().Be(rootNote);
         state.Mode.Should().Be(mode);
+        state.Tempo.Should().Be(555);
     }
 
     [Test]
@@ -46,5 +47,6 @@ internal sealed class CompositionConfigurationReducersTests
         state.MinimumMeasures.Should().Be(configuration.MinimumMeasures);
         state.TonicNote.Should().Be(configuration.Tonic);
         state.Mode.Should().Be(configuration.Mode);
+        state.Tempo.Should().Be(configuration.Tempo);
     }
 }

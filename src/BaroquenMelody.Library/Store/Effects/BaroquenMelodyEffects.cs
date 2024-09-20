@@ -33,7 +33,8 @@ public sealed class BaroquenMelodyEffects(
             compositionConfigurationState.Value.Mode,
             compositionConfigurationState.Value.Meter,
             compositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
-            compositionConfigurationState.Value.MinimumMeasures
+            compositionConfigurationState.Value.MinimumMeasures,
+            Tempo: compositionConfigurationState.Value.Tempo
         );
 
         await Task.Run(
