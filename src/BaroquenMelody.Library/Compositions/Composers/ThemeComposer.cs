@@ -61,12 +61,7 @@ internal sealed class ThemeComposer(
     {
         var initialMeasures = ComposeInitialMeasures(cancellationToken);
         var initialComposition = new Composition(initialMeasures);
-
-        var instruments = compositionConfiguration.InstrumentConfigurations
-            .OrderByDescending(static instrumentConfiguration => instrumentConfiguration.MinNote)
-            .Select(static instrumentConfiguration => instrumentConfiguration.Instrument)
-            .ToList();
-
+        var instruments = compositionConfiguration.Instruments;
         var fugueSubjectInstrument = instruments[0];
 
         compositionDecorator.Decorate(initialComposition, fugueSubjectInstrument);
@@ -127,8 +122,7 @@ internal sealed class ThemeComposer(
             var nextChords = new List<BaroquenChord>();
 
             var transposedSubjectChords = noteTransposer.TransposeToInstrument(fugueSubject, fugueSubjectInstrument, instrument)
-                .Select(static note => new BaroquenChord([note]))
-                .ToList();
+                .Select(static note => new BaroquenChord([note]));
 
             foreach (var transposedSubjectChord in transposedSubjectChords)
             {
@@ -143,7 +137,7 @@ internal sealed class ThemeComposer(
 
                 var nextChord = possibleChords.OrderBy(static _ => ThreadLocalRandom.Next()).First();
                 var transposedSubjectNote = transposedSubjectChord[instrument];
-                var otherNotes = nextChord.Notes.Where(note => note.Instrument != instrument).ToList();
+                var otherNotes = nextChord.Notes.Where(note => note.Instrument != instrument);
                 var workingChord = new BaroquenChord([.. otherNotes, transposedSubjectNote]);
 
                 nextChords.Add(workingChord);

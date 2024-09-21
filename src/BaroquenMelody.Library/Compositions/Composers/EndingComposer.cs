@@ -181,8 +181,7 @@ internal sealed class EndingComposer(
 
             var continuationChords = compositionWithTonicFinalChord.Measures
                 .SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord))
-                .Skip(1)
-                .ToList();
+                .Skip(1);
 
             foreach (var measure in ConvertChordsToMeasures(continuationChords))
             {

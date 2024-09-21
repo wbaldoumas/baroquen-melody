@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.Benchmarks.Compositions.Rules;
+﻿using BaroquenMelody.Benchmarks.Compositions.Extensions;
 using BenchmarkDotNet.Running;
 
-BenchmarkRunner.Run<FollowsStandardProgressionBenchmarks>();
+BenchmarkRunner.Run<BaroquenNoteExtensionsBenchmarks>();

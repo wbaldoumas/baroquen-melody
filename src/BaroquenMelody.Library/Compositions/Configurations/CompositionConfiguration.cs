@@ -55,7 +55,10 @@ public sealed record CompositionConfiguration(
         InstrumentConfigurations.Select(instrumentConfiguration => instrumentConfiguration.Instrument).ToList()
     );
 
-    public List<Instrument> Instruments { get; } = InstrumentConfigurations.Select(static instrumentConfiguration => instrumentConfiguration.Instrument).ToList();
+    public List<Instrument> Instruments { get; } = InstrumentConfigurations
+        .OrderByDescending(static instrumentConfiguration => instrumentConfiguration.MinNote)
+        .Select(static instrumentConfiguration => instrumentConfiguration.Instrument)
+        .ToList();
 
     public int BeatsPerMeasure => Meter.BeatsPerMeasure();
 

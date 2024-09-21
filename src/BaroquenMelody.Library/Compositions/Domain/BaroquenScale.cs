@@ -12,9 +12,9 @@ public sealed class BaroquenScale
 {
     private readonly List<Note> _notes;
 
-    private readonly FrozenDictionary<SevenBitNumber, List<Note>> _ascendingNotesByNoteNumber;
+    private readonly FrozenDictionary<SevenBitNumber, Note[]> _ascendingNotesByNoteNumber;
 
-    private readonly FrozenDictionary<SevenBitNumber, List<Note>> _descendingNotesByNoteNumber;
+    private readonly FrozenDictionary<SevenBitNumber, Note[]> _descendingNotesByNoteNumber;
 
     /// <summary>
     ///     The tonic note of the scale (1st scale degree).
@@ -54,37 +54,37 @@ public sealed class BaroquenScale
     /// <summary>
     ///     The one chord of the scale.
     /// </summary>
-    public HashSet<NoteName> I { get; }
+    public FrozenSet<NoteName> I { get; }
 
     /// <summary>
     ///     The two chord of the scale.
     /// </summary>
-    public HashSet<NoteName> II { get; }
+    public FrozenSet<NoteName> II { get; }
 
     /// <summary>
     ///     The three chord of the scale.
     /// </summary>
-    public HashSet<NoteName> III { get; }
+    public FrozenSet<NoteName> III { get; }
 
     /// <summary>
     ///     The four chord of the scale.
     /// </summary>
-    public HashSet<NoteName> IV { get; }
+    public FrozenSet<NoteName> IV { get; }
 
     /// <summary>
     ///     The five chord of the scale.
     /// </summary>
-    public HashSet<NoteName> V { get; }
+    public FrozenSet<NoteName> V { get; }
 
     /// <summary>
     ///     The six chord of the scale.
     /// </summary>
-    public HashSet<NoteName> VI { get; }
+    public FrozenSet<NoteName> VI { get; }
 
     /// <summary>
     ///     The seven chord of the scale.
     /// </summary>
-    public HashSet<NoteName> VII { get; }
+    public FrozenSet<NoteName> VII { get; }
 
     /// <summary>
     ///     The raw scale that this Baroquen scale is based on.
@@ -107,13 +107,13 @@ public sealed class BaroquenScale
         Raw = raw;
         _notes = raw.GetNotes().ToList();
 
-        var ascendingNotesByNoteNumber = new Dictionary<SevenBitNumber, List<Note>>();
-        var descendingNotesByNoteNumber = new Dictionary<SevenBitNumber, List<Note>>();
+        var ascendingNotesByNoteNumber = new Dictionary<SevenBitNumber, Note[]>();
+        var descendingNotesByNoteNumber = new Dictionary<SevenBitNumber, Note[]>();
 
         foreach (var note in _notes)
         {
-            ascendingNotesByNoteNumber[note.NoteNumber] = Raw.GetAscendingNotes(note).ToList();
-            descendingNotesByNoteNumber[note.NoteNumber] = Raw.GetDescendingNotes(note).ToList();
+            ascendingNotesByNoteNumber[note.NoteNumber] = Raw.GetAscendingNotes(note).ToArray();
+            descendingNotesByNoteNumber[note.NoteNumber] = Raw.GetDescendingNotes(note).ToArray();
         }
 
         _ascendingNotesByNoteNumber = ascendingNotesByNoteNumber.ToFrozenDictionary();
@@ -127,13 +127,13 @@ public sealed class BaroquenScale
         Submediant = raw.GetDegree(ScaleDegree.Submediant);
         LeadingTone = raw.GetDegree(ScaleDegree.LeadingTone);
 
-        I = [Tonic, Mediant, Dominant];
-        II = [Supertonic, Subdominant, Submediant];
-        III = [Mediant, Dominant, LeadingTone];
-        IV = [Subdominant, Submediant, Tonic];
-        V = [Dominant, LeadingTone, Supertonic];
-        VI = [Submediant, Tonic, Mediant];
-        VII = [LeadingTone, Supertonic, Subdominant];
+        I = new HashSet<NoteName> { Tonic, Mediant, Dominant }.ToFrozenSet();
+        II = new HashSet<NoteName> { Supertonic, Subdominant, Submediant }.ToFrozenSet();
+        III = new HashSet<NoteName> { Mediant, Dominant, LeadingTone }.ToFrozenSet();
+        IV = new HashSet<NoteName> { Subdominant, Submediant, Tonic }.ToFrozenSet();
+        V = new HashSet<NoteName> { Dominant, LeadingTone, Supertonic }.ToFrozenSet();
+        VI = new HashSet<NoteName> { Submediant, Tonic, Mediant }.ToFrozenSet();
+        VII = new HashSet<NoteName> { LeadingTone, Supertonic, Subdominant }.ToFrozenSet();
     }
 
     /// <summary>
@@ -147,14 +147,14 @@ public sealed class BaroquenScale
     /// </summary>
     /// <param name="note">The note to retrieve the ascending notes from.</param>
     /// <returns>The ascending notes from the given note.</returns>
-    public List<Note> GetAscendingNotes(Note note) => _ascendingNotesByNoteNumber[note.NoteNumber];
+    public Note[] GetAscendingNotes(Note note) => _ascendingNotesByNoteNumber[note.NoteNumber];
 
     /// <summary>
     ///     Retrieve the descending notes from the given note.
     /// </summary>
     /// <param name="note">The note to retrieve the descending notes from.</param>
     /// <returns>The descending notes from the given note.</returns>
-    public List<Note> GetDescendingNotes(Note note) => _descendingNotesByNoteNumber[note.NoteNumber];
+    public Note[] GetDescendingNotes(Note note) => _descendingNotesByNoteNumber[note.NoteNumber];
 
     /// <summary>
     ///     Retrieve the index of the given note in the scale.
