@@ -1,17 +1,18 @@
-﻿using Atrea.Utilities.Enums;
-using BaroquenMelody.Library.Compositions.Enums;
+﻿using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Midi.Repositories;
 using BaroquenMelody.Library.Infrastructure.Random;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using Fluxor;
-using Melanchall.DryWetMidi.Standards;
 using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Compositions.Configurations.Services;
 
 internal sealed class InstrumentConfigurationService(
+    IMidiInstrumentRepository midiInstrumentRepository,
     IDispatcher dispatcher,
-    IState<CompositionConfigurationState> compositionConfigurationState
+    IState<CompositionConfigurationState> compositionConfigurationState,
+    IState<InstrumentConfigurationState> instrumentConfigurationState
 ) : IInstrumentConfigurationService
 {
     private static readonly FrozenSet<Instrument> _configurableInstruments = new[]
@@ -66,16 +67,21 @@ internal sealed class InstrumentConfigurationService(
 
     private void Randomize(Instrument instrument)
     {
+        var isEnabled = instrumentConfigurationState.Value.Configurations[instrument].IsEnabled;
+
+        if (!isEnabled)
+        {
+            return;
+        }
+
         var minNoteIndex = ThreadLocalRandom.Next(0, compositionConfigurationState.Value.Notes.Count - CompositionConfiguration.MinInstrumentRange);
         var maxNoteIndex = ThreadLocalRandom.Next(minNoteIndex + CompositionConfiguration.MinInstrumentRange, Math.Min(compositionConfigurationState.Value.Notes.Count, minNoteIndex + CompositionConfiguration.MaxInstrumentRange));
 
         var minNote = compositionConfigurationState.Value.Notes[minNoteIndex];
         var maxNote = compositionConfigurationState.Value.Notes[maxNoteIndex];
 
-        var midiInstruments = EnumUtils<GeneralMidi2Program>.AsEnumerable().ToList();
+        var midiInstruments = midiInstrumentRepository.GetAllMidiInstruments().ToList();
         var midiInstrument = midiInstruments[ThreadLocalRandom.Next(0, midiInstruments.Count)];
-
-        var isEnabled = ThreadLocalRandom.Next(0, 2) == 0;
 
         dispatcher.Dispatch(
             new UpdateInstrumentConfiguration(

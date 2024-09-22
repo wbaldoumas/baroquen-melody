@@ -9,13 +9,22 @@
         <MudGrid Justify="Justify.SpaceBetween">
             <MudItem xs="12" sm="6" md="5" lg="4" xl="3" xxl="2">
                 <AutocompleteWithPopover T="GeneralMidi2Program"
-                                         SearchFunc="InstrumentSearchFunc"
-                                         ToStringFunc="ToStringFunc"
+                                         SearchFunc="MidiInstrumentSearchFunc"
+                                         ToStringFunc="@(instrument => instrument.ToSpaceSeparatedString())"
                                          ValueProvider="() => MidiInstrument"
                                          ValueChanged="HandleMidiInstrumentChange"
+                                         AnchorOrigin="InstrumentFilterAnchorOrigin"
+                                         TransformOrigin="InstrumentFilterTransformOrigin"
+                                         Icon="@Icons.Material.TwoTone.FilterAlt"
                                          Label="Instrument">
                     <PopoverContent>
-                        <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/MIDI">MIDI instrument</MudLink> to use in the composition.</MudText>
+                        <MudText Align="Align.Center" Class="mt-n3" Typo="Typo.h6">Filter Instruments</MudText>
+                        <MudPaper Class="d-flex flex-column overflow-x-auto mt-1 ml-n4 mr-n4 mb-n4" Outlined="true" Height="33vh">
+                            @foreach (var filter in MidiInstrumentFilters)
+                            {
+                                <MudCheckBox T="bool" Label="@filter.Type.ToSpaceSeparatedString()" Color="Color.Tertiary" UncheckedColor="Color.Secondary" Dense="true" Value="@filter.IsEnabled" ValueChanged="val => { filter.IsEnabled = val; HandleInstrumentFilterChange(); }"/>
+                            }
+                        </MudPaper>
                     </PopoverContent>
                 </AutocompleteWithPopover>
             </MudItem>
@@ -140,6 +149,15 @@
         }
     }
 
+    private sealed class MidiInstrumentFilter
+    {
+        public MidiInstrumentType Type { get; init; }
+
+        public bool IsEnabled { get; set; }
+    };
+
+    private IEnumerable<MidiInstrumentFilter> MidiInstrumentFilters = [];
+
     private IEnumerable<int> NoteIndices => Enumerable.Range(SliderMin, SliderMax + 1);
 
     private IEnumerable<int> LowestPitchNoteIndices => NoteIndices.Take(CompositionConfigurationState.Value.Notes.Count - CompositionConfiguration.MinInstrumentRange);
@@ -148,13 +166,11 @@
 
     private IDisposable? InstrumentConfigurationStateSubscription;
 
-    private FrozenDictionary<string, GeneralMidi2Program> MidiInstruments = EnumUtils<GeneralMidi2Program>
-        .AsEnumerable()
-        .OrderBy(instrument => instrument.ToSpaceSeparatedString())
-        .ToFrozenDictionary(
-            instrument => instrument.ToSpaceSeparatedString(),
-            instrument => instrument
-        );
+    private FrozenDictionary<string, GeneralMidi2Program> MidiInstruments = FrozenDictionary<string, GeneralMidi2Program>.Empty;
+
+    private Origin InstrumentFilterAnchorOrigin = Origin.TopRight;
+
+    private Origin InstrumentFilterTransformOrigin = Origin.TopLeft;
 
     protected override void OnInitialized()
     {
@@ -162,6 +178,26 @@
 
         _lowestPitchNoteIndex = CompositionConfigurationState.Value.Notes.IndexOf(LowestPitchNote);
         _highestPitchNoteIndex = CompositionConfigurationState.Value.Notes.IndexOf(HighestPitchNote);
+
+        if (PhysicalDeviceInfo.IsMobile)
+        {
+            InstrumentFilterAnchorOrigin = Origin.TopRight;
+            InstrumentFilterTransformOrigin = Origin.TopRight;
+        }
+
+        foreach (var midiInstrumentType in EnumUtils<MidiInstrumentType>.AsEnumerable().Where(midiInstrumentType => midiInstrumentType != MidiInstrumentType.All && midiInstrumentType != MidiInstrumentType.None))
+        {
+            MidiInstrumentFilters = MidiInstrumentFilters.Append(new MidiInstrumentFilter
+            {
+                Type = midiInstrumentType,
+                IsEnabled = true
+            });
+        }
+
+        MidiInstruments = MidiInstrumentRepository.GetAllMidiInstruments().ToFrozenDictionary(
+            instrument => instrument.ToSpaceSeparatedString(),
+            instrument => instrument
+        );
 
         InstrumentConfigurationStateSubscription = InstrumentConfigurationState
             .ObserveChanges()
@@ -173,6 +209,8 @@
                 _highestPitchNoteIndex = CompositionConfigurationState.Value.Notes.IndexOf(configuration.MaxNote);
             });
     }
+
+    private void HandleIsEnabledChange(bool isEnabled) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, MidiInstrument, isEnabled, IsUserApplied: true));
 
     private void HandleLowestPitchNoteIndexChange(int noteIndex) => Dispatcher.Dispatch(
         new UpdateInstrumentConfiguration(
@@ -198,20 +236,51 @@
 
     private void HandleMidiInstrumentChange(GeneralMidi2Program instrument) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, instrument, IsEnabled, IsUserApplied: true));
 
-    private void HandleIsEnabledChange(bool isEnabled) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, MidiInstrument, isEnabled, IsUserApplied: true));
-
-    private async Task<IEnumerable<GeneralMidi2Program>> InstrumentSearchFunc(string search, CancellationToken cancellationToken)
+    private void HandleInstrumentFilterChange()
     {
-        var instruments = string.IsNullOrWhiteSpace(search)
+        if (!MidiInstrumentFilters.Any(filter => filter.IsEnabled))
+        {
+            MidiInstruments = MidiInstrumentRepository.GetAllMidiInstruments().ToFrozenDictionary(
+                instrument => instrument.ToSpaceSeparatedString(),
+                instrument => instrument
+            );
+
+            return;
+        }
+
+        var includedMidiInstruments = MidiInstrumentFilters.Where(filter => filter.IsEnabled).Aggregate(MidiInstrumentType.None, (current, filter) => current | filter.Type);
+        var midiInstruments = MidiInstrumentRepository.GetMidiInstruments(includedMidiInstruments).ToList();
+
+        MidiInstruments = midiInstruments.ToFrozenDictionary(
+            instrument => instrument.ToSpaceSeparatedString(),
+            instrument => instrument
+        );
+
+        if (MidiInstruments.ContainsKey(MidiInstrument.ToSpaceSeparatedString()))
+        {
+            return;
+        }
+
+        Dispatcher.Dispatch(new UpdateInstrumentConfiguration(
+            Instrument,
+            LowestPitchNote,
+            HighestPitchNote,
+            MidiInstruments.Values.Order().First(),
+            IsEnabled,
+            IsUserApplied: true
+        ));
+    }
+
+    private async Task<IEnumerable<GeneralMidi2Program>> MidiInstrumentSearchFunc(string search, CancellationToken cancellationToken)
+    {
+        var midiInstruments = string.IsNullOrWhiteSpace(search)
             ? MidiInstruments.Values
             : MidiInstruments.Keys
                 .Where(key => key.Contains(search, StringComparison.OrdinalIgnoreCase))
                 .Select(key => MidiInstruments[key]);
 
-        return await Task.FromResult(instruments);
+        return await Task.FromResult(midiInstruments.OrderBy(instrument => instrument.ToSpaceSeparatedString(), StringComparer.OrdinalIgnoreCase));
     }
-
-    private static string ToStringFunc(GeneralMidi2Program instrument) => instrument.ToSpaceSeparatedString();
 
     protected virtual void Dispose(bool disposing)
     {

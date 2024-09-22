@@ -1,9 +1,11 @@
 ﻿@typeparam T
 
-<MudOverlay @bind-Visible="IsPopoverOpen" AutoClose="true"/>
-<MudPopover AnchorOrigin="Origin.TopCenter"
+<MudOverlay @bind-Visible="IsPopoverOpen" LockScroll="false" AutoClose="true"/>
+<MudPopover AnchorOrigin="AnchorOrigin"
+            TransformOrigin="TransformOrigin"
             Open="IsPopoverOpen"
             Elevation="3"
+            OverflowBehavior="OverflowBehavior.FlipNever"
             Delay="ThemeProvider.TooltipDelay"
             Duration="ThemeProvider.TooltipDuration">
     <MudCard Class="rounded" Outlined="true" Elevation="3">
@@ -20,7 +22,7 @@
                  Label="@Label"
                  MaxItems="null"
                  OnAdornmentClick="OpenPopover"
-                 AdornmentIcon="@Icons.Material.Outlined.QuestionMark"
+                 AdornmentIcon="@Icon"
                  Adornment="Adornment.End"
                  IconSize="Size.Small"
                  Variant="Variant.Outlined"
@@ -43,6 +45,12 @@
     [Parameter, EditorRequired] public required Func<string, CancellationToken, Task<IEnumerable<T>>> SearchFunc { get; set; }
 
     [Parameter, EditorRequired] public required EventCallback<T> ValueChanged { get; set; }
+
+    [Parameter] public string Icon { get; set; } = Icons.Material.Outlined.QuestionMark;
+
+    [Parameter] public Origin AnchorOrigin { get; set; } = Origin.TopCenter;
+
+    [Parameter] public Origin TransformOrigin { get; set; } = Origin.TopLeft;
 
     private void OpenPopover() => IsPopoverOpen = true;
 
