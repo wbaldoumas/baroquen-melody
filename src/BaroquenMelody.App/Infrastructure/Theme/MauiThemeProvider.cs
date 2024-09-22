@@ -52,11 +52,7 @@ internal sealed class MauiThemeProvider : IThemeProvider
         LayoutProperties = new LayoutProperties()
     };
 
-    public bool IsDarkMode
-    {
-        get => Preferences.Get("IsDarkMode", true);
-        private set => Preferences.Set("IsDarkMode", value);
-    }
+    public bool IsDarkMode { get; set; } = true;
 
     public string DarkLightModeButtonIcon => IsDarkMode switch
     {

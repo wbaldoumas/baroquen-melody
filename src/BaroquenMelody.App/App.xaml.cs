@@ -1,13 +1,21 @@
-﻿namespace BaroquenMelody.App;
+﻿using BaroquenMelody.App.Components;
+
+namespace BaroquenMelody.App;
 
 /// <summary>
 ///     The entrypoint of the application.
 /// </summary>
 public partial class App : Application
 {
-    public App()
+    private readonly IThemeProvider _themeProvider;
+
+    public App(IThemeProvider themeProvider)
     {
         InitializeComponent();
+
+        _themeProvider = themeProvider;
+
+        _themeProvider.IsDarkMode = Preferences.Default.Get("IsDarkMode", true);
 
         MainPage = new MainPage();
         MainPage.Title = "Baroquen Melody";
@@ -15,13 +23,15 @@ public partial class App : Application
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        var window = base.CreateWindow(activationState);
+        var window = base.CreateWindow(activationState) ?? throw new InvalidOperationException("Window is null");
 
-        if (window is not null)
+        window.Title = "Baroquen Melody";
+
+        window.Destroying += (_, _) =>
         {
-            window.Title = "Baroquen Melody";
-        }
+            Preferences.Default.Set("IsDarkMode", _themeProvider.IsDarkMode);
+        };
 
-        return window ?? throw new InvalidOperationException("Window is null");
+        return window;
     }
 }

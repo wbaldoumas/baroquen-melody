@@ -6,7 +6,7 @@ public interface IThemeProvider
 {
     MudTheme Theme { get; }
 
-    bool IsDarkMode { get; }
+    bool IsDarkMode { get; set; }
 
     void ToggleDarkMode();
 
