@@ -15,6 +15,8 @@ public partial class App : Application
 
         _themeProvider = themeProvider;
 
+        _themeProvider.IsDarkMode = Preferences.Default.Get("IsDarkMode", true);
+
         MainPage = new MainPage();
         MainPage.Title = "Baroquen Melody";
     }
@@ -24,11 +26,6 @@ public partial class App : Application
         var window = base.CreateWindow(activationState) ?? throw new InvalidOperationException("Window is null");
 
         window.Title = "Baroquen Melody";
-
-        window.Created += (_, _) =>
-        {
-            _themeProvider.IsDarkMode = Preferences.Default.Get("IsDarkMode", true);
-        };
 
         window.Destroying += (_, _) =>
         {
