@@ -25,8 +25,6 @@ internal sealed class OrnamentationConfigurationServiceTests
         _mockDispatcher = Substitute.For<IDispatcher>();
         _mockState = Substitute.For<IState<CompositionOrnamentationConfigurationState>>();
 
-        _mockState.Value.Returns(new CompositionOrnamentationConfigurationState());
-
         _ornamentationConfigurationService = new OrnamentationConfigurationService(_mockDispatcher, _mockState);
     }
 
@@ -79,12 +77,38 @@ internal sealed class OrnamentationConfigurationServiceTests
     [Test]
     public void Randomize_dispatches_expected_actions()
     {
+        // arrange
+        var configurations = new Dictionary<OrnamentationType, OrnamentationConfiguration>
+        {
+            { OrnamentationType.PassingTone, new OrnamentationConfiguration(OrnamentationType.PassingTone, true, 100) },
+            { OrnamentationType.DoublePassingTone, new OrnamentationConfiguration(OrnamentationType.DoublePassingTone, true, 100) },
+            { OrnamentationType.DelayedDoublePassingTone, new OrnamentationConfiguration(OrnamentationType.DelayedDoublePassingTone, true, 100) },
+            { OrnamentationType.DoubleTurn, new OrnamentationConfiguration(OrnamentationType.DoubleTurn, true, 100) },
+            { OrnamentationType.DelayedPassingTone, new OrnamentationConfiguration(OrnamentationType.DelayedPassingTone, true, 100) },
+            { OrnamentationType.DelayedNeighborTone, new OrnamentationConfiguration(OrnamentationType.DelayedNeighborTone, true, 100) },
+            { OrnamentationType.NeighborTone, new OrnamentationConfiguration(OrnamentationType.NeighborTone, true, 100) },
+            { OrnamentationType.Run, new OrnamentationConfiguration(OrnamentationType.Run, true, 100) },
+            { OrnamentationType.DoubleRun, new OrnamentationConfiguration(OrnamentationType.DoubleRun, true, 100) },
+            { OrnamentationType.Turn, new OrnamentationConfiguration(OrnamentationType.Turn, true, 100) },
+            { OrnamentationType.AlternateTurn, new OrnamentationConfiguration(OrnamentationType.AlternateTurn, true, 100) },
+            { OrnamentationType.DelayedRun, new OrnamentationConfiguration(OrnamentationType.DelayedRun, true, 100) },
+            { OrnamentationType.Mordent, new OrnamentationConfiguration(OrnamentationType.Mordent, true, 100) },
+            { OrnamentationType.DecorateInterval, new OrnamentationConfiguration(OrnamentationType.DecorateInterval, true, 100) },
+            { OrnamentationType.Pedal, new OrnamentationConfiguration(OrnamentationType.Pedal, true, 100) },
+            { OrnamentationType.RepeatedNote, new OrnamentationConfiguration(OrnamentationType.RepeatedNote, false, 100) },
+            { OrnamentationType.DelayedRepeatedNote, new OrnamentationConfiguration(OrnamentationType.DelayedRepeatedNote, true, 100) },
+            { OrnamentationType.Pickup, new OrnamentationConfiguration(OrnamentationType.Pickup, true, 100) },
+            { OrnamentationType.DelayedPickup, new OrnamentationConfiguration(OrnamentationType.DelayedPickup, true, 100) }
+        };
+
+        _mockState.Value.Returns(new CompositionOrnamentationConfigurationState(configurations));
+
         // act
         _ornamentationConfigurationService.Randomize();
 
         // assert
         _mockDispatcher
-            .Received(AggregateOrnamentationConfiguration.Default.Configurations.Count)
+            .Received(configurations.Count - 1)
             .Dispatch(Arg.Any<UpdateCompositionOrnamentationConfiguration>());
     }
 }

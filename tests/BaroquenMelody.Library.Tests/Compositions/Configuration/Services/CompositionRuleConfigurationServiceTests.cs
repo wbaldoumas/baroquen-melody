@@ -25,8 +25,6 @@ internal sealed class CompositionRuleConfigurationServiceTests
         _mockDispatcher = Substitute.For<IDispatcher>();
         _mockState = Substitute.For<IState<CompositionRuleConfigurationState>>();
 
-        _mockState.Value.Returns(new CompositionRuleConfigurationState());
-
         _compositionRuleConfigurationService = new CompositionRuleConfigurationService(_mockDispatcher, _mockState);
     }
 
@@ -73,12 +71,32 @@ internal sealed class CompositionRuleConfigurationServiceTests
     [Test]
     public void Randomize_dispatches_expected_actions()
     {
+        // arrange
+        var configurations = new Dictionary<CompositionRule, CompositionRuleConfiguration>
+        {
+            { CompositionRule.AvoidDirectFifths, new CompositionRuleConfiguration(CompositionRule.AvoidDirectFifths) },
+            { CompositionRule.AvoidDirectFourths, new CompositionRuleConfiguration(CompositionRule.AvoidDirectFourths) },
+            { CompositionRule.AvoidDirectOctaves, new CompositionRuleConfiguration(CompositionRule.AvoidDirectOctaves) },
+            { CompositionRule.AvoidDissonance, new CompositionRuleConfiguration(CompositionRule.AvoidDissonance) },
+            { CompositionRule.AvoidDissonantLeaps, new CompositionRuleConfiguration(CompositionRule.AvoidDissonantLeaps) },
+            { CompositionRule.AvoidOverDoubling, new CompositionRuleConfiguration(CompositionRule.AvoidOverDoubling) },
+            { CompositionRule.AvoidParallelFourths, new CompositionRuleConfiguration(CompositionRule.AvoidParallelFourths) },
+            { CompositionRule.AvoidParallelFifths, new CompositionRuleConfiguration(CompositionRule.AvoidParallelFifths) },
+            { CompositionRule.AvoidParallelOctaves, new CompositionRuleConfiguration(CompositionRule.AvoidParallelOctaves) },
+            { CompositionRule.AvoidRepetition, new CompositionRuleConfiguration(CompositionRule.AvoidRepetition) },
+            { CompositionRule.FollowStandardChordProgression, new CompositionRuleConfiguration(CompositionRule.FollowStandardChordProgression) },
+            { CompositionRule.HandleAscendingSeventh, new CompositionRuleConfiguration(CompositionRule.HandleAscendingSeventh) },
+            { CompositionRule.AvoidRepeatedChords, new CompositionRuleConfiguration(CompositionRule.AvoidRepeatedChords, IsEnabled: false) }
+        };
+
+        _mockState.Value.Returns(new CompositionRuleConfigurationState(configurations));
+
         // act
         _compositionRuleConfigurationService.Randomize();
 
         // assert
         _mockDispatcher
-            .Received(AggregateCompositionRuleConfiguration.Default.Configurations.Count)
+            .Received(configurations.Count - 1)
             .Dispatch(Arg.Any<UpdateCompositionRuleConfiguration>());
     }
 }
