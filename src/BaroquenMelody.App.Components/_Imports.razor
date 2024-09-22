@@ -8,6 +8,7 @@
 @using BaroquenMelody.Library.Compositions.Configurations.Services
 @using BaroquenMelody.Library.Compositions.Domain
 @using BaroquenMelody.Library.Compositions.Enums.Extensions
+@using BaroquenMelody.Library.Compositions.Midi.Enums
 @using BaroquenMelody.Library.Compositions.MusicTheory.Enums
 @using BaroquenMelody.Library.Compositions.Ornamentation
 @using BaroquenMelody.Library.Compositions.Ornamentation.Enums
@@ -22,6 +23,8 @@
 @using System.Globalization
 @using System.Net.Http
 @using System.Net.Http.Json
+@using BaroquenMelody.Library.Compositions.Midi.Repositories
+@using BaroquenMelody.Library.Infrastructure.Devices
 @using BaroquenMelody.Library.Infrastructure.FileSystem
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
@@ -53,3 +56,5 @@
 @inject ICompositionConfigurationPersistenceService CompositionConfigurationPersistenceService
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
+@inject IMidiInstrumentRepository MidiInstrumentRepository
+@inject IPhysicalDeviceInfo PhysicalDeviceInfo
