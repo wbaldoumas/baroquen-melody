@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Compositions.Configurations.Services;
 using BaroquenMelody.Library.Compositions.Rules.Enums;
 using BaroquenMelody.Library.Store.Actions;
+using BaroquenMelody.Library.Store.State;
 using FluentAssertions;
 using Fluxor;
 using NSubstitute;
@@ -14,14 +15,19 @@ internal sealed class CompositionRuleConfigurationServiceTests
 {
     private IDispatcher _mockDispatcher = null!;
 
+    private IState<CompositionRuleConfigurationState> _mockState = null!;
+
     private CompositionRuleConfigurationService _compositionRuleConfigurationService = null!;
 
     [SetUp]
     public void SetUp()
     {
         _mockDispatcher = Substitute.For<IDispatcher>();
+        _mockState = Substitute.For<IState<CompositionRuleConfigurationState>>();
 
-        _compositionRuleConfigurationService = new CompositionRuleConfigurationService(_mockDispatcher);
+        _mockState.Value.Returns(new CompositionRuleConfigurationState());
+
+        _compositionRuleConfigurationService = new CompositionRuleConfigurationService(_mockDispatcher, _mockState);
     }
 
     [Test]

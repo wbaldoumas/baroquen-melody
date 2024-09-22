@@ -29,7 +29,8 @@
                  AnchorOrigin="Origin.BottomCenter"
                  Clearable="true"
                  OpenOnFocus="false"
-                 AutoFocus="false">
+                 AutoFocus="false"
+                 Disabled="IsDisabled">
 </MudAutocomplete>
 
 @code
@@ -45,6 +46,8 @@
     [Parameter, EditorRequired] public required Func<string, CancellationToken, Task<IEnumerable<T>>> SearchFunc { get; set; }
 
     [Parameter, EditorRequired] public required EventCallback<T> ValueChanged { get; set; }
+
+    [Parameter] public bool IsDisabled { get; set; } = false;
 
     [Parameter] public string Icon { get; set; } = Icons.Material.Outlined.QuestionMark;
 
