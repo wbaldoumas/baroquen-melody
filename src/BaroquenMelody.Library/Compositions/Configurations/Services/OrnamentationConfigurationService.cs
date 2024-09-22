@@ -1,12 +1,16 @@
 ﻿using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Infrastructure.Random;
 using BaroquenMelody.Library.Store.Actions;
+using BaroquenMelody.Library.Store.State;
 using Fluxor;
 using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Compositions.Configurations.Services;
 
-internal sealed class OrnamentationConfigurationService(IDispatcher dispatcher) : IOrnamentationConfigurationService
+internal sealed class OrnamentationConfigurationService(
+    IDispatcher dispatcher,
+    IState<CompositionOrnamentationConfigurationState> state
+) : IOrnamentationConfigurationService
 {
     private static readonly FrozenSet<OrnamentationType> _configurableOrnamentations = AggregateOrnamentationConfiguration
         .Default
@@ -28,7 +32,13 @@ internal sealed class OrnamentationConfigurationService(IDispatcher dispatcher) 
     {
         foreach (var configuration in AggregateOrnamentationConfiguration.Default.Configurations)
         {
-            var isEnabled = ThreadLocalRandom.Next() % 2 == 0;
+            var isEnabled = state.Value.Configurations[configuration.OrnamentationType].IsEnabled;
+
+            if (!isEnabled)
+            {
+                continue;
+            }
+
             var probability = ThreadLocalRandom.Next(0, 101);
 
             dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(configuration.OrnamentationType, isEnabled, probability));

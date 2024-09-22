@@ -22,7 +22,8 @@
                  Label="@Label" 
                  ValueChanged="ValueChanged"
                  Min="Min"
-                 Max="Max"/>
+                 Max="Max"
+                 Disabled="IsDisabled" />
 
 @code
 {
@@ -37,6 +38,8 @@
     [Parameter] public T? Min { get; set; }
 
     [Parameter] public T? Max { get; set; }
+
+    [Parameter] public bool IsDisabled { get; set; } = false;
 
     private void OpenMeterPopover() => IsPopoverOpen = true;
 
