@@ -1,7 +1,5 @@
-﻿using Atrea.Utilities.Enums;
-using BaroquenMelody.Library.Compositions.Midi.Enums;
+﻿using BaroquenMelody.Library.Compositions.Midi.Enums;
 using BaroquenMelody.Library.Compositions.Midi.Repositories;
-using BaroquenMelody.Library.Infrastructure.Random;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Standards;
 using NUnit.Framework;
@@ -24,6 +22,7 @@ internal sealed class MidiInstrumentRepositoryTests
     [TestCase(MidiInstrumentType.Brass, MidiInstrumentType.Woodwind, GeneralMidi2Program.Trumpet, GeneralMidi2Program.Flute, GeneralMidi2Program.AcousticGrandPiano)]
     [TestCase(MidiInstrumentType.Keyboard, MidiInstrumentType.Organ, GeneralMidi2Program.AcousticGrandPiano, GeneralMidi2Program.ChurchOrgan, GeneralMidi2Program.AcousticGuitarNylon)]
     [TestCase(MidiInstrumentType.ChromaticPercussion, MidiInstrumentType.Guitar, GeneralMidi2Program.Vibraphone, GeneralMidi2Program.AcousticGuitarNylon, GeneralMidi2Program.AcousticGrandPiano)]
+    [TestCase(MidiInstrumentType.Synth, MidiInstrumentType.Bass, GeneralMidi2Program.Lead1BSine, GeneralMidi2Program.AcousticBass, GeneralMidi2Program.Celesta)]
     public void GetMidiInstruments_returns_expected_values(
         MidiInstrumentType midiInstrumentTypeA,
         MidiInstrumentType midiInstrumentTypeB,
@@ -41,5 +40,19 @@ internal sealed class MidiInstrumentRepositoryTests
         midiInstruments.Should().Contain(expectedInstrumentA);
         midiInstruments.Should().Contain(expectedInstrumentB);
         midiInstruments.Should().NotContain(unexpectedInstrument);
+    }
+
+    [Test]
+    public void GetAllMidiInstruments_returns_expected_values()
+    {
+        // arrange
+        var expectedMidiInstruments = _midiInstrumentRepository.GetMidiInstruments(MidiInstrumentType.All).ToList();
+
+        // act
+        var actualMidiInstruments = _midiInstrumentRepository.GetAllMidiInstruments().ToList();
+
+        // assert
+        actualMidiInstruments.Should().NotBeEmpty();
+        actualMidiInstruments.Should().BeEquivalentTo(expectedMidiInstruments);
     }
 }
