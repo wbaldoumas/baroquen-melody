@@ -1,24 +1,18 @@
 ﻿@inherits LayoutComponentBase
-@implements IDisposable
 
 <Fluxor.Blazor.Web.StoreInitializer/>
 
 <MudThemeProvider Theme="@ThemeProvider.Theme" IsDarkMode="ThemeProvider.IsDarkMode"/>
 <MudPopoverProvider/>
 <MudSnackbarProvider/>
-<MudDialogProvider
+<MudDialogProvider 
     BackdropClick="false"
     FullWidth="true"
     MaxWidth="MaxWidth.Small"/>
 
 <MudLayout>
     <MudAppBar Elevation="3" Dense="true" Gutters="false">
-        <MudIconButton Class="ml-3"
-                       Icon="@Icons.Material.Sharp.Menu"
-                       Color="Color.Inherit"
-                       Edge="Edge.Start"
-                       OnClick="@(_ => _isDrawerOpen = !_isDrawerOpen)"
-                       Disabled="_disableDrawer" />
+        <MudIconButton Class="ml-3" Icon="@Icons.Material.Sharp.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(_ => _isDrawerOpen = !_isDrawerOpen)"/>
         <MudSpacer/>
         <MudTooltip Delay="@ThemeProvider.TooltipDelay" Duration="@ThemeProvider.TooltipDuration" Text="source code">
             <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://www.github.com/wbaldoumas/baroquen-melody"/>
@@ -51,24 +45,4 @@
 @code
 {
     private bool _isDrawerOpen;
-
-    private bool _disableDrawer;
-
-    private IDisposable? _compositionProgressStateSubscription;
-
-    protected override Task OnInitializedAsync()
-    {
-        _compositionProgressStateSubscription = CompositionProgressState
-            .ObserveChanges()
-            .Subscribe(state =>
-            {
-                _disableDrawer = state.Value.IsLoading;
-
-                InvokeAsync(StateHasChanged);
-            });
-
-        return base.OnInitializedAsync();
-    }
-
-    public void Dispose() => _compositionProgressStateSubscription?.Dispose();
 }

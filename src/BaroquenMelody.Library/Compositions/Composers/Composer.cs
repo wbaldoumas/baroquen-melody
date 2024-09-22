@@ -6,7 +6,6 @@ using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Infrastructure.Collections;
 using BaroquenMelody.Library.Store.Actions;
 using Fluxor;
-using System.Diagnostics;
 
 namespace BaroquenMelody.Library.Compositions.Composers;
 
@@ -22,25 +21,16 @@ internal sealed class Composer(
 {
     public Composition Compose(CancellationToken cancellationToken)
     {
-        try
-        {
-            dispatcher.Dispatch(new ResetCompositionProgress());
+        dispatcher.Dispatch(new ResetCompositionProgress());
 
-            var theme = ComposeMainTheme(cancellationToken);
-            var compositionBody = ComposeBodyOfComposition(theme, cancellationToken);
-            var compositionWithOrnamentation = AddOrnamentation(compositionBody, cancellationToken);
-            var compositionWithPhrasing = ApplyPhrasing(compositionWithOrnamentation, theme, cancellationToken);
-            var compositionWithEnding = ComposeEnding(compositionWithPhrasing, theme, cancellationToken);
-            var compositionWithSustain = ApplySustain(compositionWithEnding, cancellationToken);
+        var theme = ComposeMainTheme(cancellationToken);
+        var compositionBody = ComposeBodyOfComposition(theme, cancellationToken);
+        var compositionWithOrnamentation = AddOrnamentation(compositionBody, cancellationToken);
+        var compositionWithPhrasing = ApplyPhrasing(compositionWithOrnamentation, theme, cancellationToken);
+        var compositionWithEnding = ComposeEnding(compositionWithPhrasing, theme, cancellationToken);
+        var compositionWithSustain = ApplySustain(compositionWithEnding, cancellationToken);
 
-            return CompleteComposition(theme, compositionWithSustain, cancellationToken);
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine(e.Message);
-
-            throw;
-        }
+        return CompleteComposition(theme, compositionWithSustain, cancellationToken);
     }
 
     private BaroquenTheme ComposeMainTheme(CancellationToken cancellationToken)
