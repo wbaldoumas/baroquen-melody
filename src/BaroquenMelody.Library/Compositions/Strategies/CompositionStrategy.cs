@@ -8,6 +8,7 @@ using BaroquenMelody.Library.Infrastructure.Logging;
 using BaroquenMelody.Library.Infrastructure.Random;
 using Melanchall.DryWetMidi.MusicTheory;
 using Microsoft.Extensions.Logging;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Compositions.Strategies;
 
@@ -78,7 +79,7 @@ internal sealed class CompositionStrategy(
     private Note ChooseStartingNote(
         InstrumentConfiguration instrumentConfiguration,
         IReadOnlyCollection<Note> notes,
-        HashSet<NoteName> startingNoteNames,
+        FrozenSet<NoteName> startingNoteNames,
         ref Dictionary<NoteName, int> startingNoteCounts)
     {
         Note? chosenNote;

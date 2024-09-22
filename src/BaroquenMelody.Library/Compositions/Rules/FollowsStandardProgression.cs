@@ -14,7 +14,7 @@ internal sealed class FollowsStandardProgression : ICompositionRule
     /// <inheritdoc cref="ICompositionRule"/>
     public FollowsStandardProgression(CompositionConfiguration compositionConfiguration)
     {
-        List<(HashSet<NoteName>, HashSet<NoteName>)> validProgressions =
+        List<(FrozenSet<NoteName>, FrozenSet<NoteName>)> validProgressions =
         [
             (compositionConfiguration.Scale.I, compositionConfiguration.Scale.I),
             (compositionConfiguration.Scale.I, compositionConfiguration.Scale.II),
@@ -74,12 +74,12 @@ internal sealed class FollowsStandardProgression : ICompositionRule
         }
 
         var precedingChordHash = precedingChords[^1].Notes
-            .Select(note => note.NoteName)
+            .Select(static note => note.NoteName)
             .ToHashSet()
             .GetContentHashCode();
 
         var nextChordHash = nextChord.Notes
-            .Select(note => note.NoteName)
+            .Select(static note => note.NoteName)
             .ToHashSet()
             .GetContentHashCode();
 
@@ -87,8 +87,8 @@ internal sealed class FollowsStandardProgression : ICompositionRule
     }
 
     private static void PreProcessProgressionHashes(
-        HashSet<NoteName> precedingChord,
-        HashSet<NoteName> nextChord,
+        FrozenSet<NoteName> precedingChord,
+        FrozenSet<NoteName> nextChord,
         ref HashSet<(int, int)> validProgressions)
     {
         var precedingPowerSet = precedingChord.ToPowerSet();
