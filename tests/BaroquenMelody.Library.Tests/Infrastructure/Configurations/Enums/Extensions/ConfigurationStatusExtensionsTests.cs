@@ -22,6 +22,16 @@ internal sealed class ConfigurationStatusExtensionsTests
     }
 
     [Test]
+    public void Cycle_throws_when_the_source_configuration_status_is_not_a_valid_value()
+    {
+        // act
+        var act = () => ((ConfigurationStatus)byte.MaxValue).Cycle();
+
+        // assert
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
     [TestCase(ConfigurationStatus.Enabled, true)]
     [TestCase(ConfigurationStatus.Locked, true)]
     [TestCase(ConfigurationStatus.Disabled, false)]
