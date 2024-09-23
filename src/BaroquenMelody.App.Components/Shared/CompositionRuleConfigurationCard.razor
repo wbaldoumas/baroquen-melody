@@ -2,7 +2,7 @@
 
 <MudCard Class="rounded mb-3 mx-3" Elevation="3" Outlined="true">
     <CardHeaderSwitch HeaderText="@(CompositionRule.ToSpaceSeparatedString())"
-                      IsEnabled="@IsEnabled"
+                      ConfigurationStatus="@Status"
                       ValueChanged="HandleIsEnabledChange"/>
     <MudCardContent>
         <MudGrid>
@@ -13,7 +13,7 @@
                                          ValueProvider="() => Strictness"
                                          Min="0"
                                          Max="100"
-                                         IsDisabled="IsDisabled">
+                                         IsDisabled="Status.IsFrozen()">
                     <PopoverContent>
                         <MudText>The strictness of the rule being applied to the composition.</MudText>
                     </PopoverContent>
@@ -36,7 +36,7 @@
                            Step="1"
                            ValueLabelFormat="0'%'"
                            Culture="CultureInfo.CurrentCulture"
-                           Disabled="IsDisabled"/>
+                           Disabled="Status.IsFrozen()" />
             </MudItem>
         </MudGrid>
     </MudCardContent>
@@ -48,11 +48,9 @@
 
     private int Strictness => CompositionRuleConfigurationState.Value[CompositionRule]?.Strictness ?? 0;
 
-    private bool IsEnabled => CompositionRuleConfigurationState.Value[CompositionRule]?.IsEnabled ?? false;
+    private ConfigurationStatus Status => CompositionRuleConfigurationState.Value[CompositionRule]?.Status ?? ConfigurationStatus.Enabled;
 
-    private bool IsDisabled => !IsEnabled;
+    private void HandleStrictnessChange(int value) => Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule, Status, value));
 
-    private void HandleStrictnessChange(int value) => Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule, IsEnabled, value));
-
-    private void HandleIsEnabledChange(bool value) => Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule, value, Strictness));
+    private void HandleIsEnabledChange(ConfigurationStatus status) => Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule, status, Strictness));
 }

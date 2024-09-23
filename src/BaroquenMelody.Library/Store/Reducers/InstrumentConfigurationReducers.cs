@@ -13,7 +13,7 @@ public static class InstrumentConfigurationReducers
     {
         var configurations = new Dictionary<Instrument, InstrumentConfiguration>(state.Configurations)
         {
-            [action.Instrument] = new(action.Instrument, action.MinNote, action.MaxNote, action.MidiProgram, action.IsEnabled)
+            [action.Instrument] = new(action.Instrument, action.MinNote, action.MaxNote, action.MidiProgram, action.Status)
         };
 
         if (!action.IsUserApplied)
@@ -23,7 +23,7 @@ public static class InstrumentConfigurationReducers
 
         var lastUserAppliedConfigurations = new Dictionary<Instrument, InstrumentConfiguration>(state.LastUserAppliedConfigurations)
         {
-            [action.Instrument] = new(action.Instrument, action.MinNote, action.MaxNote, action.MidiProgram, action.IsEnabled)
+            [action.Instrument] = new(action.Instrument, action.MinNote, action.MaxNote, action.MidiProgram, action.Status)
         };
 
         return new InstrumentConfigurationState(configurations, lastUserAppliedConfigurations);

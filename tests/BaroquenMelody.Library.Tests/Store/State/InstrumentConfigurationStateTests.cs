@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using BaroquenMelody.Library.Store.State;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -12,10 +13,12 @@ namespace BaroquenMelody.Library.Tests.Store.State;
 internal sealed class InstrumentConfigurationStateTests
 {
     [Test]
-    [TestCase(true, true, true)]
-    [TestCase(true, false, true)]
-    [TestCase(false, false, false)]
-    public void IsValid_returns_expected_value(bool isInstrumentOneEnabled, bool isInstrumentTwoEnabled, bool expectedIsValid)
+    [TestCase(ConfigurationStatus.Enabled, ConfigurationStatus.Enabled, true)]
+    [TestCase(ConfigurationStatus.Enabled, ConfigurationStatus.Locked, true)]
+    [TestCase(ConfigurationStatus.Locked, ConfigurationStatus.Locked, true)]
+    [TestCase(ConfigurationStatus.Enabled, ConfigurationStatus.Disabled, true)]
+    [TestCase(ConfigurationStatus.Disabled, ConfigurationStatus.Disabled, false)]
+    public void IsValid_returns_expected_value(ConfigurationStatus instrumentOneStatus, ConfigurationStatus instrumentTwoStatus, bool expectedIsValid)
     {
         // act
         var state = new InstrumentConfigurationState(
@@ -23,11 +26,11 @@ internal sealed class InstrumentConfigurationStateTests
             {
                 {
                     Instrument.One,
-                    new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer, isInstrumentOneEnabled)
+                    new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer, instrumentOneStatus)
                 },
                 {
                     Instrument.Two,
-                    new InstrumentConfiguration(Instrument.Two, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer, isInstrumentTwoEnabled)
+                    new InstrumentConfiguration(Instrument.Two, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer, instrumentTwoStatus)
                 }
             },
             new Dictionary<Instrument, InstrumentConfiguration>()

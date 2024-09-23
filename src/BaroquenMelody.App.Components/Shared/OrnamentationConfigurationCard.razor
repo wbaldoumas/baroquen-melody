@@ -2,7 +2,7 @@
 
 <MudCard Class="rounded mb-3 mx-3" Elevation="3" Outlined="true">
     <CardHeaderSwitch HeaderText="@(OrnamentationType.ToSpaceSeparatedString())"
-                      IsEnabled="@IsEnabled"
+                      ConfigurationStatus="Status"
                       ValueChanged="HandleIsEnabledChange"/>
     <MudCardContent>
         <MudGrid>
@@ -13,7 +13,7 @@
                                          ValueProvider="() => Probability"
                                          Min="0"
                                          Max="100"
-                                         IsDisabled="IsDisabled">
+                                         IsDisabled="Status.IsFrozen()">
                     <PopoverContent>
                         <MudText>The probability of the ornamentation being applied to the composition.</MudText>
                     </PopoverContent>
@@ -36,7 +36,7 @@
                            Step="1"
                            ValueLabelFormat="0'%'"
                            Culture="CultureInfo.CurrentCulture"
-                           Disabled="IsDisabled"/>
+                           Disabled="Status.IsFrozen()" />
             </MudItem>
         </MudGrid>
     </MudCardContent>
@@ -48,11 +48,9 @@
 
     private int Probability => OrnamentationConfigurationState.Value[OrnamentationType]?.Probability ?? 0;
 
-    private bool IsEnabled => OrnamentationConfigurationState.Value[OrnamentationType]?.IsEnabled ?? false;
+    private ConfigurationStatus Status => OrnamentationConfigurationState.Value[OrnamentationType]?.Status ?? ConfigurationStatus.Enabled;
 
-    private bool IsDisabled => !IsEnabled;
+    private void HandleProbabilityChange(int value) => Dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(OrnamentationType, Status, value));
 
-    private void HandleProbabilityChange(int value) => Dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(OrnamentationType, IsEnabled, value));
-
-    private void HandleIsEnabledChange(bool value) => Dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(OrnamentationType, value, Probability));
+    private void HandleIsEnabledChange(ConfigurationStatus status) => Dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(OrnamentationType, status, Probability));
 }

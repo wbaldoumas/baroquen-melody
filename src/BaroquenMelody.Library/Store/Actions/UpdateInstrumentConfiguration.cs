@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
 
@@ -9,6 +10,6 @@ public sealed record UpdateInstrumentConfiguration(
     Note MinNote,
     Note MaxNote,
     GeneralMidi2Program MidiProgram,
-    bool IsEnabled,
+    ConfigurationStatus Status,
     bool IsUserApplied
 );

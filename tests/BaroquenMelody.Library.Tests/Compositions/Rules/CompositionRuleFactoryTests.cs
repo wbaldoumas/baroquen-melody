@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Rules.Enums;
+using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using BaroquenMelody.Library.Infrastructure.Random;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
@@ -45,7 +46,7 @@ internal sealed class CompositionRuleFactoryTests
     public void Create_returns_expected_rule(CompositionRule rule, int strictness, Type expectedRuleType)
     {
         // arrange
-        var configuration = new CompositionRuleConfiguration(rule, true, strictness);
+        var configuration = new CompositionRuleConfiguration(rule, ConfigurationStatus.Enabled, strictness);
 
         // act
         var result = _factory.Create(configuration);

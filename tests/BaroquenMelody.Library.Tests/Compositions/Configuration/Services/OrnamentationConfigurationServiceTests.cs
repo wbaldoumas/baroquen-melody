@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Configurations.Services;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using FluentAssertions;
@@ -80,25 +81,25 @@ internal sealed class OrnamentationConfigurationServiceTests
         // arrange
         var configurations = new Dictionary<OrnamentationType, OrnamentationConfiguration>
         {
-            { OrnamentationType.PassingTone, new OrnamentationConfiguration(OrnamentationType.PassingTone, true, 100) },
-            { OrnamentationType.DoublePassingTone, new OrnamentationConfiguration(OrnamentationType.DoublePassingTone, true, 100) },
-            { OrnamentationType.DelayedDoublePassingTone, new OrnamentationConfiguration(OrnamentationType.DelayedDoublePassingTone, true, 100) },
-            { OrnamentationType.DoubleTurn, new OrnamentationConfiguration(OrnamentationType.DoubleTurn, true, 100) },
-            { OrnamentationType.DelayedPassingTone, new OrnamentationConfiguration(OrnamentationType.DelayedPassingTone, true, 100) },
-            { OrnamentationType.DelayedNeighborTone, new OrnamentationConfiguration(OrnamentationType.DelayedNeighborTone, true, 100) },
-            { OrnamentationType.NeighborTone, new OrnamentationConfiguration(OrnamentationType.NeighborTone, true, 100) },
-            { OrnamentationType.Run, new OrnamentationConfiguration(OrnamentationType.Run, true, 100) },
-            { OrnamentationType.DoubleRun, new OrnamentationConfiguration(OrnamentationType.DoubleRun, true, 100) },
-            { OrnamentationType.Turn, new OrnamentationConfiguration(OrnamentationType.Turn, true, 100) },
-            { OrnamentationType.AlternateTurn, new OrnamentationConfiguration(OrnamentationType.AlternateTurn, true, 100) },
-            { OrnamentationType.DelayedRun, new OrnamentationConfiguration(OrnamentationType.DelayedRun, true, 100) },
-            { OrnamentationType.Mordent, new OrnamentationConfiguration(OrnamentationType.Mordent, true, 100) },
-            { OrnamentationType.DecorateInterval, new OrnamentationConfiguration(OrnamentationType.DecorateInterval, true, 100) },
-            { OrnamentationType.Pedal, new OrnamentationConfiguration(OrnamentationType.Pedal, true, 100) },
-            { OrnamentationType.RepeatedNote, new OrnamentationConfiguration(OrnamentationType.RepeatedNote, false, 100) },
-            { OrnamentationType.DelayedRepeatedNote, new OrnamentationConfiguration(OrnamentationType.DelayedRepeatedNote, true, 100) },
-            { OrnamentationType.Pickup, new OrnamentationConfiguration(OrnamentationType.Pickup, true, 100) },
-            { OrnamentationType.DelayedPickup, new OrnamentationConfiguration(OrnamentationType.DelayedPickup, true, 100) }
+            { OrnamentationType.PassingTone, new OrnamentationConfiguration(OrnamentationType.PassingTone, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.DoublePassingTone, new OrnamentationConfiguration(OrnamentationType.DoublePassingTone, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.DelayedDoublePassingTone, new OrnamentationConfiguration(OrnamentationType.DelayedDoublePassingTone, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.DoubleTurn, new OrnamentationConfiguration(OrnamentationType.DoubleTurn, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.DelayedPassingTone, new OrnamentationConfiguration(OrnamentationType.DelayedPassingTone, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.DelayedNeighborTone, new OrnamentationConfiguration(OrnamentationType.DelayedNeighborTone, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.NeighborTone, new OrnamentationConfiguration(OrnamentationType.NeighborTone, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.Run, new OrnamentationConfiguration(OrnamentationType.Run, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.DoubleRun, new OrnamentationConfiguration(OrnamentationType.DoubleRun, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.Turn, new OrnamentationConfiguration(OrnamentationType.Turn, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.AlternateTurn, new OrnamentationConfiguration(OrnamentationType.AlternateTurn, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.DelayedRun, new OrnamentationConfiguration(OrnamentationType.DelayedRun, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.Mordent, new OrnamentationConfiguration(OrnamentationType.Mordent, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.DecorateInterval, new OrnamentationConfiguration(OrnamentationType.DecorateInterval, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.Pedal, new OrnamentationConfiguration(OrnamentationType.Pedal, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.RepeatedNote, new OrnamentationConfiguration(OrnamentationType.RepeatedNote, ConfigurationStatus.Disabled, 100) },
+            { OrnamentationType.DelayedRepeatedNote, new OrnamentationConfiguration(OrnamentationType.DelayedRepeatedNote, ConfigurationStatus.Locked, 100) },
+            { OrnamentationType.Pickup, new OrnamentationConfiguration(OrnamentationType.Pickup, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.DelayedPickup, new OrnamentationConfiguration(OrnamentationType.DelayedPickup, ConfigurationStatus.Enabled, 100) }
         };
 
         _mockState.Value.Returns(new CompositionOrnamentationConfigurationState(configurations));
@@ -108,7 +109,7 @@ internal sealed class OrnamentationConfigurationServiceTests
 
         // assert
         _mockDispatcher
-            .Received(configurations.Count - 1)
+            .Received(configurations.Count - 2)
             .Dispatch(Arg.Any<UpdateCompositionOrnamentationConfiguration>());
     }
 }

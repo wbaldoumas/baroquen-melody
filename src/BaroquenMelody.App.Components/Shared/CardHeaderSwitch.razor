@@ -3,18 +3,48 @@
         <MudText Typo="Typo.h6">@HeaderText</MudText>
     </CardHeaderContent>
     <CardHeaderActions>
-        <MudSwitch T="bool" Value="IsEnabled" ValueChanged="ValueChanged" Label="Enabled" Color="Color.Tertiary" />
+        <MudTooltip Delay="ThemeProvider.TooltipDelay" Duration="ThemeProvider.TooltipDuration" Text="@TooltipText" Placement="Placement.Left">
+            <MudIconButton Icon="@Icon" OnClick="CycleConfigurationStatus" Color="IconColor" Size="Size.Medium"/>
+        </MudTooltip>
     </CardHeaderActions>
 </MudCardHeader>
 
 @code
 {
-    [Parameter, EditorRequired]
-    public required string HeaderText { get; set; }
+    [Parameter, EditorRequired] public required string HeaderText { get; set; }
 
-    [Parameter, EditorRequired]
-    public required bool IsEnabled { get; set; }
+    [Parameter, EditorRequired] public required ConfigurationStatus ConfigurationStatus { get; set; } = ConfigurationStatus.Enabled;
 
-    [Parameter, EditorRequired]
-    public required EventCallback<bool> ValueChanged { get; set; }
+    [Parameter, EditorRequired] public required EventCallback<ConfigurationStatus> ValueChanged { get; set; }
+
+    private void CycleConfigurationStatus()
+    {
+        ConfigurationStatus = ConfigurationStatus.Cycle();
+        ValueChanged.InvokeAsync(ConfigurationStatus);
+    }
+
+    private string Icon => ConfigurationStatus switch
+    {
+        ConfigurationStatus.Enabled => Icons.Material.Outlined.CheckCircle,
+        ConfigurationStatus.Disabled => Icons.Material.Outlined.RemoveCircle,
+        ConfigurationStatus.Locked => Icons.Material.Outlined.Lock,
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+    private Color IconColor => ConfigurationStatus switch
+    {
+        ConfigurationStatus.Enabled => Color.Tertiary,
+        ConfigurationStatus.Disabled => Color.Default,
+        ConfigurationStatus.Locked => Color.Primary,
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+    private string TooltipText => ConfigurationStatus switch
+    {
+        ConfigurationStatus.Enabled => "lock configuration",
+        ConfigurationStatus.Disabled => "enable configuration",
+        ConfigurationStatus.Locked => "disable configuration",
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
 }

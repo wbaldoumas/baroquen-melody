@@ -28,7 +28,7 @@ public sealed class CompositionConfigurationEffects(IState<InstrumentConfigurati
                     closestMinNote,
                     closestMaxNote,
                     instrumentConfiguration.MidiProgram,
-                    instrumentConfiguration.IsEnabled,
+                    instrumentConfiguration.Status,
                     IsUserApplied: false
                 )
             );
@@ -51,7 +51,7 @@ public sealed class CompositionConfigurationEffects(IState<InstrumentConfigurati
                 instrumentConfiguration.MinNote,
                 instrumentConfiguration.MaxNote,
                 instrumentConfiguration.MidiProgram,
-                instrumentConfiguration.IsEnabled,
+                instrumentConfiguration.Status,
                 IsUserApplied: true
             ));
         }
@@ -60,7 +60,7 @@ public sealed class CompositionConfigurationEffects(IState<InstrumentConfigurati
         {
             dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(
                 compositionRule.Rule,
-                compositionRule.IsEnabled,
+                compositionRule.Status,
                 compositionRule.Strictness
             ));
         }
@@ -69,7 +69,7 @@ public sealed class CompositionConfigurationEffects(IState<InstrumentConfigurati
         {
             dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(
                 ornamentation.OrnamentationType,
-                ornamentation.IsEnabled,
+                ornamentation.Status,
                 ornamentation.Probability
             ));
         }

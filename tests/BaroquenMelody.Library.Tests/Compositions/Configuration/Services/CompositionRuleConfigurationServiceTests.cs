@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Configurations.Services;
 using BaroquenMelody.Library.Compositions.Rules.Enums;
+using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using FluentAssertions;
@@ -85,8 +86,8 @@ internal sealed class CompositionRuleConfigurationServiceTests
             { CompositionRule.AvoidParallelOctaves, new CompositionRuleConfiguration(CompositionRule.AvoidParallelOctaves) },
             { CompositionRule.AvoidRepetition, new CompositionRuleConfiguration(CompositionRule.AvoidRepetition) },
             { CompositionRule.FollowStandardChordProgression, new CompositionRuleConfiguration(CompositionRule.FollowStandardChordProgression) },
-            { CompositionRule.HandleAscendingSeventh, new CompositionRuleConfiguration(CompositionRule.HandleAscendingSeventh) },
-            { CompositionRule.AvoidRepeatedChords, new CompositionRuleConfiguration(CompositionRule.AvoidRepeatedChords, IsEnabled: false) }
+            { CompositionRule.HandleAscendingSeventh, new CompositionRuleConfiguration(CompositionRule.HandleAscendingSeventh, Status: ConfigurationStatus.Locked) },
+            { CompositionRule.AvoidRepeatedChords, new CompositionRuleConfiguration(CompositionRule.AvoidRepeatedChords, Status: ConfigurationStatus.Disabled) }
         };
 
         _mockState.Value.Returns(new CompositionRuleConfigurationState(configurations));
@@ -96,7 +97,7 @@ internal sealed class CompositionRuleConfigurationServiceTests
 
         // assert
         _mockDispatcher
-            .Received(configurations.Count - 1)
+            .Received(configurations.Count - 2)
             .Dispatch(Arg.Any<UpdateCompositionRuleConfiguration>());
     }
 }

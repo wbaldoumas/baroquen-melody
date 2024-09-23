@@ -13,7 +13,7 @@ public static class CompositionRuleConfigurationReducers
     {
         var configurations = new Dictionary<CompositionRule, CompositionRuleConfiguration>(state.Configurations)
         {
-            [action.CompositionRule] = new(action.CompositionRule, action.IsEnabled, action.Strictness)
+            [action.CompositionRule] = new(action.CompositionRule, action.Status, action.Strictness)
         };
 
         return new CompositionRuleConfigurationState(configurations);

@@ -1,8 +1,10 @@
 ﻿using Atrea.Utilities.Enums;
+using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Configurations.Services;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Midi.Repositories;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using FluentAssertions;
@@ -36,7 +38,6 @@ internal sealed class InstrumentConfigurationServiceTests
         _mockMidiInstrumentRepository = Substitute.For<IMidiInstrumentRepository>();
 
         _mockMidiInstrumentRepository.GetAllMidiInstruments().Returns(EnumUtils<GeneralMidi2Program>.AsEnumerable());
-        _mockInstrumentConfigurationState.Value.Returns(new InstrumentConfigurationState());
         _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState(NoteName.C, Mode.Ionian, Meter.FourFour));
 
         _instrumentConfigurationService = new InstrumentConfigurationService(
@@ -73,10 +74,55 @@ internal sealed class InstrumentConfigurationServiceTests
     [Test]
     public void Randomize_dispatches_expected_actions()
     {
+        // arrange
+        var configurations = new Dictionary<Instrument, InstrumentConfiguration>
+        {
+            {
+                Instrument.One,
+                new InstrumentConfiguration(
+                    Instrument.One,
+                    Notes.C4,
+                    Notes.C5,
+                    GeneralMidi2Program.Accordion
+                )
+            },
+            {
+                Instrument.Two,
+                new InstrumentConfiguration(
+                    Instrument.Two,
+                    Notes.C5,
+                    Notes.C6,
+                    GeneralMidi2Program.Banjo
+                )
+            },
+            {
+                Instrument.Three,
+                new InstrumentConfiguration(
+                    Instrument.Three,
+                    Notes.C6,
+                    Notes.C7,
+                    GeneralMidi2Program.Celesta,
+                    ConfigurationStatus.Locked
+                )
+            },
+            {
+                Instrument.Four,
+                new InstrumentConfiguration(
+                    Instrument.Four,
+                    Notes.C7,
+                    Notes.C8,
+                    GeneralMidi2Program.Celesta,
+                    ConfigurationStatus.Disabled
+                )
+            }
+        };
+
+        _mockInstrumentConfigurationState.Value.Returns(new InstrumentConfigurationState(configurations, configurations));
+
         // act
         _instrumentConfigurationService.Randomize();
 
         // assert
-        _mockDispatcher.Received(3).Dispatch(Arg.Any<UpdateInstrumentConfiguration>());
+        _mockDispatcher.Received(configurations.Count - 2).Dispatch(Arg.Any<UpdateInstrumentConfiguration>());
     }
 }

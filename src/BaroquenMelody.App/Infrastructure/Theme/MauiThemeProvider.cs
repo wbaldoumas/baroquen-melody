@@ -72,9 +72,9 @@ internal sealed class MauiThemeProvider : IThemeProvider
         false => "Switch to Dark mode"
     };
 
-    public double TooltipDelay => 250;
+    public double TooltipDelay => 333;
 
-    public double TooltipDuration => 250;
+    public double TooltipDuration => 333;
 
     public void ToggleDarkMode() => IsDarkMode = !IsDarkMode;
 }

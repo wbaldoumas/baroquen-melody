@@ -24,7 +24,7 @@ internal sealed class CompositionRuleConfigurationService(
     {
         foreach (var configuration in AggregateCompositionRuleConfiguration.Default.Configurations)
         {
-            dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(configuration.Rule, configuration.IsEnabled, configuration.Strictness));
+            dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(configuration.Rule, configuration.Status, configuration.Strictness));
         }
     }
 
@@ -32,16 +32,15 @@ internal sealed class CompositionRuleConfigurationService(
     {
         foreach (var configuration in AggregateCompositionRuleConfiguration.Default.Configurations)
         {
-            var isEnabled = state.Value.Configurations[configuration.Rule].IsEnabled;
-
-            if (!isEnabled)
+            if (state.Value.Configurations[configuration.Rule].IsFrozen)
             {
                 continue;
             }
 
+            var status = state.Value.Configurations[configuration.Rule].Status;
             var strictness = ThreadLocalRandom.Next(0, 101);
 
-            dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(configuration.Rule, isEnabled, strictness));
+            dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(configuration.Rule, status, strictness));
         }
     }
 }

@@ -3,7 +3,7 @@
 
 <MudCard Class="rounded my-3 mx-3" Elevation="3" Outlined="true">
     <CardHeaderSwitch HeaderText="@($"Instrument {Instrument}")"
-                      IsEnabled="@IsEnabled"
+                      ConfigurationStatus="@Status"
                       ValueChanged="HandleIsEnabledChange"/>
     <MudCardContent>
         <MudGrid Justify="Justify.SpaceBetween">
@@ -17,7 +17,7 @@
                                          TransformOrigin="InstrumentFilterTransformOrigin"
                                          Icon="@Icons.Material.TwoTone.FilterAlt"
                                          Label="Instrument"
-                                         IsDisabled="IsDisabled">
+                                         IsDisabled="Status.IsFrozen()">
                     <PopoverContent>
                         <MudText Align="Align.Center" Class="mt-n3" Typo="Typo.h6">Filter Instruments</MudText>
                         <MudPaper Class="d-flex flex-column overflow-x-auto mt-1 ml-n4 mr-n4 mb-n4" Outlined="true" Height="33vh">
@@ -49,7 +49,7 @@
                              MinDistance="CompositionConfiguration.MinInstrumentRange"
                              LabelText="@LowestPitchNote.ToString()"
                              UpperLabelText="@HighestPitchNote.ToString()"
-                             Disabled="IsDisabled" />
+                             Disabled="Status.IsFrozen()" />
             </MudItem>
             <MudItem xs="12" sm="4" md="3" lg="2" xl="2" xxl="2">
                 <MudSelect T="int"
@@ -59,7 +59,7 @@
                            AdornmentIcon="@Icons.Material.Outlined.ArrowCircleDown"
                            Adornment="Adornment.End"
                            AdornmentColor="Color.Secondary"
-                           Disabled="IsDisabled">
+                           Disabled="Status.IsFrozen()">
                     @foreach (var noteIndex in LowestPitchNoteIndices)
                     {
                         <MudSelectItem Value="noteIndex">@CompositionConfigurationState.Value.Notes[noteIndex]</MudSelectItem>
@@ -74,7 +74,7 @@
                            AdornmentIcon="@Icons.Material.Outlined.ArrowCircleUp"
                            Adornment="Adornment.End"
                            AdornmentColor="Color.Secondary"
-                           Disabled="IsDisabled">
+                           Disabled="Status.IsFrozen()">
                     @foreach (var noteIndex in HighestPitchNoteIndices)
                     {
                         <MudSelectItem Value="noteIndex">@CompositionConfigurationState.Value.Notes[noteIndex]</MudSelectItem>
@@ -95,9 +95,7 @@
 
     private GeneralMidi2Program MidiInstrument => InstrumentConfigurationState.Value[Instrument]?.MidiProgram ?? GeneralMidi2Program.AcousticGrandPiano;
 
-    private bool IsEnabled => InstrumentConfigurationState.Value[Instrument]?.IsEnabled ?? false;
-
-    private bool IsDisabled => !IsEnabled;
+    private ConfigurationStatus Status => InstrumentConfigurationState.Value[Instrument]?.Status ?? ConfigurationStatus.Disabled;
 
     private const int SliderMin = 0;
 
@@ -216,7 +214,7 @@
             });
     }
 
-    private void HandleIsEnabledChange(bool isEnabled) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, MidiInstrument, isEnabled, IsUserApplied: true));
+    private void HandleIsEnabledChange(ConfigurationStatus status) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, MidiInstrument, status, IsUserApplied: true));
 
     private void HandleLowestPitchNoteIndexChange(int noteIndex) => Dispatcher.Dispatch(
         new UpdateInstrumentConfiguration(
@@ -224,7 +222,7 @@
             CompositionConfigurationState.Value.Notes[noteIndex],
             HighestPitchNote,
             MidiInstrument,
-            IsEnabled,
+            Status,
             IsUserApplied: true
         )
     );
@@ -235,12 +233,12 @@
             LowestPitchNote,
             CompositionConfigurationState.Value.Notes[noteIndex],
             MidiInstrument,
-            IsEnabled,
+            Status,
             IsUserApplied: true
         )
     );
 
-    private void HandleMidiInstrumentChange(GeneralMidi2Program instrument) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, instrument, IsEnabled, IsUserApplied: true));
+    private void HandleMidiInstrumentChange(GeneralMidi2Program instrument) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, instrument, Status, IsUserApplied: true));
 
     private void HandleInstrumentFilterChange()
     {
@@ -272,7 +270,7 @@
             LowestPitchNote,
             HighestPitchNote,
             MidiInstruments.Values.Order().First(),
-            IsEnabled,
+            Status,
             IsUserApplied: true
         ));
     }
