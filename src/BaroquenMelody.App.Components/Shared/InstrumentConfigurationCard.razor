@@ -17,7 +17,7 @@
                                          TransformOrigin="InstrumentFilterTransformOrigin"
                                          Icon="@Icons.Material.TwoTone.FilterAlt"
                                          Label="Instrument"
-                                         IsDisabled="IsDisabled">
+                                         IsDisabled="Status.IsFrozen()">
                     <PopoverContent>
                         <MudText Align="Align.Center" Class="mt-n3" Typo="Typo.h6">Filter Instruments</MudText>
                         <MudPaper Class="d-flex flex-column overflow-x-auto mt-1 ml-n4 mr-n4 mb-n4" Outlined="true" Height="33vh">
@@ -49,7 +49,7 @@
                              MinDistance="CompositionConfiguration.MinInstrumentRange"
                              LabelText="@LowestPitchNote.ToString()"
                              UpperLabelText="@HighestPitchNote.ToString()"
-                             Disabled="IsDisabled" />
+                             Disabled="Status.IsFrozen()" />
             </MudItem>
             <MudItem xs="12" sm="4" md="3" lg="2" xl="2" xxl="2">
                 <MudSelect T="int"
@@ -59,7 +59,7 @@
                            AdornmentIcon="@Icons.Material.Outlined.ArrowCircleDown"
                            Adornment="Adornment.End"
                            AdornmentColor="Color.Secondary"
-                           Disabled="IsDisabled">
+                           Disabled="Status.IsFrozen()">
                     @foreach (var noteIndex in LowestPitchNoteIndices)
                     {
                         <MudSelectItem Value="noteIndex">@CompositionConfigurationState.Value.Notes[noteIndex]</MudSelectItem>
@@ -74,7 +74,7 @@
                            AdornmentIcon="@Icons.Material.Outlined.ArrowCircleUp"
                            Adornment="Adornment.End"
                            AdornmentColor="Color.Secondary"
-                           Disabled="IsDisabled">
+                           Disabled="Status.IsFrozen()">
                     @foreach (var noteIndex in HighestPitchNoteIndices)
                     {
                         <MudSelectItem Value="noteIndex">@CompositionConfigurationState.Value.Notes[noteIndex]</MudSelectItem>
@@ -96,8 +96,6 @@
     private GeneralMidi2Program MidiInstrument => InstrumentConfigurationState.Value[Instrument]?.MidiProgram ?? GeneralMidi2Program.AcousticGrandPiano;
 
     private ConfigurationStatus Status => InstrumentConfigurationState.Value[Instrument]?.Status ?? ConfigurationStatus.Disabled;
-
-    private bool IsDisabled => Status is ConfigurationStatus.Disabled or ConfigurationStatus.Locked;
 
     private const int SliderMin = 0;
 

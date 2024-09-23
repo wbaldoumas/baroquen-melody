@@ -13,7 +13,7 @@
                                          ValueProvider="() => Strictness"
                                          Min="0"
                                          Max="100"
-                                         IsDisabled="IsDisabled">
+                                         IsDisabled="Status.IsFrozen()">
                     <PopoverContent>
                         <MudText>The strictness of the rule being applied to the composition.</MudText>
                     </PopoverContent>
@@ -36,7 +36,7 @@
                            Step="1"
                            ValueLabelFormat="0'%'"
                            Culture="CultureInfo.CurrentCulture"
-                           Disabled="IsDisabled"/>
+                           Disabled="Status.IsFrozen()" />
             </MudItem>
         </MudGrid>
     </MudCardContent>
@@ -49,8 +49,6 @@
     private int Strictness => CompositionRuleConfigurationState.Value[CompositionRule]?.Strictness ?? 0;
 
     private ConfigurationStatus Status => CompositionRuleConfigurationState.Value[CompositionRule]?.Status ?? ConfigurationStatus.Enabled;
-
-    private bool IsDisabled => Status is ConfigurationStatus.Disabled or ConfigurationStatus.Locked;
 
     private void HandleStrictnessChange(int value) => Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule, Status, value));
 

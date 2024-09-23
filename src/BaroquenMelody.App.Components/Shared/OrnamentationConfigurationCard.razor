@@ -13,7 +13,7 @@
                                          ValueProvider="() => Probability"
                                          Min="0"
                                          Max="100"
-                                         IsDisabled="IsDisabled">
+                                         IsDisabled="Status.IsFrozen()">
                     <PopoverContent>
                         <MudText>The probability of the ornamentation being applied to the composition.</MudText>
                     </PopoverContent>
@@ -36,7 +36,7 @@
                            Step="1"
                            ValueLabelFormat="0'%'"
                            Culture="CultureInfo.CurrentCulture"
-                           Disabled="IsDisabled"/>
+                           Disabled="Status.IsFrozen()" />
             </MudItem>
         </MudGrid>
     </MudCardContent>
@@ -49,8 +49,6 @@
     private int Probability => OrnamentationConfigurationState.Value[OrnamentationType]?.Probability ?? 0;
 
     private ConfigurationStatus Status => OrnamentationConfigurationState.Value[OrnamentationType]?.Status ?? ConfigurationStatus.Enabled;
-
-    private bool IsDisabled => Status is ConfigurationStatus.Disabled or ConfigurationStatus.Locked;
 
     private void HandleProbabilityChange(int value) => Dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(OrnamentationType, Status, value));
 
