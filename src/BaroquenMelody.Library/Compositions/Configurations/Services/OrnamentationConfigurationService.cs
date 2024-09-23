@@ -24,7 +24,7 @@ internal sealed class OrnamentationConfigurationService(
     {
         foreach (var configuration in AggregateOrnamentationConfiguration.Default.Configurations)
         {
-            dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(configuration.OrnamentationType, configuration.IsEnabled, configuration.Probability));
+            dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(configuration.OrnamentationType, configuration.Status, configuration.Probability));
         }
     }
 
@@ -32,16 +32,15 @@ internal sealed class OrnamentationConfigurationService(
     {
         foreach (var configuration in AggregateOrnamentationConfiguration.Default.Configurations)
         {
-            var isEnabled = state.Value.Configurations[configuration.OrnamentationType].IsEnabled;
-
-            if (!isEnabled)
+            if (state.Value.Configurations[configuration.OrnamentationType].IsFrozen)
             {
                 continue;
             }
 
+            var status = state.Value.Configurations[configuration.OrnamentationType].Status;
             var probability = ThreadLocalRandom.Next(0, 101);
 
-            dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(configuration.OrnamentationType, isEnabled, probability));
+            dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(configuration.OrnamentationType, status, probability));
         }
     }
 }

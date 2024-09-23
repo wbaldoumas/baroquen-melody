@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using System.Diagnostics.CodeAnalysis;
 
 namespace BaroquenMelody.Library.Compositions.Configurations;
@@ -9,25 +10,25 @@ public sealed record AggregateOrnamentationConfiguration(ISet<OrnamentationConfi
     public static AggregateOrnamentationConfiguration Default { get; } = new(
         new HashSet<OrnamentationConfiguration>
         {
-            new(OrnamentationType.PassingTone, true, 80),
-            new(OrnamentationType.DoublePassingTone, true, 80),
-            new(OrnamentationType.DelayedDoublePassingTone, true, 80),
-            new(OrnamentationType.DoubleTurn, true, 30),
-            new(OrnamentationType.DelayedPassingTone, true, 80),
-            new(OrnamentationType.DelayedNeighborTone, true, 25),
-            new(OrnamentationType.NeighborTone, true, 25),
-            new(OrnamentationType.Run, true, 80),
-            new(OrnamentationType.DoubleRun, true, 25),
-            new(OrnamentationType.Turn, true, 80),
-            new(OrnamentationType.AlternateTurn, true, 80),
-            new(OrnamentationType.DelayedRun, true, 25),
-            new(OrnamentationType.Mordent, true, 20),
-            new(OrnamentationType.DecorateInterval, true, 60),
-            new(OrnamentationType.Pedal, true, 80),
-            new(OrnamentationType.RepeatedNote, true, 15),
-            new(OrnamentationType.DelayedRepeatedNote, true, 15),
-            new(OrnamentationType.Pickup, true, 25),
-            new(OrnamentationType.DelayedPickup, true, 25)
+            new(OrnamentationType.PassingTone, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.DoublePassingTone, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.DelayedDoublePassingTone, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.DoubleTurn, ConfigurationStatus.Enabled, 30),
+            new(OrnamentationType.DelayedPassingTone, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.DelayedNeighborTone, ConfigurationStatus.Enabled, 25),
+            new(OrnamentationType.NeighborTone, ConfigurationStatus.Enabled, 25),
+            new(OrnamentationType.Run, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.DoubleRun, ConfigurationStatus.Enabled, 25),
+            new(OrnamentationType.Turn, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.AlternateTurn, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.DelayedRun, ConfigurationStatus.Enabled, 25),
+            new(OrnamentationType.Mordent, ConfigurationStatus.Enabled, 20),
+            new(OrnamentationType.DecorateInterval, ConfigurationStatus.Enabled, 60),
+            new(OrnamentationType.Pedal, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.RepeatedNote, ConfigurationStatus.Enabled, 15),
+            new(OrnamentationType.DelayedRepeatedNote, ConfigurationStatus.Enabled, 15),
+            new(OrnamentationType.Pickup, ConfigurationStatus.Enabled, 25),
+            new(OrnamentationType.DelayedPickup, ConfigurationStatus.Enabled, 25)
         }
     );
 }

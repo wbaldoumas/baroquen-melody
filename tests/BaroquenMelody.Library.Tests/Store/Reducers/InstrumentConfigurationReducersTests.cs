@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Reducers;
 using BaroquenMelody.Library.Store.State;
@@ -22,22 +23,22 @@ internal sealed class InstrumentConfigurationReducersTests
         // act
         state = InstrumentConfigurationReducers.ReduceUpdateInstrumentConfiguration(
             state,
-            new UpdateInstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, GeneralMidi2Program.Accordion, IsEnabled: true, IsUserApplied: true)
+            new UpdateInstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, GeneralMidi2Program.Accordion, Status: ConfigurationStatus.Enabled, IsUserApplied: true)
         );
 
         state = InstrumentConfigurationReducers.ReduceUpdateInstrumentConfiguration(
             state,
-            new UpdateInstrumentConfiguration(Instrument.Two, Notes.C5, Notes.C6, GeneralMidi2Program.Banjo, IsEnabled: true, IsUserApplied: true)
+            new UpdateInstrumentConfiguration(Instrument.Two, Notes.C5, Notes.C6, GeneralMidi2Program.Banjo, Status: ConfigurationStatus.Enabled, IsUserApplied: true)
         );
 
         state = InstrumentConfigurationReducers.ReduceUpdateInstrumentConfiguration(
             state,
-            new UpdateInstrumentConfiguration(Instrument.Three, Notes.C6, Notes.C7, GeneralMidi2Program.Celesta, IsEnabled: true, IsUserApplied: true)
+            new UpdateInstrumentConfiguration(Instrument.Three, Notes.C6, Notes.C7, GeneralMidi2Program.Celesta, Status: ConfigurationStatus.Enabled, IsUserApplied: true)
         );
 
         state = InstrumentConfigurationReducers.ReduceUpdateInstrumentConfiguration(
             state,
-            new UpdateInstrumentConfiguration(Instrument.One, Notes.C7, Notes.C8, GeneralMidi2Program.Dulcimer, IsEnabled: false, IsUserApplied: false)
+            new UpdateInstrumentConfiguration(Instrument.One, Notes.C7, Notes.C8, GeneralMidi2Program.Dulcimer, Status: ConfigurationStatus.Disabled, IsUserApplied: false)
         );
 
         // assert

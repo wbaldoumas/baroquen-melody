@@ -42,4 +42,8 @@
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Infrastructure\Configuration\Enums\Extensions\" />
+  </ItemGroup>
+
 </Project>

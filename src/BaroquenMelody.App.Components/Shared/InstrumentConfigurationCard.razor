@@ -3,7 +3,7 @@
 
 <MudCard Class="rounded my-3 mx-3" Elevation="3" Outlined="true">
     <CardHeaderSwitch HeaderText="@($"Instrument {Instrument}")"
-                      IsEnabled="@IsEnabled"
+                      ConfigurationStatus="@Status"
                       ValueChanged="HandleIsEnabledChange"/>
     <MudCardContent>
         <MudGrid Justify="Justify.SpaceBetween">
@@ -95,9 +95,9 @@
 
     private GeneralMidi2Program MidiInstrument => InstrumentConfigurationState.Value[Instrument]?.MidiProgram ?? GeneralMidi2Program.AcousticGrandPiano;
 
-    private bool IsEnabled => InstrumentConfigurationState.Value[Instrument]?.IsEnabled ?? false;
+    private ConfigurationStatus Status => InstrumentConfigurationState.Value[Instrument]?.Status ?? ConfigurationStatus.Disabled;
 
-    private bool IsDisabled => !IsEnabled;
+    private bool IsDisabled => Status is ConfigurationStatus.Disabled or ConfigurationStatus.Locked;
 
     private const int SliderMin = 0;
 
@@ -216,7 +216,7 @@
             });
     }
 
-    private void HandleIsEnabledChange(bool isEnabled) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, MidiInstrument, isEnabled, IsUserApplied: true));
+    private void HandleIsEnabledChange(ConfigurationStatus status) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, MidiInstrument, status, IsUserApplied: true));
 
     private void HandleLowestPitchNoteIndexChange(int noteIndex) => Dispatcher.Dispatch(
         new UpdateInstrumentConfiguration(
@@ -224,7 +224,7 @@
             CompositionConfigurationState.Value.Notes[noteIndex],
             HighestPitchNote,
             MidiInstrument,
-            IsEnabled,
+            Status,
             IsUserApplied: true
         )
     );
@@ -235,12 +235,12 @@
             LowestPitchNote,
             CompositionConfigurationState.Value.Notes[noteIndex],
             MidiInstrument,
-            IsEnabled,
+            Status,
             IsUserApplied: true
         )
     );
 
-    private void HandleMidiInstrumentChange(GeneralMidi2Program instrument) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, instrument, IsEnabled, IsUserApplied: true));
+    private void HandleMidiInstrumentChange(GeneralMidi2Program instrument) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, instrument, Status, IsUserApplied: true));
 
     private void HandleInstrumentFilterChange()
     {
@@ -272,7 +272,7 @@
             LowestPitchNote,
             HighestPitchNote,
             MidiInstruments.Values.Order().First(),
-            IsEnabled,
+            Status,
             IsUserApplied: true
         ));
     }

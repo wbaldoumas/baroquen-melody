@@ -15,7 +15,7 @@ public static class CompositionOrnamentationConfigurationReducers
     {
         var configurations = new Dictionary<OrnamentationType, OrnamentationConfiguration>(state.Configurations)
         {
-            [action.OrnamentationType] = new(action.OrnamentationType, action.IsEnabled, action.Probability)
+            [action.OrnamentationType] = new(action.OrnamentationType, action.Status, action.Probability)
         };
 
         return new CompositionOrnamentationConfigurationState(configurations);

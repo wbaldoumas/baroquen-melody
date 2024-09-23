@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Effects;
 using BaroquenMelody.Library.Store.State;
@@ -90,7 +91,7 @@ internal sealed class CompositionConfigurationEffectsTests
                 updateInstrumentConfiguration => updateInstrumentConfiguration.Instrument == Instrument.One &&
                                                  updateInstrumentConfiguration.MinNote == Notes.B3 &&
                                                  updateInstrumentConfiguration.MaxNote == Notes.B4 &&
-                                                 updateInstrumentConfiguration.IsEnabled == true &&
+                                                 updateInstrumentConfiguration.Status == ConfigurationStatus.Enabled &&
                                                  updateInstrumentConfiguration.IsUserApplied == false
             )
         );
@@ -122,7 +123,7 @@ internal sealed class CompositionConfigurationEffectsTests
                                                      updateInstrumentConfiguration.MinNote == instrumentConfiguration.MinNote &&
                                                      updateInstrumentConfiguration.MaxNote == instrumentConfiguration.MaxNote &&
                                                      updateInstrumentConfiguration.MidiProgram == instrumentConfiguration.MidiProgram &&
-                                                     updateInstrumentConfiguration.IsEnabled == instrumentConfiguration.IsEnabled &&
+                                                     updateInstrumentConfiguration.Status == instrumentConfiguration.Status &&
                                                      updateInstrumentConfiguration.IsUserApplied == true
                 )
             );
@@ -133,7 +134,7 @@ internal sealed class CompositionConfigurationEffectsTests
             _mockDispatcher.Received().Dispatch(
                 Arg.Is<UpdateCompositionRuleConfiguration>(
                     updateCompositionRuleConfiguration => updateCompositionRuleConfiguration.CompositionRule == compositionRule.Rule &&
-                                                          updateCompositionRuleConfiguration.IsEnabled == compositionRule.IsEnabled &&
+                                                          updateCompositionRuleConfiguration.Status == compositionRule.Status &&
                                                           updateCompositionRuleConfiguration.Strictness == compositionRule.Strictness
                 )
             );
@@ -144,7 +145,7 @@ internal sealed class CompositionConfigurationEffectsTests
             _mockDispatcher.Received().Dispatch(
                 Arg.Is<UpdateCompositionOrnamentationConfiguration>(
                     updateCompositionOrnamentationConfiguration => updateCompositionOrnamentationConfiguration.OrnamentationType == ornamentation.OrnamentationType &&
-                                                                   updateCompositionOrnamentationConfiguration.IsEnabled == ornamentation.IsEnabled &&
+                                                                   updateCompositionOrnamentationConfiguration.Status == ornamentation.Status &&
                                                                    updateCompositionOrnamentationConfiguration.Probability == ornamentation.Probability
                 )
             );

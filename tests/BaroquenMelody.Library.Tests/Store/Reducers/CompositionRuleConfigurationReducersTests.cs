@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Rules.Enums;
+using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Reducers;
 using BaroquenMelody.Library.Store.State;
@@ -18,10 +19,10 @@ internal sealed class CompositionRuleConfigurationReducersTests
         var state = new CompositionRuleConfigurationState();
 
         // act
-        state = CompositionRuleConfigurationReducers.ReduceUpdateCompositionRuleConfiguration(state, new UpdateCompositionRuleConfiguration(CompositionRule.AvoidDirectFifths, true, 1));
-        state = CompositionRuleConfigurationReducers.ReduceUpdateCompositionRuleConfiguration(state, new UpdateCompositionRuleConfiguration(CompositionRule.AvoidDissonance, true, 2));
-        state = CompositionRuleConfigurationReducers.ReduceUpdateCompositionRuleConfiguration(state, new UpdateCompositionRuleConfiguration(CompositionRule.AvoidRepeatedChords, true, 3));
-        state = CompositionRuleConfigurationReducers.ReduceUpdateCompositionRuleConfiguration(state, new UpdateCompositionRuleConfiguration(CompositionRule.AvoidDirectFifths, false, 4));
+        state = CompositionRuleConfigurationReducers.ReduceUpdateCompositionRuleConfiguration(state, new UpdateCompositionRuleConfiguration(CompositionRule.AvoidDirectFifths, ConfigurationStatus.Enabled, 1));
+        state = CompositionRuleConfigurationReducers.ReduceUpdateCompositionRuleConfiguration(state, new UpdateCompositionRuleConfiguration(CompositionRule.AvoidDissonance, ConfigurationStatus.Enabled, 2));
+        state = CompositionRuleConfigurationReducers.ReduceUpdateCompositionRuleConfiguration(state, new UpdateCompositionRuleConfiguration(CompositionRule.AvoidRepeatedChords, ConfigurationStatus.Enabled, 3));
+        state = CompositionRuleConfigurationReducers.ReduceUpdateCompositionRuleConfiguration(state, new UpdateCompositionRuleConfiguration(CompositionRule.AvoidDirectFifths, ConfigurationStatus.Disabled, 4));
 
         // assert
         state.Configurations

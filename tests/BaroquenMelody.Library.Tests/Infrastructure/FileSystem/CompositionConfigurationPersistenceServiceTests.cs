@@ -7,6 +7,7 @@ using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using TestDataConfigurations = BaroquenMelody.Library.Tests.TestData.Configurations;
 
 namespace BaroquenMelody.Library.Tests.Infrastructure.FileSystem;
 
@@ -60,7 +61,7 @@ internal sealed class CompositionConfigurationPersistenceServiceTests
             );
 
         var result = await _persistenceService.SaveConfigurationAsync(
-            Configurations.GetCompositionConfiguration(),
+            TestDataConfigurations.GetCompositionConfiguration(),
             "test",
             CancellationToken.None
         );
@@ -77,7 +78,7 @@ internal sealed class CompositionConfigurationPersistenceServiceTests
 
         // act
         var result = await _persistenceService.SaveConfigurationAsync(
-            Configurations.GetCompositionConfiguration(),
+            TestDataConfigurations.GetCompositionConfiguration(),
             "test",
             CancellationToken.None
         );

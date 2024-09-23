@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Reducers;
 using BaroquenMelody.Library.Store.State;
@@ -20,22 +21,22 @@ internal sealed class CompositionOrnamentationConfigurationReducersTests
         // act
         state = CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(
             state,
-            new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Run, true, 1)
+            new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Run, ConfigurationStatus.Enabled, 1)
         );
 
         state = CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(
             state,
-            new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Mordent, true, 2)
+            new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Mordent, ConfigurationStatus.Enabled, 2)
         );
 
         state = CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(
             state,
-            new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Turn, true, 3)
+            new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Turn, ConfigurationStatus.Enabled, 3)
         );
 
         state = CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(
             state,
-            new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Mordent, true, 4)
+            new UpdateCompositionOrnamentationConfiguration(OrnamentationType.Mordent, ConfigurationStatus.Enabled, 4)
         );
 
         // assert

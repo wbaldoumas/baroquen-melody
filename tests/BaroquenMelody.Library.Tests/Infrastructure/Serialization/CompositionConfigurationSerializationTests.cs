@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using BaroquenMelody.Library.Infrastructure.Serialization.JsonSerializerContexts;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
@@ -21,7 +22,7 @@ internal sealed class CompositionConfigurationSerializationTests
         var compositionConfiguration = new CompositionConfiguration(
             new HashSet<InstrumentConfiguration>
             {
-                new(Instrument.One, Notes.C4, Notes.G5, GeneralMidi2Program.Accordion, false),
+                new(Instrument.One, Notes.C4, Notes.G5, GeneralMidi2Program.Accordion, ConfigurationStatus.Disabled),
                 new(Instrument.Two, Notes.C3, Notes.G4),
                 new(Instrument.Three, Notes.C2, Notes.G3),
                 new(Instrument.Four, Notes.C1, Notes.G2)
