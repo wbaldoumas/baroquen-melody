@@ -1,17 +1,12 @@
 ﻿@typeparam T
 
-<MudOverlay @bind-Visible="IsPopoverOpen" AutoClose="true"/>
-<MudPopover AnchorOrigin="Origin.TopCenter"
-            Open="IsPopoverOpen"
-            Elevation="3"
-            Delay="ThemeProvider.TooltipDelay"
-            Duration="ThemeProvider.TooltipDuration">
-    <MudCard Class="rounded" Outlined="true" Elevation="3">
-        <MudCardContent>
-            @PopoverContent
-        </MudCardContent>
-    </MudCard>
-</MudPopover>
+<AutoClosePopover IsPopoverOpen="IsPopoverOpen"
+                  OnPopoverClosed="@(() => IsPopoverOpen = false)"
+                  OverflowBehavior="OverflowBehavior.FlipOnOpen">
+    <PopoverContent>
+        @PopoverContent
+    </PopoverContent>
+</AutoClosePopover>
 <MudSelect T="T" OnAdornmentClick="OpenPopover" AdornmentIcon="@Icons.Material.Outlined.QuestionMark" Adornment="Adornment.End" IconSize="Size.Small" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Label="@Label" Value="Value" ValueChanged="ValueChanged">
     @foreach (var item in Items)
     {

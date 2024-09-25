@@ -1,6 +1,6 @@
 ﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
-<MudCard Class="rounded my-3 mx-3" Elevation="3" Outlined="true">
+<MudCard Class="rounded my-2 mx-2 mud-elevation-4" Elevation="ThemeProvider.Elevation" Outlined="true">
     <MudCardHeader>
         <CardHeaderContent>
             <MudText Typo="Typo.h6">Composition Configuration</MudText>
@@ -16,7 +16,7 @@
                                    ValueChanged="HandleTonicNoteChange"
                                    ConvertToDisplay="noteName => noteName.ToSpaceSeparatedString()">
                     <PopoverContent>
-                        <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Tonic_(music)">tonic</MudLink> of the scale used in the composition.</MudText>
+                        <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Tonic_(music)">tonic</MudLink> of the scale used in the composition. This is the "home" note of the scale which is often returned to.</MudText>
                     </PopoverContent>
                 </SelectWithPopover>
             </MudItem>
@@ -28,7 +28,7 @@
                                    ValueChanged="HandleModeChange"
                                    ConvertToDisplay="mode => mode.ToSpaceSeparatedString()">
                     <PopoverContent>
-                        <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Mode_(music)">mode</MudLink> of the scale used in the composition.</MudText>
+                        <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Mode_(music)">mode</MudLink> of the scale used in the composition. A musical mode will affect the overall feel of the music.</MudText>
                     </PopoverContent>
                 </SelectWithPopover>
             </MudItem>
@@ -40,7 +40,7 @@
                                    ValueChanged="HandleMeterChange"
                                    ConvertToDisplay="meter => meter.AsString()">
                     <PopoverContent>
-                        <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Metre_(music)">meter</MudLink> of the composition.</MudText>
+                        <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Metre_(music)">meter</MudLink> of the composition. The meter will affect the rhythmic feel of the music.</MudText>
                     </PopoverContent>
                 </SelectWithPopover>
             </MudItem>

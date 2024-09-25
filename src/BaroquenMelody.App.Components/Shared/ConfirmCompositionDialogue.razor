@@ -1,20 +1,17 @@
 ﻿<MudDialog>
     <DialogContent>
-        Previous composition has not yet been saved. Do you want to save it before creating a new one?
+        <MudText>Previous composition has not yet been saved. Do you want to save it before creating a new one?</MudText>
     </DialogContent>
     <DialogActions>
-        <MudButton Color="Color.Tertiary"
-                   Variant="Variant.Outlined"
+        <MudButton Color="Color.Primary"
                    OnClick="SaveComposition">
             Yes
         </MudButton>
         <MudButton Color="Color.Error"
-                   Variant="Variant.Outlined"
                    OnClick="ContinueWithoutSave">
             No
         </MudButton>
-        <MudButton OnClick="Cancel"
-                   Variant="Variant.Outlined">
+        <MudButton OnClick="Cancel">
             Cancel
         </MudButton>
     </DialogActions>

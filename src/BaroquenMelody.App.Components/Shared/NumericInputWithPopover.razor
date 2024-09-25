@@ -1,29 +1,23 @@
 ﻿@typeparam T
 
-<MudOverlay @bind-Visible="IsPopoverOpen" AutoClose="true"/>
-<MudPopover AnchorOrigin="Origin.TopCenter"
-            Open="IsPopoverOpen"
-            Elevation="3"
-            Delay="ThemeProvider.TooltipDelay"
-            Duration="ThemeProvider.TooltipDuration">
-    <MudCard Class="rounded" Outlined="true" Elevation="3">
-        <MudCardContent>
-            @PopoverContent
-        </MudCardContent>
-    </MudCard>
-</MudPopover>
+<AutoClosePopover IsPopoverOpen="IsPopoverOpen"
+                  OnPopoverClosed="@(() => IsPopoverOpen = false)">
+    <PopoverContent>
+        @PopoverContent
+    </PopoverContent>
+</AutoClosePopover>
 <MudNumericField T="T" 
                  OnAdornmentClick="OpenMeterPopover" 
                  AdornmentIcon="@Icons.Material.Outlined.QuestionMark" 
                  Adornment="Adornment.End" 
                  IconSize="Size.Small" 
-                 Variant="Variant.Outlined" 
+                 Variant="Variant.Outlined"
                  Value="Value" 
                  Label="@Label" 
                  ValueChanged="ValueChanged"
                  Min="Min"
                  Max="Max"
-                 Disabled="IsDisabled" />
+                 Disabled="IsDisabled"/>
 
 @code
 {

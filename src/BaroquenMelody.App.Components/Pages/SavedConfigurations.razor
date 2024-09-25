@@ -2,10 +2,12 @@
 
 <PageTitle>Saved Configurations</PageTitle>
 
-<MudContainer Class="my-3" Gutters="false">
+<MudContainer Class="mb-1 mb-sm-2" Gutters="false" MaxWidth="MaxWidth.False">
     <MudTable Items="@ConfigurationFiles"
               Loading="@Loading"
               Outlined="true"
+              Elevation="ThemeProvider.Elevation"
+              Class="mx-n4 mx-sm-0 mud-elevation-4"
               LoadingProgressColor="Color.Primary"
               Hover="true"
               Filter="configuration => configuration.ConfigurationFile.Name.Contains(Search, StringComparison.OrdinalIgnoreCase)">

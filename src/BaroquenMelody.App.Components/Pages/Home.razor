@@ -5,7 +5,7 @@
 
 <PageTitle>Baroquen Melody</PageTitle>
 
-<MudContainer Class="mb-3" Gutters="false">
+<MudContainer Class="mb-1 mb-sm-2" Gutters="false" MaxWidth="MaxWidth.False">
     <MudGrid Class="mb-2 d-flex justify-center justify-sm-end flex-grow-1 flex-sm-grow-0" Spacing="2">
         <MudItem>
             @if (!CompositionProgressState.Value.IsLoading)
@@ -48,13 +48,14 @@
     </MudGrid>
     <MudTabs Outlined="true"
              Rounded="true"
-             Elevation="3"
+             Elevation="ThemeProvider.Elevation"
              Centered="true"
              ApplyEffectsToContainer="true"
              IconColor="Color.Secondary"
              Border="true"
              SliderAnimation="true"
-             @ref="_tabs">
+             @ref="_tabs"
+             Class="mx-n4 mx-sm-0 mud-elevation-4">
         <MudTabPanel Text="General" Icon="@Icons.Material.Outlined.Settings">
             <CompositionConfigurationPanel/>
         </MudTabPanel>
@@ -114,7 +115,7 @@
             {
                 if (state.Value.CurrentStep == CompositionStep.Failed && _tabs?.ActivePanel != _compositionTab)
                 {
-                    Snackbar.Add("Composition failed! Try again or try a different configuration.", Severity.Error);
+                    Snackbar.Add("Failed to compose. Try again, or try a different configuration.", Severity.Error);
                 }
             });
 

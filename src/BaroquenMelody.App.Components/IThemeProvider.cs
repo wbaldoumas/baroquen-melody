@@ -19,4 +19,6 @@ public interface IThemeProvider
     double TooltipDelay { get; }
 
     double TooltipDuration { get; }
+
+    public int Elevation { get; }
 }
