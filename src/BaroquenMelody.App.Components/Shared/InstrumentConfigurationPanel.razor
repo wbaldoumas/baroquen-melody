@@ -2,13 +2,24 @@
 
 <RandomizeResetButtonGroup OnRandomizeClick="InstrumentConfigurationService.Randomize"
                            OnResetClick="InstrumentConfigurationService.ConfigureDefaults"/>
-
 @if (!InstrumentConfigurationState.Value.IsValid)
 {
-    <MudAlert Severity="Severity.Warning" Class="mx-3" Variant="Variant.Outlined">Please enable at least one instrument.</MudAlert>
+    <MudAlert Severity="Severity.Warning"
+              Class="mx-2 mt-2 mud-elevation-4"
+              Variant="Variant.Outlined"
+              Elevation="ThemeProvider.Elevation"
+              ContentAlignment="HorizontalAlignment.Center"
+              Dense="true">
+        Invalid instrumentation. Please enable at least one instrument.
+    </MudAlert>
 }
-@foreach (var instrument in InstrumentConfigurationService.ConfigurableInstruments)
-{
-    <InstrumentConfigurationCard Instrument="instrument"/>
-}
+<MudGrid Spacing="0" Justify="Justify.Center">
+    @foreach (var instrument in InstrumentConfigurationService.ConfigurableInstruments)
+    {
+        <MudItem xs="12">
+            <InstrumentConfigurationCard Instrument="instrument"/>
+        </MudItem>
+    }
+</MudGrid>
+
 <ScrollToTop/>

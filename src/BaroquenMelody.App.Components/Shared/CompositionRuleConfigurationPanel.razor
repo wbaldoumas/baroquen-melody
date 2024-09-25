@@ -1,6 +1,6 @@
 ﻿<RandomizeResetButtonGroup OnRandomizeClick="CompositionRuleConfigurationService.Randomize"
                            OnResetClick="CompositionRuleConfigurationService.ConfigureDefaults"/>
-<MudGrid Spacing="1" Justify="Justify.Center">
+<MudGrid Spacing="0" Justify="Justify.Center">
     @foreach (var compositionRule in CompositionRuleConfigurationService.ConfigurableCompositionRules)
     {
         <MudItem xs="12" sm="12" md="6" lg="6" xl="6" xxl="6">

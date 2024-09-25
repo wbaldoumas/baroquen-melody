@@ -1,19 +1,13 @@
 ﻿@typeparam T
 
-<MudOverlay @bind-Visible="IsPopoverOpen" LockScroll="false" AutoClose="true"/>
-<MudPopover AnchorOrigin="AnchorOrigin"
-            TransformOrigin="TransformOrigin"
-            Open="IsPopoverOpen"
-            Elevation="3"
-            OverflowBehavior="OverflowBehavior.FlipNever"
-            Delay="ThemeProvider.TooltipDelay"
-            Duration="ThemeProvider.TooltipDuration">
-    <MudCard Class="rounded" Outlined="true" Elevation="3">
-        <MudCardContent>
-            @PopoverContent
-        </MudCardContent>
-    </MudCard>
-</MudPopover>
+<AutoClosePopover IsPopoverOpen="IsPopoverOpen"
+                  AnchorOrigin="AnchorOrigin"
+                  TransformOrigin="TransformOrigin"
+                  OnPopoverClosed="@(() => IsPopoverOpen = false)">
+    <PopoverContent>
+        @PopoverContent
+    </PopoverContent>
+</AutoClosePopover>
 <MudAutocomplete T="T"
                  SearchFunc="SearchFunc"
                  ToStringFunc="ToStringFunc"

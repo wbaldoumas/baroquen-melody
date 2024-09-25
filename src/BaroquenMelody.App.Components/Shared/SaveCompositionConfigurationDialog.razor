@@ -1,10 +1,13 @@
 ﻿<MudDialog>
     <TitleContent>
-        Save Composition Configuration
+        <MudStack AlignItems="AlignItems.Center" Row="true" Justify="Justify.FlexStart">
+            <MudIcon Icon="@Icons.Material.Outlined.Settings" Color="Color.Secondary" Class="mr-n1"/>
+            <MudText Inline="true" Typo="Typo.button">Save Composition Configuration</MudText>
+        </MudStack>
     </TitleContent>
     <DialogContent>
-        <MudTextField @bind-Value="ConfigurationName" 
-                      Label="Configuration Name" 
+        <MudTextField @bind-Value="ConfigurationName"
+                      Label="Configuration Name"
                       Variant="Variant.Outlined"
                       Validation="ValidateFilename"
                       Immediate="true"/>

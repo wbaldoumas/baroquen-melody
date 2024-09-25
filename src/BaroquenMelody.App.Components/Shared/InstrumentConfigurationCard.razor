@@ -1,7 +1,7 @@
 ﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 @implements IDisposable
 
-<MudCard Class="rounded my-3 mx-3" Elevation="3" Outlined="true">
+<MudCard Class="rounded my-2 mx-2 mud-elevation-4" Elevation="ThemeProvider.Elevation" Outlined="true">
     <CardHeaderSwitch HeaderText="@($"Instrument {Instrument}")"
                       ConfigurationStatus="@Status"
                       ValueChanged="HandleIsEnabledChange"/>
@@ -36,7 +36,7 @@
                              @bind-UpperValue="HighestPitchNoteIndex"
                              Size="Size.Medium"
                              Variant="Variant.Filled"
-                             Color="Color.Tertiary"
+                             Color="@(!Status.IsEnabled() ? Color.Dark : Color.Tertiary)"
                              ValueLabel="true"
                              Range="true"
                              TickMarks="true"

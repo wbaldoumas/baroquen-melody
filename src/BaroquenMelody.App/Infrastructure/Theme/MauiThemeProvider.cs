@@ -77,4 +77,6 @@ internal sealed class MauiThemeProvider : IThemeProvider
     public double TooltipDuration => 333;
 
     public void ToggleDarkMode() => IsDarkMode = !IsDarkMode;
+
+    public int Elevation => 4;
 }

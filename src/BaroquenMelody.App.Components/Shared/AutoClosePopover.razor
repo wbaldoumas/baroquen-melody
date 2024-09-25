@@ -1,0 +1,30 @@
+﻿<MudOverlay @bind-Visible="IsPopoverOpen" LockScroll="false" AutoClose="true" OnClosed="OnPopoverClosed" />
+<MudPopover AnchorOrigin="AnchorOrigin"
+            TransformOrigin="TransformOrigin"
+            Open="IsPopoverOpen"
+            Class="mud-elevation-4"
+            Elevation="ThemeProvider.Elevation"
+            OverflowBehavior="OverflowBehavior"
+            Delay="ThemeProvider.TooltipDelay"
+            Duration="ThemeProvider.TooltipDuration">
+    <MudCard Class="rounded" Outlined="true" Elevation="ThemeProvider.Elevation">
+        <MudCardContent>
+            @PopoverContent
+        </MudCardContent>
+    </MudCard>
+</MudPopover>
+
+@code
+{
+    [Parameter, EditorRequired] public required RenderFragment PopoverContent { get; set; }
+
+    [Parameter, EditorRequired] public required bool IsPopoverOpen { get; set; }
+
+    [Parameter] public Origin AnchorOrigin { get; set; } = Origin.TopCenter;
+
+    [Parameter] public Origin TransformOrigin { get; set; } = Origin.TopLeft;
+
+    [Parameter] public EventCallback OnPopoverClosed { get; set; }
+
+    [Parameter] public OverflowBehavior OverflowBehavior { get; set; } = OverflowBehavior.FlipNever;
+}
