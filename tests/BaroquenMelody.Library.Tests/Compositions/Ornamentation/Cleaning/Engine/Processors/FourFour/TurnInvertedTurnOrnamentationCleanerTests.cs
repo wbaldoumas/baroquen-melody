@@ -12,12 +12,12 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Cleaning.Engine.Processors.FourFour;
 
 [TestFixture]
-internal sealed class TurnAlternateTurnOrnamentationCleanerTests
+internal sealed class TurnInvertedTurnOrnamentationCleanerTests
 {
-    private TurnAlternateTurnOrnamentationCleaner _cleaner = null!;
+    private TurnInvertedTurnOrnamentationCleaner _cleaner = null!;
 
     [SetUp]
-    public void SetUp() => _cleaner = new TurnAlternateTurnOrnamentationCleaner(Configurations.GetCompositionConfiguration());
+    public void SetUp() => _cleaner = new TurnInvertedTurnOrnamentationCleaner(Configurations.GetCompositionConfiguration());
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
@@ -60,9 +60,9 @@ internal sealed class TurnAlternateTurnOrnamentationCleanerTests
                 }
             };
 
-            var altoC3WithAscendingAlternateTurn = new BaroquenNote(altoC3)
+            var altoC3WithAscendingInvertedTurn = new BaroquenNote(altoC3)
             {
-                OrnamentationType = OrnamentationType.AlternateTurn,
+                OrnamentationType = OrnamentationType.InvertedTurn,
                 Ornamentations =
                 {
                     new BaroquenNote(altoD3),
@@ -71,9 +71,9 @@ internal sealed class TurnAlternateTurnOrnamentationCleanerTests
                 }
             };
 
-            var altoF3WithAscendingAlternateTurn = new BaroquenNote(altoF3)
+            var altoF3WithAscendingInvertedTurn = new BaroquenNote(altoF3)
             {
-                OrnamentationType = OrnamentationType.AlternateTurn,
+                OrnamentationType = OrnamentationType.InvertedTurn,
                 Ornamentations =
                 {
                     new BaroquenNote(altoG3),
@@ -84,23 +84,23 @@ internal sealed class TurnAlternateTurnOrnamentationCleanerTests
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoC4WithDescendingTurn),
-                new BaroquenNote(altoC3WithAscendingAlternateTurn),
+                new BaroquenNote(altoC3WithAscendingInvertedTurn),
                 new BaroquenNote(sopranoC4WithDescendingTurn),
                 new BaroquenNote(altoC3)
-            ).SetName("When turn notes conflict, alternate turn is cleaned.");
+            ).SetName("When turn notes conflict, inverted turn is cleaned.");
 
             yield return new TestCaseData(
-                new BaroquenNote(altoC3WithAscendingAlternateTurn),
+                new BaroquenNote(altoC3WithAscendingInvertedTurn),
                 new BaroquenNote(sopranoC4WithDescendingTurn),
                 new BaroquenNote(altoC3),
                 new BaroquenNote(sopranoC4WithDescendingTurn)
-            ).SetName("When turn notes conflict, alternate is cleaned.");
+            ).SetName("When turn notes conflict, inverted is cleaned.");
 
             yield return new TestCaseData(
                 new BaroquenNote(sopranoC4WithDescendingTurn),
-                new BaroquenNote(altoF3WithAscendingAlternateTurn),
+                new BaroquenNote(altoF3WithAscendingInvertedTurn),
                 new BaroquenNote(sopranoC4WithDescendingTurn),
-                new BaroquenNote(altoF3WithAscendingAlternateTurn)
+                new BaroquenNote(altoF3WithAscendingInvertedTurn)
             ).SetName("When turn notes don't conflict, no notes are cleaned.");
         }
     }

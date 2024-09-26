@@ -33,8 +33,8 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.Turn when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.Turn when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter.Dotted(1),
 
-        OrnamentationType.AlternateTurn when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
-        OrnamentationType.AlternateTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter.Dotted(1),
+        OrnamentationType.InvertedTurn when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.InvertedTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter.Dotted(1),
 
         OrnamentationType.Sustain when meter == Meter.FourFour => MusicalTimeSpan.Whole,
         OrnamentationType.Sustain when meter == Meter.ThreeFour => MusicalTimeSpan.Half.Dotted(1) + MusicalTimeSpan.Half.Dotted(1),
@@ -103,8 +103,8 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.Turn when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.Turn when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
 
-        OrnamentationType.AlternateTurn when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
-        OrnamentationType.AlternateTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.InvertedTurn when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.InvertedTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
 
         OrnamentationType.Sustain => throw new NotSupportedException($"{nameof(OrnamentationType.Sustain)} cannot be applied to an ornamentation."),
 

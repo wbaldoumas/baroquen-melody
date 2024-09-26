@@ -6,7 +6,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors.FourFour;
 
-internal sealed class TurnAlternateTurnOrnamentationCleaner(CompositionConfiguration compositionConfiguration) : IProcessor<OrnamentationCleaningItem>
+internal sealed class TurnInvertedTurnOrnamentationCleaner(CompositionConfiguration compositionConfiguration) : IProcessor<OrnamentationCleaningItem>
 {
     private const int IndexToCheck = 1;
 
@@ -22,13 +22,13 @@ internal sealed class TurnAlternateTurnOrnamentationCleaner(CompositionConfigura
         }
     }
 
-    private void Clean(BaroquenNote noteWithTurnOrnamentation, BaroquenNote noteWithAlternateTurnOrnamentation)
+    private void Clean(BaroquenNote noteWithTurnOrnamentation, BaroquenNote noteWithInvertedTurnOrnamentation)
     {
-        if (!noteWithTurnOrnamentation.Ornamentations[IndexToCheck].IsDissonantWith(noteWithAlternateTurnOrnamentation.Ornamentations[IndexToCheck]))
+        if (!noteWithTurnOrnamentation.Ornamentations[IndexToCheck].IsDissonantWith(noteWithInvertedTurnOrnamentation.Ornamentations[IndexToCheck]))
         {
             return;
         }
 
-        noteWithAlternateTurnOrnamentation.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
+        noteWithInvertedTurnOrnamentation.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
     }
 }

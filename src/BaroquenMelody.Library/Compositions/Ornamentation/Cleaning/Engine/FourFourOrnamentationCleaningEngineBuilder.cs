@@ -11,7 +11,7 @@ internal sealed class FourFourOrnamentationCleaningEngineBuilder(
     IProcessor<OrnamentationCleaningItem> passingToneOrnamentationCleaner,
     IProcessor<OrnamentationCleaningItem> eighthNoteOrnamentationCleaner,
     IProcessor<OrnamentationCleaningItem> quarterEighthNoteOrnamentationCleaner,
-    IProcessor<OrnamentationCleaningItem> turnAlternateTurnOrnamentationCleaner,
+    IProcessor<OrnamentationCleaningItem> turnInvertedTurnOrnamentationCleaner,
     IProcessor<OrnamentationCleaningItem> sixteenthNoteOrnamentationCleaner,
     IProcessor<OrnamentationCleaningItem> sixteenthEighthNoteOrnamentationCleaner,
     IProcessor<OrnamentationCleaningItem> mordentEighthNoteOrnamentationCleaner
@@ -23,7 +23,7 @@ internal sealed class FourFourOrnamentationCleaningEngineBuilder(
             BuildPassingToneOrnamentationCleanerEngine(),
             BuildEighthNoteOrnamentationCleanerEngine(),
             BuildPassingToneEighthNoteOrnamentationCleanerEngine(),
-            BuildTurnAlternateTurnOrnamentationCleanerEngine(),
+            BuildTurnInvertedTurnOrnamentationCleanerEngine(),
             BuildSixteenthNoteOrnamentationCleanerEngine(),
             BuildSixteenthEighthNoteOrnamentationCleanerEngine(),
             BuildMordentEighthNoteOrnamentationCleanerEngine()
@@ -69,16 +69,16 @@ internal sealed class FourFourOrnamentationCleaningEngineBuilder(
     private IPolicyEngine<OrnamentationCleaningItem> BuildEighthNoteOrnamentationCleanerEngine() => PolicyEngineBuilder<OrnamentationCleaningItem>.Configure()
         .WithInputPolicies(
             new HasTargetOrnamentations(OrnamentationType.Run, OrnamentationType.Run)
-                .Or(new HasTargetOrnamentations(OrnamentationType.Run, OrnamentationType.AlternateTurn))
+                .Or(new HasTargetOrnamentations(OrnamentationType.Run, OrnamentationType.InvertedTurn))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Run, OrnamentationType.Turn))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Run, OrnamentationType.DecorateInterval))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Run, OrnamentationType.Pedal))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Turn, OrnamentationType.Turn))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Turn, OrnamentationType.DecorateInterval))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Turn, OrnamentationType.Pedal))
-                .Or(new HasTargetOrnamentations(OrnamentationType.AlternateTurn, OrnamentationType.AlternateTurn))
-                .Or(new HasTargetOrnamentations(OrnamentationType.AlternateTurn, OrnamentationType.DecorateInterval))
-                .Or(new HasTargetOrnamentations(OrnamentationType.AlternateTurn, OrnamentationType.Pedal))
+                .Or(new HasTargetOrnamentations(OrnamentationType.InvertedTurn, OrnamentationType.InvertedTurn))
+                .Or(new HasTargetOrnamentations(OrnamentationType.InvertedTurn, OrnamentationType.DecorateInterval))
+                .Or(new HasTargetOrnamentations(OrnamentationType.InvertedTurn, OrnamentationType.Pedal))
                 .Or(new HasTargetOrnamentations(OrnamentationType.DecorateInterval, OrnamentationType.DecorateInterval))
                 .Or(new HasTargetOrnamentations(OrnamentationType.DecorateInterval, OrnamentationType.Pedal))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Pedal, OrnamentationType.Pedal))
@@ -91,20 +91,20 @@ internal sealed class FourFourOrnamentationCleaningEngineBuilder(
         .WithInputPolicies(
             new HasTargetOrnamentations(OrnamentationType.PassingTone, OrnamentationType.Run)
                 .Or(new HasTargetOrnamentations(OrnamentationType.PassingTone, OrnamentationType.Turn))
-                .Or(new HasTargetOrnamentations(OrnamentationType.PassingTone, OrnamentationType.AlternateTurn))
+                .Or(new HasTargetOrnamentations(OrnamentationType.PassingTone, OrnamentationType.InvertedTurn))
                 .Or(new HasTargetOrnamentations(OrnamentationType.PassingTone, OrnamentationType.DecorateInterval))
                 .Or(new HasTargetOrnamentations(OrnamentationType.PassingTone, OrnamentationType.Pedal))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Pickup, OrnamentationType.Run))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Pickup, OrnamentationType.Turn))
-                .Or(new HasTargetOrnamentations(OrnamentationType.Pickup, OrnamentationType.AlternateTurn))
+                .Or(new HasTargetOrnamentations(OrnamentationType.Pickup, OrnamentationType.InvertedTurn))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Pickup, OrnamentationType.DecorateInterval))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Pickup, OrnamentationType.Pedal))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Run, OrnamentationType.DoublePassingTone))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Run, OrnamentationType.RepeatedNote))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Turn, OrnamentationType.DoublePassingTone))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Turn, OrnamentationType.RepeatedNote))
-                .Or(new HasTargetOrnamentations(OrnamentationType.AlternateTurn, OrnamentationType.DoublePassingTone))
-                .Or(new HasTargetOrnamentations(OrnamentationType.AlternateTurn, OrnamentationType.RepeatedNote))
+                .Or(new HasTargetOrnamentations(OrnamentationType.InvertedTurn, OrnamentationType.DoublePassingTone))
+                .Or(new HasTargetOrnamentations(OrnamentationType.InvertedTurn, OrnamentationType.RepeatedNote))
                 .Or(new HasTargetOrnamentations(OrnamentationType.DoublePassingTone, OrnamentationType.DecorateInterval))
                 .Or(new HasTargetOrnamentations(OrnamentationType.DoublePassingTone, OrnamentationType.Pedal))
                 .Or(new HasTargetOrnamentations(OrnamentationType.RepeatedNote, OrnamentationType.Pedal))
@@ -114,9 +114,9 @@ internal sealed class FourFourOrnamentationCleaningEngineBuilder(
         .WithoutOutputPolicies()
         .Build();
 
-    private IPolicyEngine<OrnamentationCleaningItem> BuildTurnAlternateTurnOrnamentationCleanerEngine() => PolicyEngineBuilder<OrnamentationCleaningItem>.Configure()
-        .WithInputPolicies(new HasTargetOrnamentations(OrnamentationType.Turn, OrnamentationType.AlternateTurn))
-        .WithProcessors(turnAlternateTurnOrnamentationCleaner)
+    private IPolicyEngine<OrnamentationCleaningItem> BuildTurnInvertedTurnOrnamentationCleanerEngine() => PolicyEngineBuilder<OrnamentationCleaningItem>.Configure()
+        .WithInputPolicies(new HasTargetOrnamentations(OrnamentationType.Turn, OrnamentationType.InvertedTurn))
+        .WithProcessors(turnInvertedTurnOrnamentationCleaner)
         .WithoutOutputPolicies()
         .Build();
 
@@ -134,12 +134,12 @@ internal sealed class FourFourOrnamentationCleaningEngineBuilder(
         .WithInputPolicies(
             new HasTargetOrnamentations(OrnamentationType.DoubleRun, OrnamentationType.Run)
                 .Or(new HasTargetOrnamentations(OrnamentationType.DoubleRun, OrnamentationType.Turn))
-                .Or(new HasTargetOrnamentations(OrnamentationType.DoubleRun, OrnamentationType.AlternateTurn))
+                .Or(new HasTargetOrnamentations(OrnamentationType.DoubleRun, OrnamentationType.InvertedTurn))
                 .Or(new HasTargetOrnamentations(OrnamentationType.DoubleRun, OrnamentationType.DecorateInterval))
                 .Or(new HasTargetOrnamentations(OrnamentationType.DoubleRun, OrnamentationType.Pedal))
                 .Or(new HasTargetOrnamentations(OrnamentationType.DoubleTurn, OrnamentationType.Run))
                 .Or(new HasTargetOrnamentations(OrnamentationType.DoubleTurn, OrnamentationType.Turn))
-                .Or(new HasTargetOrnamentations(OrnamentationType.DoubleTurn, OrnamentationType.AlternateTurn))
+                .Or(new HasTargetOrnamentations(OrnamentationType.DoubleTurn, OrnamentationType.InvertedTurn))
                 .Or(new HasTargetOrnamentations(OrnamentationType.DoubleTurn, OrnamentationType.DecorateInterval))
                 .Or(new HasTargetOrnamentations(OrnamentationType.DoubleTurn, OrnamentationType.Pedal))
         )
@@ -151,7 +151,7 @@ internal sealed class FourFourOrnamentationCleaningEngineBuilder(
         .WithInputPolicies(
             new HasTargetOrnamentations(OrnamentationType.Mordent, OrnamentationType.Run)
                 .Or(new HasTargetOrnamentations(OrnamentationType.Mordent, OrnamentationType.Turn))
-                .Or(new HasTargetOrnamentations(OrnamentationType.Mordent, OrnamentationType.AlternateTurn))
+                .Or(new HasTargetOrnamentations(OrnamentationType.Mordent, OrnamentationType.InvertedTurn))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Mordent, OrnamentationType.DecorateInterval))
                 .Or(new HasTargetOrnamentations(OrnamentationType.Mordent, OrnamentationType.Pedal))
         )

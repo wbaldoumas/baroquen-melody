@@ -6,7 +6,7 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 
-internal sealed class AlternateTurnProcessor(
+internal sealed class InvertedTurnProcessor(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     CompositionConfiguration compositionConfiguration
 ) : IProcessor<OrnamentationItem>
@@ -30,15 +30,15 @@ internal sealed class AlternateTurnProcessor(
             .Select(ornamentationTranslation => isDescending ? currentNoteIndex - ornamentationTranslation : currentNoteIndex + ornamentationTranslation)
             .Select(index => notes[index]);
 
-        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.AlternateTurn, compositionConfiguration.Meter);
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.InvertedTurn, compositionConfiguration.Meter);
 
-        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.AlternateTurn, compositionConfiguration.Meter);
+        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.InvertedTurn, compositionConfiguration.Meter);
 
         foreach (var ornamentation in ornamentationNotes)
         {
             currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Instrument, ornamentation, ornamentationTimeSpan));
         }
 
-        currentNote.OrnamentationType = OrnamentationType.AlternateTurn;
+        currentNote.OrnamentationType = OrnamentationType.InvertedTurn;
     }
 }
