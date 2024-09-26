@@ -40,7 +40,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         new QuarterNoteOrnamentationCleaner(compositionConfiguration),
         new EighthNoteOrnamentationCleaner(compositionConfiguration),
         new QuarterEighthNoteOrnamentationCleaner(compositionConfiguration),
-        new TurnAlternateTurnOrnamentationCleaner(compositionConfiguration),
+        new TurnInvertedTurnOrnamentationCleaner(compositionConfiguration),
         new SixteenthNoteOrnamentationCleaner(compositionConfiguration),
         new SixteenthEighthNoteOrnamentationCleaner(compositionConfiguration),
         new MordentEighthNoteOrnamentationCleaner(compositionConfiguration)
@@ -98,8 +98,8 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
                 case OrnamentationType.Turn:
                     processors.Add(BuildTurnEngine(ornamentationConfiguration));
                     break;
-                case OrnamentationType.AlternateTurn:
-                    processors.Add(BuildAlternateTurnEngine(ornamentationConfiguration));
+                case OrnamentationType.InvertedTurn:
+                    processors.Add(BuildInvertedTurnEngine(ornamentationConfiguration));
                     break;
                 case OrnamentationType.DelayedRun:
                     processors.Add(BuildDelayedRunEngine(ornamentationConfiguration));
@@ -190,14 +190,14 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.Turn, logger))
         .Build();
 
-    private IPolicyEngine<OrnamentationItem> BuildAlternateTurnEngine(OrnamentationConfiguration configuration) => PolicyEngineBuilder<OrnamentationItem>.Configure()
+    private IPolicyEngine<OrnamentationItem> BuildInvertedTurnEngine(OrnamentationConfiguration configuration) => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
             new WantsToOrnament(_weightedRandomBooleanGenerator, configuration.Probability),
             _hasNoOrnamentation,
-            new IsApplicableInterval(compositionConfiguration, AlternateTurnProcessor.Interval)
+            new IsApplicableInterval(compositionConfiguration, InvertedTurnProcessor.Interval)
         )
-        .WithProcessors(new AlternateTurnProcessor(musicalTimeSpanCalculator, compositionConfiguration))
-        .WithOutputPolicies(new LogOrnamentation(OrnamentationType.AlternateTurn, logger))
+        .WithProcessors(new InvertedTurnProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithOutputPolicies(new LogOrnamentation(OrnamentationType.InvertedTurn, logger))
         .Build();
 
     private IPolicyEngine<OrnamentationItem> BuildRunEngine(OrnamentationConfiguration configuration) => PolicyEngineBuilder<OrnamentationItem>.Configure()

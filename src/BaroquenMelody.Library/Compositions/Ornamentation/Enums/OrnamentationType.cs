@@ -28,9 +28,9 @@ public enum OrnamentationType : byte
     Turn,
 
     /// <summary>
-    ///     An alternate turn between two notes.
+    ///     An inverted turn between two notes.
     /// </summary>
-    AlternateTurn,
+    InvertedTurn,
 
     /// <summary>
     ///     A sustained note over multiple beats.

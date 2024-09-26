@@ -14,16 +14,16 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Compositions.Ornamentation.Engine.Processors;
 
 [TestFixture]
-internal sealed class AlternateTurnProcessorTests
+internal sealed class InvertedTurnProcessorTests
 {
-    private AlternateTurnProcessor _processor = null!;
+    private InvertedTurnProcessor _processor = null!;
 
     [SetUp]
     public void SetUp()
     {
         var compositionConfiguration = Configurations.GetCompositionConfiguration(2);
 
-        _processor = new AlternateTurnProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
+        _processor = new InvertedTurnProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
     }
 
     [Test]
@@ -43,7 +43,7 @@ internal sealed class AlternateTurnProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Instrument.One];
 
-        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.AlternateTurn);
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.InvertedTurn);
         noteToAssert.Ornamentations.Should().HaveCount(3);
 
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.D4);
@@ -75,7 +75,7 @@ internal sealed class AlternateTurnProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Instrument.One];
 
-        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.AlternateTurn);
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.InvertedTurn);
         noteToAssert.Ornamentations.Should().HaveCount(3);
 
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B3);

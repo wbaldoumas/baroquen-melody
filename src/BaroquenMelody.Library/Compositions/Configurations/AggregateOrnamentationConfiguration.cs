@@ -20,7 +20,7 @@ public sealed record AggregateOrnamentationConfiguration(ISet<OrnamentationConfi
             new(OrnamentationType.Run, ConfigurationStatus.Enabled, 80),
             new(OrnamentationType.DoubleRun, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.Turn, ConfigurationStatus.Enabled, 80),
-            new(OrnamentationType.AlternateTurn, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.InvertedTurn, ConfigurationStatus.Enabled, 80),
             new(OrnamentationType.DelayedRun, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.Mordent, ConfigurationStatus.Enabled, 20),
             new(OrnamentationType.DecorateInterval, ConfigurationStatus.Enabled, 60),
