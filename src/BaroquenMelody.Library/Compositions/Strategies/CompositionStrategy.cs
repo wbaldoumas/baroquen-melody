@@ -60,20 +60,20 @@ internal sealed class CompositionStrategy(
             .Where(chordChoiceAndChord => HasSubsequentChordChoices([.. precedingChords, chordChoiceAndChord.Chord]))
             .Select(static chordChoiceAndChord => chordChoiceAndChord.Chord);
 
-    public ParallelQuery<(ChordChoice ChordChoice, BaroquenChord Chord)> GetValidChordChoicesAndChords(IReadOnlyList<BaroquenChord> precedingChords)
+    public IEnumerable<(ChordChoice ChordChoice, BaroquenChord Chord)> GetValidChordChoicesAndChords(IReadOnlyList<BaroquenChord> precedingChords)
     {
         var currentChord = precedingChords[^1];
 
-        return Enumerable.Range(0, (int)chordChoiceRepository.Count)
-            .AsParallel()
-            .Select(chordChoiceId =>
-            {
-                var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceId);
-                var nextChord = currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan);
+        for (var chordChoiceId = 0; chordChoiceId < chordChoiceRepository.Count; ++chordChoiceId)
+        {
+            var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceId);
+            var nextChord = currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan);
 
-                return (chordChoice, nextChord);
-            })
-            .Where(chordChoiceAndChord => compositionRule.Evaluate(precedingChords, chordChoiceAndChord.nextChord));
+            if (compositionRule.Evaluate(precedingChords, nextChord))
+            {
+                yield return (chordChoice, nextChord);
+            }
+        }
     }
 
     private Note ChooseStartingNote(
