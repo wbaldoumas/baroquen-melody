@@ -55,10 +55,10 @@ internal sealed class CompositionStrategy(
         return new BaroquenChord(notes);
     }
 
-    public IEnumerable<BaroquenChord> GetPossibleChords(IReadOnlyList<BaroquenChord> precedingChords) => GetValidChordChoicesAndChords(precedingChords)
-        .Where(chordChoiceAndChord => HasSubsequentChordChoices([.. precedingChords, chordChoiceAndChord.Chord]))
-        .Select(static chordChoiceAndChord => chordChoiceAndChord.Chord)
-        .ToList();
+    public IEnumerable<BaroquenChord> GetPossibleChords(IReadOnlyList<BaroquenChord> precedingChords) =>
+        GetValidChordChoicesAndChords(precedingChords)
+            .Where(chordChoiceAndChord => HasSubsequentChordChoices([.. precedingChords, chordChoiceAndChord.Chord]))
+            .Select(static chordChoiceAndChord => chordChoiceAndChord.Chord);
 
     public IEnumerable<(ChordChoice ChordChoice, BaroquenChord Chord)> GetValidChordChoicesAndChords(IReadOnlyList<BaroquenChord> precedingChords)
     {
