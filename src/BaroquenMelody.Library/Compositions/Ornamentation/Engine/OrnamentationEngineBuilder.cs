@@ -2,20 +2,22 @@
 using Atrea.PolicyEngine.Builders;
 using Atrea.PolicyEngine.Policies.Input;
 using Atrea.PolicyEngine.Processors;
+using Atrea.Utilities.Enums;
 using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
-using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine;
-using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors.FourFour;
-using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors.MeterAgnostic;
-using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors.ThreeFour;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Configuration;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Policies.Input;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Selection;
+using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Selection.Strategies;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Output;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Infrastructure.Random;
+using LazyCart;
 using Melanchall.DryWetMidi.MusicTheory;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics.CodeAnalysis;
@@ -36,33 +38,12 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private readonly IInputPolicy<OrnamentationItem> _hasNoOrnamentation = new Not<OrnamentationItem>(new HasOrnamentation());
 
-    private readonly FourFourOrnamentationCleaningEngineBuilder _fourFourOrnamentationCleaningEngineBuilder = new(
-        new QuarterNoteOrnamentationCleaner(compositionConfiguration),
-        new EighthNoteOrnamentationCleaner(compositionConfiguration),
-        new QuarterEighthNoteOrnamentationCleaner(compositionConfiguration),
-        new TurnInvertedTurnOrnamentationCleaner(compositionConfiguration),
-        new SixteenthNoteOrnamentationCleaner(compositionConfiguration),
-        new SixteenthEighthNoteOrnamentationCleaner(compositionConfiguration),
-        new MordentEighthNoteOrnamentationCleaner(compositionConfiguration)
-    );
-
-    private readonly ThreeFourOrnamentationCleaningEngineBuilder _threeFourOrnamentationCleaningEngineBuilder = new(
-        new HalfQuarterOrnamentationCleaner(compositionConfiguration),
-        new EighthNoteOrnamentationCleaner(compositionConfiguration),
-        new HalfEighthNoteOrnamentationCleaner(compositionConfiguration),
-        new SixteenthEighthNoteOrnamentationCleaner(compositionConfiguration),
-        new DelayedRunEighthOrnamentationCleaner(compositionConfiguration),
-        new DoublePassingToneQuarterOrnamentationCleaner(compositionConfiguration),
-        new DoublePassingToneOrnamentationCleaner(compositionConfiguration),
-        new HalfQuarterEighthOrnamentationCleaner(compositionConfiguration),
-        new QuarterQuarterEighthOrnamentationCleaner(compositionConfiguration),
-        new DoublePassingToneDelayedRunOrnamentationCleaner(compositionConfiguration)
-    );
+    private readonly NoteIndexPairSelector _noteIndexPairSelector = new(new NoteOnsetCalculator(musicalTimeSpanCalculator, compositionConfiguration));
 
     public IPolicyEngine<OrnamentationItem> BuildOrnamentationEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithoutInputPolicies()
         .WithProcessors(BuildOrnamentationProcessors())
-        .WithOutputPolicies(new CleanConflictingOrnamentations(BuildOrnamentationCleaningEngine()))
+        .WithOutputPolicies(new CleanConflictingOrnamentations(BuildGeneralizedOrnamentationCleaningEngine()))
         .Build();
 
     public IProcessor<OrnamentationItem> BuildSustainedNoteEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
@@ -334,7 +315,57 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         .WithOutputPolicies(new LogOrnamentation(ornamentationType, logger))
         .Build();
 
-    private IPolicyEngine<OrnamentationCleaningItem> BuildOrnamentationCleaningEngine() => compositionConfiguration.Meter == Meter.FourFour
-        ? _fourFourOrnamentationCleaningEngineBuilder.Build()
-        : _threeFourOrnamentationCleaningEngineBuilder.Build();
+    private IPolicyEngine<OrnamentationCleaningItem> BuildGeneralizedOrnamentationCleaningEngine()
+    {
+        var ornamentationTypes = EnumUtils<OrnamentationType>
+            .AsEnumerable()
+            .Where(ornamentationType => ornamentationType is not OrnamentationType.None
+                and not OrnamentationType.Sustain
+                and not OrnamentationType.MidSustain
+                and not OrnamentationType.Rest
+            )
+            .ToList();
+
+        var cleaningSelector = new NoteTargetSelector(
+            new List<IOrnamentationCleaningSelectorStrategy>
+            {
+                new CleanTargetOrnamentation(),
+                new CleanLowerNote(),
+                new CleanRandomNote(_weightedRandomBooleanGenerator)
+            }
+        );
+
+        var ornamentationCombinations = new LazyCartesianProduct<OrnamentationType, OrnamentationType>(ornamentationTypes, ornamentationTypes);
+
+        var processors = new List<IProcessor<OrnamentationCleaningItem>>();
+
+        for (var i = 0; i < ornamentationCombinations.Size; i++)
+        {
+            var (primaryOrnamentation, secondaryOrnamentation) = ornamentationCombinations[i];
+
+            var noteSelector = new NotePairSelector(primaryOrnamentation, secondaryOrnamentation);
+            var indices = _noteIndexPairSelector.Select(primaryOrnamentation, secondaryOrnamentation);
+
+            var ornamentationCleaningConfiguration = new OrnamentationCleanerConfiguration(
+                noteSelector,
+                indices,
+                cleaningSelector
+            );
+
+            IProcessor<OrnamentationCleaningItem> processor = PolicyEngineBuilder<OrnamentationCleaningItem>
+                .Configure()
+                .WithInputPolicies(new HasOrderedTargetOrnamentations(primaryOrnamentation, secondaryOrnamentation))
+                .WithProcessors(new OrnamentationCleaner(ornamentationCleaningConfiguration, compositionConfiguration, _weightedRandomBooleanGenerator))
+                .Build();
+
+            processors.Add(processor);
+        }
+
+        return PolicyEngineBuilder<OrnamentationCleaningItem>
+            .Configure()
+            .WithoutInputPolicies()
+            .WithProcessors(processors.ToArray())
+            .WithOutputPolicies()
+            .Build();
+    }
 }

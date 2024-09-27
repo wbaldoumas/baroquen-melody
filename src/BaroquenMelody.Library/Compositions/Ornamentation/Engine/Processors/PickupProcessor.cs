@@ -30,6 +30,6 @@ internal sealed class PickupProcessor(
             )
         );
 
-        currentNote.OrnamentationType = OrnamentationType.Pickup;
+        currentNote.OrnamentationType = ornamentationType;
     }
 }
