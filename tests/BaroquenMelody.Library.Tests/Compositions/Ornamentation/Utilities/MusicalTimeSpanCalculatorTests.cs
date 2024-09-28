@@ -1,5 +1,7 @@
-﻿using BaroquenMelody.Library.Compositions.Enums;
+﻿using Atrea.Utilities.Enums;
+using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums.Extensions;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
@@ -78,6 +80,31 @@ internal sealed class MusicalTimeSpanCalculatorTests
 
         // assert
         act.Should().Throw<NotSupportedException>();
+    }
+
+    [Test]
+    public void MusicalTimeSpanCalculator_handles_all_ornamentation_types()
+    {
+        foreach (var ornamentationType in EnumUtils<OrnamentationType>.AsEnumerable())
+        {
+            var act = () => _musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, Meter.FourFour);
+
+            act.Should().NotThrow();
+        }
+
+        foreach (var ornamentationType in EnumUtils<OrnamentationType>.AsEnumerable().Where(ornamentationType => ornamentationType != OrnamentationType.None))
+        {
+            var ornamentationCount = ornamentationType.OrnamentationCount();
+
+            for (var i = 1; i <= ornamentationCount; i++)
+            {
+                var ornamentationStep = i;
+
+                var act = () => _musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, Meter.FourFour, ornamentationStep);
+
+                act.Should().NotThrow();
+            }
+        }
     }
 
     private static IEnumerable<TestCaseData> PrimaryNoteTestCases

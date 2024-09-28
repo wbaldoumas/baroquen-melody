@@ -77,6 +77,7 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
 
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,
+
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, $"Invalid {nameof(OrnamentationType)}")
     };
 
@@ -149,6 +150,7 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
 
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,
+
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, $"Invalid {nameof(OrnamentationType)}")
     };
 }

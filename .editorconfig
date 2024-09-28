@@ -52,6 +52,9 @@ dotnet_diagnostic.SA1508.severity = none
 dotnet_diagnostic.SA1502.severity = none
 dotnet_diagnostic.SA1500.severity = none
 
+# require that opening braces be preceded by a space
+dotnet_diagnostic.SA1012.severity = none
+
 # don't throw NotImplementedException
 dotnet_diagnostic.MA0025.severity = none
 

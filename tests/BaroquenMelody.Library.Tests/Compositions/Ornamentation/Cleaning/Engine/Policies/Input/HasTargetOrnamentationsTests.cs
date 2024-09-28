@@ -16,7 +16,7 @@ internal sealed class HasTargetOrnamentationsTests
 {
     [Test]
     [TestCase(OrnamentationType.PassingTone, OrnamentationType.PassingTone, OrnamentationType.PassingTone, OrnamentationType.PassingTone, InputPolicyResult.Continue)]
-    [TestCase(OrnamentationType.PassingTone, OrnamentationType.DoublePassingTone, OrnamentationType.DoublePassingTone, OrnamentationType.PassingTone, InputPolicyResult.Continue)]
+    [TestCase(OrnamentationType.PassingTone, OrnamentationType.DoublePassingTone, OrnamentationType.DoublePassingTone, OrnamentationType.PassingTone, InputPolicyResult.Reject)]
     [TestCase(OrnamentationType.DoublePassingTone, OrnamentationType.PassingTone, OrnamentationType.DoublePassingTone, OrnamentationType.PassingTone, InputPolicyResult.Continue)]
     [TestCase(OrnamentationType.PassingTone, OrnamentationType.PassingTone, OrnamentationType.PassingTone, OrnamentationType.DoublePassingTone, InputPolicyResult.Reject)]
     [TestCase(OrnamentationType.PassingTone, OrnamentationType.PassingTone, OrnamentationType.DoublePassingTone, OrnamentationType.PassingTone, InputPolicyResult.Reject)]
