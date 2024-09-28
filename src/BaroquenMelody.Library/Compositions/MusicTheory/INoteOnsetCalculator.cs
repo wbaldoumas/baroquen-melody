@@ -6,7 +6,7 @@ namespace BaroquenMelody.Library.Compositions.MusicTheory;
 /// <summary>
 ///    Calculates note onsets for a given note's ornamentation type.
 /// </summary>
-public interface INoteOnsetCalculator
+internal interface INoteOnsetCalculator
 {
     /// <summary>
     ///     Calculates the note onsets for the given note and its ornamentation notes, specified at a thirty-second note resolution.

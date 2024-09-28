@@ -354,7 +354,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
             IProcessor<OrnamentationCleaningItem> processor = PolicyEngineBuilder<OrnamentationCleaningItem>
                 .Configure()
-                .WithInputPolicies(new HasOrderedTargetOrnamentations(primaryOrnamentation, secondaryOrnamentation))
+                .WithInputPolicies(new HasTargetOrnamentations(primaryOrnamentation, secondaryOrnamentation))
                 .WithProcessors(new OrnamentationCleaner(ornamentationCleaningConfiguration, compositionConfiguration, _weightedRandomBooleanGenerator))
                 .Build();
 
