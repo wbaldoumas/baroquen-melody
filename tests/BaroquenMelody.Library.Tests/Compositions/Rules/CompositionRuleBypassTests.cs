@@ -1,6 +1,6 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Rules;
-using BaroquenMelody.Library.Infrastructure.Random;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;

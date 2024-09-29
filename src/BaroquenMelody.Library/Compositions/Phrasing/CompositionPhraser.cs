@@ -1,10 +1,10 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
+﻿using BaroquenMelody.Infrastructure.Collections;
+using BaroquenMelody.Infrastructure.Logging;
+using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
-using BaroquenMelody.Library.Infrastructure.Collections;
-using BaroquenMelody.Library.Infrastructure.Logging;
-using BaroquenMelody.Library.Infrastructure.Random;
 using Melanchall.DryWetMidi.Interaction;
 using Microsoft.Extensions.Logging;
 
@@ -58,7 +58,7 @@ internal sealed class CompositionPhraser(
 
             themeCoolOffPhrase = themePhraseToRepeat;
 
-            logger.RepeatedThemePhrase();
+            logger.LogInfoMessage("Repeated main theme phrase.");
 
             return true;
         }
@@ -90,7 +90,7 @@ internal sealed class CompositionPhraser(
                 coolOffPhrases.Enqueue(repeatedPhrase);
             }
 
-            logger.RepeatedNonThemePhrase();
+            logger.LogInfoMessage("Repeated non-theme phrase.");
 
             return true;
         }

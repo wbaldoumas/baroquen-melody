@@ -1,8 +1,8 @@
 ﻿using Atrea.Utilities.Enums;
+using BaroquenMelody.Infrastructure.Collections.Extensions;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
-using BaroquenMelody.Library.Infrastructure.Collections.Extensions;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;

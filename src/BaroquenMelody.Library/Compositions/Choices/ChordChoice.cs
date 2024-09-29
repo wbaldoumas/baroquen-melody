@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.Library.Infrastructure.Equality;
+﻿using BaroquenMelody.Infrastructure.Equality;
 
 namespace BaroquenMelody.Library.Compositions.Choices;
 

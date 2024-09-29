@@ -2,8 +2,8 @@
 using BaroquenMelody.Library.Compositions.Composers;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
+using BaroquenMelody.Library.Compositions.Exceptions;
 using BaroquenMelody.Library.Compositions.Strategies;
-using BaroquenMelody.Library.Infrastructure.Exceptions;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;

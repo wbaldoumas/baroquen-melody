@@ -1,8 +1,8 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Infrastructure.Logging;
+using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Compositions.Domain;
+using BaroquenMelody.Library.Compositions.Exceptions;
 using BaroquenMelody.Library.Compositions.Strategies;
-using BaroquenMelody.Library.Infrastructure.Exceptions;
-using BaroquenMelody.Library.Infrastructure.Logging;
-using BaroquenMelody.Library.Infrastructure.Random;
 using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library.Compositions.Composers;
@@ -22,7 +22,7 @@ internal sealed class ChordComposer(
             return possibleChord;
         }
 
-        logger.NoValidChordChoicesAvailable();
+        logger.LogCriticalMessage("No valid chord choices available.");
 
         throw new NoValidChordChoicesAvailableException();
     }

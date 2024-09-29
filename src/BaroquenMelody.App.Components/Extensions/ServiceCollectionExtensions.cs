@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.Library.Infrastructure.Extensions;
+﻿using BaroquenMelody.Library.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;

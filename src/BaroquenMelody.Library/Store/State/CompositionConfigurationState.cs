@@ -1,8 +1,8 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
+﻿using BaroquenMelody.Infrastructure.Collections.Extensions;
+using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
-using BaroquenMelody.Library.Infrastructure.Collections.Extensions;
 using Fluxor;
 using Melanchall.DryWetMidi.MusicTheory;
 using System.Diagnostics.CodeAnalysis;

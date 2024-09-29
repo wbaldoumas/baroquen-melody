@@ -1,9 +1,9 @@
 ﻿using Atrea.PolicyEngine.Processors;
+using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
-using BaroquenMelody.Library.Infrastructure.Random;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Processors;
 

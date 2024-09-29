@@ -1,6 +1,6 @@
 ﻿using Atrea.Utilities.Enums;
+using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Compositions.Midi.Enums;
-using BaroquenMelody.Library.Infrastructure.Random;
 using FluentAssertions;
 using LazyCart;
 using NUnit.Framework;

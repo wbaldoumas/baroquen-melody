@@ -1,11 +1,11 @@
-﻿using BaroquenMelody.Library.Compositions.Choices;
+﻿using BaroquenMelody.Infrastructure.Logging;
+using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
+using BaroquenMelody.Library.Compositions.Exceptions;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.Rules;
-using BaroquenMelody.Library.Infrastructure.Exceptions;
-using BaroquenMelody.Library.Infrastructure.Logging;
-using BaroquenMelody.Library.Infrastructure.Random;
 using Melanchall.DryWetMidi.MusicTheory;
 using Microsoft.Extensions.Logging;
 using System.Collections.Frozen;
@@ -102,7 +102,7 @@ internal sealed class CompositionStrategy(
                 continue;
             }
 
-            logger.CouldNotFindStartingNoteForInstrument(instrumentConfiguration.Instrument);
+            logger.LogCriticalMessage($"Could not find starting note for instrument {instrumentConfiguration.Instrument}.");
 
             throw new CouldNotFindStartingNoteForInstrumentException(instrumentConfiguration.Instrument);
         }

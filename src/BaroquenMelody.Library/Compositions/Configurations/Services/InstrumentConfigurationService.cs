@@ -1,7 +1,7 @@
-﻿using BaroquenMelody.Library.Compositions.Enums;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Compositions.Configurations.Enums;
+using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Midi.Repositories;
-using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
-using BaroquenMelody.Library.Infrastructure.Random;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using Fluxor;

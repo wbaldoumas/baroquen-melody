@@ -1,17 +1,17 @@
-﻿using BaroquenMelody.Library.Compositions.Choices;
+﻿using BaroquenMelody.Infrastructure.Collections;
+using BaroquenMelody.Infrastructure.Collections.Extensions;
+using BaroquenMelody.Infrastructure.Logging;
+using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
+using BaroquenMelody.Library.Compositions.Exceptions;
 using BaroquenMelody.Library.Compositions.Extensions;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using BaroquenMelody.Library.Compositions.Strategies;
-using BaroquenMelody.Library.Infrastructure.Collections;
-using BaroquenMelody.Library.Infrastructure.Collections.Extensions;
-using BaroquenMelody.Library.Infrastructure.Exceptions;
-using BaroquenMelody.Library.Infrastructure.Logging;
-using BaroquenMelody.Library.Infrastructure.Random;
 using BaroquenMelody.Library.Store.Actions;
 using Fluxor;
 using Melanchall.DryWetMidi.Interaction;
@@ -113,12 +113,12 @@ internal sealed class EndingComposer(
 
             if (chords.Count < MaxBridgingChords)
             {
-                logger.ComposedBridgingChord(chords.Count, MaxBridgingChords);
+                logger.LogInfoMessage($"Composed bridging chord {chords.Count} of {MaxBridgingChords}.");
 
                 continue;
             }
 
-            logger.CouldNotFindSuitableBridgingChord(MaxBridgingChords);
+            logger.LogInfoMessage($"Could not find suitable bridging chord after {MaxBridgingChords} attempts.");
 
             break;
         }
@@ -244,12 +244,11 @@ internal sealed class EndingComposer(
 
             if (chords.Count < MaxChordsToTonic)
             {
-                logger.ComposedChordToTonic(chords.Count, MaxChordsToTonic);
-
+                logger.LogInfoMessage($"Composed chord {chords.Count} of {MaxChordsToTonic} to tonic.");
                 continue;
             }
 
-            logger.CouldNotFindTonicChord(MaxChordsToTonic);
+            logger.LogInfoMessage($"Could not find tonic chord after {MaxChordsToTonic} attempts.");
 
             break;
         }
@@ -305,7 +304,7 @@ internal sealed class EndingComposer(
             return compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan);
         }
 
-        logger.NoValidChordChoicesAvailable();
+        logger.LogCriticalMessage("No valid chord choices available.");
 
         throw new NoValidChordChoicesAvailableException();
     }

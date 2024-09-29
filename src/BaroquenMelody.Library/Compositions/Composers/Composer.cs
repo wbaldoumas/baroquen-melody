@@ -1,9 +1,9 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
+﻿using BaroquenMelody.Infrastructure.Collections;
+using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Phrasing;
-using BaroquenMelody.Library.Infrastructure.Collections;
 using BaroquenMelody.Library.Store.Actions;
 using Fluxor;
 

@@ -1,7 +1,7 @@
 ﻿using BaroquenMelody;
 using BaroquenMelody.Infrastructure.FileSystem;
-using BaroquenMelody.Library.Infrastructure.Extensions;
-using BaroquenMelody.Library.Infrastructure.FileSystem;
+using BaroquenMelody.Library.Compositions.Midi;
+using BaroquenMelody.Library.Extensions;
 using Melanchall.DryWetMidi.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

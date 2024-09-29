@@ -1,7 +1,7 @@
 ﻿using Atrea.Utilities.Enums;
+using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
-using BaroquenMelody.Library.Infrastructure.Random;
 using BaroquenMelody.Library.Store.Actions;
 using Fluxor;
 using Melanchall.DryWetMidi.MusicTheory;
