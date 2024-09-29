@@ -20,7 +20,7 @@ internal sealed class FollowsStandardProgressionTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(3);
+        var compositionConfiguration = TestCompositionConfigurations.Get(3);
 
         _followsStandardProgression = new FollowsStandardProgression(compositionConfiguration);
     }

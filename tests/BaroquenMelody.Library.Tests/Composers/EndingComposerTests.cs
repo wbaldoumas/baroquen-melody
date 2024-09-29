@@ -44,7 +44,7 @@ internal sealed class EndingComposerTests
         _mockDispatcher = Substitute.For<IDispatcher>();
         _mockLogger = Substitute.For<ILogger>();
 
-        _compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration();
+        _compositionConfiguration = TestCompositionConfigurations.Get();
 
         _mockChordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
 

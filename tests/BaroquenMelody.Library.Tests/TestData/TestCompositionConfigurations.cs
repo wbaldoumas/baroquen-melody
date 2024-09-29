@@ -8,7 +8,7 @@ namespace BaroquenMelody.Library.Tests.TestData;
 
 internal static class TestCompositionConfigurations
 {
-    public static CompositionConfiguration GetCompositionConfiguration(
+    public static CompositionConfiguration Get(
         int numberOfInstruments = 4,
         int compositionLength = 100
     ) => new(

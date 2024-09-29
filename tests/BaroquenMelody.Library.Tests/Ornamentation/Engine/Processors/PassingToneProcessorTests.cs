@@ -21,7 +21,7 @@ internal sealed class PassingToneProcessorTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _processor = new PassingToneProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, OrnamentationType.PassingTone);
     }

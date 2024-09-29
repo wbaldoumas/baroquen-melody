@@ -16,7 +16,7 @@ internal sealed class AvoidDirectIntervalsTest
     private AvoidDirectIntervals _avoidDirectIntervals = null!;
 
     [SetUp]
-    public void SetUp() => _avoidDirectIntervals = new AvoidDirectIntervals(Interval.PerfectFifth, TestCompositionConfigurations.GetCompositionConfiguration());
+    public void SetUp() => _avoidDirectIntervals = new AvoidDirectIntervals(Interval.PerfectFifth, TestCompositionConfigurations.Get());
 
     [Test]
     [TestCaseSource(nameof(TestCases))]

@@ -22,7 +22,7 @@ internal sealed class CompositionDecoratorTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _mockOrnamentationEngine = Substitute.For<IPolicyEngine<OrnamentationItem>>();
         _mockSustainEngine = Substitute.For<IPolicyEngine<OrnamentationItem>>();

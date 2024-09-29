@@ -24,7 +24,7 @@ internal sealed class RepeatedNoteProcessorTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(3);
+        var compositionConfiguration = TestCompositionConfigurations.Get(3);
 
         _mockMusicalTimeSpanCalculator = Substitute.For<IMusicalTimeSpanCalculator>();
         _repeatedNoteProcessor = new RepeatedNoteProcessor(_mockMusicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.RepeatedNote);

@@ -41,7 +41,7 @@ internal sealed class CompositionStrategyFactoryTests
 
         mockChordChoiceRepository.Count.Returns(500);
 
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         // act
         var compositionStrategy = _compositionStrategyFactory.Create(compositionConfiguration);

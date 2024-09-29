@@ -101,7 +101,7 @@ internal sealed class CompositionConfigurationEffectsTests
     public async Task HandleLoadSavedCompositionConfigurationAsync_dispatches_expected_actions()
     {
         // arrange
-        var configuration = TestCompositionConfigurations.GetCompositionConfiguration();
+        var configuration = TestCompositionConfigurations.Get();
 
         var action = new LoadSavedCompositionConfiguration(configuration);
 

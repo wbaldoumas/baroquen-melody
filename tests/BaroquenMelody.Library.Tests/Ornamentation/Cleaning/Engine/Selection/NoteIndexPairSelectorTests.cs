@@ -24,7 +24,7 @@ internal sealed class NoteIndexPairSelectorTests
         IList<NoteIndexPair> expectedIndices)
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration() with { Meter = meter };
+        var compositionConfiguration = TestCompositionConfigurations.Get() with { Meter = meter };
         var musicalTimespanCalculator = new MusicalTimeSpanCalculator();
         var noteOnsetCalculator = new NoteOnsetCalculator(musicalTimespanCalculator, compositionConfiguration);
 
@@ -65,7 +65,7 @@ internal sealed class NoteIndexPairSelectorTests
             {
                 foreach (var meter in EnumUtils<Meter>.AsEnumerable())
                 {
-                    var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration() with { Meter = meter };
+                    var compositionConfiguration = TestCompositionConfigurations.Get() with { Meter = meter };
                     var musicalTimespanCalculator = new MusicalTimeSpanCalculator();
                     var noteOnsetCalculator = new NoteOnsetCalculator(musicalTimespanCalculator, compositionConfiguration);
                     var selector = new NoteIndexPairSelector(noteOnsetCalculator);

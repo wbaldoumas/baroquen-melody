@@ -20,7 +20,7 @@ internal sealed class IsApplicableIntervalTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _isApplicableInterval = new IsApplicableInterval(compositionConfiguration, interval: 2);
     }

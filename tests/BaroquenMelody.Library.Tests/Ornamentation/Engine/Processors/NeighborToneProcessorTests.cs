@@ -27,7 +27,7 @@ internal sealed class NeighborToneProcessorTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(3);
+        var compositionConfiguration = TestCompositionConfigurations.Get(3);
 
         _mockMusicalTimeSpanCalculator = Substitute.For<IMusicalTimeSpanCalculator>();
         _mockWeightedRandomBooleanGenerator = Substitute.For<IWeightedRandomBooleanGenerator>();

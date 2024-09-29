@@ -20,7 +20,7 @@ internal sealed class NoteOnsetCalculatorTests
     public void CalculateNoteOnsets_returns_expected_value(BaroquenNote note, Meter meter, BitArray expectedBitArray)
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2) with { Meter = meter };
+        var compositionConfiguration = TestCompositionConfigurations.Get(2) with { Meter = meter };
         var musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
         var noteOnsetCalculator = new NoteOnsetCalculator(musicalTimeSpanCalculator, compositionConfiguration);
 

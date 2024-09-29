@@ -33,7 +33,7 @@ internal sealed class SoloChordChoiceRepositoryTests
     public void WhenSoloChordChoiceRepositoryIsConstructed_ItGeneratesNoteChoices()
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(1);
+        var compositionConfiguration = TestCompositionConfigurations.Get(1);
 
         var soloChordChoiceRepository = new SoloChordChoiceRepository(
             compositionConfiguration,
@@ -53,7 +53,7 @@ internal sealed class SoloChordChoiceRepositoryTests
     public void WhenInvalidCompositionConfigurationIsPassedToSoloChordChoiceRepository_ItThrows()
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(3);
+        var compositionConfiguration = TestCompositionConfigurations.Get(3);
 
         // act
         var act = () => _ = new SoloChordChoiceRepository(
@@ -69,7 +69,7 @@ internal sealed class SoloChordChoiceRepositoryTests
     public void GetChordChoiceId_ReturnsExpectedId()
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(1);
+        var compositionConfiguration = TestCompositionConfigurations.Get(1);
 
         var soloChordChoiceRepository = new SoloChordChoiceRepository(
             compositionConfiguration,

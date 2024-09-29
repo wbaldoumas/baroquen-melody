@@ -30,7 +30,7 @@ internal sealed class ChordChoiceRepositoryFactoryTests
         Type expectedType)
     {
         // act
-        var chordChoiceRepository = _chordChoiceRepositoryFactory.Create(TestCompositionConfigurations.GetCompositionConfiguration(numberOfInstruments));
+        var chordChoiceRepository = _chordChoiceRepositoryFactory.Create(TestCompositionConfigurations.Get(numberOfInstruments));
 
         // assert
         chordChoiceRepository.Should().BeOfType(expectedType);
@@ -40,7 +40,7 @@ internal sealed class ChordChoiceRepositoryFactoryTests
     public void WhenChordChoiceRepositoryIsPassedInvalidConfiguration_ItThrows()
     {
         // act
-        var act = () => _chordChoiceRepositoryFactory.Create(TestCompositionConfigurations.GetCompositionConfiguration(0));
+        var act = () => _chordChoiceRepositoryFactory.Create(TestCompositionConfigurations.Get(0));
 
         // assert
         act.Should()

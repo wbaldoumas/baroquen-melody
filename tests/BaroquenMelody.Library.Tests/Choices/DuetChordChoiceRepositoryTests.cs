@@ -44,7 +44,7 @@ internal sealed class DuetChordChoiceRepositoryTests
     public void WhenDuetChordChoiceRepositoryIsConstructed_ItGeneratesNoteChoices()
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         var duetChordChoiceRepository = new DuetChordChoiceRepository(
             compositionConfiguration,
@@ -74,7 +74,7 @@ internal sealed class DuetChordChoiceRepositoryTests
     public void WhenInvalidCompositionConfigurationIsPassedToDuetChordChoiceRepository_ItThrows()
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(3);
+        var compositionConfiguration = TestCompositionConfigurations.Get(3);
 
         // act
         var act = () => _ = new DuetChordChoiceRepository(
@@ -90,7 +90,7 @@ internal sealed class DuetChordChoiceRepositoryTests
     public void GetChordChoiceId_ReturnsExpectedId()
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         var duetChordChoiceRepository = new DuetChordChoiceRepository(
             compositionConfiguration,

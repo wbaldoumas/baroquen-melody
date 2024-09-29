@@ -211,7 +211,7 @@ internal sealed class CompositionPhraserTests
 
     private CompositionPhraser CreatePhraser(PhrasingConfiguration phrasingConfiguration)
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2) with { PhrasingConfiguration = phrasingConfiguration };
+        var compositionConfiguration = TestCompositionConfigurations.Get(2) with { PhrasingConfiguration = phrasingConfiguration };
 
         return new CompositionPhraser(_mockCompositionRule, _mockThemeSplitter, _weightedRandomBooleanGenerator, _mockLogger, compositionConfiguration);
     }

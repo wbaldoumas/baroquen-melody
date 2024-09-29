@@ -35,9 +35,9 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
     {
         get
         {
-            yield return new TestCaseData(TestCompositionConfigurations.GetCompositionConfiguration(2, 10));
+            yield return new TestCaseData(TestCompositionConfigurations.Get(2, 10));
 
-            yield return new TestCaseData(TestCompositionConfigurations.GetCompositionConfiguration(3, 10));
+            yield return new TestCaseData(TestCompositionConfigurations.Get(3, 10));
         }
     }
 }

@@ -15,7 +15,7 @@ internal sealed class AvoidDissonantLeapsTests
     private AvoidDissonantLeaps _avoidDissonantLeaps = null!;
 
     [SetUp]
-    public void SetUp() => _avoidDissonantLeaps = new AvoidDissonantLeaps(TestCompositionConfigurations.GetCompositionConfiguration());
+    public void SetUp() => _avoidDissonantLeaps = new AvoidDissonantLeaps(TestCompositionConfigurations.Get());
 
     [Test]
     [TestCaseSource(nameof(TestCases))]

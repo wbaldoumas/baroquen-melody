@@ -79,7 +79,7 @@ internal sealed class OrnamentationCleanerTests
 
         _cleaner = new OrnamentationCleaner(
             new OrnamentationCleanerConfiguration(_mockNotePairSelector, indicesToCheck, _mockNoteTargetSelector),
-            TestCompositionConfigurations.GetCompositionConfiguration(2),
+            TestCompositionConfigurations.Get(2),
             _mockWeightedRandomBooleanGenerator
         );
 
@@ -136,7 +136,7 @@ internal sealed class OrnamentationCleanerTests
 
         _cleaner = new OrnamentationCleaner(
             new OrnamentationCleanerConfiguration(_mockNotePairSelector, indicesToCheck, _mockNoteTargetSelector),
-            TestCompositionConfigurations.GetCompositionConfiguration(2),
+            TestCompositionConfigurations.Get(2),
             _mockWeightedRandomBooleanGenerator
         );
 
@@ -205,7 +205,7 @@ internal sealed class OrnamentationCleanerTests
 
         _cleaner = new OrnamentationCleaner(
             new OrnamentationCleanerConfiguration(_mockNotePairSelector, indicesToCheck, _mockNoteTargetSelector),
-            TestCompositionConfigurations.GetCompositionConfiguration(2),
+            TestCompositionConfigurations.Get(2),
             _mockWeightedRandomBooleanGenerator
         );
 

@@ -21,7 +21,7 @@ internal sealed class DoubleTurnProcessorTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _processor = new DoubleTurnProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
     }

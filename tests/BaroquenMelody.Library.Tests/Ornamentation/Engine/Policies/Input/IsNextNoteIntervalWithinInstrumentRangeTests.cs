@@ -20,7 +20,7 @@ internal sealed class IsNextNoteIntervalWithinInstrumentRangeTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration();
+        var compositionConfiguration = TestCompositionConfigurations.Get();
 
         _isIntervalWithinInstrumentRange = new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, interval: 5);
     }

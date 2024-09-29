@@ -63,7 +63,7 @@ internal sealed class ComposerTests
 
         _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>()).Returns(ChordNumber.V, ChordNumber.I);
 
-        _compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        _compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _noteTransposer = new NoteTransposer(_compositionConfiguration);
         _chordComposer = new ChordComposer(_mockCompositionStrategy, _mockLogger);

@@ -21,7 +21,7 @@ internal sealed class SustainedNoteProcessorTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _sustainedNoteProcessor = new SustainedNoteProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
     }

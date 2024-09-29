@@ -36,7 +36,7 @@ internal sealed class CompositionConfigurationReducersTests
     public void ReduceLoadCompositionConfiguration_updates_composition_configurations_as_expected()
     {
         // arrange
-        var configuration = TestCompositionConfigurations.GetCompositionConfiguration();
+        var configuration = TestCompositionConfigurations.Get();
         var state = new CompositionConfigurationState();
 
         // act

@@ -21,7 +21,7 @@ internal sealed class DoublePassingToneProcessorTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _processor = new DoublePassingToneProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, OrnamentationType.DoublePassingTone);
     }

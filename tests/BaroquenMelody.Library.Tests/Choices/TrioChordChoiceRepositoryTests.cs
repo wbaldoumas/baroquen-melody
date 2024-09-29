@@ -55,7 +55,7 @@ internal sealed class TrioChordChoiceRepositoryTests
     public void WhenTrioChordChoiceRepositoryIsConstructed_ItGeneratesNoteChoices()
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(3);
+        var compositionConfiguration = TestCompositionConfigurations.Get(3);
 
         var trioChordChoiceRepository = new TrioChordChoiceRepository(
             compositionConfiguration,
@@ -86,7 +86,7 @@ internal sealed class TrioChordChoiceRepositoryTests
     public void WhenInvalidCompositionConfigurationIsPassedToQuartetChordChoiceRepository_ItThrows()
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration();
+        var compositionConfiguration = TestCompositionConfigurations.Get();
 
         // act
         var act = () => _ = new TrioChordChoiceRepository(
@@ -102,7 +102,7 @@ internal sealed class TrioChordChoiceRepositoryTests
     public void GetChordChoiceId_ReturnsExpectedId()
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(3);
+        var compositionConfiguration = TestCompositionConfigurations.Get(3);
 
         var trioChordChoiceRepository = new TrioChordChoiceRepository(
             compositionConfiguration,

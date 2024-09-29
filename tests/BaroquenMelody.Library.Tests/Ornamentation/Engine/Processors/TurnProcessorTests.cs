@@ -21,7 +21,7 @@ internal sealed class TurnProcessorTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _processor = new TurnProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
     }

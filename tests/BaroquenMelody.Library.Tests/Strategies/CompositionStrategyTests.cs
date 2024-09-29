@@ -39,7 +39,7 @@ internal sealed class CompositionStrategyTests
 
         _mockChordChoiceRepository.Count.Returns(MockChordChoiceCount);
 
-        _compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration();
+        _compositionConfiguration = TestCompositionConfigurations.Get();
 
         _compositionStrategy = new CompositionStrategy(
             _mockChordChoiceRepository,

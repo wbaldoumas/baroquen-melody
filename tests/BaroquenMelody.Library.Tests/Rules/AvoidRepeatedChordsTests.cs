@@ -18,7 +18,7 @@ internal sealed class AvoidRepeatedChordsTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(3);
+        var compositionConfiguration = TestCompositionConfigurations.Get(3);
 
         _avoidRepeatedChords = new AvoidRepeatedChords(new ChordNumberIdentifier(compositionConfiguration));
     }

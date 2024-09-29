@@ -21,7 +21,7 @@ internal sealed class InvertedTurnProcessorTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _processor = new InvertedTurnProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
     }

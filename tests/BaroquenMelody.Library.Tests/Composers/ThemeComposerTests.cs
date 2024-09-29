@@ -45,7 +45,7 @@ internal sealed class ThemeComposerTests
         _mockDispatcher = Substitute.For<IDispatcher>();
         _mockLogger = Substitute.For<ILogger>();
 
-        _compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration();
+        _compositionConfiguration = TestCompositionConfigurations.Get();
 
         _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockNoteTransposer, _mockDispatcher, _mockLogger, _compositionConfiguration);
     }

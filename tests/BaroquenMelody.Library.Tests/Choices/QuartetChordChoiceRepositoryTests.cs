@@ -66,7 +66,7 @@ internal sealed class QuartetChordChoiceRepositoryTests
     public void WhenQuartetChordChoiceRepositoryIsConstructed_ItGeneratesNoteChoices()
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration();
+        var compositionConfiguration = TestCompositionConfigurations.Get();
 
         var quartetChordChoiceRepository = new QuartetChordChoiceRepository(
             compositionConfiguration,
@@ -98,7 +98,7 @@ internal sealed class QuartetChordChoiceRepositoryTests
     public void WhenInvalidCompositionConfigurationIsPassedToQuartetChordChoiceRepository_ItThrows()
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         // act
         var act = () => _ = new QuartetChordChoiceRepository(
@@ -114,7 +114,7 @@ internal sealed class QuartetChordChoiceRepositoryTests
     public void GetChordChoiceId_ReturnsExpectedIndex()
     {
         // arrange
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration();
+        var compositionConfiguration = TestCompositionConfigurations.Get();
 
         var quartetChordChoiceRepository = new QuartetChordChoiceRepository(
             compositionConfiguration,

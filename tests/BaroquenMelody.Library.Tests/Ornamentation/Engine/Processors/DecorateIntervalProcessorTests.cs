@@ -21,7 +21,7 @@ internal sealed class DecorateIntervalProcessorTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _processor = new DecorateIntervalProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, 4);
     }

@@ -21,7 +21,7 @@ internal sealed class IsFifthOfChordTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(3);
+        var compositionConfiguration = TestCompositionConfigurations.Get(3);
 
         var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
 

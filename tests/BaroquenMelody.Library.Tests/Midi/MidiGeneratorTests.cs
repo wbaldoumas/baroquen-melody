@@ -18,7 +18,7 @@ internal sealed class MidiGeneratorTests
     [SetUp]
     public void SetUp()
     {
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _midiGenerator = new MidiGenerator(compositionConfiguration);
     }

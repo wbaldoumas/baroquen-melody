@@ -61,7 +61,7 @@ internal sealed class CompositionConfigurationPersistenceServiceTests
             );
 
         var result = await _persistenceService.SaveConfigurationAsync(
-            TestCompositionConfigurations.GetCompositionConfiguration(),
+            TestCompositionConfigurations.Get(),
             "test",
             CancellationToken.None
         );
@@ -78,7 +78,7 @@ internal sealed class CompositionConfigurationPersistenceServiceTests
 
         // act
         var result = await _persistenceService.SaveConfigurationAsync(
-            TestCompositionConfigurations.GetCompositionConfiguration(),
+            TestCompositionConfigurations.Get(),
             "test",
             CancellationToken.None
         );

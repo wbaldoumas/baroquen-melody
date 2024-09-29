@@ -26,7 +26,7 @@ internal sealed class PickupProcessorTests
     {
         _mockMusicalTimeSpanCalculator = Substitute.For<IMusicalTimeSpanCalculator>();
 
-        var compositionConfiguration = TestCompositionConfigurations.GetCompositionConfiguration(2);
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _pickupProcessor = new PickupProcessor(_mockMusicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.Pickup);
     }
