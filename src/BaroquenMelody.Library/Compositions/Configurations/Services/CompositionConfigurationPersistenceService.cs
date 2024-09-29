@@ -1,9 +1,9 @@
 ﻿using BaroquenMelody.Infrastructure.Devices;
 using BaroquenMelody.Infrastructure.Logging;
+using BaroquenMelody.Library.Compositions.Configurations.Serialization.JsonSerializerContexts;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Text.Json;
-using CompositionConfigurationJsonSerializerContext = BaroquenMelody.Library.Compositions.Configurations.Serialization.JsonSerializerContexts.CompositionConfigurationJsonSerializerContext;
 
 namespace BaroquenMelody.Library.Compositions.Configurations.Services;
 

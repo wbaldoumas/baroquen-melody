@@ -9,5 +9,5 @@ namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Outp
 [ExcludeFromCodeCoverage(Justification = "Simple log policy.")]
 internal sealed class LogOrnamentation(OrnamentationType ornamentationType, ILogger logger) : IOutputPolicy<OrnamentationItem>
 {
-    public void Apply(OrnamentationItem item) => logger.LogInfoMessage($"Ornamentation {ornamentationType} applied to {item.Instrument}");
+    public void Apply(OrnamentationItem item) => logger.LogInfoMessage($"Ornamentation {ornamentationType} applied to instrument {item.Instrument}.");
 }

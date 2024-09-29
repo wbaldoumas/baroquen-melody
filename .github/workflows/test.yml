@@ -23,7 +23,7 @@ jobs:
         dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
         cp TestResults/*/coverage.opencover.xml .
 
-        cd ../../BaroquenMelody.Infrastructure.Tests/
+        cd ../BaroquenMelody.Infrastructure.Tests/
         dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
         cp TestResults/*/coverage.opencover.xml .
 
