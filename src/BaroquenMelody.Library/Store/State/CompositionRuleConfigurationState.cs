@@ -1,5 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Rules.Enums;
+﻿using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Rules.Enums;
 using Fluxor;
 using System.Collections.Frozen;
 

@@ -1,10 +1,10 @@
 ﻿using BaroquenMelody.Infrastructure.Collections;
-using BaroquenMelody.Library.Compositions.Choices;
-using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.MusicTheory;
-using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
-using BaroquenMelody.Library.Compositions.Rules;
-using BaroquenMelody.Library.Compositions.Strategies;
+using BaroquenMelody.Library.Choices;
+using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.MusicTheory;
+using BaroquenMelody.Library.MusicTheory.Enums;
+using BaroquenMelody.Library.Rules;
+using BaroquenMelody.Library.Strategies;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using Microsoft.Extensions.Logging;

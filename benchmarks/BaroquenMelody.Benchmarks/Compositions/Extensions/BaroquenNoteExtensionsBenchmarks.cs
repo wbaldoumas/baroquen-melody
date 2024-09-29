@@ -1,7 +1,7 @@
-﻿using BaroquenMelody.Library.Compositions.Choices;
-using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.Extensions;
+﻿using BaroquenMelody.Library.Choices;
+using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Extensions;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using Melanchall.DryWetMidi.Interaction;

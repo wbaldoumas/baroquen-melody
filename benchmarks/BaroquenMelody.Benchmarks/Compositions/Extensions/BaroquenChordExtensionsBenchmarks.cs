@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.Library.Compositions.Extensions;
+﻿using BaroquenMelody.Library.Extensions;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using Melanchall.DryWetMidi.Interaction;

@@ -1,6 +1,6 @@
-﻿using BaroquenMelody.Library.Compositions.Composers;
-using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Midi;
+﻿using BaroquenMelody.Library.Composers;
+using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Midi;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Effects;
 using BaroquenMelody.Library.Store.State;

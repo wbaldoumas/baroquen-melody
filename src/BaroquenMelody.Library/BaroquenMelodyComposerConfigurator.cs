@@ -1,15 +1,15 @@
 ﻿using BaroquenMelody.Infrastructure.Random;
-using BaroquenMelody.Library.Compositions.Choices;
-using BaroquenMelody.Library.Compositions.Composers;
-using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Midi;
-using BaroquenMelody.Library.Compositions.MusicTheory;
-using BaroquenMelody.Library.Compositions.Ornamentation;
-using BaroquenMelody.Library.Compositions.Ornamentation.Engine;
-using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
-using BaroquenMelody.Library.Compositions.Phrasing;
-using BaroquenMelody.Library.Compositions.Rules;
-using BaroquenMelody.Library.Compositions.Strategies;
+using BaroquenMelody.Library.Choices;
+using BaroquenMelody.Library.Composers;
+using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Midi;
+using BaroquenMelody.Library.MusicTheory;
+using BaroquenMelody.Library.Ornamentation;
+using BaroquenMelody.Library.Ornamentation.Engine;
+using BaroquenMelody.Library.Ornamentation.Utilities;
+using BaroquenMelody.Library.Phrasing;
+using BaroquenMelody.Library.Rules;
+using BaroquenMelody.Library.Strategies;
 using Fluxor;
 using Microsoft.Extensions.Logging;
 

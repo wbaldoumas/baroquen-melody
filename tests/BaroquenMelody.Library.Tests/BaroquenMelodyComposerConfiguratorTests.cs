@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
+﻿using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Fluxor;
@@ -35,9 +35,9 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
     {
         get
         {
-            yield return new TestCaseData(Configurations.GetCompositionConfiguration(2, 10));
+            yield return new TestCaseData(TestCompositionConfigurations.GetCompositionConfiguration(2, 10));
 
-            yield return new TestCaseData(Configurations.GetCompositionConfiguration(3, 10));
+            yield return new TestCaseData(TestCompositionConfigurations.GetCompositionConfiguration(3, 10));
         }
     }
 }

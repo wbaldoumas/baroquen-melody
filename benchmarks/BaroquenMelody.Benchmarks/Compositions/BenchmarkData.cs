@@ -1,8 +1,8 @@
-﻿using BaroquenMelody.Library.Compositions.Choices;
-using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+﻿using BaroquenMelody.Library.Choices;
+using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory.Enums;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 

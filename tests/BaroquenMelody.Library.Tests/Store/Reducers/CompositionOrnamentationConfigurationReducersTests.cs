@@ -1,6 +1,6 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Configurations.Enums;
-using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
+﻿using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
+using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Reducers;
 using BaroquenMelody.Library.Store.State;

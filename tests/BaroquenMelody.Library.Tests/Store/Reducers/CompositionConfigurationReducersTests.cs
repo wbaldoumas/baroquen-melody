@@ -1,5 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+﻿using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Reducers;
 using BaroquenMelody.Library.Store.State;
@@ -36,7 +36,7 @@ internal sealed class CompositionConfigurationReducersTests
     public void ReduceLoadCompositionConfiguration_updates_composition_configurations_as_expected()
     {
         // arrange
-        var configuration = Configurations.GetCompositionConfiguration();
+        var configuration = TestCompositionConfigurations.GetCompositionConfiguration();
         var state = new CompositionConfigurationState();
 
         // act

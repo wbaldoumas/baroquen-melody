@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
+﻿using BaroquenMelody.Library.Configurations;
 
 namespace BaroquenMelody.Library.Store.Actions;
 

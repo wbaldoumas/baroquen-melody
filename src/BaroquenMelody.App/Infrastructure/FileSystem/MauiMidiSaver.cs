@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.Library.Compositions.Midi;
+﻿using BaroquenMelody.Library.Midi;
 using CommunityToolkit.Maui.Storage;
 using System.Globalization;
 using MauiFileSystem = Microsoft.Maui.Storage.FileSystem;
