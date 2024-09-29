@@ -1,7 +1,7 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Configurations.Enums;
-using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+﻿using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
+using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Effects;
 using BaroquenMelody.Library.Store.State;
@@ -101,7 +101,7 @@ internal sealed class CompositionConfigurationEffectsTests
     public async Task HandleLoadSavedCompositionConfigurationAsync_dispatches_expected_actions()
     {
         // arrange
-        var configuration = Configurations.GetCompositionConfiguration();
+        var configuration = TestCompositionConfigurations.Get();
 
         var action = new LoadSavedCompositionConfiguration(configuration);
 

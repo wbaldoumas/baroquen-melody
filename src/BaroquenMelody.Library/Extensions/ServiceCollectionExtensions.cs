@@ -1,5 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations.Services;
-using BaroquenMelody.Library.Compositions.Midi.Repositories;
+﻿using BaroquenMelody.Library.Configurations.Services;
+using BaroquenMelody.Library.Midi.Repositories;
 using Fluxor;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;

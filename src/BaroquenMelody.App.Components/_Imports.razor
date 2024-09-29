@@ -7,22 +7,21 @@
 @using BaroquenMelody.App.Components
 @using BaroquenMelody.App.Components.Shared
 @using BaroquenMelody.Infrastructure.Devices
+@using BaroquenMelody.Infrastructure.Extensions
+@using BaroquenMelody.Infrastructure.State
 @using BaroquenMelody.Library
-@using BaroquenMelody.Library.Compositions.Configurations
-@using BaroquenMelody.Library.Compositions.Configurations.Enums
-@using BaroquenMelody.Library.Compositions.Configurations.Enums.Extensions
-@using BaroquenMelody.Library.Compositions.Configurations.Services
-@using BaroquenMelody.Library.Compositions.Domain
-@using BaroquenMelody.Library.Compositions.Enums
-@using BaroquenMelody.Library.Compositions.Enums.Extensions
-@using BaroquenMelody.Library.Compositions.Midi
-@using BaroquenMelody.Library.Compositions.Midi.Enums
-@using BaroquenMelody.Library.Compositions.Midi.Repositories
-@using BaroquenMelody.Library.Compositions.MusicTheory.Enums
-@using BaroquenMelody.Library.Compositions.Ornamentation
-@using BaroquenMelody.Library.Compositions.Ornamentation.Enums
-@using BaroquenMelody.Library.Compositions.Rules
-@using BaroquenMelody.Library.Compositions.Rules.Enums
+@using BaroquenMelody.Library.Configurations
+@using BaroquenMelody.Library.Configurations.Enums
+@using BaroquenMelody.Library.Configurations.Enums.Extensions
+@using BaroquenMelody.Library.Configurations.Services
+@using BaroquenMelody.Library.Enums
+@using BaroquenMelody.Library.Enums.Extensions
+@using BaroquenMelody.Library.Midi
+@using BaroquenMelody.Library.Midi.Enums
+@using BaroquenMelody.Library.Midi.Repositories
+@using BaroquenMelody.Library.MusicTheory.Enums
+@using BaroquenMelody.Library.Ornamentation.Enums
+@using BaroquenMelody.Library.Rules.Enums
 @using BaroquenMelody.Library.Store.Actions
 @using BaroquenMelody.Library.Store.State
 @using Fluxor
@@ -36,8 +35,6 @@
 @using Microsoft.JSInterop
 @using MudBlazor
 @using MudExtensions
-@using BaroquenMelody.Infrastructure.Extensions
-@using BaroquenMelody.Infrastructure.State
 
 @inject IState<CompositionOrnamentationConfigurationState> OrnamentationConfigurationState
 @inject IState<CompositionRuleConfigurationState> CompositionRuleConfigurationState

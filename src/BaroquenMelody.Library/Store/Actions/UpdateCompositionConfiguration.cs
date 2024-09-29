@@ -1,5 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
+﻿using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory.Enums;
 using Melanchall.DryWetMidi.MusicTheory;
 
 namespace BaroquenMelody.Library.Store.Actions;

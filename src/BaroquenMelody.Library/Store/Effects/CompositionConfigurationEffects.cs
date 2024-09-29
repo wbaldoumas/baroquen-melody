@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using Fluxor;

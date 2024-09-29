@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.Library.Compositions.Enums;
+﻿using BaroquenMelody.Library.Enums;
 
 namespace BaroquenMelody.Library.Store.Actions;
 

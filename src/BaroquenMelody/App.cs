@@ -1,7 +1,7 @@
 ﻿using BaroquenMelody.Infrastructure.State;
 using BaroquenMelody.Library;
-using BaroquenMelody.Library.Compositions.Configurations;
-using BaroquenMelody.Library.Compositions.Enums.Extensions;
+using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Enums.Extensions;
 using BaroquenMelody.Library.Store.State;
 using Fluxor;
 

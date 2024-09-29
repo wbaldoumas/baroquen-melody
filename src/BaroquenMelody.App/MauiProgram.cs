@@ -4,7 +4,7 @@ using BaroquenMelody.App.Infrastructure.Devices;
 using BaroquenMelody.App.Infrastructure.FileSystem;
 using BaroquenMelody.App.Infrastructure.Theme;
 using BaroquenMelody.Infrastructure.Devices;
-using BaroquenMelody.Library.Compositions.Midi;
+using BaroquenMelody.Library.Midi;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.Logging;

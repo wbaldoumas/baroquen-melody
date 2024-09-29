@@ -1,5 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Composers;
-using BaroquenMelody.Library.Compositions.Configurations;
+﻿using BaroquenMelody.Library.Composers;
+using BaroquenMelody.Library.Configurations;
 
 namespace BaroquenMelody.Library;
 

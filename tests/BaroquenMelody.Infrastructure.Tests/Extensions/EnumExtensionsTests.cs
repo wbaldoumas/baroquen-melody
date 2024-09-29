@@ -3,7 +3,7 @@ using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
-namespace BaroquenMelody.Library.Tests.Infrastructure.Extensions;
+namespace BaroquenMelody.Infrastructure.Tests.Extensions;
 
 [TestFixture]
 internal sealed class EnumExtensionsTests

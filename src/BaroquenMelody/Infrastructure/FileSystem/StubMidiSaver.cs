@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.Library.Compositions.Midi;
+﻿using BaroquenMelody.Library.Midi;
 
 namespace BaroquenMelody.Infrastructure.FileSystem;
 
