@@ -1,6 +1,6 @@
-﻿using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
-using BaroquenMelody.Library.Infrastructure.Configuration.Enums.Extensions;
+﻿using BaroquenMelody.Library.Compositions.Configurations.Enums;
+using BaroquenMelody.Library.Compositions.Configurations.Enums.Extensions;
+using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
 using System.Text.Json.Serialization;
 
 namespace BaroquenMelody.Library.Compositions.Configurations;

@@ -1,5 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Infrastructure.Random;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Compositions.Domain;
 
 namespace BaroquenMelody.Library.Compositions.Rules;
 

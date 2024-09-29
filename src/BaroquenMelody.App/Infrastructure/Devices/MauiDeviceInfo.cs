@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.Library.Infrastructure.Devices;
+﻿using BaroquenMelody.Infrastructure.Devices;
 
 namespace BaroquenMelody.App.Infrastructure.Devices;
 

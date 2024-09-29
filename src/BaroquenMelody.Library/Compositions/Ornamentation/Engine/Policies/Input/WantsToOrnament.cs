@@ -1,5 +1,5 @@
 ﻿using Atrea.PolicyEngine.Policies.Input;
-using BaroquenMelody.Library.Infrastructure.Random;
+using BaroquenMelody.Infrastructure.Random;
 
 namespace BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
 

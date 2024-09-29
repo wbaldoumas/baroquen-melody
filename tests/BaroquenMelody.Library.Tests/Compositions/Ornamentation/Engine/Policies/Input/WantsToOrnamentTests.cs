@@ -1,9 +1,9 @@
 ﻿using Atrea.PolicyEngine.Policies.Input;
+using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
-using BaroquenMelody.Library.Infrastructure.Random;
 using FluentAssertions;
 using NUnit.Framework;
 

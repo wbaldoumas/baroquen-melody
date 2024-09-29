@@ -1,8 +1,8 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Compositions.Rules.Enums;
-using BaroquenMelody.Library.Infrastructure.Random;
 
 namespace BaroquenMelody.Library.Compositions.Rules;
 

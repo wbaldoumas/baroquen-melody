@@ -1,11 +1,11 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Configuration;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Processors;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Selection;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Infrastructure.Random;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;

@@ -31,6 +31,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\stylecop.json = ..\stylecop.json
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaroquenMelody.Infrastructure", "BaroquenMelody.Infrastructure\BaroquenMelody.Infrastructure.csproj", "{32C67FC5-D7BD-48CE-BAD8-5700FFE8D092}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaroquenMelody.Infrastructure.Tests", "..\tests\BaroquenMelody.Infrastructure.Tests\BaroquenMelody.Infrastructure.Tests.csproj", "{55971851-76DD-411D-B3F5-E44464CD3FDE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{D13F9DB7-2CED-4117-90E5-67CD8D0B6182}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{94B697D8-83CD-485C-8D1F-B27AA2C36FD5}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\approve.yml = ..\.github\workflows\approve.yml
+		..\.github\workflows\lint.yml = ..\.github\workflows\lint.yml
+		..\.github\workflows\stale.yml = ..\.github\workflows\stale.yml
+		..\.github\workflows\test.yml = ..\.github\workflows\test.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,9 +77,21 @@ Global
 		{5F8DD91A-D6E6-459A-AFF4-2E5F28F48F64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F8DD91A-D6E6-459A-AFF4-2E5F28F48F64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F8DD91A-D6E6-459A-AFF4-2E5F28F48F64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32C67FC5-D7BD-48CE-BAD8-5700FFE8D092}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32C67FC5-D7BD-48CE-BAD8-5700FFE8D092}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32C67FC5-D7BD-48CE-BAD8-5700FFE8D092}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32C67FC5-D7BD-48CE-BAD8-5700FFE8D092}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55971851-76DD-411D-B3F5-E44464CD3FDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55971851-76DD-411D-B3F5-E44464CD3FDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55971851-76DD-411D-B3F5-E44464CD3FDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55971851-76DD-411D-B3F5-E44464CD3FDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D13F9DB7-2CED-4117-90E5-67CD8D0B6182} = {992D27F8-752A-4438-9313-4DDD6F9F0A07}
+		{94B697D8-83CD-485C-8D1F-B27AA2C36FD5} = {D13F9DB7-2CED-4117-90E5-67CD8D0B6182}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {61F85A4A-79A1-4AF8-93DA-015416E921AF}

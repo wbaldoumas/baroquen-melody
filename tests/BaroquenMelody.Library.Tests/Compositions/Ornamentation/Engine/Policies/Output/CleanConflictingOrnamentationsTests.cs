@@ -1,11 +1,11 @@
 ﻿using Atrea.PolicyEngine;
+using BaroquenMelody.Infrastructure.Collections;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Output;
 using BaroquenMelody.Library.Compositions.Ornamentation.Enums;
-using BaroquenMelody.Library.Infrastructure.Collections;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;

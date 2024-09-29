@@ -1,6 +1,6 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
+﻿using BaroquenMelody.Infrastructure.Collections.Extensions;
+using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
-using BaroquenMelody.Library.Infrastructure.Collections.Extensions;
 using Melanchall.DryWetMidi.MusicTheory;
 using System.Collections.Frozen;
 

@@ -1,10 +1,10 @@
 ﻿using Atrea.PolicyEngine.Policies.Input;
+using BaroquenMelody.Infrastructure.Collections;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Ornamentation.Engine.Policies.Input;
-using BaroquenMelody.Library.Infrastructure.Collections;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;

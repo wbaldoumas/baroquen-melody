@@ -1,7 +1,7 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Ornamentation.Cleaning.Engine.Selection.Strategies;
-using BaroquenMelody.Library.Infrastructure.Random;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;

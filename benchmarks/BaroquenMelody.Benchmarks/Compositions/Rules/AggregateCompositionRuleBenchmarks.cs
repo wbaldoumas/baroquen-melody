@@ -1,8 +1,8 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Infrastructure.Collections;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
 using BaroquenMelody.Library.Compositions.Rules;
-using BaroquenMelody.Library.Infrastructure.Collections;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 

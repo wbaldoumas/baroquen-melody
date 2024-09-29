@@ -1,6 +1,6 @@
 ﻿using BaroquenMelody.Library.Compositions.Configurations;
+using BaroquenMelody.Library.Compositions.Configurations.Enums;
 using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
 using BaroquenMelody.Library.Store.State;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;

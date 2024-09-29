@@ -1,11 +1,11 @@
-﻿using BaroquenMelody.Library.Compositions.Configurations;
+﻿using BaroquenMelody.Infrastructure.Logging;
+using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.MusicTheory;
 using BaroquenMelody.Library.Compositions.Ornamentation;
 using BaroquenMelody.Library.Compositions.Strategies;
-using BaroquenMelody.Library.Infrastructure.Logging;
-using BaroquenMelody.Library.Infrastructure.Random;
 using BaroquenMelody.Library.Store.Actions;
 using Fluxor;
 using Microsoft.Extensions.Logging;
@@ -42,10 +42,10 @@ internal sealed class ThemeComposer(
                 return fugueSubject!;
             }
 
-            logger.FailedToComposeFugalThemeAttempt(attempt, MaxFugueCompositionAttempts);
+            logger.LogWarningMessage($"Failed to compose fugal theme attempt {attempt} of {MaxFugueCompositionAttempts}.");
         }
 
-        logger.FailedToComposeFugalTheme(MaxFugueCompositionAttempts);
+        logger.LogWarningMessage($"Failed to compose fugal theme after {MaxFugueCompositionAttempts} attempts.");
 
         var initialMeasures = ComposeInitialMeasures(cancellationToken);
 

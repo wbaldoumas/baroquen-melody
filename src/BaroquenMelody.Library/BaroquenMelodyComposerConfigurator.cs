@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Choices;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Compositions.Choices;
 using BaroquenMelody.Library.Compositions.Composers;
 using BaroquenMelody.Library.Compositions.Configurations;
 using BaroquenMelody.Library.Compositions.Midi;
@@ -9,7 +10,6 @@ using BaroquenMelody.Library.Compositions.Ornamentation.Utilities;
 using BaroquenMelody.Library.Compositions.Phrasing;
 using BaroquenMelody.Library.Compositions.Rules;
 using BaroquenMelody.Library.Compositions.Strategies;
-using BaroquenMelody.Library.Infrastructure.Random;
 using Fluxor;
 using Microsoft.Extensions.Logging;
 

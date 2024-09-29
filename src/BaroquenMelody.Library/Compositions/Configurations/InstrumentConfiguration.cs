@@ -1,7 +1,7 @@
-﻿using BaroquenMelody.Library.Compositions.Enums;
-using BaroquenMelody.Library.Infrastructure.Configuration.Enums;
-using BaroquenMelody.Library.Infrastructure.Configuration.Enums.Extensions;
-using BaroquenMelody.Library.Infrastructure.Serialization.JsonConverters;
+﻿using BaroquenMelody.Library.Compositions.Configurations.Enums;
+using BaroquenMelody.Library.Compositions.Configurations.Enums.Extensions;
+using BaroquenMelody.Library.Compositions.Configurations.Serialization.JsonConverters;
+using BaroquenMelody.Library.Compositions.Enums;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
 using System.Collections.Frozen;

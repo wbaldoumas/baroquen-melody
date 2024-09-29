@@ -1,8 +1,8 @@
-﻿using BaroquenMelody.Library.Compositions.Domain;
+﻿using BaroquenMelody.Library.Compositions.Configurations.Serialization.JsonConverters;
+using BaroquenMelody.Library.Compositions.Domain;
 using BaroquenMelody.Library.Compositions.Enums;
 using BaroquenMelody.Library.Compositions.Enums.Extensions;
 using BaroquenMelody.Library.Compositions.MusicTheory.Enums;
-using BaroquenMelody.Library.Infrastructure.Serialization.JsonConverters;
 using LazyCart;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;

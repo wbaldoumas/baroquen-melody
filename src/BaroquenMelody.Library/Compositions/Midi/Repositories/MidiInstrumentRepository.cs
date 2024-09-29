@@ -1,5 +1,5 @@
-﻿using BaroquenMelody.Library.Compositions.Midi.Enums;
-using BaroquenMelody.Library.Infrastructure.Extensions;
+﻿using BaroquenMelody.Infrastructure.Extensions;
+using BaroquenMelody.Library.Compositions.Midi.Enums;
 using Melanchall.DryWetMidi.Standards;
 
 namespace BaroquenMelody.Library.Compositions.Midi.Repositories;
