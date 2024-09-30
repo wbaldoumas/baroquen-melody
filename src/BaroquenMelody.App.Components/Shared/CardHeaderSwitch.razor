@@ -1,12 +1,53 @@
 ﻿<MudCardHeader>
     <CardHeaderContent>
-        <MudText Typo="Typo.h6">@HeaderText</MudText>
+        <MudGrid Spacing="1">
+            <MudItem xs="12" sm="8" md="8">
+                <MudText Typo="Typo.h6">@HeaderText</MudText>
+            </MudItem>
+            <MudItem xs="12" sm="4" md="4">
+                <div class="d-none d-sm-flex justify-end">
+                    <MudStack Row="false" Justify="Justify.FlexEnd" Spacing="1">
+                        <MudSwitch T="bool"
+                                   Label="Enable"
+                                   Value="IsEnabled"
+                                   Color="Color.Tertiary"
+                                   LabelPosition="LabelPosition.Start"
+                                   ThumbIcon="@IsEnabledIcon"
+                                   ThumbIconColor="Color.Dark"
+                                   ValueChanged="IsEnabledChanged"/>
+                        <MudSwitch T="bool"
+                                   Label="Lock"
+                                   Value="IsLocked"
+                                   Color="Color.Primary"
+                                   LabelPosition="LabelPosition.Start"
+                                   ThumbIconColor="Color.Dark"
+                                   ThumbIcon="@IsLockedIcon"
+                                   ValueChanged="IsLockedChanged"/>
+                    </MudStack>
+                </div>
+                <div class="d-sm-none">
+                    <MudStack Row="true" Justify="Justify.SpaceEvenly" Spacing="1">
+                        <MudSwitch T="bool"
+                                   Label="Enable"
+                                   Value="IsEnabled"
+                                   Color="Color.Tertiary"
+                                   LabelPosition="LabelPosition.Start"
+                                   ThumbIconColor="Color.Dark"
+                                   ThumbIcon="@IsEnabledIcon"
+                                   ValueChanged="IsEnabledChanged"/>
+                        <MudSwitch T="bool"
+                                   Label="Lock"
+                                   Value="IsLocked"
+                                   Color="Color.Info"
+                                   LabelPosition="LabelPosition.Start"
+                                   ThumbIconColor="Color.Dark"
+                                   ThumbIcon="@IsLockedIcon"
+                                   ValueChanged="IsLockedChanged"/>
+                    </MudStack>
+                </div>
+            </MudItem>
+        </MudGrid>
     </CardHeaderContent>
-    <CardHeaderActions>
-        <MudTooltip Delay="ThemeProvider.TooltipDelay" Duration="ThemeProvider.TooltipDuration" Text="@TooltipText" Placement="Placement.Left">
-            <MudIconButton Icon="@Icon" OnClick="CycleConfigurationStatus" Color="IconColor" Size="Size.Medium" Variant="Variant.Text"/>
-        </MudTooltip>
-    </CardHeaderActions>
 </MudCardHeader>
 
 @code
@@ -17,34 +58,39 @@
 
     [Parameter, EditorRequired] public required EventCallback<ConfigurationStatus> ValueChanged { get; set; }
 
-    private void CycleConfigurationStatus()
+    private bool IsEnabled => ConfigurationStatus.HasFlag(ConfigurationStatus.Enabled);
+
+    private bool IsLocked => ConfigurationStatus.HasFlag(ConfigurationStatus.Locked);
+
+    private string IsEnabledIcon => IsEnabled ? Icons.Material.Sharp.MusicNote : Icons.Material.Sharp.MusicOff;
+
+    private string IsLockedIcon => IsLocked ? Icons.Material.Sharp.Lock : Icons.Material.Sharp.LockOpen;
+
+    private void IsEnabledChanged(bool isEnabled)
     {
-        ConfigurationStatus = ConfigurationStatus.Cycle();
+        if (isEnabled)
+        {
+            ConfigurationStatus |= ConfigurationStatus.Enabled;
+        }
+        else
+        {
+            ConfigurationStatus &= ~ConfigurationStatus.Enabled;
+        }
+
         ValueChanged.InvokeAsync(ConfigurationStatus);
     }
 
-    private string Icon => ConfigurationStatus switch
+    private void IsLockedChanged(bool isLocked)
     {
-        ConfigurationStatus.Enabled => Icons.Material.Outlined.CheckCircle,
-        ConfigurationStatus.Disabled => Icons.Material.Outlined.RemoveCircle,
-        ConfigurationStatus.Locked => Icons.Material.Outlined.Lock,
-        _ => throw new ArgumentOutOfRangeException()
-    };
+        if (isLocked)
+        {
+            ConfigurationStatus |= ConfigurationStatus.Locked;
+        }
+        else
+        {
+            ConfigurationStatus &= ~ConfigurationStatus.Locked;
+        }
 
-    private Color IconColor => ConfigurationStatus switch
-    {
-        ConfigurationStatus.Enabled => Color.Tertiary,
-        ConfigurationStatus.Disabled => Color.Default,
-        ConfigurationStatus.Locked => Color.Primary,
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
-    private string TooltipText => ConfigurationStatus switch
-    {
-        ConfigurationStatus.Enabled => "lock configuration",
-        ConfigurationStatus.Disabled => "enable configuration",
-        ConfigurationStatus.Locked => "disable configuration",
-        _ => throw new ArgumentOutOfRangeException()
-    };
-
+        ValueChanged.InvokeAsync(ConfigurationStatus);
+    }
 }

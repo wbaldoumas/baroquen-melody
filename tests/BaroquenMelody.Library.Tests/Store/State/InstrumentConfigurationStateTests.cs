@@ -15,9 +15,12 @@ internal sealed class InstrumentConfigurationStateTests
     [Test]
     [TestCase(ConfigurationStatus.Enabled, ConfigurationStatus.Enabled, true)]
     [TestCase(ConfigurationStatus.Enabled, ConfigurationStatus.Locked, true)]
-    [TestCase(ConfigurationStatus.Locked, ConfigurationStatus.Locked, true)]
+    [TestCase(ConfigurationStatus.Locked | ConfigurationStatus.Enabled, ConfigurationStatus.Enabled, true)]
     [TestCase(ConfigurationStatus.Enabled, ConfigurationStatus.Disabled, true)]
     [TestCase(ConfigurationStatus.Disabled, ConfigurationStatus.Disabled, false)]
+    [TestCase(ConfigurationStatus.Disabled, ConfigurationStatus.Locked, false)]
+    [TestCase(ConfigurationStatus.Disabled, ConfigurationStatus.EnabledAndLocked, true)]
+    [TestCase(ConfigurationStatus.Disabled, ConfigurationStatus.DisabledAndLocked, false)]
     public void IsValid_returns_expected_value(ConfigurationStatus instrumentOneStatus, ConfigurationStatus instrumentTwoStatus, bool expectedIsValid)
     {
         // act
