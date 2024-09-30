@@ -35,6 +35,7 @@ internal sealed class ConfigurationStatusExtensionsTests
     [TestCase(ConfigurationStatus.DisabledAndLocked, true)]
     [TestCase(ConfigurationStatus.Enabled | ConfigurationStatus.Locked, true)]
     [TestCase(ConfigurationStatus.Disabled | ConfigurationStatus.Locked, true)]
+    [TestCase(ConfigurationStatus.None | ConfigurationStatus.Enabled, false)]
     public void IsFrozen_returns_whether_the_configuration_is_frozen(ConfigurationStatus status, bool expectedIsFrozen)
     {
         // act
