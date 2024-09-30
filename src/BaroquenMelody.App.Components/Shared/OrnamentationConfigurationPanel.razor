@@ -1,11 +1,71 @@
-﻿<RandomizeResetButtonGroup OnRandomizeClick="OrnamentationConfigurationService.Randomize"
-                           OnResetClick="OrnamentationConfigurationService.ConfigureDefaults"/>
+﻿<div class="d-none d-sm-block">
+    <MudStack Row="true" AlignItems="AlignItems.End" Justify="Justify.SpaceBetween">
+        <RandomizeResetButtonGroup OnRandomizeClick="OrnamentationConfigurationService.Randomize"
+                                   OnResetClick="OrnamentationConfigurationService.ConfigureDefaults"/>
+        <MudTextField @bind-Value="Search"
+                      Placeholder="Search"
+                      Immediate="true"
+                      InputMode="InputMode.text"
+                      Class="mr-3"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Outlined.Search"
+                      AdornmentColor="Color.Secondary"
+                      IconSize="Size.Medium"
+                      Clearable="true"/>
+    </MudStack>
+</div>
+<div class="d-block d-sm-none">
+    <MudStack Row="false" AlignItems="AlignItems.Start" Justify="Justify.SpaceBetween">
+        <RandomizeResetButtonGroup OnRandomizeClick="OrnamentationConfigurationService.Randomize"
+                                   OnResetClick="OrnamentationConfigurationService.ConfigureDefaults"/>
+        <MudGrid>
+            <MudItem xs="12" Class="mx-3">
+                <MudTextField @bind-Value="Search"
+                              Placeholder="Search"
+                              Immediate="true"
+                              InputMode="InputMode.text"
+                              FullWidth="true"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Outlined.Search"
+                              AdornmentColor="Color.Secondary"
+                              IconSize="Size.Medium"
+                              Clearable="true"/>
+            </MudItem>
+        </MudGrid>
+
+    </MudStack>
+</div>
 <MudGrid Spacing="0" Justify="Justify.Center">
-    @foreach (var ornamentation in OrnamentationConfigurationService.ConfigurableOrnamentations)
+    @foreach (var ornamentation in Ornamentations)
     {
         <MudItem xs="12" sm="12" md="6" lg="6" xl="6" xxl="6">
             <OrnamentationConfigurationCard OrnamentationType="ornamentation"/>
         </MudItem>
     }
 </MudGrid>
-<ScrollToTop />
+@if (!HasOrnamentations)
+{
+    <MudContainer>
+        <div class="d-flex flex-shrink align-center justify-center ma-0" style="height:300px;">
+            <MudAlert Severity="Severity.Normal"
+                      Class="mud-elevation-4"
+                      Variant="Variant.Outlined"
+                      Elevation="ThemeProvider.Elevation"
+                      Dense="true">
+                No ornamentations found for current search.
+            </MudAlert>
+        </div>
+    </MudContainer>
+}
+<ScrollToTop/>
+
+@code
+{
+    private string Search = string.Empty;
+
+    private IEnumerable<OrnamentationType> Ornamentations => OrnamentationConfigurationService.ConfigurableOrnamentations.Where(ornamentation =>
+        ornamentation.ToSpaceSeparatedString().Contains(Search, StringComparison.OrdinalIgnoreCase)
+    );
+
+    private bool HasOrnamentations => Ornamentations.Any();
+}
