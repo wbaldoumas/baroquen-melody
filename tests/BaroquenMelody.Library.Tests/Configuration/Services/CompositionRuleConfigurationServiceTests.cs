@@ -38,7 +38,7 @@ internal sealed class CompositionRuleConfigurationServiceTests
             CompositionRule.AvoidDissonance,
             CompositionRule.AvoidDissonantLeaps,
             CompositionRule.HandleAscendingSeventh,
-            CompositionRule.AvoidRepetition,
+            CompositionRule.AvoidRepeatedNotes,
             CompositionRule.AvoidParallelFourths,
             CompositionRule.AvoidParallelFifths,
             CompositionRule.AvoidParallelOctaves,
@@ -84,7 +84,7 @@ internal sealed class CompositionRuleConfigurationServiceTests
             { CompositionRule.AvoidParallelFourths, new CompositionRuleConfiguration(CompositionRule.AvoidParallelFourths) },
             { CompositionRule.AvoidParallelFifths, new CompositionRuleConfiguration(CompositionRule.AvoidParallelFifths) },
             { CompositionRule.AvoidParallelOctaves, new CompositionRuleConfiguration(CompositionRule.AvoidParallelOctaves) },
-            { CompositionRule.AvoidRepetition, new CompositionRuleConfiguration(CompositionRule.AvoidRepetition) },
+            { CompositionRule.AvoidRepeatedNotes, new CompositionRuleConfiguration(CompositionRule.AvoidRepeatedNotes) },
             { CompositionRule.FollowStandardChordProgression, new CompositionRuleConfiguration(CompositionRule.FollowStandardChordProgression) },
             { CompositionRule.HandleAscendingSeventh, new CompositionRuleConfiguration(CompositionRule.HandleAscendingSeventh, Status: ConfigurationStatus.Locked) },
             { CompositionRule.AvoidRepeatedChords, new CompositionRuleConfiguration(CompositionRule.AvoidRepeatedChords, Status: ConfigurationStatus.Disabled) }

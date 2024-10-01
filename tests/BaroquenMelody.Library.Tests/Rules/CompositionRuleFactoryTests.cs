@@ -32,7 +32,7 @@ internal sealed class CompositionRuleFactoryTests
     [TestCase(CompositionRule.AvoidDissonance, int.MaxValue, typeof(AvoidDissonance))]
     [TestCase(CompositionRule.AvoidDissonantLeaps, int.MaxValue, typeof(AvoidDissonantLeaps))]
     [TestCase(CompositionRule.HandleAscendingSeventh, int.MaxValue, typeof(HandleAscendingSeventh))]
-    [TestCase(CompositionRule.AvoidRepetition, int.MaxValue, typeof(AvoidRepetition))]
+    [TestCase(CompositionRule.AvoidRepeatedNotes, int.MaxValue, typeof(AvoidRepetition))]
     [TestCase(CompositionRule.AvoidParallelFourths, int.MaxValue, typeof(AvoidParallelIntervals))]
     [TestCase(CompositionRule.AvoidParallelFifths, int.MaxValue, typeof(AvoidParallelIntervals))]
     [TestCase(CompositionRule.AvoidParallelOctaves, int.MaxValue, typeof(AvoidParallelIntervals))]

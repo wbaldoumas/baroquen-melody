@@ -31,9 +31,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\stylecop.json = ..\stylecop.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaroquenMelody.Infrastructure", "BaroquenMelody.Infrastructure\BaroquenMelody.Infrastructure.csproj", "{32C67FC5-D7BD-48CE-BAD8-5700FFE8D092}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaroquenMelody.Infrastructure", "BaroquenMelody.Infrastructure\BaroquenMelody.Infrastructure.csproj", "{32C67FC5-D7BD-48CE-BAD8-5700FFE8D092}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaroquenMelody.Infrastructure.Tests", "..\tests\BaroquenMelody.Infrastructure.Tests\BaroquenMelody.Infrastructure.Tests.csproj", "{55971851-76DD-411D-B3F5-E44464CD3FDE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaroquenMelody.Infrastructure.Tests", "..\tests\BaroquenMelody.Infrastructure.Tests\BaroquenMelody.Infrastructure.Tests.csproj", "{55971851-76DD-411D-B3F5-E44464CD3FDE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{D13F9DB7-2CED-4117-90E5-67CD8D0B6182}"
 EndProject
