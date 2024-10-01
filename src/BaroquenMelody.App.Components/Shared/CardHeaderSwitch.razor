@@ -2,7 +2,7 @@
     <CardHeaderContent>
         <MudGrid Spacing="1">
             <MudItem xs="12" sm="8" md="8">
-                <MudText Typo="Typo.h6">@HeaderText</MudText>
+                @HeaderContent
             </MudItem>
             <MudItem xs="12" sm="4" md="4">
                 <div class="d-none d-sm-flex justify-end">
@@ -54,7 +54,7 @@
 
 @code
 {
-    [Parameter, EditorRequired] public required string HeaderText { get; set; }
+    [Parameter, EditorRequired] public required RenderFragment HeaderContent { get; set; }
 
     [Parameter, EditorRequired] public required ConfigurationStatus ConfigurationStatus { get; set; } = ConfigurationStatus.Enabled;
 

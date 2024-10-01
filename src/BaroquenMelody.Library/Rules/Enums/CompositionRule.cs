@@ -23,7 +23,7 @@ public enum CompositionRule : byte
     /// <summary>
     ///    Avoid repetition of notes within the same instrument.
     /// </summary>
-    AvoidRepetition,
+    AvoidRepeatedNotes,
 
     /// <summary>
     ///     Avoid parallel fourths.

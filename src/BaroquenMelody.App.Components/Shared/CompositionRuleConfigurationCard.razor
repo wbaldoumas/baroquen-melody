@@ -1,9 +1,24 @@
 ﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
 <MudCard Class="rounded my-2 mx-2 mud-elevation-4" Elevation="ThemeProvider.Elevation" Outlined="true">
-    <CardHeaderSwitch HeaderText="@(CompositionRule.ToSpaceSeparatedString())"
-                      ConfigurationStatus="@Status"
-                      ValueChanged="HandleIsEnabledChange"/>
+    <CardHeaderSwitch ConfigurationStatus="@Status"
+                      ValueChanged="HandleIsEnabledChange">
+        <HeaderContent>
+            <MudText Typo="Typo.h6" Inline="true">
+                @CompositionRule.ToSpaceSeparatedString() <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.QuestionMark" OnClick="OpenDescriptionPopover"/>
+            </MudText>
+            <AutoClosePopover IsPopoverOpen="IsPopoverOpen"
+                              OnPopoverClosed="@(() => IsPopoverOpen = false)"
+                              AnchorOrigin="Origin.TopLeft"
+                              TransformOrigin="Origin.TopLeft">
+                <PopoverContent>
+                    <MudContainer MaxWidth="MaxWidth.ExtraSmall" Gutters="false">
+                        @GenerateDescriptionRenderFragment(CompositionRule)
+                    </MudContainer>
+                </PopoverContent>
+            </AutoClosePopover>
+        </HeaderContent>
+    </CardHeaderSwitch>
     <MudCardContent>
         <MudGrid>
             <MudItem xs="12" sm="4" md="4" lg="4" xl="4" xxl="4">
@@ -36,7 +51,7 @@
                            Step="1"
                            ValueLabelFormat="0'%'"
                            Culture="CultureInfo.CurrentCulture"
-                           Disabled="Status.IsFrozen()" />
+                           Disabled="Status.IsFrozen()"/>
             </MudItem>
         </MudGrid>
     </MudCardContent>
@@ -53,4 +68,52 @@
     private void HandleStrictnessChange(int value) => Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule, Status, value));
 
     private void HandleIsEnabledChange(ConfigurationStatus status) => Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule, status, Strictness));
+
+    private void OpenDescriptionPopover() => IsPopoverOpen = true;
+
+    private bool IsPopoverOpen;
+
+    public RenderFragment GenerateDescriptionRenderFragment(CompositionRule rule) => rule switch
+    {
+        CompositionRule.AvoidDissonance => @<MudText>
+                                               Musical <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Consonance_and_dissonance">dissonance</MudLink> is the quality of sounds that seems unstable and has an aural desire to resolve to a consonant sound. Dissonance can be heard in the intervals of a <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Semitone#Minor_second">minor second</MudLink>, <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Major_second">major second</MudLink>, <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Minor_seventh">minor seventh</MudLink>, <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Major_seventh">major seventh</MudLink>, and <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Tritone">tritone</MudLink>. <br/><br/> Dissonance can be used to create tension in a composition, but it should be resolved to a consonant sound to create a sense of resolution.
+                                           </MudText>,
+        CompositionRule.AvoidDissonantLeaps => @<MudText>
+                                                   A <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Leap_(music)">leap</MudLink> is a large interval between two sequential notes. Dissonant leaps are leaps with intervals that are <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Consonance_and_dissonance">dissonant</MudLink> and create tension in a composition. <br/><br/> Avoiding dissonant leaps can help create a more harmonious and melodic composition.
+                                               </MudText>,
+        CompositionRule.HandleAscendingSeventh => @<MudText>
+                                                      An ascending <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Major_seventh">major seventh</MudLink> is an "active" interval that creates tension and a sense of forward motion towards the <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Root_(chord)">root</MudLink> note, one half step above it. <br/><br/> Resolving the ascending major seventh to the root note can create a sense of <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Resolution_(music)">resolution</MudLink> in a composition.
+                                                  </MudText>,
+        CompositionRule.AvoidRepeatedNotes => @<MudText>
+                                                  Repeated notes are the recurrence of the same musical <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Musical_note">note</MudLink> multiple times in a row by the same voice. <br/><br/> While repetition can be used to create a sense of unity and structure in a composition, too much repetition can make a composition sound monotonous and boring.
+                                              </MudText>,
+        CompositionRule.AvoidParallelFourths => @<MudText>
+                                                    Parallel fourths are intervals of a <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Perfect_fourth">perfect fourth</MudLink> that move in the same direction between two voices. <br/><br/> Parallel fourths can create a loss of individuality between the separate voices and may sometimes want to be avoided in a composition.
+                                                </MudText>,
+        CompositionRule.AvoidParallelFifths => @<MudText>
+                                                   Parallel fifths are intervals of a <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Perfect_fifth">perfect fifth</MudLink> that move in the same direction between two voices. <br/><br/> Parallel fifths can create a loss of individuality between the separate voices and may sometimes want to be avoided in a composition.
+                                               </MudText>,
+        CompositionRule.AvoidParallelOctaves => @<MudText>
+                                                    Parallel octaves are intervals of an <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Octave">octave</MudLink> that move in the same direction between two voices. <br/><br/> Parallel octaves can create a loss of individuality between the separate voices and may sometimes want to be avoided in a composition.
+                                                </MudText>,
+        CompositionRule.AvoidDirectFourths => @<MudText>
+                                                  Direct fourths occur when two voices are moving in the same direction and land on an interval of a <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Perfect_fourth">perfect fourth</MudLink>. <br/><br/> Direct fourths can create a loss of individuality between the separate voices and may sometimes want to be avoided in a composition.
+                                              </MudText>,
+        CompositionRule.AvoidDirectFifths => @<MudText>
+                                                 Direct fifths occur when two voices are moving in the same direction and land on an interval of a <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Perfect_fifth">perfect fifth</MudLink>. <br/><br/> Direct fifths can create a loss of individuality between the separate voices and may sometimes want to be avoided in a composition.
+                                             </MudText>,
+        CompositionRule.AvoidDirectOctaves => @<MudText>
+                                                  Direct octaves occur when two voices are moving in the same direction and land on an interval of an <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Octave">octave</MudLink>. <br/><br/> Direct octaves can create a loss of individuality between the separate voices and may sometimes want to be avoided in a composition.
+                                              </MudText>,
+        CompositionRule.AvoidOverDoubling => @<MudText>
+                                                 Musical <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Voicing_(music)#Doubling">doubling</MudLink> occurs when two or more voices sound the same note in a chord at the same time. <br/><br/> Avoiding over-doubling helps ensure that the chords are balanced and complete, and that the individual voices are distinct and clear.
+                                             </MudText>,
+        CompositionRule.FollowStandardChordProgression => @<MudText>
+                                                              A <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Chord_progression">chord progression</MudLink> is a series of chords played in a sequence. <br/><br/> Following the standard classical chord progressions can ensure that chords flow smoothly and resolve in a satisfying way that is familiar to the listener.
+                                                          </MudText>,
+        CompositionRule.AvoidRepeatedChords => @<MudText>
+                                                   Repeated chords are the recurrence of the same <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Chord_(music)">chord</MudLink> multiple times in a row in a composition. <br/><br/> While repetition can be used to create a sense of unity and structure in a composition, too much repetition can make a composition sound monotonous and boring.
+                                               </MudText>,
+        _ => throw new ArgumentOutOfRangeException(nameof(rule), rule, null)
+    };
 }

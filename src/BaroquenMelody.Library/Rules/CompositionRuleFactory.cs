@@ -30,7 +30,7 @@ internal sealed class CompositionRuleFactory(
             CompositionRule.AvoidDissonance => new AvoidDissonance(),
             CompositionRule.AvoidDissonantLeaps => new AvoidDissonantLeaps(compositionConfiguration),
             CompositionRule.HandleAscendingSeventh => new HandleAscendingSeventh(compositionConfiguration),
-            CompositionRule.AvoidRepetition => new AvoidRepetition(),
+            CompositionRule.AvoidRepeatedNotes => new AvoidRepetition(),
             CompositionRule.AvoidParallelFourths => new AvoidParallelIntervals(Interval.PerfectFourth),
             CompositionRule.AvoidParallelFifths => new AvoidParallelIntervals(Interval.PerfectFifth),
             CompositionRule.AvoidParallelOctaves => new AvoidParallelIntervals(Interval.Unison),
