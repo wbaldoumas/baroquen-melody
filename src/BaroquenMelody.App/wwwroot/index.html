@@ -30,6 +30,35 @@
     <script src="_framework/blazor.webview.js" autostart="false"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script src="_content/CodeBeam.MudBlazor.Extensions/MudExtensions.min.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/focus-visible@5,npm/html-midi-player@1.5.0"></script>
+    <script type="text/javascript">
+        function addMidiVisualizer(player, visualizer) {
+            player.addVisualizer(visualizer);
+        }
 
+        function getMidiDuration(player) {
+            return player.duration;
+        }
+
+        function getMidiCurrentTime(player) {
+            return player.currentTime;
+        }
+
+        function startMidiPlayer(player) {
+            player.start();
+        }
+
+        function stopMidiPlayer(player) {
+            player.stop();
+        }
+
+        function addLoadListener(player, callback) {
+            // Listen for the 'load' event to ensure the MIDI is fully loaded
+            player.addEventListener('load', () => {
+                const duration = getMidiDuration(player);
+                callback(duration);
+            });
+        }
+    </script>
+</body>
 </html>
