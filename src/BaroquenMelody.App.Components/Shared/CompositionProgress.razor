@@ -1,4 +1,5 @@
 ﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@implements IAsyncDisposable
 
 @if (CompositionProgressState.Value.IsWaiting)
 {
@@ -41,7 +42,7 @@
 else if (CompositionProgressState.Value.IsFailed)
 {
     <MudGrid Class="my-2" Justify="Justify.Center">
-        <MudAnimate 
+        <MudAnimate
             Selector=".composition-failed"
             Duration="2"
             AnimationType="AnimationType.ShadowInset"
@@ -71,7 +72,7 @@ else if (CompositionProgressState.Value.IsFailed)
 }
 else
 {
-    <MudCard Class="rounded my-2 mx-2 px-4 py-4 mud-elevation-4" Elevation="ThemeProvider.Elevation" Outlined="true">
+    <MudCard Class="rounded my-1 mx-1 px-3 py-3 mud-elevation-0" Elevation="0" Outlined="false">
         <MudGrid Justify="Justify.Center">
             <MudItem xs="12" sm="12" md="12" lg="12" xl="12" xxl="12">
                 <MudText Typo="Typo.h6">@CompositionProgressState.Value.Message</MudText>
@@ -104,37 +105,192 @@ else
             }
             else
             {
-                <MudItem xs="12" sm="6" md="6" lg="6" xl="6" xxl="6" Class="d-flex justify-center justify-sm-end">
-                    <MudButton Size="Size.Large"
-                               StartIcon="@Icons.Material.Sharp.PlayArrow"
-                               Variant="Variant.Filled"
-                               Color="Color.Tertiary"
-                               Class="d-flex flex-grow-1 flex-sm-grow-0"
-                               OnClick="Play"
-                               Disabled="CompositionProgressState.Value.IsLoading">
-                        Play Composition
-                    </MudButton>
-                </MudItem>
-                <MudItem xs="12" sm="6" md="6" lg="6" xl="6" xxl="6" Class="d-flex justify-center justify-sm-start">
-                    <MudButton Size="Size.Large"
-                               StartIcon="@Icons.Material.Sharp.Save"
-                               IconColor="Color.Secondary"
-                               Variant="Variant.Filled"
-                               Class="d-flex flex-grow-1 flex-sm-grow-0"
-                               OnClick="Save"
-                               Disabled="CompositionProgressState.Value.IsLoading">
-                        Save Composition
-                    </MudButton>
-                </MudItem>
+                @if (!string.IsNullOrEmpty(BaroquenMelodyState.Value.Path))
+                {
+                    <MudItem xs="12" Class="d-flex justify-center mt-n3">
+                        <MudButton Size="Size.Large"
+                                   StartIcon="@Icons.Material.Sharp.Save"
+                                   IconColor="Color.Secondary"
+                                   Variant="Variant.Filled"
+                                   Class="d-flex flex-grow-1 flex-sm-grow-0"
+                                   OnClick="Save"
+                                   Disabled="CompositionProgressState.Value.IsLoading">
+                            Save Composition
+                        </MudButton>
+                    </MudItem>
+                }
             }
         </MudGrid>
+        @if (!CompositionProgressState.Value.IsLoading && !string.IsNullOrEmpty(BaroquenMelodyState.Value.Path))
+        {
+            <div class="mt-3 ml-n2 mr-n2 mb-n2 midi-player-visualizer">
+                <MudContainer Gutters="false">
+                    <MudGrid Justify="Justify.Center">
+                        <MudItem xs="12">
+                            <midi-player id="player"
+                                         @ref="MidiPlayer"
+                                         src="data:audio/midi;base64,@(GetMidiFileAsBase64())"
+                                         sound-font
+                                         visualizer="#visualizer">
+                            </midi-player>
+                        </MudItem>
+                    </MudGrid>
+                    <midi-visualizer id="visualizer"
+                                     type="piano-roll"
+                                     src="data:audio/midi;base64,@(GetMidiFileAsBase64())">
+                    </midi-visualizer>
+                </MudContainer>
+            </div>
+        }
     </MudCard>
 }
 
+<style>
+    midi-player {
+        width: 100%
+    }
+
+        midi-player::part(control-panel) {
+            background-color: var(--mud-palette-action-disabled-background);
+            border-top: 1px solid var(--mud-palette-action-disabled-background);
+            border-left: 1px solid var(--mud-palette-action-disabled-background);
+            border-right: 1px solid var(--mud-palette-action-disabled-background);           
+            border-radius: 10px 10px 0 0;
+
+            --mud-ripple-color: var(--mud-palette-text-primary);
+            --mud-ripple-opacity: var(--mud-ripple-opacity-secondary) !important;
+        }
+
+        midi-player::part(play-button) {
+            color: var(--mud-palette-tertiary);
+            border: 2px solid var(--mud-palette-tertiary);
+            transition: transform .2s;
+        }
+
+            midi-player::part(play-button):hover {
+                color: var(--mud-palette-tertiary-darken);
+                border: 2px solid var(--mud-palette-tertiary-darken);
+                background-color: var(--mud-palette-action-default-hover);
+                transform: scale(1.1);
+            }
+
+        midi-player::part(time) {
+            font-family: var(--mud-typography-button-family);
+            font-family: var(--mud-typography-button-family);
+            font-size: var(--mud-typography-button-size);
+            font-weight: var(--mud-typography-button-weight);
+            line-height: var(--mud-typography-button-lineheight);
+            letter-spacing: var(--mud-typography-button-letterspacing);
+            text-transform: var(--mud-typography-button-text-transform);
+        }
+
+    midi-visualizer {
+        border: 1px solid var(--mud-palette-action-disabled-background);
+        border-radius: 0 0 10px 10px;
+        background-color: var(--mud-palette-action-default-hover);
+        overflow-y: auto;
+        overflow-x: auto;
+        width: 100%;
+    }
+
+        midi-visualizer svg rect.note {
+            stroke-width: 1px;
+        }
+
+            midi-visualizer svg rect.note[data-instrument="0"] {
+                fill: transparent;
+                stroke: var(--mud-palette-primary);
+            }
+
+                midi-visualizer svg rect.note[data-instrument="0"].active {
+                    fill: var(--mud-palette-primary);
+                    stroke: var(--mud-palette-primary);
+                }
+
+            midi-visualizer svg rect.note[data-instrument="1"] {
+                fill: transparent;
+                stroke: var(--mud-palette-secondary);
+            }
+
+                midi-visualizer svg rect.note[data-instrument="1"].active {
+                    fill: var(--mud-palette-secondary);
+                    stroke: var(--mud-palette-secondary);
+                }
+
+            midi-visualizer svg rect.note[data-instrument="2"] {
+                fill: transparent;
+                stroke: var(--mud-palette-tertiary);
+            }
+
+                midi-visualizer svg rect.note[data-instrument="2"].active {
+                    fill: var(--mud-palette-tertiary);
+                    stroke: var(--mud-palette-tertiary);
+                }
+
+            midi-visualizer svg rect.note[data-instrument="3"] {
+                fill: transparent;
+                stroke: var(--mud-palette-warning);
+            }
+
+                midi-visualizer svg rect.note[data-instrument="3"].active {
+                    fill: var(--mud-palette-warning);
+                    stroke: var(--mud-palette-warning);
+                }
+
+    midi-player-visualizer {
+        box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);
+        border-radius: 10px;
+    }
+
+</style>
+
 @code {
+
+    private ElementReference MidiPlayer;
+
+    private IDisposable? _compositionProgressSubscription;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _compositionProgressSubscription = CompositionProgressState
+                .ObserveChanges()
+                .Subscribe(_ =>
+                {
+                    if (CompositionProgressState.Value.IsLoading)
+                    {
+                        StopMidiPlayerAsync();
+                    }
+                });
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private ValueTask<bool> StopMidiPlayerAsync() => JsRuntime.InvokeVoidAsyncWithErrorHandling("stopMidiPlayer", MidiPlayer);
+
+    private string GetMidiFileAsBase64()
+    {
+        var localFilePath = BaroquenMelodyState.Value.Path;
+        var bytes = File.ReadAllBytes(localFilePath);
+
+        return Convert.ToBase64String(bytes);
+    }
+
+    public new async ValueTask DisposeAsync()
+    {
+        await StopMidiPlayerAsync();
+
+        _compositionProgressSubscription?.Dispose();
+
+        await base.DisposeAsync();
+    }
 
     private async Task Compose()
     {
+        await StopMidiPlayerAsync();
+
         if (!BaroquenMelodyState.Value.HasBeenSaved && BaroquenMelodyState.Value.BaroquenMelody is not null)
         {
             var dialogReference = await DialogService.ShowAsync<ConfirmCompositionDialogue>("Save composition?", new DialogOptions());

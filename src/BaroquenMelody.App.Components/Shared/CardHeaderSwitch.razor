@@ -70,28 +70,28 @@
 
     private void IsEnabledChanged(bool isEnabled)
     {
-        if (isEnabled)
+        ConfigurationStatus = isEnabled switch
         {
-            ConfigurationStatus |= ConfigurationStatus.Enabled;
-        }
-        else
-        {
-            ConfigurationStatus &= ~ConfigurationStatus.Enabled;
-        }
+            true when IsLocked => ConfigurationStatus.Enabled | ConfigurationStatus.Locked,
+            true when !IsLocked => ConfigurationStatus.Enabled,
+            false when IsLocked => ConfigurationStatus.Disabled | ConfigurationStatus.Locked,
+            false when !IsLocked => ConfigurationStatus.Disabled,
+            _ => ConfigurationStatus
+        };
 
         ValueChanged.InvokeAsync(ConfigurationStatus);
     }
 
     private void IsLockedChanged(bool isLocked)
     {
-        if (isLocked)
+        ConfigurationStatus = isLocked switch
         {
-            ConfigurationStatus |= ConfigurationStatus.Locked;
-        }
-        else
-        {
-            ConfigurationStatus &= ~ConfigurationStatus.Locked;
-        }
+            true when IsEnabled => ConfigurationStatus.Enabled | ConfigurationStatus.Locked,
+            true when !IsEnabled => ConfigurationStatus.Disabled | ConfigurationStatus.Locked,
+            false when IsEnabled => ConfigurationStatus.Enabled,
+            false when !IsEnabled => ConfigurationStatus.Disabled,
+            _ => ConfigurationStatus
+        };
 
         ValueChanged.InvokeAsync(ConfigurationStatus);
     }

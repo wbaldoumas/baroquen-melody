@@ -15,7 +15,7 @@ internal sealed class MauiMidiSaver : IMidiSaver
         }
 
         var timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff", CultureInfo.InvariantCulture);
-        var path = Path.Combine(MauiFileSystem.CacheDirectory, $"Baroquen Melody ({timestamp}).mid");
+        var path = Path.Combine(MauiFileSystem.CacheDirectory, $"baroquen-melody-{timestamp}.mid");
 
         baroquenMelody.MidiFile.Write(path);
 
