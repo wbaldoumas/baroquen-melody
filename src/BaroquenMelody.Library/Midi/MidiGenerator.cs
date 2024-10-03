@@ -23,11 +23,7 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
             ProcessMeasure(measure, patternBuildersByInstrument);
         }
 
-        var tempoMap = TempoMap.Create(
-            Tempo.FromBeatsPerMinute(compositionConfiguration.Tempo),
-            compositionConfiguration.Meter == Meter.FourFour ? TimeSignature.Default : new TimeSignature(3, 4)
-        );
-
+        var tempoMap = TempoMap.Create(Tempo.FromBeatsPerMinute(compositionConfiguration.Tempo));
         var chunks = patternBuildersByInstrument.Values.Select((patternBuilder, channelNumber) => patternBuilder.Build().ToTrackChunk(tempoMap, FourBitNumber.Values[channelNumber]));
         var midiFile = new MidiFile(chunks);
 

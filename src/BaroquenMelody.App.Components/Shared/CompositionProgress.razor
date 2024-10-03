@@ -260,13 +260,15 @@ else
                 {
                     if (CompositionProgressState.Value.IsLoading)
                     {
-                        JsRuntime.InvokeVoidAsyncWithErrorHandling("stopMidiPlayer", MidiPlayer);
+                        StopMidiPlayerAsync();
                     }
                 });
         }
 
         await base.OnAfterRenderAsync(firstRender);
     }
+
+    private ValueTask<bool> StopMidiPlayerAsync() => JsRuntime.InvokeVoidAsyncWithErrorHandling("stopMidiPlayer", MidiPlayer);
 
     private string GetMidiFileAsBase64()
     {
@@ -278,7 +280,7 @@ else
 
     public new async ValueTask DisposeAsync()
     {
-        await JsRuntime.InvokeVoidAsyncWithErrorHandling("stopMidiPlayer", MidiPlayer);
+        await StopMidiPlayerAsync();
 
         _compositionProgressSubscription?.Dispose();
 
@@ -287,7 +289,7 @@ else
 
     private async Task Compose()
     {
-        await JsRuntime.InvokeVoidAsyncWithErrorHandling("stopMidiPlayer", MidiPlayer);
+        await StopMidiPlayerAsync();
 
         if (!BaroquenMelodyState.Value.HasBeenSaved && BaroquenMelodyState.Value.BaroquenMelody is not null)
         {
