@@ -16,11 +16,14 @@ internal static class PatternBuilderExtensions
     /// <param name="note">The <see cref="BaroquenNote"/> to add to the <see cref="PatternBuilder"/>.</param>
     public static void AddNote(this PatternBuilder patternBuilder, BaroquenNote note)
     {
-        patternBuilder.SetNoteLength(note.MusicalTimeSpan).Note(note.Raw);
+        patternBuilder
+            .SetNoteLength(note.MusicalTimeSpan)
+            .SetVelocity(note.Velocity)
+            .Note(note.Raw);
 
         foreach (var ornamentation in note.Ornamentations)
         {
-            patternBuilder.SetNoteLength(ornamentation.MusicalTimeSpan).Note(ornamentation.Raw);
+            patternBuilder.AddNote(ornamentation);
         }
     }
 

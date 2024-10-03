@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Configurations.Enums.Extensions;
 using BaroquenMelody.Library.Configurations.Serialization.JsonConverters;
 using BaroquenMelody.Library.Enums;
+using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
 using System.Collections.Frozen;
@@ -15,6 +16,8 @@ namespace BaroquenMelody.Library.Configurations;
 /// <param name="Instrument"> The instrument to be configured. </param>
 /// <param name="MinNote"> The instrument's minimum note value. </param>
 /// <param name="MaxNote"> The instrument's maximum note value. </param>
+/// <param name="MinVelocity"> The instrument's minimum velocity value, impacting dynamics. </param>
+/// <param name="MaxVelocity"> The instrument's maximum velocity value, impacting dynamics. </param>
 /// <param name="Status"> Whether the instrument is enabled, locked, or disabled. </param>
 /// <param name="MidiProgram"> The instrument's midi program. </param>
 public sealed record InstrumentConfiguration(
@@ -23,9 +26,15 @@ public sealed record InstrumentConfiguration(
     Note MinNote,
     [property: JsonConverter(typeof(NoteJsonConverter))]
     Note MaxNote,
-    GeneralMidi2Program MidiProgram = GeneralMidi2Program.AcousticGrandPiano,
-    ConfigurationStatus Status = ConfigurationStatus.Enabled)
+    SevenBitNumber MinVelocity,
+    SevenBitNumber MaxVelocity,
+    GeneralMidi2Program MidiProgram,
+    ConfigurationStatus Status)
 {
+    public static readonly SevenBitNumber DefaultMinVelocity = new(50);
+
+    public static readonly SevenBitNumber DefaultMaxVelocity = new(75);
+
     [JsonIgnore]
     public bool IsEnabled { get; } = Status.IsEnabled();
 
@@ -36,9 +45,9 @@ public sealed record InstrumentConfiguration(
 
     public static readonly FrozenDictionary<Instrument, InstrumentConfiguration> DefaultConfigurations = new Dictionary<Instrument, InstrumentConfiguration>
     {
-        { Instrument.One, new InstrumentConfiguration(Instrument.One, Notes.C5, Notes.E6) },
-        { Instrument.Two, new InstrumentConfiguration(Instrument.Two, Notes.G3, Notes.B4) },
-        { Instrument.Three, new InstrumentConfiguration(Instrument.Three, Notes.D3, Notes.F4) },
-        { Instrument.Four, new InstrumentConfiguration(Instrument.Four, Notes.C2, Notes.E3, Status: ConfigurationStatus.Disabled) }
+        { Instrument.One, new InstrumentConfiguration(Instrument.One, Notes.C5, Notes.E6, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
+        { Instrument.Two, new InstrumentConfiguration(Instrument.Two, Notes.G3, Notes.B4, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
+        { Instrument.Three, new InstrumentConfiguration(Instrument.Three, Notes.D3, Notes.F4, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
+        { Instrument.Four, new InstrumentConfiguration(Instrument.Four, Notes.C2, Notes.E3, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Disabled) }
     }.ToFrozenDictionary();
 }

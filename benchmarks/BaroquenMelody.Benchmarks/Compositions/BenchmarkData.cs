@@ -1,10 +1,12 @@
 ﻿using BaroquenMelody.Library.Choices;
 using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using Melanchall.DryWetMidi.Standards;
 
 namespace BaroquenMelody.Benchmarks.Compositions;
 
@@ -15,10 +17,42 @@ internal static class BenchmarkData
     public static readonly CompositionConfiguration CompositionConfiguration = new(
         new HashSet<InstrumentConfiguration>
         {
-            new(Instrument.One, Notes.C0, Notes.C6),
-            new(Instrument.Two, Notes.C0, Notes.C6),
-            new(Instrument.Three, Notes.C0, Notes.C6),
-            new(Instrument.Four, Notes.C0, Notes.C6)
+            new(
+                Instrument.One,
+                Notes.C0,
+                Notes.C6,
+                InstrumentConfiguration.DefaultMinVelocity,
+                InstrumentConfiguration.DefaultMaxVelocity,
+                GeneralMidi2Program.AcousticGrandPiano,
+                ConfigurationStatus.Enabled
+            ),
+            new(
+                Instrument.Two,
+                Notes.C0,
+                Notes.C6,
+                InstrumentConfiguration.DefaultMinVelocity,
+                InstrumentConfiguration.DefaultMaxVelocity,
+                GeneralMidi2Program.AcousticGrandPiano,
+                ConfigurationStatus.Enabled
+            ),
+            new(
+                Instrument.Three,
+                Notes.C0,
+                Notes.C6,
+                InstrumentConfiguration.DefaultMinVelocity,
+                InstrumentConfiguration.DefaultMaxVelocity,
+                GeneralMidi2Program.AcousticGrandPiano,
+                ConfigurationStatus.Enabled
+            ),
+            new(
+                Instrument.Four,
+                Notes.C0,
+                Notes.C6,
+                InstrumentConfiguration.DefaultMinVelocity,
+                InstrumentConfiguration.DefaultMaxVelocity,
+                GeneralMidi2Program.AcousticGrandPiano,
+                ConfigurationStatus.Enabled
+            )
         },
         new PhrasingConfiguration(
             PhraseLengths: [1, 2, 4, 8],

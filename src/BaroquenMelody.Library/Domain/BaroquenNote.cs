@@ -56,6 +56,11 @@ public sealed class BaroquenNote(Instrument instrument, Note raw, MusicalTimeSpa
     public OrnamentationType OrnamentationType { get; set; } = OrnamentationType.None;
 
     /// <summary>
+    ///     The velocity of the note, impacting dynamics.
+    /// </summary>
+    public SevenBitNumber Velocity { get; set; } = new(50);
+
+    /// <summary>
     ///     Initializes a new instance of the <see cref="BaroquenNote"/> class.
     /// </summary>
     /// <param name="note">The note to copy.</param>
@@ -110,10 +115,9 @@ public sealed class BaroquenNote(Instrument instrument, Note raw, MusicalTimeSpa
     /// <summary>
     ///    Throws an <see cref="InvalidOperationException"/> since <see cref="BaroquenNote"/> cannot be used as a hash key.
     /// </summary>
+    /// <returns>Always throws an <see cref="InvalidOperationException"/>.</returns>
     /// <exception cref="InvalidOperationException">Always thrown.</exception>
-#pragma warning disable SA1615
     public override int GetHashCode() => throw new InvalidOperationException($"{nameof(BaroquenNote)} cannot be used as a hash key since it has mutable properties.");
-#pragma warning restore SA1615
 
     /// <summary>
     ///     Determines if the <see cref="BaroquenNote"/> is equal to another <see cref="BaroquenNote"/>.
