@@ -83,7 +83,10 @@ internal sealed class InstrumentConfigurationServiceTests
                     Instrument.One,
                     Notes.C4,
                     Notes.C5,
-                    GeneralMidi2Program.Accordion
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
+                    GeneralMidi2Program.Accordion,
+                    ConfigurationStatus.Enabled
                 )
             },
             {
@@ -92,7 +95,10 @@ internal sealed class InstrumentConfigurationServiceTests
                     Instrument.Two,
                     Notes.C5,
                     Notes.C6,
-                    GeneralMidi2Program.Banjo
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
+                    GeneralMidi2Program.Banjo,
+                    ConfigurationStatus.Enabled
                 )
             },
             {
@@ -101,6 +107,8 @@ internal sealed class InstrumentConfigurationServiceTests
                     Instrument.Three,
                     Notes.C6,
                     Notes.C7,
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
                     GeneralMidi2Program.Celesta,
                     ConfigurationStatus.Locked
                 )
@@ -111,6 +119,8 @@ internal sealed class InstrumentConfigurationServiceTests
                     Instrument.Four,
                     Notes.C7,
                     Notes.C8,
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
                     GeneralMidi2Program.Celesta,
                     ConfigurationStatus.Disabled
                 )

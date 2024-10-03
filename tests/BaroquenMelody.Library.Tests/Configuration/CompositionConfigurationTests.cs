@@ -1,10 +1,12 @@
 ﻿using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Extensions;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using Melanchall.DryWetMidi.Standards;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests.Configuration;
@@ -24,10 +26,42 @@ internal sealed class CompositionConfigurationTests
         _compositionConfiguration = new CompositionConfiguration(
             new HashSet<InstrumentConfiguration>
             {
-                new(Instrument.One, MinSopranoPitch.ToNote(), MaxSopranoPitch.ToNote()),
-                new(Instrument.Two, 48.ToNote(), 60.ToNote()),
-                new(Instrument.Three, 36.ToNote(), 48.ToNote()),
-                new(Instrument.Four, 24.ToNote(), 36.ToNote())
+                new(
+                    Instrument.One,
+                    MinSopranoPitch.ToNote(),
+                    MaxSopranoPitch.ToNote(),
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
+                    GeneralMidi2Program.AcousticGrandPiano,
+                    ConfigurationStatus.Enabled
+                ),
+                new(
+                    Instrument.Two,
+                    48.ToNote(),
+                    60.ToNote(),
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
+                    GeneralMidi2Program.AcousticGrandPiano,
+                    ConfigurationStatus.Enabled
+                ),
+                new(
+                    Instrument.Three,
+                    36.ToNote(),
+                    48.ToNote(),
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
+                    GeneralMidi2Program.AcousticGrandPiano,
+                    ConfigurationStatus.Enabled
+                ),
+                new(
+                    Instrument.Four,
+                    24.ToNote(),
+                    36.ToNote(),
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
+                    GeneralMidi2Program.AcousticGrandPiano,
+                    ConfigurationStatus.Enabled
+                )
             },
             PhrasingConfiguration.Default,
             AggregateCompositionRuleConfiguration.Default,

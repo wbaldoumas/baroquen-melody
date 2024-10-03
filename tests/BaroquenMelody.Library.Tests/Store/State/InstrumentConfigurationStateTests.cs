@@ -29,11 +29,11 @@ internal sealed class InstrumentConfigurationStateTests
             {
                 {
                     Instrument.One,
-                    new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer, instrumentOneStatus)
+                    new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.Dulcimer, instrumentOneStatus)
                 },
                 {
                     Instrument.Two,
-                    new InstrumentConfiguration(Instrument.Two, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer, instrumentTwoStatus)
+                    new InstrumentConfiguration(Instrument.Two, Notes.C4, Notes.C5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.Dulcimer, instrumentTwoStatus)
                 }
             },
             new Dictionary<Instrument, InstrumentConfiguration>()
@@ -61,11 +61,11 @@ internal sealed class InstrumentConfigurationStateTests
             {
                 {
                     Instrument.One,
-                    new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer)
+                    new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.Dulcimer, ConfigurationStatus.Enabled)
                 },
                 {
                     Instrument.Two,
-                    new InstrumentConfiguration(Instrument.Two, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer)
+                    new InstrumentConfiguration(Instrument.Two, Notes.C4, Notes.C5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.Dulcimer, ConfigurationStatus.Enabled)
                 }
             },
             new Dictionary<Instrument, InstrumentConfiguration>()
@@ -74,8 +74,8 @@ internal sealed class InstrumentConfigurationStateTests
         // assert
         state.AllConfigurations.Should().BeEquivalentTo(
             [
-                new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer),
-                new InstrumentConfiguration(Instrument.Two, Notes.C4, Notes.C5, GeneralMidi2Program.Dulcimer)
+                new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.Dulcimer, ConfigurationStatus.Enabled),
+                new InstrumentConfiguration(Instrument.Two, Notes.C4, Notes.C5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.Dulcimer, ConfigurationStatus.Enabled)
             ]
         );
     }

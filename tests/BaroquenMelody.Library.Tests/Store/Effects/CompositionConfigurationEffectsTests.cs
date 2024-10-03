@@ -8,6 +8,7 @@ using BaroquenMelody.Library.Store.State;
 using BaroquenMelody.Library.Tests.TestData;
 using Fluxor;
 using Melanchall.DryWetMidi.MusicTheory;
+using Melanchall.DryWetMidi.Standards;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -44,7 +45,11 @@ internal sealed class CompositionConfigurationEffectsTests
                 new InstrumentConfiguration(
                     Instrument.One,
                     Notes.C4,
-                    Notes.C5
+                    Notes.C5,
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
+                    GeneralMidi2Program.AcousticGrandPiano,
+                    ConfigurationStatus.Enabled
                 )
             },
             {
@@ -52,7 +57,11 @@ internal sealed class CompositionConfigurationEffectsTests
                 new InstrumentConfiguration(
                     Instrument.Two,
                     Notes.G3,
-                    Notes.B4
+                    Notes.B4,
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
+                    GeneralMidi2Program.AcousticGrandPiano,
+                    ConfigurationStatus.Enabled
                 )
             },
             {
@@ -60,7 +69,11 @@ internal sealed class CompositionConfigurationEffectsTests
                 new InstrumentConfiguration(
                     Instrument.Three,
                     Notes.D3,
-                    Notes.F4
+                    Notes.F4,
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
+                    GeneralMidi2Program.AcousticGrandPiano,
+                    ConfigurationStatus.Enabled
                 )
             },
             {
@@ -68,7 +81,11 @@ internal sealed class CompositionConfigurationEffectsTests
                 new InstrumentConfiguration(
                     Instrument.Four,
                     Notes.C2,
-                    Notes.E3
+                    Notes.E3,
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
+                    GeneralMidi2Program.AcousticGrandPiano,
+                    ConfigurationStatus.Enabled
                 )
             }
         };
