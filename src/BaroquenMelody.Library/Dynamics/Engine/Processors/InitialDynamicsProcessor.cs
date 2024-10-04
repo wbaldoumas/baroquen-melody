@@ -11,15 +11,15 @@ internal sealed class InitialDynamicsProcessor(CompositionConfiguration configur
         var instrumentConfiguration = configuration.InstrumentConfigurationsByInstrument[item.Instrument];
         var note = item.CurrentBeat[item.Instrument];
 
-        var velocity = 0.0;
+        double velocity;
 
-        if (!instrumentConfiguration.HasSizeableVelocityRange)
+        if (instrumentConfiguration.HasSizeableVelocityRange)
         {
-            velocity = instrumentConfiguration.MaxVelocity;
+            velocity = instrumentConfiguration.MinVelocity + instrumentConfiguration.VelocityRange * velocityRangeTarget;
         }
         else
         {
-            velocity = instrumentConfiguration.MinVelocity + instrumentConfiguration.VelocityRange * velocityRangeTarget;
+            velocity = instrumentConfiguration.MaxVelocity;
         }
 
         note.Velocity = new SevenBitNumber(Convert.ToByte(velocity));

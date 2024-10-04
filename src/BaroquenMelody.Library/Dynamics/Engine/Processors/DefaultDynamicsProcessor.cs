@@ -21,10 +21,10 @@ internal sealed class DefaultDynamicsProcessor(
 
         var newVelocity = (canIncreaseVelocity, canDecreaseVelocity) switch
         {
-            (false, false) => precedingVelocity,
-            (true, false) => precedingVelocity.Increment(),
-            (false, true) => precedingVelocity.Decrement(),
-            (true, true) => weightedRandomBooleanGenerator.IsTrue() ? precedingVelocity.Increment() : precedingVelocity.Decrement()
+            (canIncreaseVelocity: false, canDecreaseVelocity: false) => precedingVelocity,
+            (canIncreaseVelocity: true, canDecreaseVelocity: false) => precedingVelocity.Increment(),
+            (canIncreaseVelocity: false, canDecreaseVelocity: true) => precedingVelocity.Decrement(),
+            (canIncreaseVelocity: true, canDecreaseVelocity: true) => weightedRandomBooleanGenerator.IsTrue() ? precedingVelocity.Increment() : precedingVelocity.Decrement()
         };
 
         var currentNote = item.CurrentBeat[item.Instrument];
