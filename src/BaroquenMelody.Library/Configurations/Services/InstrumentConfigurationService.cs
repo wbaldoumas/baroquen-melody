@@ -5,6 +5,7 @@ using BaroquenMelody.Library.Midi.Repositories;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using Fluxor;
+using Melanchall.DryWetMidi.Common;
 using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Configurations.Services;
@@ -16,6 +17,12 @@ internal sealed class InstrumentConfigurationService(
     IState<InstrumentConfigurationState> instrumentConfigurationState
 ) : IInstrumentConfigurationService
 {
+    private const int MinMinRandomVelocity = 33;
+
+    private const int MaxMinRandomVelocity = 67;
+
+    private const int MaxMaxRandomVelocity = 101;
+
     private static readonly FrozenSet<Instrument> _configurableInstruments = new[]
     {
         Instrument.One,
@@ -59,6 +66,8 @@ internal sealed class InstrumentConfigurationService(
                 instrument,
                 closestMinNote,
                 closestMaxNote,
+                defaultConfiguration.MinVelocity,
+                defaultConfiguration.MaxVelocity,
                 defaultConfiguration.MidiProgram,
                 status,
                 IsUserApplied: true
@@ -68,12 +77,15 @@ internal sealed class InstrumentConfigurationService(
 
     private void Randomize(Instrument instrument)
     {
-        if (instrumentConfigurationState.Value.Configurations[instrument].IsFrozen)
+        var instrumentConfiguration = instrumentConfigurationState.Value.Configurations[instrument];
+
+        if (instrumentConfiguration.IsFrozen)
         {
             return;
         }
 
-        var status = instrumentConfigurationState.Value.Configurations[instrument].Status;
+        var minVelocity = ThreadLocalRandom.Next(MinMinRandomVelocity, MaxMinRandomVelocity);
+        var maxVelocity = ThreadLocalRandom.Next(minVelocity, MaxMaxRandomVelocity);
 
         var minNoteIndex = ThreadLocalRandom.Next(0, compositionConfigurationState.Value.Notes.Count - CompositionConfiguration.MinInstrumentRange);
         var maxNoteIndex = ThreadLocalRandom.Next(minNoteIndex + CompositionConfiguration.MinInstrumentRange, Math.Min(compositionConfigurationState.Value.Notes.Count, minNoteIndex + CompositionConfiguration.MaxInstrumentRange));
@@ -89,8 +101,10 @@ internal sealed class InstrumentConfigurationService(
                 instrument,
                 minNote,
                 maxNote,
+                new SevenBitNumber((byte)minVelocity),
+                new SevenBitNumber((byte)maxVelocity),
                 midiInstrument,
-                status,
+                instrumentConfiguration.Status,
                 IsUserApplied: true
             )
         );

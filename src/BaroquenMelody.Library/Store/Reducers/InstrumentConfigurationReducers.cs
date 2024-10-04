@@ -17,8 +17,8 @@ public static class InstrumentConfigurationReducers
                 action.Instrument,
                 action.MinNote,
                 action.MaxNote,
-                InstrumentConfiguration.DefaultMinVelocity,
-                InstrumentConfiguration.DefaultMaxVelocity,
+                action.MinVelocity,
+                action.MaxVelocity,
                 action.MidiProgram,
                 action.Status
             )
@@ -35,8 +35,8 @@ public static class InstrumentConfigurationReducers
                 action.Instrument,
                 action.MinNote,
                 action.MaxNote,
-                InstrumentConfiguration.DefaultMinVelocity,
-                InstrumentConfiguration.DefaultMaxVelocity,
+                action.MinVelocity,
+                action.MaxVelocity,
                 action.MidiProgram,
                 action.Status
             )

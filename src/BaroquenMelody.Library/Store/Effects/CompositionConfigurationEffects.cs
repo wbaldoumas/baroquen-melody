@@ -27,6 +27,8 @@ public sealed class CompositionConfigurationEffects(IState<InstrumentConfigurati
                     instrumentConfiguration.Instrument,
                     closestMinNote,
                     closestMaxNote,
+                    instrumentConfiguration.MinVelocity,
+                    instrumentConfiguration.MaxVelocity,
                     instrumentConfiguration.MidiProgram,
                     instrumentConfiguration.Status,
                     IsUserApplied: false
@@ -46,14 +48,18 @@ public sealed class CompositionConfigurationEffects(IState<InstrumentConfigurati
 
         foreach (var instrumentConfiguration in configuration.InstrumentConfigurations)
         {
-            dispatcher.Dispatch(new UpdateInstrumentConfiguration(
-                instrumentConfiguration.Instrument,
-                instrumentConfiguration.MinNote,
-                instrumentConfiguration.MaxNote,
-                instrumentConfiguration.MidiProgram,
-                instrumentConfiguration.Status,
-                IsUserApplied: true
-            ));
+            dispatcher.Dispatch(
+                new UpdateInstrumentConfiguration(
+                    instrumentConfiguration.Instrument,
+                    instrumentConfiguration.MinNote,
+                    instrumentConfiguration.MaxNote,
+                    instrumentConfiguration.MinVelocity,
+                    instrumentConfiguration.MaxVelocity,
+                    instrumentConfiguration.MidiProgram,
+                    instrumentConfiguration.Status,
+                    IsUserApplied: true
+                )
+            );
         }
 
         foreach (var compositionRule in configuration.AggregateCompositionRuleConfiguration.Configurations)
