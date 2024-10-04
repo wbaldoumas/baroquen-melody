@@ -27,7 +27,9 @@ public sealed record InstrumentConfiguration(
     Note MinNote,
     [property: JsonConverter(typeof(NoteJsonConverter))]
     Note MaxNote,
+    [property: JsonConverter(typeof(SevenBitNumberJsonConverter))]
     SevenBitNumber MinVelocity,
+    [property: JsonConverter(typeof(SevenBitNumberJsonConverter))]
     SevenBitNumber MaxVelocity,
     GeneralMidi2Program MidiProgram,
     ConfigurationStatus Status)
@@ -36,7 +38,7 @@ public sealed record InstrumentConfiguration(
 
     public static readonly SevenBitNumber DefaultMinVelocity = new(50);
 
-    public static readonly SevenBitNumber DefaultMaxVelocity = new(50);
+    public static readonly SevenBitNumber DefaultMaxVelocity = new(75);
 
     [JsonIgnore]
     public bool IsEnabled { get; } = Status.IsEnabled();

@@ -33,6 +33,9 @@
                 </AutocompleteWithPopover>
             </MudItem>
             <MudFlexBreak/>
+            <MudItem xs="12" Class="d-none d-sm-flex justify-center">
+                <MudText Typo="Typo.button">Tonal Range</MudText>
+            </MudItem>
             <MudItem Class="d-none d-sm-flex mb-n8 mt-n8" xs="12" sm="12">
                 <RangeSlider T="int"
                              @bind-Value="LowestPitchNoteIndex"
@@ -44,15 +47,15 @@
                              Range="true"
                              TickMarks="true"
                              Immediate="true"
-                             Min="SliderMin"
-                             Max="SliderMax"
-                             MinSlideableMax="MinSlideableMax"
-                             MaxSlideableMin="MaxSlideableMin"
+                             Min="TonalRangeSliderMin"
+                             Max="TonalRangeSliderMax"
+                             MinSlideableMax="TonalRangeMinSlideableMax"
+                             MaxSlideableMin="TonalRangeMaxSlideableMin"
                              Step="1"
                              MinDistance="CompositionConfiguration.MinInstrumentRange"
                              LabelText="@LowestPitchNote.ToString()"
                              UpperLabelText="@HighestPitchNote.ToString()"
-                             Disabled="Status.IsFrozen()" />
+                             Disabled="Status.IsFrozen()"/>
             </MudItem>
             <MudItem xs="12" sm="4" md="3" lg="2" xl="2" xxl="2">
                 <MudSelect T="int"
@@ -84,6 +87,58 @@
                     }
                 </MudSelect>
             </MudItem>
+            <MudItem xs="12" Class="d-none d-sm-flex justify-center">
+                <MudText Typo="Typo.button">Volume Range</MudText>
+            </MudItem>
+            <MudItem Class="d-none d-sm-flex mb-n8 mt-n8" xs="12" sm="12">
+                <RangeSlider T="byte"
+                             @bind-Value="MinVelocityValue"
+                             @bind-UpperValue="MaxVelocityValue"
+                             Size="Size.Medium"
+                             Variant="Variant.Filled"
+                             Color="@(!Status.IsEnabled() ? Color.Dark : Color.Tertiary)"
+                             ValueLabel="true"
+                             Range="true"
+                             TickMarks="true"
+                             Immediate="true"
+                             MinDistance="0"
+                             Min="VelocityRangeSliderMin"
+                             Max="VelocityRangeSliderMax"
+                             Step="1"
+                             LabelText="@($"{MinVelocityValue}%")"
+                             UpperLabelText="@($"{MaxVelocityValue}%")"
+                             Disabled="Status.IsFrozen()"/>
+            </MudItem>
+            <MudItem xs="12" sm="4" md="3" lg="2" xl="2" xxl="2">
+                <MudSelect T="byte"
+                           @bind-Value="MinVelocityValue"
+                           Label="Lowest Volume"
+                           Variant="Variant.Outlined"
+                           AdornmentIcon="@MinVelocityIcon"
+                           Adornment="Adornment.End"
+                           AdornmentColor="Color.Secondary"
+                           Disabled="Status.IsFrozen()">
+                    @foreach (var value in VolumeRange)
+                    {
+                        <MudSelectItem Value="value">@($"{value}%")</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="4" md="3" lg="2" xl="2" xxl="2">
+                <MudSelect T="byte"
+                           @bind-Value="MaxVelocityValue"
+                           Label="Highest Volume"
+                           Variant="Variant.Outlined"
+                           AdornmentIcon="@MaxVelocityIcon"
+                           Adornment="Adornment.End"
+                           AdornmentColor="Color.Secondary"
+                           Disabled="Status.IsFrozen()">
+                    @foreach (var value in VolumeRange)
+                    {
+                        <MudSelectItem Value="value">@($"{value}%")</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
         </MudGrid>
     </MudCardContent>
 </MudCard>
@@ -100,13 +155,78 @@
 
     private ConfigurationStatus Status => InstrumentConfigurationState.Value[Instrument]?.Status ?? ConfigurationStatus.Disabled;
 
-    private const int SliderMin = 0;
+    private SevenBitNumber MinVelocity => InstrumentConfigurationState.Value[Instrument]?.MinVelocity ?? new SevenBitNumber(0);
 
-    private int SliderMax => CompositionConfigurationState.Value.Notes.Count - 1;
+    private SevenBitNumber MaxVelocity => InstrumentConfigurationState.Value[Instrument]?.MaxVelocity ?? new SevenBitNumber(100);
 
-    private int MinSlideableMax => SliderMax - CompositionConfiguration.MinInstrumentRange;
+    private const byte VelocityRangeSliderMin = 0;
 
-    private int MaxSlideableMin => SliderMin + CompositionConfiguration.MinInstrumentRange;
+    private const byte VelocityRangeSliderMax = 100;
+
+    private static IEnumerable<byte> VolumeRange => Enumerable.Range(0, 101).Select(value => (byte)value);
+
+    private byte _minVelocityValue = 0;
+
+    private byte MinVelocityValue
+    {
+        get => _minVelocityValue;
+        set
+        {
+            if (value == _minVelocityValue)
+            {
+                return;
+            }
+
+            _minVelocityValue = value;
+            HandleMinVelocityChange(_minVelocityValue);
+
+            if (_minVelocityValue > _maxVelocityValue)
+            {
+                MaxVelocityValue = _minVelocityValue;
+            }
+        }
+    }
+
+    private byte _maxVelocityValue = 100;
+
+    private byte MaxVelocityValue
+    {
+        get => _maxVelocityValue;
+        set
+        {
+            if (value == _maxVelocityValue)
+            {
+                return;
+            }
+
+            _maxVelocityValue = value;
+            HandleMaxVelocityChange(_maxVelocityValue);
+
+            if (_maxVelocityValue < _minVelocityValue)
+            {
+                MinVelocityValue = _maxVelocityValue;
+            }
+        }
+    }
+
+    private string MinVelocityIcon => GetVelocityIcon(MinVelocityValue);
+
+    private string MaxVelocityIcon => GetVelocityIcon(MaxVelocityValue);
+
+    private string GetVelocityIcon(byte velocity) => velocity switch
+    {
+        0 => Icons.Material.Outlined.VolumeOff,
+        < 50 => Icons.Material.Outlined.VolumeDown,
+        _ => Icons.Material.Outlined.VolumeUp
+    };
+
+    private const int TonalRangeSliderMin = 0;
+
+    private int TonalRangeSliderMax => CompositionConfigurationState.Value.Notes.Count - 1;
+
+    private int TonalRangeMinSlideableMax => TonalRangeSliderMax - CompositionConfiguration.MinInstrumentRange;
+
+    private int TonalRangeMaxSlideableMin => TonalRangeSliderMin + CompositionConfiguration.MinInstrumentRange;
 
     private int _lowestPitchNoteIndex;
 
@@ -126,7 +246,7 @@
             HighestPitchNoteIndex = (HighestPitchNoteIndex - _lowestPitchNoteIndex) switch
             {
                 > CompositionConfiguration.MaxInstrumentRange => _lowestPitchNoteIndex + CompositionConfiguration.MaxInstrumentRange,
-                < CompositionConfiguration.MinInstrumentRange => Math.Min(_lowestPitchNoteIndex + CompositionConfiguration.MinInstrumentRange, SliderMax),
+                < CompositionConfiguration.MinInstrumentRange => Math.Min(_lowestPitchNoteIndex + CompositionConfiguration.MinInstrumentRange, TonalRangeSliderMax),
                 _ => HighestPitchNoteIndex
             };
         }
@@ -150,7 +270,7 @@
             LowestPitchNoteIndex = (_highestPitchNoteIndex - LowestPitchNoteIndex) switch
             {
                 > CompositionConfiguration.MaxInstrumentRange => _highestPitchNoteIndex - CompositionConfiguration.MaxInstrumentRange,
-                < CompositionConfiguration.MinInstrumentRange => Math.Max(_highestPitchNoteIndex - CompositionConfiguration.MinInstrumentRange, SliderMin),
+                < CompositionConfiguration.MinInstrumentRange => Math.Max(_highestPitchNoteIndex - CompositionConfiguration.MinInstrumentRange, TonalRangeSliderMin),
                 _ => LowestPitchNoteIndex
             };
         }
@@ -165,7 +285,7 @@
 
     private IEnumerable<MidiInstrumentFilter> MidiInstrumentFilters = [];
 
-    private IEnumerable<int> NoteIndices => Enumerable.Range(SliderMin, SliderMax + 1);
+    private IEnumerable<int> NoteIndices => Enumerable.Range(TonalRangeSliderMin, TonalRangeSliderMax + 1);
 
     private IEnumerable<int> LowestPitchNoteIndices => NoteIndices.Take(CompositionConfigurationState.Value.Notes.Count - CompositionConfiguration.MinInstrumentRange);
 
@@ -182,6 +302,9 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
+
+        _minVelocityValue = MinVelocity;
+        _maxVelocityValue = MaxVelocity;
 
         _lowestPitchNoteIndex = CompositionConfigurationState.Value.Notes.IndexOf(LowestPitchNote);
         _highestPitchNoteIndex = CompositionConfigurationState.Value.Notes.IndexOf(HighestPitchNote);
@@ -212,18 +335,34 @@
             {
                 var configuration = InstrumentConfigurationState.Value[Instrument]!;
 
+                _minVelocityValue = configuration.MinVelocity;
+                _maxVelocityValue = configuration.MaxVelocity;
+
                 _lowestPitchNoteIndex = CompositionConfigurationState.Value.Notes.IndexOf(configuration.MinNote);
                 _highestPitchNoteIndex = CompositionConfigurationState.Value.Notes.IndexOf(configuration.MaxNote);
             });
     }
 
-    private void HandleIsEnabledChange(ConfigurationStatus status) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, MidiInstrument, status, IsUserApplied: true));
+    private void HandleIsEnabledChange(ConfigurationStatus status) => Dispatcher.Dispatch(
+        new UpdateInstrumentConfiguration(
+            Instrument,
+            LowestPitchNote,
+            HighestPitchNote,
+            MinVelocity,
+            MaxVelocity,
+            MidiInstrument,
+            status,
+            IsUserApplied: true
+        )
+    );
 
     private void HandleLowestPitchNoteIndexChange(int noteIndex) => Dispatcher.Dispatch(
         new UpdateInstrumentConfiguration(
             Instrument,
             CompositionConfigurationState.Value.Notes[noteIndex],
             HighestPitchNote,
+            MinVelocity,
+            MaxVelocity,
             MidiInstrument,
             Status,
             IsUserApplied: true
@@ -235,13 +374,26 @@
             Instrument,
             LowestPitchNote,
             CompositionConfigurationState.Value.Notes[noteIndex],
+            MinVelocity,
+            MaxVelocity,
             MidiInstrument,
             Status,
             IsUserApplied: true
         )
     );
 
-    private void HandleMidiInstrumentChange(GeneralMidi2Program instrument) => Dispatcher.Dispatch(new UpdateInstrumentConfiguration(Instrument, LowestPitchNote, HighestPitchNote, instrument, Status, IsUserApplied: true));
+    private void HandleMidiInstrumentChange(GeneralMidi2Program instrument) => Dispatcher.Dispatch(
+        new UpdateInstrumentConfiguration(
+            Instrument,
+            LowestPitchNote,
+            HighestPitchNote,
+            MinVelocity,
+            MaxVelocity,
+            instrument,
+            Status,
+            IsUserApplied: true
+        )
+    );
 
     private void HandleInstrumentFilterChange()
     {
@@ -272,11 +424,39 @@
             Instrument,
             LowestPitchNote,
             HighestPitchNote,
+            MinVelocity,
+            MaxVelocity,
             MidiInstruments.Values.Order().First(),
             Status,
             IsUserApplied: true
         ));
     }
+
+    private void HandleMinVelocityChange(byte velocity) => Dispatcher.Dispatch(
+        new UpdateInstrumentConfiguration(
+            Instrument,
+            LowestPitchNote,
+            HighestPitchNote,
+            new SevenBitNumber(velocity),
+            MaxVelocity,
+            MidiInstrument,
+            Status,
+            IsUserApplied: true
+        )
+    );
+
+    private void HandleMaxVelocityChange(byte velocity) => Dispatcher.Dispatch(
+        new UpdateInstrumentConfiguration(
+            Instrument,
+            LowestPitchNote,
+            HighestPitchNote,
+            MinVelocity,
+            new SevenBitNumber(velocity),
+            MidiInstrument,
+            Status,
+            IsUserApplied: true
+        )
+    );
 
     private async Task<IEnumerable<GeneralMidi2Program>> MidiInstrumentSearchFunc(string search, CancellationToken cancellationToken)
     {
