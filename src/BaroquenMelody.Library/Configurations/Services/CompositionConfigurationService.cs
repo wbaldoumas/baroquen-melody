@@ -11,19 +11,19 @@ namespace BaroquenMelody.Library.Configurations.Services;
 
 internal sealed class CompositionConfigurationService(IDispatcher dispatcher) : ICompositionConfigurationService
 {
-    private const Meter _defaultMeter = Meter.FourFour;
+    private const Meter DefaultMeter = Meter.FourFour;
 
-    private const NoteName _defaultRootNote = NoteName.C;
+    private const NoteName DefaultRootNote = NoteName.C;
 
-    private const Mode _defaultMode = Mode.Ionian;
+    private const Mode DefaultMode = Mode.Ionian;
 
-    private const int _minRandomMinimumMeasures = 10;
+    private const int MinRandomMinimumMeasures = 10;
 
-    private const int _maxRandomMinimumMeasures = 100;
+    private const int MaxRandomMinimumMeasures = 100;
 
-    private const int _minRandomTempo = 40;
+    private const int MinRandomTempo = 40;
 
-    private const int _maxRandomTempo = 250;
+    private const int MaxRandomTempo = 250;
 
     private static readonly FrozenSet<NoteName> _configurableRootNotes = EnumUtils<NoteName>.AsEnumerable().ToFrozenSet();
 
@@ -42,11 +42,11 @@ internal sealed class CompositionConfigurationService(IDispatcher dispatcher) : 
         var randomRootNote = _configurableRootNotes.MinBy(_ => ThreadLocalRandom.Next());
         var randomScaleMode = _configurableScaleModes.MinBy(_ => ThreadLocalRandom.Next());
         var randomMeter = _configurableMeters.MinBy(_ => ThreadLocalRandom.Next());
-        var randomMinimumMeasures = ThreadLocalRandom.Next(_minRandomMinimumMeasures, _maxRandomMinimumMeasures);
-        var tempo = ThreadLocalRandom.Next(_minRandomTempo, _maxRandomTempo);
+        var randomMinimumMeasures = ThreadLocalRandom.Next(MinRandomMinimumMeasures, MaxRandomMinimumMeasures);
+        var tempo = ThreadLocalRandom.Next(MinRandomTempo, MaxRandomTempo);
 
         dispatcher.Dispatch(new UpdateCompositionConfiguration(randomRootNote, randomScaleMode, randomMeter, randomMinimumMeasures, tempo));
     }
 
-    public void Reset() => dispatcher.Dispatch(new UpdateCompositionConfiguration(_defaultRootNote, _defaultMode, _defaultMeter));
+    public void Reset() => dispatcher.Dispatch(new UpdateCompositionConfiguration(DefaultRootNote, DefaultMode, DefaultMeter));
 }

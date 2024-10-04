@@ -12,6 +12,10 @@ internal sealed class OrnamentationConfigurationService(
     IState<CompositionOrnamentationConfigurationState> state
 ) : IOrnamentationConfigurationService
 {
+    private const int MinProbability = 10;
+
+    private const int MaxProbability = 100;
+
     private static readonly FrozenSet<OrnamentationType> _configurableOrnamentations = AggregateOrnamentationConfiguration
         .Default
         .Configurations
@@ -38,7 +42,7 @@ internal sealed class OrnamentationConfigurationService(
             }
 
             var status = state.Value.Configurations[configuration.OrnamentationType].Status;
-            var probability = ThreadLocalRandom.Next(0, 101);
+            var probability = ThreadLocalRandom.Next(MinProbability, MaxProbability + 1);
 
             dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(configuration.OrnamentationType, status, probability));
         }

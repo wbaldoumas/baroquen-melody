@@ -6,6 +6,7 @@ using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using Fluxor;
 using Melanchall.DryWetMidi.Common;
+using Melanchall.DryWetMidi.MusicTheory;
 using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Configurations.Services;
@@ -17,7 +18,7 @@ internal sealed class InstrumentConfigurationService(
     IState<InstrumentConfigurationState> instrumentConfigurationState
 ) : IInstrumentConfigurationService
 {
-    private const int MinMinRandomVelocity = 33;
+    private const int MinMinRandomVelocity = 25;
 
     private const int MaxMinRandomVelocity = 67;
 
@@ -87,11 +88,14 @@ internal sealed class InstrumentConfigurationService(
         var minVelocity = ThreadLocalRandom.Next(MinMinRandomVelocity, MaxMinRandomVelocity);
         var maxVelocity = ThreadLocalRandom.Next(minVelocity, MaxMaxRandomVelocity);
 
-        var minNoteIndex = ThreadLocalRandom.Next(0, compositionConfigurationState.Value.Notes.Count - CompositionConfiguration.MinInstrumentRange);
-        var maxNoteIndex = ThreadLocalRandom.Next(minNoteIndex + CompositionConfiguration.MinInstrumentRange, Math.Min(compositionConfigurationState.Value.Notes.Count, minNoteIndex + CompositionConfiguration.MaxInstrumentRange));
+        var minRandomIndex = compositionConfigurationState.Value.AvailableNotes.IndexOf(Notes.C1);
+        var maxRandomIndex = compositionConfigurationState.Value.AvailableNotes.IndexOf(Notes.C7);
 
-        var minNote = compositionConfigurationState.Value.Notes[minNoteIndex];
-        var maxNote = compositionConfigurationState.Value.Notes[maxNoteIndex];
+        var minNoteIndex = ThreadLocalRandom.Next(minRandomIndex, maxRandomIndex - CompositionConfiguration.MinInstrumentRange);
+        var maxNoteIndex = ThreadLocalRandom.Next(minNoteIndex + CompositionConfiguration.MinInstrumentRange, Math.Min(maxRandomIndex, minNoteIndex + CompositionConfiguration.MaxInstrumentRange));
+
+        var minNote = compositionConfigurationState.Value.AvailableNotes[minNoteIndex];
+        var maxNote = compositionConfigurationState.Value.AvailableNotes[maxNoteIndex];
 
         var midiInstruments = midiInstrumentRepository.GetAllMidiInstruments().ToList();
         var midiInstrument = midiInstruments[ThreadLocalRandom.Next(0, midiInstruments.Count)];
