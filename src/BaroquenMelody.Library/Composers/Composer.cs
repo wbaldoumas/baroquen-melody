@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Infrastructure.Collections;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Dynamics;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Phrasing;
@@ -15,6 +16,7 @@ internal sealed class Composer(
     IChordComposer chordComposer,
     IThemeComposer themeComposer,
     IEndingComposer endingComposer,
+    IDynamicsApplicator dynamicsApplicator,
     IDispatcher dispatcher,
     CompositionConfiguration compositionConfiguration
 ) : IComposer
@@ -29,8 +31,10 @@ internal sealed class Composer(
         var compositionWithPhrasing = ApplyPhrasing(compositionWithOrnamentation, theme, cancellationToken);
         var compositionWithEnding = ComposeEnding(compositionWithPhrasing, theme, cancellationToken);
         var compositionWithSustain = ApplySustain(compositionWithEnding, cancellationToken);
+        var completeComposition = CompleteComposition(theme, compositionWithSustain, cancellationToken);
+        var compositionWithDynamics = ApplyDynamics(completeComposition);
 
-        return CompleteComposition(theme, compositionWithSustain, cancellationToken);
+        return compositionWithDynamics;
     }
 
     private BaroquenTheme ComposeMainTheme(CancellationToken cancellationToken)
@@ -156,5 +160,12 @@ internal sealed class Composer(
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Complete));
 
         return new Composition([.. theme.Exposition, .. composition.Measures]);
+    }
+
+    private Composition ApplyDynamics(Composition composition)
+    {
+        dynamicsApplicator.Apply(composition);
+
+        return composition;
     }
 }

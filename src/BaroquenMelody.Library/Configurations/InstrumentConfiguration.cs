@@ -11,7 +11,8 @@ using System.Text.Json.Serialization;
 namespace BaroquenMelody.Library.Configurations;
 
 /// <summary>
-///    The instrument configuration. Allowing for the configuration of the note range for a given instrument.
+///    The instrument configuration. Allowing for the configuration of the note range, dynamics, and MIDI instrument
+///     for a given instrument. Also allows for disabling the instrument entirely.
 /// </summary>
 /// <param name="Instrument"> The instrument to be configured. </param>
 /// <param name="MinNote"> The instrument's minimum note value. </param>
@@ -31,15 +32,23 @@ public sealed record InstrumentConfiguration(
     GeneralMidi2Program MidiProgram,
     ConfigurationStatus Status)
 {
+    private const int MinValidVelocityRange = 5;
+
     public static readonly SevenBitNumber DefaultMinVelocity = new(50);
 
-    public static readonly SevenBitNumber DefaultMaxVelocity = new(75);
+    public static readonly SevenBitNumber DefaultMaxVelocity = new(50);
 
     [JsonIgnore]
     public bool IsEnabled { get; } = Status.IsEnabled();
 
     [JsonIgnore]
     public bool IsFrozen { get; } = Status.IsFrozen();
+
+    [JsonIgnore]
+    public int VelocityRange { get; } = MaxVelocity - MinVelocity;
+
+    [JsonIgnore]
+    public bool HasSizeableVelocityRange { get; } = MaxVelocity - MinVelocity > MinValidVelocityRange;
 
     public bool IsNoteWithinInstrumentRange(Note note) => MinNote.NoteNumber <= note.NoteNumber && note.NoteNumber <= MaxNote.NoteNumber;
 
