@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Composers;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Dynamics;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
@@ -31,6 +32,8 @@ internal sealed class ComposerTests
 
     private ICompositionDecorator _mockCompositionDecorator = null!;
 
+    private IDynamicsApplicator _mockDynamicsApplicator = null!;
+
     private ICompositionPhraser _mockCompositionPhraser = null!;
 
     private ILogger _mockLogger = null!;
@@ -56,6 +59,7 @@ internal sealed class ComposerTests
     {
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
         _mockCompositionDecorator = Substitute.For<ICompositionDecorator>();
+        _mockDynamicsApplicator = Substitute.For<IDynamicsApplicator>();
         _mockCompositionPhraser = Substitute.For<ICompositionPhraser>();
         _mockChordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
         _mockLogger = Substitute.For<ILogger>();
@@ -69,7 +73,7 @@ internal sealed class ComposerTests
         _chordComposer = new ChordComposer(_mockCompositionStrategy, _mockLogger);
         _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _noteTransposer, _mockDispatcher, _mockLogger, _compositionConfiguration);
         _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, _mockDispatcher, _mockLogger, _compositionConfiguration);
-        _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, _themeComposer, _endingComposer, _mockDispatcher, _compositionConfiguration);
+        _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, _themeComposer, _endingComposer, _mockDynamicsApplicator, _mockDispatcher, _compositionConfiguration);
     }
 
     [Test]
