@@ -100,4 +100,14 @@ internal sealed class CompositionConfigurationServiceTests
         // assert
         _mockDispatcher.Received(1).Dispatch(Arg.Any<UpdateCompositionConfiguration>());
     }
+
+    [Test]
+    public void Reset_dispatches_expected_update()
+    {
+        // act
+        _compositionConfigurationService.Reset();
+
+        // assert
+        _mockDispatcher.Received(1).Dispatch(Arg.Any<UpdateCompositionConfiguration>());
+    }
 }

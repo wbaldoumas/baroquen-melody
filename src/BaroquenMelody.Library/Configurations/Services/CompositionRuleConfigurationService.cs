@@ -12,6 +12,10 @@ internal sealed class CompositionRuleConfigurationService(
     IState<CompositionRuleConfigurationState> state
 ) : ICompositionRuleConfigurationService
 {
+    private const int MinStrictness = 10;
+
+    private const int MaxStrictness = 100;
+
     private static readonly FrozenSet<CompositionRule> _configurableOrnamentations = AggregateCompositionRuleConfiguration
         .Default
         .Configurations
@@ -38,7 +42,7 @@ internal sealed class CompositionRuleConfigurationService(
             }
 
             var status = state.Value.Configurations[configuration.Rule].Status;
-            var strictness = ThreadLocalRandom.Next(0, 101);
+            var strictness = ThreadLocalRandom.Next(MinStrictness, MaxStrictness + 1);
 
             dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(configuration.Rule, status, strictness));
         }

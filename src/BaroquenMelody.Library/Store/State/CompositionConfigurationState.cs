@@ -1,6 +1,4 @@
-﻿using BaroquenMelody.Infrastructure.Collections.Extensions;
-using BaroquenMelody.Library.Configurations;
-using BaroquenMelody.Library.Domain;
+﻿using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using Fluxor;
@@ -15,7 +13,11 @@ public sealed record CompositionConfigurationState(NoteName TonicNote, Mode Mode
 {
     public BaroquenScale Scale { get; } = new(TonicNote, Mode);
 
-    public IList<Note> Notes { get; } = new BaroquenScale(TonicNote, Mode).GetNotes().TrimEdges(CompositionConfiguration.MaxScaleStepChange).ToList();
+    public IList<Note> AvailableNotes { get; } = new BaroquenScale(TonicNote, Mode)
+        .GetNotes()
+        .Where(note => note.NoteNumber >= Notes.C0.NoteNumber)
+        .Where(note => note.NoteNumber <= Notes.C8.NoteNumber)
+        .ToList();
 
     public CompositionConfigurationState()
         : this(NoteName.C, Mode.Ionian, Meter.FourFour)
