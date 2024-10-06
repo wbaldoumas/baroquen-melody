@@ -9,6 +9,10 @@
         </HeaderContent>
     </CardHeaderSwitch>
     <MudCardContent>
+        <InstrumentRangePlayer @ref="_instrumentRangePlayer" 
+                               MidiInstrument="MidiInstrument"
+                               LowNote="LowestPitchNote"
+                               HighNote="HighestPitchNote" />
         <MudGrid Justify="Justify.SpaceBetween">
             <MudItem xs="12" sm="6" md="5" lg="4" xl="3" xxl="2">
                 <AutocompleteWithPopover T="GeneralMidi2Program"
@@ -33,8 +37,10 @@
                 </AutocompleteWithPopover>
             </MudItem>
             <MudFlexBreak/>
-            <MudItem xs="12" Class="d-none d-sm-flex justify-center">
-                <MudText Typo="Typo.button">Tonal Range</MudText>
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudText Typo="Typo.button">
+                    Tonal Range
+                </MudText>
             </MudItem>
             <MudItem Class="d-none d-sm-flex mb-n8 mt-n8" xs="12" sm="12">
                 <RangeSlider T="int"
@@ -62,9 +68,10 @@
                            @bind-Value="LowestPitchNoteIndex"
                            Label="Lowest Pitch"
                            Variant="Variant.Outlined"
-                           AdornmentIcon="@Icons.Material.Outlined.ArrowCircleDown"
+                           AdornmentIcon="@Icons.Material.Outlined.PlayArrow"
                            Adornment="Adornment.End"
                            AdornmentColor="Color.Secondary"
+                           OnAdornmentClick="async () => await _instrumentRangePlayer!.PlayLowNote()"
                            Disabled="Status.IsFrozen()">
                     @foreach (var noteIndex in LowestPitchNoteIndices)
                     {
@@ -77,9 +84,10 @@
                            Label="Highest Pitch"
                            T="int"
                            Variant="Variant.Outlined"
-                           AdornmentIcon="@Icons.Material.Outlined.ArrowCircleUp"
+                           AdornmentIcon="@Icons.Material.Outlined.PlayArrow"
                            Adornment="Adornment.End"
                            AdornmentColor="Color.Secondary"
+                           OnAdornmentClick="async () => await _instrumentRangePlayer!.PlayHighNote()"
                            Disabled="Status.IsFrozen()">
                     @foreach (var noteIndex in HighestPitchNoteIndices)
                     {
@@ -87,7 +95,7 @@
                     }
                 </MudSelect>
             </MudItem>
-            <MudItem xs="12" Class="d-none d-sm-flex justify-center">
+            <MudItem xs="12" Class="d-flex justify-center">
                 <MudText Typo="Typo.button">Volume Range</MudText>
             </MudItem>
             <MudItem Class="d-none d-sm-flex mb-n8 mt-n8" xs="12" sm="12">
@@ -146,6 +154,8 @@
 @code
 {
     [Parameter, EditorRequired] public required Instrument Instrument { get; set; }
+
+    private InstrumentRangePlayer? _instrumentRangePlayer;
 
     private Note LowestPitchNote => InstrumentConfigurationState.Value[Instrument]?.MinNote ?? Notes.C3;
 

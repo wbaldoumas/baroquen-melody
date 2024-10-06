@@ -96,6 +96,11 @@ public sealed class BaroquenScale
     /// </summary>
     public Mode Mode { get; }
 
+    /// <summary>
+    ///     The available notes for use in the composition.
+    /// </summary>
+    public IList<Note> AvailableNotes { get; }
+
     public BaroquenScale(NoteName tonic, Mode mode)
         : this(Scale.Parse($"{tonic} {mode}"))
     {
@@ -134,6 +139,11 @@ public sealed class BaroquenScale
         V = new HashSet<NoteName> { Dominant, LeadingTone, Supertonic }.ToFrozenSet();
         VI = new HashSet<NoteName> { Submediant, Tonic, Mediant }.ToFrozenSet();
         VII = new HashSet<NoteName> { LeadingTone, Supertonic, Subdominant }.ToFrozenSet();
+
+        AvailableNotes = _notes.Where(note =>
+            note.NoteNumber >= Notes.A0.NoteNumber &&
+            note.NoteNumber <= Notes.C8.NoteNumber
+        ).ToList();
     }
 
     /// <summary>
