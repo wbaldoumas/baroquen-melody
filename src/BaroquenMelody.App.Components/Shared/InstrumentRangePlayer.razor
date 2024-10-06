@@ -1,0 +1,53 @@
+﻿<midi-player id="low-note-player"
+             class="d-none"
+             @ref="_lowNotePlayer"
+             src="data:audio/midi;base64,@(GetLowerPitchExampleMidi())"
+             sound-font>
+</midi-player>
+<midi-player id="high-note-player"
+             class="d-none"
+             @ref="_highNotePlayer"
+             src="data:audio/midi;base64,@(GetHigherPitchExampleMidi())"
+             sound-font>
+</midi-player>
+
+@code {
+
+    [Parameter, EditorRequired] public required Note LowNote { get; set; }
+
+    [Parameter, EditorRequired] public required Note HighNote { get; set; }
+
+    [Parameter, EditorRequired] public required GeneralMidi2Program MidiInstrument { get; set; }
+
+    private ElementReference _lowNotePlayer { get; set; }
+
+    private ElementReference _highNotePlayer { get; set; }
+
+    public Task PlayLowNote() => PlayMidi(_lowNotePlayer);
+
+    public Task PlayHighNote() => PlayMidi(_highNotePlayer);
+
+    private async Task PlayMidi(ElementReference player)
+    {
+        if (!await JsRuntime.InvokeVoidAsyncWithErrorHandling("startMidiPlayer", player))
+        {
+            Snackbar.Add("Failed to play MIDI audio. This may be due to missing MIDI drivers on your device.", Severity.Error);
+        }
+    }
+
+    private string GetLowerPitchExampleMidi() => GetExampleMidi(LowNote);
+
+    private string GetHigherPitchExampleMidi() => GetExampleMidi(HighNote);
+
+    private string GetExampleMidi(Note note)
+    {
+        using var stream = new MemoryStream();
+
+        var midiFile = MidiExampleGenerator.GenerateExampleNoteMidiFile(MidiInstrument, note);
+
+        midiFile.Write(stream);
+
+        return Convert.ToBase64String(stream.ToArray());
+    }
+
+}

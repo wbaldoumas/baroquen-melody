@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Configurations.Services;
+using BaroquenMelody.Library.Midi;
 using BaroquenMelody.Library.Midi.Repositories;
 using Fluxor;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,5 +26,6 @@ public static class ServiceCollectionExtensions
         .AddSingleton<ICompositionRuleConfigurationService, CompositionRuleConfigurationService>()
         .AddSingleton<IInstrumentConfigurationService, InstrumentConfigurationService>()
         .AddSingleton<ICompositionConfigurationService, CompositionConfigurationService>()
-        .AddSingleton<IMidiInstrumentRepository, MidiInstrumentRepository>();
+        .AddSingleton<IMidiInstrumentRepository, MidiInstrumentRepository>()
+        .AddSingleton<IMidiExampleGenerator, MidiExampleGenerator>();
 }

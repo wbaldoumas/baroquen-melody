@@ -272,10 +272,11 @@ else
 
     private string GetMidiFileAsBase64()
     {
-        var localFilePath = BaroquenMelodyState.Value.Path;
-        var bytes = File.ReadAllBytes(localFilePath);
+        using var stream = new MemoryStream();
 
-        return Convert.ToBase64String(bytes);
+        BaroquenMelodyState.Value.Composition!.MidiFile.Write(stream);
+
+        return Convert.ToBase64String(stream.ToArray());
     }
 
     public new async ValueTask DisposeAsync()
