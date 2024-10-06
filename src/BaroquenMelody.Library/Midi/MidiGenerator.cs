@@ -7,9 +7,7 @@ using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Composing;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
-using Melanchall.DryWetMidi.Standards;
 using System.Collections.Frozen;
-using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
 namespace BaroquenMelody.Library.Midi;
 
