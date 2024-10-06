@@ -48,7 +48,7 @@ public sealed class BaroquenNote(Instrument instrument, Note raw, MusicalTimeSpa
     /// <summary>
     ///     Whether or not this note has any ornamentations.
     /// </summary>
-    public bool HasOrnamentations => Ornamentations.Count > 0 || (OrnamentationType != OrnamentationType.None && OrnamentationType != OrnamentationType.Rest && OrnamentationType != OrnamentationType.Sustain && OrnamentationType != OrnamentationType.MidSustain);
+    public bool HasOrnamentations => Ornamentations.Count > 0 || OrnamentationType != OrnamentationType.None;
 
     /// <summary>
     ///     The type of ornamentation that is applied to this note.
