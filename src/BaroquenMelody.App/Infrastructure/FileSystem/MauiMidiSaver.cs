@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Midi;
+﻿using BaroquenMelody.Library;
+using BaroquenMelody.Library.Midi;
 using CommunityToolkit.Maui.Storage;
 using System.Globalization;
 using MauiFileSystem = Microsoft.Maui.Storage.FileSystem;
@@ -7,7 +8,7 @@ namespace BaroquenMelody.App.Infrastructure.FileSystem;
 
 internal sealed class MauiMidiSaver : IMidiSaver
 {
-    public Task<string> SaveTempAsync(Library.BaroquenMelody baroquenMelody, CancellationToken cancellationToken)
+    public Task<string> SaveTempAsync(MidiFileComposition midiFileComposition, CancellationToken cancellationToken)
     {
         if (cancellationToken.IsCancellationRequested)
         {
@@ -17,12 +18,12 @@ internal sealed class MauiMidiSaver : IMidiSaver
         var timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff", CultureInfo.InvariantCulture);
         var path = Path.Combine(MauiFileSystem.CacheDirectory, $"baroquen-melody-{timestamp}.mid");
 
-        baroquenMelody.MidiFile.Write(path);
+        midiFileComposition.MidiFile.Write(path);
 
         return Task.FromResult(path);
     }
 
-    public async Task<bool> SaveAsync(Library.BaroquenMelody baroquenMelody, string tempPath, CancellationToken cancellationToken)
+    public async Task<bool> SaveAsync(MidiFileComposition midiFileComposition, string tempPath, CancellationToken cancellationToken)
     {
         if (cancellationToken.IsCancellationRequested)
         {
@@ -31,7 +32,7 @@ internal sealed class MauiMidiSaver : IMidiSaver
 
         if (!File.Exists(tempPath))
         {
-            tempPath = await SaveTempAsync(baroquenMelody, cancellationToken).ConfigureAwait(false);
+            tempPath = await SaveTempAsync(midiFileComposition, cancellationToken).ConfigureAwait(false);
         }
 
         if (cancellationToken.IsCancellationRequested)

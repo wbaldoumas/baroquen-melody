@@ -14,9 +14,9 @@ internal sealed class MauiMidiLauncher(IState<BaroquenMelodyState> state, IDispa
     {
         if (!File.Exists(path))
         {
-            path = await midiSaver.SaveTempAsync(state.Value.BaroquenMelody!, cancellationToken).ConfigureAwait(false);
+            path = await midiSaver.SaveTempAsync(state.Value.Composition!, cancellationToken).ConfigureAwait(false);
 
-            dispatcher.Dispatch(new UpdateBaroquenMelody(state.Value.BaroquenMelody!, path, state.Value.HasBeenSaved));
+            dispatcher.Dispatch(new UpdateBaroquenMelody(state.Value.Composition!, path, state.Value.HasBeenSaved));
         }
 
         await Launcher.Default.OpenAsync(new OpenFileRequest(Title, new ReadOnlyFile(path))).ConfigureAwait(false);

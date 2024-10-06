@@ -25,7 +25,7 @@ internal sealed class BaroquenMelodyEffectsTests
 
     private IBaroquenMelodyComposerConfigurator _mockBaroquenMelodyComposerConfigurator = null!;
 
-    private IBaroquenMelodyComposer _mockComposer = null!;
+    private IMidiFileComposer _mockComposer = null!;
 
     private IDispatcher _mockDispatcher = null!;
 
@@ -41,7 +41,7 @@ internal sealed class BaroquenMelodyEffectsTests
         _mockCompositionRuleConfigurationState = Substitute.For<IState<CompositionRuleConfigurationState>>();
         _mockCompositionOrnamentationConfigurationState = Substitute.For<IState<CompositionOrnamentationConfigurationState>>();
         _mockBaroquenMelodyComposerConfigurator = Substitute.For<IBaroquenMelodyComposerConfigurator>();
-        _mockComposer = Substitute.For<IBaroquenMelodyComposer>();
+        _mockComposer = Substitute.For<IMidiFileComposer>();
         _mockDispatcher = Substitute.For<IDispatcher>();
         _mockMidiSaver = Substitute.For<IMidiSaver>();
 
@@ -65,7 +65,7 @@ internal sealed class BaroquenMelodyEffectsTests
         _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState());
         _mockBaroquenMelodyComposerConfigurator.Configure(Arg.Any<CompositionConfiguration>()).Returns(_mockComposer);
 
-        var baroquenMelody = new BaroquenMelody(new MidiFile());
+        var baroquenMelody = new MidiFileComposition(new MidiFile());
 
         _mockComposer.Compose(Arg.Any<CancellationToken>()).Returns(baroquenMelody);
 
@@ -73,7 +73,7 @@ internal sealed class BaroquenMelodyEffectsTests
         await _baroquenMelodyEffects.HandleCompose(new Compose(), _mockDispatcher);
 
         // assert
-        _mockDispatcher.Received().Dispatch(Arg.Is<UpdateBaroquenMelody>(action => action.BaroquenMelody == baroquenMelody));
+        _mockDispatcher.Received().Dispatch(Arg.Is<UpdateBaroquenMelody>(action => action.MidiFileComposition == baroquenMelody));
     }
 
     [Test]

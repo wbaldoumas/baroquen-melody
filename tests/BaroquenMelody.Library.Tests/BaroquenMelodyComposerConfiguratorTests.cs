@@ -14,7 +14,7 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
     private BaroquenMelodyComposerConfigurator _baroquenMelodyComposerConfigurator = null!;
 
     [SetUp]
-    public void SetUp() => _baroquenMelodyComposerConfigurator = new BaroquenMelodyComposerConfigurator(Substitute.For<ILogger<BaroquenMelody>>(), Substitute.For<IDispatcher>());
+    public void SetUp() => _baroquenMelodyComposerConfigurator = new BaroquenMelodyComposerConfigurator(Substitute.For<ILogger<MidiFileComposition>>(), Substitute.For<IDispatcher>());
 
     [Test]
     [TestCaseSource(nameof(TestCases))]

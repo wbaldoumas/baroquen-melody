@@ -19,7 +19,7 @@ var serviceProvider = new ServiceCollection()
     .AddScoped<App>()
     .BuildServiceProvider();
 
-var baroquenMelody = new BaroquenMelody.Library.BaroquenMelody(new MidiFile());
+var baroquenMelody = new BaroquenMelody.Library.MidiFileComposition(new MidiFile());
 
 for (var i = 0; i < 10000; i++)
 {

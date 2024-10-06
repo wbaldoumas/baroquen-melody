@@ -2,16 +2,16 @@
 
 namespace BaroquenMelody.Library.Composers;
 
-internal sealed class BaroquenMelodyComposer(
+internal sealed class MidiFileComposer(
     IComposer composer,
     IMidiGenerator midiGenerator
-) : IBaroquenMelodyComposer
+) : IMidiFileComposer
 {
-    public BaroquenMelody Compose(CancellationToken cancellationToken)
+    public MidiFileComposition Compose(CancellationToken cancellationToken)
     {
         var composition = composer.Compose(cancellationToken);
         var midiFile = midiGenerator.Generate(composition);
 
-        return new BaroquenMelody(midiFile);
+        return new MidiFileComposition(midiFile);
     }
 }
