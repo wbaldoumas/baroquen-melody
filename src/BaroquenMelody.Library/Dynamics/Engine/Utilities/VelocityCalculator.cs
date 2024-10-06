@@ -13,14 +13,12 @@ internal sealed class VelocityCalculator : IVelocityCalculator
 
         var precedingNote = precedingBeats[^1][instrument];
 
-        return precedingNote.HasOrnamentations ? precedingNote.Ornamentations[^1].Velocity : precedingNote.Velocity;
+        return precedingNote.Ornamentations.Count > 0 ? precedingNote.Ornamentations[^1].Velocity : precedingNote.Velocity;
     }
 
     public IEnumerable<SevenBitNumber> GetPrecedingVelocities(FixedSizeList<Beat> precedingBeats, Instrument instrument, int count = 4)
     {
         Validate(precedingBeats, instrument);
-
-        var test = precedingBeats.TakeLast(count).Reverse().ToList();
 
         return precedingBeats.TakeLast(count)
             .Reverse()
