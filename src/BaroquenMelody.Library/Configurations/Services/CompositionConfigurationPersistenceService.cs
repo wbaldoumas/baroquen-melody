@@ -12,7 +12,7 @@ internal sealed class CompositionConfigurationPersistenceService(
     IDirectory directory,
     IFile file,
     IFileSystem fileSystem,
-    ILogger<BaroquenMelody> logger
+    ILogger<MidiFileComposition> logger
 ) : ICompositionConfigurationPersistenceService
 {
     public async Task<bool> SaveConfigurationAsync(CompositionConfiguration compositionConfiguration, string name, CancellationToken cancellationToken)

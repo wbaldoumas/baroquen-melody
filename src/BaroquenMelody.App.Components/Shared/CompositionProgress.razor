@@ -291,7 +291,7 @@ else
     {
         await StopMidiPlayerAsync();
 
-        if (!BaroquenMelodyState.Value.HasBeenSaved && BaroquenMelodyState.Value.BaroquenMelody is not null)
+        if (!BaroquenMelodyState.Value.HasBeenSaved && BaroquenMelodyState.Value.Composition is not null)
         {
             var dialogReference = await DialogService.ShowAsync<ConfirmCompositionDialogue>("Save composition?", new DialogOptions());
             var dialogResult = await dialogReference.Result;
@@ -325,7 +325,7 @@ else
     private async Task<bool> Save()
     {
         var isSaved = await MidiSaver.SaveAsync(
-            BaroquenMelodyState.Value.BaroquenMelody!,
+            BaroquenMelodyState.Value.Composition!,
             BaroquenMelodyState.Value.Path,
             CancellationToken.None
         ).ConfigureAwait(false);

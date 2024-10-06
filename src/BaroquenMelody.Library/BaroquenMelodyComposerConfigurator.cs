@@ -18,11 +18,11 @@ using Microsoft.Extensions.Logging;
 namespace BaroquenMelody.Library;
 
 /// <summary>
-///     Centralized logic for configuring a <see cref="BaroquenMelodyComposer"/> which can generate a <see cref="BaroquenMelody"/>.
+///     Centralized logic for configuring a <see cref="MidiFileComposer"/> which can generate a <see cref="MidiFileComposition"/>.
 /// </summary>
 /// <param name="logger">A logger to be used throughout the composition process.</param>
 /// <param name="dispatcher">A dispatcher to be used to dispatch actions to the store.</param>
-internal sealed class BaroquenMelodyComposerConfigurator(ILogger<BaroquenMelody> logger, IDispatcher dispatcher) : IBaroquenMelodyComposerConfigurator
+internal sealed class BaroquenMelodyComposerConfigurator(ILogger<MidiFileComposition> logger, IDispatcher dispatcher) : IBaroquenMelodyComposerConfigurator
 {
     private readonly IMusicalTimeSpanCalculator _musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
 
@@ -32,7 +32,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(ILogger<BaroquenMelody>
 
     private readonly IThemeSplitter _themeSplitter = new ThemeSplitter();
 
-    public IBaroquenMelodyComposer Configure(CompositionConfiguration compositionConfiguration)
+    public IMidiFileComposer Configure(CompositionConfiguration compositionConfiguration)
     {
         var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
         var compositionRuleFactory = new CompositionRuleFactory(compositionConfiguration, _weightedRandomBooleanGenerator, chordNumberIdentifier);
@@ -51,6 +51,6 @@ internal sealed class BaroquenMelodyComposerConfigurator(ILogger<BaroquenMelody>
         var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
         var midiGenerator = new MidiGenerator(compositionConfiguration);
 
-        return new BaroquenMelodyComposer(composer, midiGenerator);
+        return new MidiFileComposer(composer, midiGenerator);
     }
 }

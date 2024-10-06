@@ -22,7 +22,7 @@ internal sealed class CompositionConfigurationPersistenceServiceTests
 
     private IFileSystem _mockFileSystem = null!;
 
-    private ILogger<BaroquenMelody> _mockLogger = null!;
+    private ILogger<MidiFileComposition> _mockLogger = null!;
 
     private CompositionConfigurationPersistenceService _persistenceService = null!;
 
@@ -33,7 +33,7 @@ internal sealed class CompositionConfigurationPersistenceServiceTests
         _mockDirectory = Substitute.For<IDirectory>();
         _mockFile = Substitute.For<IFile>();
         _mockFileSystem = Substitute.For<IFileSystem>();
-        _mockLogger = Substitute.For<ILogger<BaroquenMelody>>();
+        _mockLogger = Substitute.For<ILogger<MidiFileComposition>>();
 
         _persistenceService = new CompositionConfigurationPersistenceService(
             _mockDeviceDirectoryProvider,

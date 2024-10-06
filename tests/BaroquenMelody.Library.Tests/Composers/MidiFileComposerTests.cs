@@ -9,13 +9,13 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Composers;
 
 [TestFixture]
-internal sealed class BaroquenMelodyComposerTests
+internal sealed class MidiFileComposerTests
 {
     private IComposer _mockComposer = null!;
 
     private IMidiGenerator _mockMidiGenerator = null!;
 
-    private BaroquenMelodyComposer _baroquenMelodyComposer = null!;
+    private MidiFileComposer _midiFileComposer = null!;
 
     [SetUp]
     public void SetUp()
@@ -23,7 +23,7 @@ internal sealed class BaroquenMelodyComposerTests
         _mockComposer = Substitute.For<IComposer>();
         _mockMidiGenerator = Substitute.For<IMidiGenerator>();
 
-        _baroquenMelodyComposer = new BaroquenMelodyComposer(_mockComposer, _mockMidiGenerator);
+        _midiFileComposer = new MidiFileComposer(_mockComposer, _mockMidiGenerator);
     }
 
     [Test]
@@ -37,7 +37,7 @@ internal sealed class BaroquenMelodyComposerTests
         _mockMidiGenerator.Generate(testComposition).Returns(midiFile);
 
         // act
-        var result = _baroquenMelodyComposer.Compose(CancellationToken.None);
+        var result = _midiFileComposer.Compose(CancellationToken.None);
 
         // assert
         _mockComposer.Received(1).Compose(CancellationToken.None);

@@ -43,7 +43,7 @@ internal sealed class App : IDisposable
             .Subscribe(ReportCompositionProgress);
     }
 
-    public Library.BaroquenMelody Run()
+    public MidiFileComposition Run()
     {
         var compositionConfiguration = new CompositionConfiguration(
             _instrumentConfigurationState.Value.EnabledConfigurations,

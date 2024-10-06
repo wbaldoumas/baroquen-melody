@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody;
 using BaroquenMelody.Infrastructure.FileSystem;
+using BaroquenMelody.Library;
 using BaroquenMelody.Library.Extensions;
 using BaroquenMelody.Library.Midi;
 using Melanchall.DryWetMidi.Core;
@@ -19,7 +20,7 @@ var serviceProvider = new ServiceCollection()
     .AddScoped<App>()
     .BuildServiceProvider();
 
-var baroquenMelody = new BaroquenMelody.Library.BaroquenMelody(new MidiFile());
+var baroquenMelody = new MidiFileComposition(new MidiFile());
 
 for (var i = 0; i < 10000; i++)
 {
