@@ -1,0 +1,120 @@
+﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+<AutocompleteWithPopover T="GeneralMidi2Program"
+                         SearchFunc="MidiInstrumentSearchFunc"
+                         ToStringFunc="@(instrument => instrument.ToSpaceSeparatedString())"
+                         ValueProvider="() => _midiInstrument"
+                         ValueChanged="HandleMidiInstrumentChange"
+                         AnchorOrigin="_instrumentFilterAnchorOrigin"
+                         TransformOrigin="_instrumentFilterTransformOrigin"
+                         Icon="@Icons.Material.TwoTone.FilterAlt"
+                         Label="Instrument"
+                         IsDisabled="Status.IsFrozen()">
+    <PopoverContent>
+        <MudText Align="Align.Center" Class="mt-n3" Typo="Typo.h6">Filter Instruments</MudText>
+        <MudPaper Class="d-flex flex-column overflow-x-auto mt-1 ml-n4 mr-n4 mb-n4" Outlined="true" Height="33vh">
+            @foreach (var filter in _midiInstrumentFilters)
+            {
+                <MudCheckBox T="bool" 
+                             Label="@filter.Type.ToSpaceSeparatedString()" 
+                             Color="Color.Tertiary" 
+                             UncheckedColor="Color.Secondary" 
+                             Dense="true" 
+                             Value="@filter.IsEnabled" 
+                             ValueChanged="val => { filter.IsEnabled = val; HandleInstrumentFilterChange(); }"/>
+            }
+        </MudPaper>
+    </PopoverContent>
+</AutocompleteWithPopover>
+
+@code
+{
+    [Parameter, EditorRequired] public required Instrument Instrument { get; set; }
+
+    [Parameter, EditorRequired] public required ConfigurationStatus Status { get; set; }
+
+    private sealed class MidiInstrumentFilter
+    {
+        public MidiInstrumentType Type { get; init; }
+
+        public bool IsEnabled { get; set; }
+    }
+
+    private FrozenDictionary<string, GeneralMidi2Program> _midiInstruments = FrozenDictionary<string, GeneralMidi2Program>.Empty;
+
+    private GeneralMidi2Program _midiInstrument => InstrumentConfigurationState.Value[Instrument]?.MidiProgram ?? GeneralMidi2Program.AcousticGrandPiano;
+
+    private Origin _instrumentFilterAnchorOrigin = Origin.TopRight;
+
+    private Origin _instrumentFilterTransformOrigin = Origin.TopLeft;
+
+    private IEnumerable<MidiInstrumentFilter> _midiInstrumentFilters = [];
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if (PhysicalDeviceInfo.IsMobile)
+        {
+            _instrumentFilterAnchorOrigin = Origin.TopRight;
+            _instrumentFilterTransformOrigin = Origin.TopRight;
+        }
+
+        foreach (var midiInstrumentType in EnumUtils<MidiInstrumentType>.AsEnumerable().Where(midiInstrumentType => midiInstrumentType != MidiInstrumentType.All && midiInstrumentType != MidiInstrumentType.None))
+        {
+            _midiInstrumentFilters = _midiInstrumentFilters.Append(new MidiInstrumentFilter
+            {
+                Type = midiInstrumentType,
+                IsEnabled = true
+            });
+        }
+
+        _midiInstruments = MidiInstrumentRepository.GetAllMidiInstruments().ToFrozenDictionary(
+            instrument => instrument.ToSpaceSeparatedString(),
+            instrument => instrument
+        );
+    }
+
+    private void HandleMidiInstrumentChange(GeneralMidi2Program midiInstrument) => Dispatcher.Dispatch(new UpdateMidiInstrument(Instrument, midiInstrument));
+
+    private async Task<IEnumerable<GeneralMidi2Program>> MidiInstrumentSearchFunc(string search, CancellationToken cancellationToken)
+    {
+        var midiInstruments = string.IsNullOrWhiteSpace(search)
+            ? _midiInstruments.Values
+            : _midiInstruments.Keys
+                .Where(key => key.Contains(search, StringComparison.OrdinalIgnoreCase))
+                .Select(key => _midiInstruments[key]);
+
+        return await Task.FromResult(midiInstruments.OrderBy(instrument => instrument.ToSpaceSeparatedString(), StringComparer.OrdinalIgnoreCase));
+    }
+
+    private void HandleInstrumentFilterChange()
+    {
+        if (!_midiInstrumentFilters.Any(filter => filter.IsEnabled))
+        {
+            _midiInstruments = MidiInstrumentRepository.GetAllMidiInstruments().ToFrozenDictionary(
+                instrument => instrument.ToSpaceSeparatedString(),
+                instrument => instrument
+            );
+
+            return;
+        }
+
+        var includedMidiInstruments = _midiInstrumentFilters.Where(filter => filter.IsEnabled).Aggregate(MidiInstrumentType.None, (current, filter) => current | filter.Type);
+        var midiInstruments = MidiInstrumentRepository.GetMidiInstruments(includedMidiInstruments).ToList();
+
+        _midiInstruments = midiInstruments.ToFrozenDictionary(
+            instrument => instrument.ToSpaceSeparatedString(),
+            instrument => instrument
+        );
+
+        if (_midiInstruments.ContainsKey(_midiInstrument.ToSpaceSeparatedString()))
+        {
+            return;
+        }
+
+        var midiInstrument = _midiInstruments.Values.Order().First();
+
+        HandleMidiInstrumentChange(midiInstrument);
+    }
+}

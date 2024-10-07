@@ -44,4 +44,96 @@ public static class InstrumentConfigurationReducers
 
         return new InstrumentConfigurationState(configurations, lastUserAppliedConfigurations);
     }
+
+    [ReducerMethod]
+    public static InstrumentConfigurationState ReduceUpdateMidiInstrument(InstrumentConfigurationState state, UpdateMidiInstrument action)
+    {
+        var configurations = new Dictionary<Instrument, InstrumentConfiguration>(state.Configurations)
+        {
+            [action.Instrument] = state[action.Instrument]! with
+            {
+                MidiProgram = action.MidiInstrument
+            }
+        };
+
+        var lastUserAppliedConfigurations = new Dictionary<Instrument, InstrumentConfiguration>(state.LastUserAppliedConfigurations)
+        {
+            [action.Instrument] = state.LastUserAppliedConfigurations[action.Instrument] with
+            {
+                MidiProgram = action.MidiInstrument
+            }
+        };
+
+        return new InstrumentConfigurationState(configurations, lastUserAppliedConfigurations);
+    }
+
+    [ReducerMethod]
+    public static InstrumentConfigurationState ReduceUpdateInstrumentVelocities(InstrumentConfigurationState state, UpdateInstrumentVelocities action)
+    {
+        var configurations = new Dictionary<Instrument, InstrumentConfiguration>(state.Configurations)
+        {
+            [action.Instrument] = state[action.Instrument]! with
+            {
+                MinVelocity = action.MinVelocity,
+                MaxVelocity = action.MaxVelocity
+            }
+        };
+
+        var lastUserAppliedConfigurations = new Dictionary<Instrument, InstrumentConfiguration>(state.LastUserAppliedConfigurations)
+        {
+            [action.Instrument] = state.LastUserAppliedConfigurations[action.Instrument] with
+            {
+                MinVelocity = action.MinVelocity,
+                MaxVelocity = action.MaxVelocity
+            }
+        };
+
+        return new InstrumentConfigurationState(configurations, lastUserAppliedConfigurations);
+    }
+
+    [ReducerMethod]
+    public static InstrumentConfigurationState ReduceUpdateInstrumentTonalRange(InstrumentConfigurationState state, UpdateInstrumentTonalRange action)
+    {
+        var configurations = new Dictionary<Instrument, InstrumentConfiguration>(state.Configurations)
+        {
+            [action.Instrument] = state[action.Instrument]! with
+            {
+                MinNote = action.LowestPitchNote,
+                MaxNote = action.HighestPitchNote
+            }
+        };
+
+        var lastUserAppliedConfigurations = new Dictionary<Instrument, InstrumentConfiguration>(state.LastUserAppliedConfigurations)
+        {
+            [action.Instrument] = state.LastUserAppliedConfigurations[action.Instrument] with
+            {
+                MinNote = action.LowestPitchNote,
+                MaxNote = action.HighestPitchNote
+            }
+        };
+
+        return new InstrumentConfigurationState(configurations, lastUserAppliedConfigurations);
+    }
+
+    [ReducerMethod]
+    public static InstrumentConfigurationState ReduceUpdateConfigurationStatus(InstrumentConfigurationState state, UpdateInstrumentConfigurationStatus action)
+    {
+        var configurations = new Dictionary<Instrument, InstrumentConfiguration>(state.Configurations)
+        {
+            [action.Instrument] = state[action.Instrument]! with
+            {
+                Status = action.Status
+            }
+        };
+
+        var lastUserAppliedConfigurations = new Dictionary<Instrument, InstrumentConfiguration>(state.LastUserAppliedConfigurations)
+        {
+            [action.Instrument] = state.LastUserAppliedConfigurations[action.Instrument] with
+            {
+                Status = action.Status
+            }
+        };
+
+        return new InstrumentConfigurationState(configurations, lastUserAppliedConfigurations);
+    }
 }

@@ -139,4 +139,184 @@ internal sealed class InstrumentConfigurationReducersTests
         state[Instrument.Four]!.Should().BeEquivalentTo(otherConfiguration);
         state.LastUserAppliedConfigurations[Instrument.Four].Should().BeEquivalentTo(otherConfiguration);
     }
+
+    [Test]
+    public void ReduceUpdateMidiInstrument_updates_instrument_configurations_as_expected()
+    {
+        // arrange
+        var state = new InstrumentConfigurationState();
+
+        // act
+        state = InstrumentConfigurationReducers.ReduceUpdateMidiInstrument(
+            state,
+            new UpdateMidiInstrument(Instrument.One, GeneralMidi2Program.AcousticGrandPiano)
+        );
+
+        state = InstrumentConfigurationReducers.ReduceUpdateMidiInstrument(
+            state,
+            new UpdateMidiInstrument(Instrument.Two, GeneralMidi2Program.Banjo)
+        );
+
+        state = InstrumentConfigurationReducers.ReduceUpdateMidiInstrument(
+            state,
+            new UpdateMidiInstrument(Instrument.Three, GeneralMidi2Program.Celesta)
+        );
+
+        // assert
+        state.Configurations.Should().ContainKeys(Instrument.One, Instrument.Two, Instrument.Three);
+
+        var instrumentOneState = state[Instrument.One]!;
+        var instrumentTwoState = state[Instrument.Two]!;
+        var instrumentThreeState = state[Instrument.Three]!;
+
+        var lastUserAppliedInstrumentOneState = state.LastUserAppliedConfigurations[Instrument.One];
+        var lastUserAppliedInstrumentTwoState = state.LastUserAppliedConfigurations[Instrument.Two];
+        var lastUserAppliedInstrumentThreeState = state.LastUserAppliedConfigurations[Instrument.Three];
+
+        instrumentOneState.MidiProgram.Should().Be(GeneralMidi2Program.AcousticGrandPiano);
+        instrumentTwoState.MidiProgram.Should().Be(GeneralMidi2Program.Banjo);
+        instrumentThreeState.MidiProgram.Should().Be(GeneralMidi2Program.Celesta);
+
+        lastUserAppliedInstrumentOneState.MidiProgram.Should().Be(GeneralMidi2Program.AcousticGrandPiano);
+        lastUserAppliedInstrumentTwoState.MidiProgram.Should().Be(GeneralMidi2Program.Banjo);
+        lastUserAppliedInstrumentThreeState.MidiProgram.Should().Be(GeneralMidi2Program.Celesta);
+    }
+
+    [Test]
+    public void ReduceUpdateInstrumentVelocities_updates_instrument_configurations_as_expected()
+    {
+        // arrange
+        var state = new InstrumentConfigurationState();
+
+        // act
+        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentVelocities(
+            state,
+            new UpdateInstrumentVelocities(Instrument.One, new SevenBitNumber(50), new SevenBitNumber(75))
+        );
+
+        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentVelocities(
+            state,
+            new UpdateInstrumentVelocities(Instrument.Two, new SevenBitNumber(25), new SevenBitNumber(50))
+        );
+
+        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentVelocities(
+            state,
+            new UpdateInstrumentVelocities(Instrument.Three, new SevenBitNumber(0), new SevenBitNumber(25))
+        );
+
+        // assert
+        state.Configurations.Should().ContainKeys(Instrument.One, Instrument.Two, Instrument.Three);
+
+        var instrumentOneState = state[Instrument.One]!;
+        var instrumentTwoState = state[Instrument.Two]!;
+        var instrumentThreeState = state[Instrument.Three]!;
+
+        var lastUserAppliedInstrumentOneState = state.LastUserAppliedConfigurations[Instrument.One];
+        var lastUserAppliedInstrumentTwoState = state.LastUserAppliedConfigurations[Instrument.Two];
+        var lastUserAppliedInstrumentThreeState = state.LastUserAppliedConfigurations[Instrument.Three];
+
+        instrumentOneState.MinVelocity.Should().Be(new SevenBitNumber(50));
+        instrumentOneState.MaxVelocity.Should().Be(new SevenBitNumber(75));
+        instrumentTwoState.MinVelocity.Should().Be(new SevenBitNumber(25));
+        instrumentTwoState.MaxVelocity.Should().Be(new SevenBitNumber(50));
+        instrumentThreeState.MinVelocity.Should().Be(new SevenBitNumber(0));
+        instrumentThreeState.MaxVelocity.Should().Be(new SevenBitNumber(25));
+
+        lastUserAppliedInstrumentOneState.MinVelocity.Should().Be(new SevenBitNumber(50));
+        lastUserAppliedInstrumentOneState.MaxVelocity.Should().Be(new SevenBitNumber(75));
+        lastUserAppliedInstrumentTwoState.MinVelocity.Should().Be(new SevenBitNumber(25));
+        lastUserAppliedInstrumentTwoState.MaxVelocity.Should().Be(new SevenBitNumber(50));
+        lastUserAppliedInstrumentThreeState.MinVelocity.Should().Be(new SevenBitNumber(0));
+        lastUserAppliedInstrumentThreeState.MaxVelocity.Should().Be(new SevenBitNumber(25));
+    }
+
+    [Test]
+    public void ReduceUpdateInstrumentTonalRange_updates_instrument_configurations_as_expected()
+    {
+        // arrange
+        var state = new InstrumentConfigurationState();
+
+        // act
+        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentTonalRange(
+            state,
+            new UpdateInstrumentTonalRange(Instrument.One, Notes.C4, Notes.C5)
+        );
+
+        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentTonalRange(
+            state,
+            new UpdateInstrumentTonalRange(Instrument.Two, Notes.C5, Notes.C6)
+        );
+
+        state = InstrumentConfigurationReducers.ReduceUpdateInstrumentTonalRange(
+            state,
+            new UpdateInstrumentTonalRange(Instrument.Three, Notes.C6, Notes.C7)
+        );
+
+        // assert
+        state.Configurations.Should().ContainKeys(Instrument.One, Instrument.Two, Instrument.Three);
+
+        var instrumentOneState = state[Instrument.One]!;
+        var instrumentTwoState = state[Instrument.Two]!;
+        var instrumentThreeState = state[Instrument.Three]!;
+
+        var lastUserAppliedInstrumentOneState = state.LastUserAppliedConfigurations[Instrument.One];
+        var lastUserAppliedInstrumentTwoState = state.LastUserAppliedConfigurations[Instrument.Two];
+        var lastUserAppliedInstrumentThreeState = state.LastUserAppliedConfigurations[Instrument.Three];
+
+        instrumentOneState.MinNote.Should().Be(Notes.C4);
+        instrumentOneState.MaxNote.Should().Be(Notes.C5);
+        instrumentTwoState.MinNote.Should().Be(Notes.C5);
+        instrumentTwoState.MaxNote.Should().Be(Notes.C6);
+        instrumentThreeState.MinNote.Should().Be(Notes.C6);
+        instrumentThreeState.MaxNote.Should().Be(Notes.C7);
+
+        lastUserAppliedInstrumentOneState.MinNote.Should().Be(Notes.C4);
+        lastUserAppliedInstrumentOneState.MaxNote.Should().Be(Notes.C5);
+        lastUserAppliedInstrumentTwoState.MinNote.Should().Be(Notes.C5);
+        lastUserAppliedInstrumentTwoState.MaxNote.Should().Be(Notes.C6);
+        lastUserAppliedInstrumentThreeState.MinNote.Should().Be(Notes.C6);
+        lastUserAppliedInstrumentThreeState.MaxNote.Should().Be(Notes.C7);
+    }
+
+    [Test]
+    public void ReduceUpdateConfigurationStatus_updates_instrument_configurations_as_expected()
+    {
+        // arrange
+        var state = new InstrumentConfigurationState();
+
+        // act
+        state = InstrumentConfigurationReducers.ReduceUpdateConfigurationStatus(
+            state,
+            new UpdateInstrumentConfigurationStatus(Instrument.One, ConfigurationStatus.Disabled)
+        );
+
+        state = InstrumentConfigurationReducers.ReduceUpdateConfigurationStatus(
+            state,
+            new UpdateInstrumentConfigurationStatus(Instrument.Two, ConfigurationStatus.Locked)
+        );
+
+        state = InstrumentConfigurationReducers.ReduceUpdateConfigurationStatus(
+            state,
+            new UpdateInstrumentConfigurationStatus(Instrument.Three, ConfigurationStatus.Enabled)
+        );
+
+        // assert
+        state.Configurations.Should().ContainKeys(Instrument.One, Instrument.Two, Instrument.Three);
+
+        var instrumentOneState = state[Instrument.One]!;
+        var instrumentTwoState = state[Instrument.Two]!;
+        var instrumentThreeState = state[Instrument.Three]!;
+
+        var lastUserAppliedInstrumentOneState = state.LastUserAppliedConfigurations[Instrument.One];
+        var lastUserAppliedInstrumentTwoState = state.LastUserAppliedConfigurations[Instrument.Two];
+        var lastUserAppliedInstrumentThreeState = state.LastUserAppliedConfigurations[Instrument.Three];
+
+        instrumentOneState.Status.Should().Be(ConfigurationStatus.Disabled);
+        instrumentTwoState.Status.Should().Be(ConfigurationStatus.Locked);
+        instrumentThreeState.Status.Should().Be(ConfigurationStatus.Enabled);
+
+        lastUserAppliedInstrumentOneState.Status.Should().Be(ConfigurationStatus.Disabled);
+        lastUserAppliedInstrumentTwoState.Status.Should().Be(ConfigurationStatus.Locked);
+        lastUserAppliedInstrumentThreeState.Status.Should().Be(ConfigurationStatus.Enabled);
+    }
 }

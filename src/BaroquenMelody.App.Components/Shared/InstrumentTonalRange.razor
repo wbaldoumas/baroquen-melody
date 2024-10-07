@@ -1,0 +1,194 @@
+﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@implements IDisposable
+
+<InstrumentRangePlayer @ref="_instrumentRangePlayer"
+                       MidiInstrument="_midiInstrument"
+                       LowNote="_lowestPitchNote"
+                       HighNote="_highestPitchNote"/>
+<MudGrid Justify="Justify.SpaceBetween">
+    <MudItem xs="12" Class="d-flex justify-center">
+        <MudText Typo="Typo.button">
+            Tonal Range
+        </MudText>
+    </MudItem>
+    <MudItem Class="d-none d-sm-flex mb-n8 mt-n8" xs="12" sm="12">
+        <RangeSlider T="int"
+                     @bind-Value="LowestPitchNoteIndex"
+                     @bind-UpperValue="HighestPitchNoteIndex"
+                     Size="Size.Medium"
+                     Variant="Variant.Filled"
+                     Color="@(!Status.IsEnabled() ? Color.Dark : Color.Tertiary)"
+                     ValueLabel="true"
+                     Range="true"
+                     TickMarks="true"
+                     Immediate="true"
+                     Min="TonalRangeSliderMin"
+                     Max="_tonalRangeSliderMax"
+                     MinSlideableMax="_tonalRangeMinSlideableMax"
+                     MaxSlideableMin="_tonalRangeMaxSlideableMin"
+                     Step="1"
+                     MinDistance="CompositionConfiguration.MinInstrumentRange"
+                     LabelText="@_lowestPitchNote.ToString()"
+                     UpperLabelText="@_highestPitchNote.ToString()"
+                     Disabled="Status.IsFrozen()"/>
+    </MudItem>
+    <MudItem xs="12" sm="4" md="3" lg="2" xl="2" xxl="2">
+        <MudSelect T="int"
+                   @bind-Value="LowestPitchNoteIndex"
+                   Label="Lowest Pitch"
+                   Variant="Variant.Outlined"
+                   AdornmentIcon="@Icons.Material.Outlined.PlayArrow"
+                   Adornment="Adornment.End"
+                   AdornmentColor="Color.Secondary"
+                   OnAdornmentClick="async () => await _instrumentRangePlayer!.PlayLowNote()"
+                   Disabled="Status.IsFrozen()">
+            @foreach (var noteIndex in _lowestPitchNoteIndices)
+            {
+                <MudSelectItem Value="noteIndex">@CompositionConfigurationState.Value.AvailableNotes[noteIndex]</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12" sm="4" md="3" lg="2" xl="2" xxl="2">
+        <MudSelect @bind-Value="HighestPitchNoteIndex"
+                   Label="Highest Pitch"
+                   T="int"
+                   Variant="Variant.Outlined"
+                   AdornmentIcon="@Icons.Material.Outlined.PlayArrow"
+                   Adornment="Adornment.End"
+                   AdornmentColor="Color.Secondary"
+                   OnAdornmentClick="async () => await _instrumentRangePlayer!.PlayHighNote()"
+                   Disabled="Status.IsFrozen()">
+            @foreach (var noteIndex in _highestPitchNoteIndices)
+            {
+                <MudSelectItem Value="noteIndex">@CompositionConfigurationState.Value.AvailableNotes[noteIndex]</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter, EditorRequired] public required Instrument Instrument { get; set; }
+
+    [Parameter, EditorRequired] public required ConfigurationStatus Status { get; set; }
+
+    private InstrumentRangePlayer? _instrumentRangePlayer;
+
+    private Note _lowestPitchNote => InstrumentConfigurationState.Value[Instrument]?.MinNote ?? Notes.C3;
+
+    private Note _highestPitchNote => InstrumentConfigurationState.Value[Instrument]?.MaxNote ?? Notes.C6;
+
+    private GeneralMidi2Program _midiInstrument => InstrumentConfigurationState.Value[Instrument]?.MidiProgram ?? GeneralMidi2Program.AcousticGrandPiano;
+
+    private const int TonalRangeSliderMin = 0;
+
+    private int _tonalRangeSliderMax => CompositionConfigurationState.Value.AvailableNotes.Count - 1;
+
+    private int _tonalRangeMinSlideableMax => _tonalRangeSliderMax - CompositionConfiguration.MinInstrumentRange;
+
+    private int _tonalRangeMaxSlideableMin => TonalRangeSliderMin + CompositionConfiguration.MinInstrumentRange;
+
+    private int _lowestPitchNoteIndex;
+
+    private int LowestPitchNoteIndex
+    {
+        get => _lowestPitchNoteIndex;
+        set
+        {
+            if (value == _lowestPitchNoteIndex)
+            {
+                return;
+            }
+
+            _lowestPitchNoteIndex = value;
+            HandleLowestPitchNoteIndexChange(_lowestPitchNoteIndex);
+
+            HighestPitchNoteIndex = (HighestPitchNoteIndex - _lowestPitchNoteIndex) switch
+            {
+                > CompositionConfiguration.MaxInstrumentRange => _lowestPitchNoteIndex + CompositionConfiguration.MaxInstrumentRange,
+                < CompositionConfiguration.MinInstrumentRange => Math.Min(_lowestPitchNoteIndex + CompositionConfiguration.MinInstrumentRange, _tonalRangeSliderMax),
+                _ => HighestPitchNoteIndex
+            };
+        }
+    }
+
+    private int _highestPitchNoteIndex;
+
+    private int HighestPitchNoteIndex
+    {
+        get => _highestPitchNoteIndex;
+        set
+        {
+            if (value == _highestPitchNoteIndex)
+            {
+                return;
+            }
+
+            _highestPitchNoteIndex = value;
+            HandleHighestPitchIndexChange(_highestPitchNoteIndex);
+
+            LowestPitchNoteIndex = (_highestPitchNoteIndex - LowestPitchNoteIndex) switch
+            {
+                > CompositionConfiguration.MaxInstrumentRange => _highestPitchNoteIndex - CompositionConfiguration.MaxInstrumentRange,
+                < CompositionConfiguration.MinInstrumentRange => Math.Max(_highestPitchNoteIndex - CompositionConfiguration.MinInstrumentRange, TonalRangeSliderMin),
+                _ => LowestPitchNoteIndex
+            };
+        }
+    }
+
+    private IEnumerable<int> _noteIndices => Enumerable.Range(TonalRangeSliderMin, _tonalRangeSliderMax + 1);
+
+    private IEnumerable<int> _lowestPitchNoteIndices => _noteIndices.Take(CompositionConfigurationState.Value.AvailableNotes.Count - CompositionConfiguration.MinInstrumentRange);
+
+    private IEnumerable<int> _highestPitchNoteIndices => _noteIndices.Skip(CompositionConfiguration.MinInstrumentRange);
+
+    private IDisposable? _instrumentConfigurationStateSubscription;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _lowestPitchNoteIndex = CompositionConfigurationState.Value.AvailableNotes.IndexOf(_lowestPitchNote);
+        _highestPitchNoteIndex = CompositionConfigurationState.Value.AvailableNotes.IndexOf(_highestPitchNote);
+
+        _instrumentConfigurationStateSubscription = InstrumentConfigurationState
+            .ObserveChanges()
+            .Subscribe(_ =>
+            {
+                var configuration = InstrumentConfigurationState.Value[Instrument]!;
+
+                _lowestPitchNoteIndex = CompositionConfigurationState.Value.AvailableNotes.IndexOf(configuration.MinNote);
+                _highestPitchNoteIndex = CompositionConfigurationState.Value.AvailableNotes.IndexOf(configuration.MaxNote);
+            });
+    }
+
+    private void HandleLowestPitchNoteIndexChange(int noteIndex) => Dispatcher.Dispatch(
+        new UpdateInstrumentTonalRange(
+            Instrument,
+            CompositionConfigurationState.Value.AvailableNotes[noteIndex],
+            _highestPitchNote
+        )
+    );
+
+    private void HandleHighestPitchIndexChange(int noteIndex) => Dispatcher.Dispatch(
+        new UpdateInstrumentTonalRange(
+            Instrument,
+            _lowestPitchNote,
+            CompositionConfigurationState.Value.AvailableNotes[noteIndex]
+        )
+    );
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _instrumentConfigurationStateSubscription?.Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+}

@@ -41,16 +41,16 @@ public sealed record InstrumentConfiguration(
     public static readonly SevenBitNumber DefaultMaxVelocity = new(75);
 
     [JsonIgnore]
-    public bool IsEnabled { get; } = Status.IsEnabled();
+    public bool IsEnabled => Status.IsEnabled();
 
     [JsonIgnore]
-    public bool IsFrozen { get; } = Status.IsFrozen();
+    public bool IsFrozen => Status.IsFrozen();
 
     [JsonIgnore]
-    public int VelocityRange { get; } = MaxVelocity - MinVelocity;
+    public int VelocityRange => MaxVelocity - MinVelocity;
 
     [JsonIgnore]
-    public bool HasSizeableVelocityRange { get; } = MaxVelocity - MinVelocity > MinValidVelocityRange;
+    public bool HasSizeableVelocityRange => VelocityRange > MinValidVelocityRange;
 
     public bool IsNoteWithinInstrumentRange(Note note) => MinNote.NoteNumber <= note.NoteNumber && note.NoteNumber <= MaxNote.NoteNumber;
 
