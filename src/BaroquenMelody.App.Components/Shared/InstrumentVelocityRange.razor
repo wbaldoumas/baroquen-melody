@@ -1,0 +1,178 @@
+﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@implements IDisposable
+
+<MudGrid Justify="Justify.SpaceBetween">
+    <MudItem xs="12" Class="d-flex justify-center">
+        <MudText Typo="Typo.button">Volume Range</MudText>
+    </MudItem>
+    <MudItem Class="d-none d-sm-flex mb-n8 mt-n8" xs="12" sm="12">
+        <RangeSlider T="byte"
+                     @bind-Value="MinVelocityValue"
+                     @bind-UpperValue="MaxVelocityValue"
+                     Size="Size.Medium"
+                     Variant="Variant.Filled"
+                     Color="@(!Status.IsEnabled() ? Color.Dark : Color.Tertiary)"
+                     ValueLabel="true"
+                     Range="true"
+                     TickMarks="true"
+                     Immediate="true"
+                     MinDistance="0"
+                     Min="VelocityRangeSliderMin"
+                     Max="VelocityRangeSliderMax"
+                     Step="1"
+                     LabelText="@($"{MinVelocityValue}%")"
+                     UpperLabelText="@($"{MaxVelocityValue}%")"
+                     Disabled="Status.IsFrozen()"/>
+    </MudItem>
+    <MudItem xs="12" sm="4" md="3" lg="2" xl="2" xxl="2">
+        <MudSelect T="byte"
+                   @bind-Value="MinVelocityValue"
+                   Label="Lowest Volume"
+                   Variant="Variant.Outlined"
+                   AdornmentIcon="@_minVelocityIcon"
+                   Adornment="Adornment.End"
+                   AdornmentColor="Color.Secondary"
+                   Disabled="Status.IsFrozen()">
+            @foreach (var value in VolumeRange)
+            {
+                <MudSelectItem Value="value">@($"{value}%")</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12" sm="4" md="3" lg="2" xl="2" xxl="2">
+        <MudSelect T="byte"
+                   @bind-Value="MaxVelocityValue"
+                   Label="Highest Volume"
+                   Variant="Variant.Outlined"
+                   AdornmentIcon="@_maxVelocityIcon"
+                   Adornment="Adornment.End"
+                   AdornmentColor="Color.Secondary"
+                   Disabled="Status.IsFrozen()">
+            @foreach (var value in VolumeRange)
+            {
+                <MudSelectItem Value="value">@($"{value}%")</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter, EditorRequired] public Instrument Instrument { get; set; }
+
+    [Parameter, EditorRequired] public ConfigurationStatus Status { get; set; }
+
+    private const byte VelocityRangeSliderMin = 0;
+
+    private const byte VelocityRangeSliderMax = 100;
+
+    private SevenBitNumber _minVelocity => InstrumentConfigurationState.Value[Instrument]?.MinVelocity ?? new SevenBitNumber(0);
+
+    private SevenBitNumber _maxVelocity => InstrumentConfigurationState.Value[Instrument]?.MaxVelocity ?? new SevenBitNumber(100);
+
+    private static IEnumerable<byte> VolumeRange => Enumerable.Range(0, 101).Select(value => (byte)value);
+
+    private byte _minVelocityValue = 0;
+
+    private byte MinVelocityValue
+    {
+        get => _minVelocityValue;
+        set
+        {
+            if (value == _minVelocityValue)
+            {
+                return;
+            }
+
+            _minVelocityValue = value;
+            HandleMinVelocityChange(_minVelocityValue);
+
+            if (_minVelocityValue > _maxVelocityValue)
+            {
+                MaxVelocityValue = _minVelocityValue;
+            }
+        }
+    }
+
+    private byte _maxVelocityValue = 100;
+
+    private byte MaxVelocityValue
+    {
+        get => _maxVelocityValue;
+        set
+        {
+            if (value == _maxVelocityValue)
+            {
+                return;
+            }
+
+            _maxVelocityValue = value;
+            HandleMaxVelocityChange(_maxVelocityValue);
+
+            if (_maxVelocityValue < _minVelocityValue)
+            {
+                MinVelocityValue = _maxVelocityValue;
+            }
+        }
+    }
+
+    private string _minVelocityIcon => GetVelocityIcon(MinVelocityValue);
+
+    private string _maxVelocityIcon => GetVelocityIcon(MaxVelocityValue);
+
+    private string GetVelocityIcon(byte velocity) => velocity switch
+    {
+        0 => Icons.Material.Outlined.VolumeOff,
+        < 50 => Icons.Material.Outlined.VolumeDown,
+        _ => Icons.Material.Outlined.VolumeUp
+    };
+
+    private IDisposable? InstrumentConfigurationStateSubscription;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _minVelocityValue = _minVelocity;
+        _maxVelocityValue = _maxVelocity;
+
+        InstrumentConfigurationStateSubscription = InstrumentConfigurationState
+            .ObserveChanges()
+            .Subscribe(_ =>
+            {
+                var configuration = InstrumentConfigurationState.Value[Instrument]!;
+
+                _minVelocityValue = configuration.MinVelocity;
+                _maxVelocityValue = configuration.MaxVelocity;
+            });
+    }
+
+    private void HandleMinVelocityChange(byte velocity) => Dispatcher.Dispatch(
+        new UpdateInstrumentVelocities(
+            Instrument,
+            new SevenBitNumber(velocity),
+            _maxVelocity
+        )
+    );
+
+    private void HandleMaxVelocityChange(byte velocity) => Dispatcher.Dispatch(
+        new UpdateInstrumentVelocities(
+            Instrument,
+            _minVelocity,
+            new SevenBitNumber(velocity)
+        )
+    );
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            InstrumentConfigurationStateSubscription?.Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+}
