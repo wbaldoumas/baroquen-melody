@@ -8,8 +8,18 @@
 <MudGrid Justify="Justify.SpaceBetween">
     <MudItem xs="12" Class="d-flex justify-center">
         <MudText Typo="Typo.button">
-            Tonal Range
+            Tonal Range <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.QuestionMark" OnClick="OpenPopover" />
         </MudText>
+        <AutoClosePopover IsPopoverOpen="IsPopoverOpen"
+                          OnPopoverClosed="@(() => IsPopoverOpen = false)">
+            <PopoverContent>
+                <MudContainer MaxWidth="MaxWidth.ExtraSmall" Gutters="false">
+                    <MudText>
+                        The tonal range of the instrument, defining its lowest and highest playable notes. <br/><br/> Note that some MIDI instruments may not support the full range of notes, so be sure to test them out.
+                    </MudText>
+                </MudContainer>
+            </PopoverContent>
+        </AutoClosePopover>
     </MudItem>
     <MudItem Class="d-none d-sm-flex mb-n8 mt-n8" xs="12" sm="12">
         <RangeSlider T="int"
@@ -70,6 +80,8 @@
     [Parameter, EditorRequired] public required Instrument Instrument { get; set; }
 
     [Parameter, EditorRequired] public required ConfigurationStatus Status { get; set; }
+
+    private bool IsPopoverOpen = false;
 
     private InstrumentRangePlayer? _instrumentRangePlayer;
 
@@ -176,6 +188,8 @@
             CompositionConfigurationState.Value.AvailableNotes[noteIndex]
         )
     );
+
+    private void OpenPopover() => IsPopoverOpen = true;
 
     protected virtual void Dispose(bool disposing)
     {

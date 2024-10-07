@@ -3,8 +3,19 @@
 
 <MudGrid Justify="Justify.SpaceBetween">
     <MudItem xs="12" Class="d-flex justify-center">
-        <MudText Typo="Typo.button">Volume Range</MudText>
-    </MudItem>
+        <MudText Typo="Typo.button">
+            Volume Range <MudIconButton Size="Size.Small" Class="mb-1" Icon="@Icons.Material.Outlined.QuestionMark" OnClick="OpenPopover"/>
+        </MudText>
+        <AutoClosePopover IsPopoverOpen="IsPopoverOpen"
+                          OnPopoverClosed="@(() => IsPopoverOpen = false)">
+            <PopoverContent>
+                <MudContainer MaxWidth="MaxWidth.ExtraSmall" Gutters="false">
+                    <MudText>
+                        The volume range (or <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Dynamics_(music)">dynamic range</MudLink>) of the instrument, defining its softest and loudest playable notes.
+                    </MudText>
+                </MudContainer>
+            </PopoverContent>
+        </AutoClosePopover>    </MudItem>
     <MudItem Class="d-none d-sm-flex mb-n8 mt-n8" xs="12" sm="12">
         <RangeSlider T="byte"
                      @bind-Value="MinVelocityValue"
@@ -60,6 +71,8 @@
     [Parameter, EditorRequired] public Instrument Instrument { get; set; }
 
     [Parameter, EditorRequired] public ConfigurationStatus Status { get; set; }
+
+    private bool IsPopoverOpen = false;
 
     private const byte VelocityRangeSliderMin = 0;
 
@@ -161,6 +174,8 @@
             new SevenBitNumber(velocity)
         )
     );
+
+    private void OpenPopover() => IsPopoverOpen = true;
 
     protected virtual void Dispose(bool disposing)
     {
