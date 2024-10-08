@@ -58,6 +58,7 @@ internal sealed class OrnamentationProcessorFactoryTests
     [TestCase(OrnamentationType.None)]
     [TestCase(OrnamentationType.Sustain)]
     [TestCase(OrnamentationType.MidSustain)]
+    [TestCase((OrnamentationType)byte.MaxValue)]
     public void Factory_throws_for_unsupported_ornamentation_type(OrnamentationType ornamentationType)
     {
         // act
