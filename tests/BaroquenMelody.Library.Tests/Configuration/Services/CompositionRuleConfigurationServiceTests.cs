@@ -65,8 +65,8 @@ internal sealed class CompositionRuleConfigurationServiceTests
 
         // assert
         _mockDispatcher
-            .Received(AggregateCompositionRuleConfiguration.Default.Configurations.Count)
-            .Dispatch(Arg.Any<UpdateCompositionRuleConfiguration>());
+            .Received(1)
+            .Dispatch(Arg.Any<BatchUpdateCompositionRuleConfiguration>());
     }
 
     [Test]
@@ -97,7 +97,7 @@ internal sealed class CompositionRuleConfigurationServiceTests
 
         // assert
         _mockDispatcher
-            .Received(configurations.Count - 2)
-            .Dispatch(Arg.Any<UpdateCompositionRuleConfiguration>());
+            .Received(1)
+            .Dispatch(Arg.Any<BatchUpdateCompositionRuleConfiguration>());
     }
 }

@@ -20,4 +20,10 @@ public static class CompositionOrnamentationConfigurationReducers
 
         return new CompositionOrnamentationConfigurationState(configurations);
     }
+
+    [ReducerMethod]
+    public static CompositionOrnamentationConfigurationState ReduceBatchUpdateCompositionOrnamentationConfiguration(
+        CompositionOrnamentationConfigurationState state,
+        BatchUpdateCompositionOrnamentationConfiguration action
+    ) => new(action.Configurations);
 }

@@ -48,4 +48,36 @@ internal sealed class CompositionRuleConfigurationReducersTests
             state[defaultConfiguration.Rule]!.Should().BeEquivalentTo(defaultConfiguration);
         }
     }
+
+    [Test]
+    public void ReduceBatchUpdateCompositionRuleConfiguration_updates_composition_rule_configurations_as_expected()
+    {
+        // arrange
+        var state = new CompositionRuleConfigurationState();
+
+        // act
+        state = CompositionRuleConfigurationReducers.ReduceBatchUpdateCompositionRuleConfiguration(
+            state,
+            new BatchUpdateCompositionRuleConfiguration(
+                new Dictionary<CompositionRule, CompositionRuleConfiguration>
+                {
+                    [CompositionRule.AvoidDissonance] = new(CompositionRule.AvoidDissonance, ConfigurationStatus.Enabled, 2),
+                    [CompositionRule.AvoidRepeatedChords] = new(CompositionRule.AvoidRepeatedChords, ConfigurationStatus.Enabled, 3),
+                    [CompositionRule.AvoidDirectFifths] = new(CompositionRule.AvoidDirectFifths, ConfigurationStatus.Disabled, 4)
+                }
+            )
+        );
+
+        // assert
+        state.Configurations
+            .Should()
+            .ContainKeys(CompositionRule.AvoidDirectFifths, CompositionRule.AvoidDissonance, CompositionRule.AvoidRepeatedChords);
+
+        state[CompositionRule.AvoidDirectFifths]!.Strictness.Should().Be(4);
+        state[CompositionRule.AvoidDirectFifths]!.IsEnabled.Should().BeFalse();
+        state[CompositionRule.AvoidDissonance]!.Strictness.Should().Be(2);
+        state[CompositionRule.AvoidDissonance]!.IsEnabled.Should().BeTrue();
+        state[CompositionRule.AvoidRepeatedChords]!.Strictness.Should().Be(3);
+        state[CompositionRule.AvoidRepeatedChords]!.IsEnabled.Should().BeTrue();
+    }
 }

@@ -60,4 +60,29 @@ internal sealed class CompositionOrnamentationConfigurationReducersTests
             state[defaultConfiguration.OrnamentationType]!.Should().BeEquivalentTo(defaultConfiguration);
         }
     }
+
+    [Test]
+    public void ReduceBatchUpdateCompositionOrnamentationConfiguration_updates_composition_ornamentation_configurations_as_expected()
+    {
+        // arrange
+        var state = new CompositionOrnamentationConfigurationState();
+
+        var configurations = new Dictionary<OrnamentationType, OrnamentationConfiguration>
+        {
+            [OrnamentationType.Run] = new(OrnamentationType.Run, ConfigurationStatus.Enabled, 1),
+            [OrnamentationType.Mordent] = new(OrnamentationType.Mordent, ConfigurationStatus.Enabled, 2),
+            [OrnamentationType.Turn] = new(OrnamentationType.Turn, ConfigurationStatus.Enabled, 3)
+        };
+
+        // act
+        state = CompositionOrnamentationConfigurationReducers.ReduceBatchUpdateCompositionOrnamentationConfiguration(
+            state,
+            new BatchUpdateCompositionOrnamentationConfiguration(configurations)
+        );
+
+        // assert
+        state.Configurations
+            .Should()
+            .BeEquivalentTo(configurations);
+    }
 }
