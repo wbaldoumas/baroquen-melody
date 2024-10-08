@@ -1,9 +1,16 @@
-﻿using BaroquenMelody.Library.Midi;
+﻿using Atrea.Utilities.Enums;
+using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Midi;
+using BaroquenMelody.Library.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Ornamentation.Enums;
+using BaroquenMelody.Library.Ornamentation.Utilities;
+using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
 using NUnit.Framework;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Tests.Midi;
 
@@ -13,7 +20,12 @@ internal sealed class MidiExampleGeneratorTests
     private MidiExampleGenerator _midiExampleGenerator = null!;
 
     [SetUp]
-    public void SetUp() => _midiExampleGenerator = new MidiExampleGenerator();
+    public void SetUp() => _midiExampleGenerator = new MidiExampleGenerator(
+        new OrnamentationProcessorFactory(
+            new MusicalTimeSpanCalculator(),
+            new WeightedRandomBooleanGenerator()
+        )
+    );
 
     [Test]
     public void GenerateExampleMidiFile_WhenGivenValidInput_ReturnsMidiFile()
@@ -27,11 +39,37 @@ internal sealed class MidiExampleGeneratorTests
         // assert
         var notes = midiFile.GetNotes();
 
-        notes.Should().HaveCount(1);
+        notes.Should().ContainSingle();
 
         var note = notes.First();
 
         note.Should().NotBeNull();
         note.NoteNumber.Should().Be(Notes.C4.NoteNumber);
+    }
+
+    [Test]
+    public void GenerateExampleOrnamentationMidiFile_handles_all_ornamentation_types()
+    {
+        // arrange
+        var excludedOrnamentationTypes = new HashSet<OrnamentationType>
+        {
+            OrnamentationType.None,
+            OrnamentationType.Sustain,
+            OrnamentationType.MidSustain,
+            OrnamentationType.Rest
+        }.ToFrozenSet();
+
+        var ornamentationTypes = EnumUtils<OrnamentationType>.AsEnumerable()
+            .Where(ornamentationType => !excludedOrnamentationTypes.Contains(ornamentationType))
+            .ToList();
+
+        // act
+        foreach (var ornamentationType in ornamentationTypes)
+        {
+            var act = () => _midiExampleGenerator.GenerateExampleOrnamentationMidiFile(ornamentationType, TestCompositionConfigurations.Get());
+
+            // assert
+            act.Should().NotThrow();
+        }
     }
 }

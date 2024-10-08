@@ -1,0 +1,48 @@
+﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+<midi-player id="ornamentation-player"
+             class="d-none"
+             @ref="_ornamentationPlayer"
+             src="data:audio/midi;base64,@(GetOrnamentationMidi())"
+             sound-font>
+</midi-player>
+
+@code {
+
+    [Parameter, EditorRequired] public required OrnamentationType OrnamentationType { get; set; }
+
+    private ElementReference _ornamentationPlayer { get; set; }
+
+    public async Task PlayOrnamentation()
+    {
+        if (!await JsRuntime.InvokeVoidAsyncWithErrorHandling("startMidiPlayer", _ornamentationPlayer))
+        {
+            Snackbar.Add("Failed to play MIDI audio. This may be due to missing MIDI drivers on your device.", Severity.Error);
+        }
+    }
+
+    private string GetOrnamentationMidi()
+    {
+        var compositionConfiguration = new CompositionConfiguration(
+            InstrumentConfigurationState.Value.EnabledConfigurations,
+            PhrasingConfiguration.Default,
+            CompositionRuleConfigurationState.Value.Aggregate,
+            OrnamentationConfigurationState.Value.Aggregate,
+            NoteName.C,
+            CompositionConfigurationState.Value.Mode,
+            CompositionConfigurationState.Value.Meter,
+            CompositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
+            CompositionConfigurationState.Value.MinimumMeasures,
+            Tempo: CompositionConfigurationState.Value.Tempo
+        );
+
+        using var stream = new MemoryStream();
+
+        var midiFile = MidiExampleGenerator.GenerateExampleOrnamentationMidiFile(OrnamentationType, compositionConfiguration);
+
+        midiFile.Write(stream);
+
+        return Convert.ToBase64String(stream.ToArray());
+    }
+
+}

@@ -58,7 +58,7 @@ public sealed class BaroquenNote(Instrument instrument, Note raw, MusicalTimeSpa
     /// <summary>
     ///     The velocity of the note, impacting dynamics.
     /// </summary>
-    public SevenBitNumber Velocity { get; set; } = new(50);
+    public SevenBitNumber Velocity { get; set; } = new(75);
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BaroquenNote"/> class.
