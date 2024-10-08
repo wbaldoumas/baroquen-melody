@@ -71,8 +71,8 @@ internal sealed class OrnamentationConfigurationServiceTests
 
         // assert
         _mockDispatcher
-            .Received(AggregateOrnamentationConfiguration.Default.Configurations.Count)
-            .Dispatch(Arg.Any<UpdateCompositionOrnamentationConfiguration>());
+            .Received(1)
+            .Dispatch(Arg.Any<BatchUpdateCompositionOrnamentationConfiguration>());
     }
 
     [Test]
@@ -109,7 +109,7 @@ internal sealed class OrnamentationConfigurationServiceTests
 
         // assert
         _mockDispatcher
-            .Received(configurations.Count - 2)
-            .Dispatch(Arg.Any<UpdateCompositionOrnamentationConfiguration>());
+            .Received(1)
+            .Dispatch(Arg.Any<BatchUpdateCompositionOrnamentationConfiguration>());
     }
 }

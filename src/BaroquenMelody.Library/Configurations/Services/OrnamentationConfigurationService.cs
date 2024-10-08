@@ -26,25 +26,39 @@ internal sealed class OrnamentationConfigurationService(
 
     public void ConfigureDefaults()
     {
-        foreach (var configuration in AggregateOrnamentationConfiguration.Default.Configurations)
-        {
-            dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(configuration.OrnamentationType, configuration.Status, configuration.Probability));
-        }
+        var ornamentationConfigurationsByOrnamentationType = AggregateOrnamentationConfiguration.Default.Configurations.ToDictionary(
+            configuration => configuration.OrnamentationType,
+            configuration => new OrnamentationConfiguration(configuration.OrnamentationType, configuration.Status, configuration.Probability)
+        );
+
+        dispatcher.Dispatch(new BatchUpdateCompositionOrnamentationConfiguration(ornamentationConfigurationsByOrnamentationType));
     }
 
     public void Randomize()
     {
+        var ornamentationConfigurationsByOrnamentationType = new Dictionary<OrnamentationType, OrnamentationConfiguration>();
+
         foreach (var configuration in AggregateOrnamentationConfiguration.Default.Configurations)
         {
             if (state.Value.Configurations[configuration.OrnamentationType].IsFrozen)
             {
+                ornamentationConfigurationsByOrnamentationType.Add(
+                    configuration.OrnamentationType,
+                    state.Value.Configurations[configuration.OrnamentationType]
+                );
+
                 continue;
             }
 
             var status = state.Value.Configurations[configuration.OrnamentationType].Status;
             var probability = ThreadLocalRandom.Next(MinProbability, MaxProbability + 1);
 
-            dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(configuration.OrnamentationType, status, probability));
+            ornamentationConfigurationsByOrnamentationType.Add(
+                configuration.OrnamentationType,
+                new OrnamentationConfiguration(configuration.OrnamentationType, status, probability)
+            );
         }
+
+        dispatcher.Dispatch(new BatchUpdateCompositionOrnamentationConfiguration(ornamentationConfigurationsByOrnamentationType));
     }
 }

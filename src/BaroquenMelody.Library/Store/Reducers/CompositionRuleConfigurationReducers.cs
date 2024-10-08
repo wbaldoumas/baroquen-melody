@@ -18,4 +18,7 @@ public static class CompositionRuleConfigurationReducers
 
         return new CompositionRuleConfigurationState(configurations);
     }
+
+    [ReducerMethod]
+    public static CompositionRuleConfigurationState ReduceBatchUpdateCompositionRuleConfiguration(CompositionRuleConfigurationState state, BatchUpdateCompositionRuleConfiguration action) => new(action.Configurations);
 }

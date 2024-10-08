@@ -26,25 +26,39 @@ internal sealed class CompositionRuleConfigurationService(
 
     public void ConfigureDefaults()
     {
-        foreach (var configuration in AggregateCompositionRuleConfiguration.Default.Configurations)
-        {
-            dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(configuration.Rule, configuration.Status, configuration.Strictness));
-        }
+        var compositionRuleConfigurationsByRuleType = AggregateCompositionRuleConfiguration.Default.Configurations.ToDictionary(
+            configuration => configuration.Rule,
+            configuration => new CompositionRuleConfiguration(configuration.Rule, configuration.Status, configuration.Strictness)
+        );
+
+        dispatcher.Dispatch(new BatchUpdateCompositionRuleConfiguration(compositionRuleConfigurationsByRuleType));
     }
 
     public void Randomize()
     {
+        var compositionRuleConfigurationsByRuleType = new Dictionary<CompositionRule, CompositionRuleConfiguration>();
+
         foreach (var configuration in AggregateCompositionRuleConfiguration.Default.Configurations)
         {
             if (state.Value.Configurations[configuration.Rule].IsFrozen)
             {
+                compositionRuleConfigurationsByRuleType.Add(
+                    configuration.Rule,
+                    state.Value.Configurations[configuration.Rule]
+                );
+
                 continue;
             }
 
             var status = state.Value.Configurations[configuration.Rule].Status;
             var strictness = ThreadLocalRandom.Next(MinStrictness, MaxStrictness + 1);
 
-            dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(configuration.Rule, status, strictness));
+            compositionRuleConfigurationsByRuleType.Add(
+                configuration.Rule,
+                new CompositionRuleConfiguration(configuration.Rule, status, strictness)
+            );
         }
+
+        dispatcher.Dispatch(new BatchUpdateCompositionRuleConfiguration(compositionRuleConfigurationsByRuleType));
     }
 }
