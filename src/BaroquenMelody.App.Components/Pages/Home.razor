@@ -113,9 +113,24 @@
             .ObserveChanges()
             .Subscribe(state =>
             {
-                if (state.Value.CurrentStep == CompositionStep.Failed && _tabs?.ActivePanel != _compositionTab)
+                switch (state.Value.CurrentStep)
                 {
-                    Snackbar.Add("Failed to compose. Try again, or try a different configuration.", Severity.Error);
+                    case CompositionStep.Failed when _tabs?.ActivePanel != _compositionTab:
+                        Snackbar.Add("Failed to compose. Try again, or try a different configuration.", Severity.Error);
+                        break;
+                    case CompositionStep.Complete when _tabs?.ActivePanel != _compositionTab:
+                        Snackbar.Add("Composition complete!", Severity.Success, snackbarOptions =>
+                        {
+                            snackbarOptions.Onclick = _ =>
+                            {
+                                ActivateCompositionTab();
+
+                                return Task.CompletedTask;
+                            };
+
+                            snackbarOptions.Icon = Icons.Material.Filled.MusicNote;
+                        });
+                        break;
                 }
             });
 
