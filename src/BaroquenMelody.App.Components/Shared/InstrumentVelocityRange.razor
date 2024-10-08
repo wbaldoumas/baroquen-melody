@@ -15,7 +15,8 @@
                     </MudText>
                 </MudContainer>
             </PopoverContent>
-        </AutoClosePopover>    </MudItem>
+        </AutoClosePopover>
+    </MudItem>
     <MudItem Class="d-none d-sm-flex mb-n8 mt-n8" xs="12" sm="12">
         <RangeSlider T="byte"
                      @bind-Value="MinVelocityValue"
@@ -190,4 +191,5 @@
         Dispose(true);
         GC.SuppressFinalize(this);
     }
+
 }

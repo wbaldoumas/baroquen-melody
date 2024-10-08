@@ -36,6 +36,8 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
 
+    private readonly OrnamentationProcessorFactory _ornamentationProcessorFactory = new(musicalTimeSpanCalculator, new WeightedRandomBooleanGenerator());
+
     private readonly IInputPolicy<OrnamentationItem> _hasNoOrnamentation = new Not<OrnamentationItem>(new HasOrnamentation());
 
     private readonly NoteIndexPairSelector _noteIndexPairSelector = new(new NoteOnsetCalculator(musicalTimeSpanCalculator, compositionConfiguration));
@@ -147,7 +149,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new IsApplicableInterval(compositionConfiguration, PassingToneProcessor.Interval)
         )
-        .WithProcessors(new PassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.PassingTone))
+        .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.PassingTone, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.PassingTone, logger))
         .Build();
 
@@ -157,7 +159,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new IsApplicableInterval(compositionConfiguration, PassingToneProcessor.Interval)
         )
-        .WithProcessors(new PassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.DelayedPassingTone))
+        .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.DelayedPassingTone, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DelayedPassingTone, logger))
         .Build();
 
@@ -167,7 +169,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new IsApplicableInterval(compositionConfiguration, TurnProcessor.Interval)
         )
-        .WithProcessors(new TurnProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.Turn, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.Turn, logger))
         .Build();
 
@@ -177,7 +179,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new IsApplicableInterval(compositionConfiguration, InvertedTurnProcessor.Interval)
         )
-        .WithProcessors(new InvertedTurnProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.InvertedTurn, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.InvertedTurn, logger))
         .Build();
 
@@ -187,7 +189,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new IsApplicableInterval(compositionConfiguration, RunProcessor.Interval)
         )
-        .WithProcessors(new RunProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.Run, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.Run, logger))
         .Build();
 
@@ -197,7 +199,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new IsApplicableInterval(compositionConfiguration, DelayedRunProcessor.Interval)
         )
-        .WithProcessors(new DelayedRunProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.DelayedRun, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DelayedRun, logger))
         .Build();
 
@@ -207,7 +209,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new IsApplicableInterval(compositionConfiguration, DoubleTurnProcessor.Interval)
         )
-        .WithProcessors(new DoubleTurnProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.DoubleTurn, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DoubleTurn, logger))
         .Build();
 
@@ -217,7 +219,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new IsApplicableInterval(compositionConfiguration, DoublePassingToneProcessor.Interval)
         )
-        .WithProcessors(new DoublePassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.DoublePassingTone))
+        .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.DoublePassingTone, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DoublePassingTone, logger))
         .Build();
 
@@ -227,7 +229,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new IsApplicableInterval(compositionConfiguration, DoublePassingToneProcessor.Interval)
         )
-        .WithProcessors(new DoublePassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.DelayedDoublePassingTone))
+        .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.DelayedDoublePassingTone, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DelayedDoublePassingTone, logger))
         .Build();
 
@@ -243,7 +245,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
                 new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.DecorateInterval)),
                 new IsIntervalWithinInstrumentRange(compositionConfiguration, intervalChange)
             )
-            .WithProcessors(new DecorateIntervalProcessor(musicalTimeSpanCalculator, compositionConfiguration, intervalChange))
+            .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.DecorateInterval, compositionConfiguration, intervalChange))
             .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DecorateInterval, logger))
             .Build();
 
@@ -253,7 +255,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new IsApplicableInterval(compositionConfiguration, DoubleRunProcessor.Interval)
         )
-        .WithProcessors(new DoubleRunProcessor(musicalTimeSpanCalculator, compositionConfiguration))
+        .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.DoubleRun, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DoubleRun, logger))
         .Build();
 
@@ -267,7 +269,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
                 new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Pedal)),
                 new IsIntervalWithinInstrumentRange(compositionConfiguration, pedalInterval)
             )
-            .WithProcessors(new PedalProcessor(musicalTimeSpanCalculator, compositionConfiguration, pedalInterval))
+            .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.Pedal, compositionConfiguration, pedalInterval))
             .WithOutputPolicies(new LogOrnamentation(OrnamentationType.Pedal, logger))
             .Build();
 
@@ -278,7 +280,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Mordent)),
             new IsIntervalWithinInstrumentRange(compositionConfiguration, 1).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -1))
         )
-        .WithProcessors(new MordentProcessor(musicalTimeSpanCalculator, _weightedRandomBooleanGenerator, compositionConfiguration))
+        .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.Mordent, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.Mordent, logger))
         .Build();
 
@@ -288,7 +290,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new WantsToOrnament(_weightedRandomBooleanGenerator, configuration.Probability),
             _hasNoOrnamentation
         )
-        .WithProcessors(new RepeatedNoteProcessor(musicalTimeSpanCalculator, compositionConfiguration, ornamentationType))
+        .WithProcessors(_ornamentationProcessorFactory.Create(ornamentationType, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(ornamentationType, logger))
         .Build();
 
@@ -299,7 +301,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             _hasNoOrnamentation,
             new IsRepeatedNote()
         )
-        .WithProcessors(new NeighborToneProcessor(musicalTimeSpanCalculator, _weightedRandomBooleanGenerator, ornamentationType, compositionConfiguration))
+        .WithProcessors(_ornamentationProcessorFactory.Create(ornamentationType, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DelayedNeighborTone, logger))
         .Build();
 
@@ -311,7 +313,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             new Not<OrnamentationItem>(new IsRepeatedNote()),
             new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, 1).And(new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, -1))
         )
-        .WithProcessors(new PickupProcessor(musicalTimeSpanCalculator, compositionConfiguration, ornamentationType))
+        .WithProcessors(_ornamentationProcessorFactory.Create(ornamentationType, compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(ornamentationType, logger))
         .Build();
 

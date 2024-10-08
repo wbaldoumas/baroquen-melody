@@ -4,10 +4,14 @@
     <CardHeaderSwitch ConfigurationStatus="Status"
                       ValueChanged="HandleIsEnabledChange">
         <HeaderContent>
-            <MudText Typo="Typo.h6">@OrnamentationType.ToSpaceSeparatedString()</MudText>
+            <MudText Typo="Typo.h6">
+                @OrnamentationType.ToSpaceSeparatedString() <MudIconButton Color="Color.Secondary" Icon="@Icons.Material.Outlined.PlayCircle" OnClick="PlayOrnamentation"/>
+            </MudText>
         </HeaderContent>
     </CardHeaderSwitch>
     <MudCardContent>
+        <OrnamentationExamplePlayer @ref="_ornamentationPlayer"
+                                    OrnamentationType="OrnamentationType"/>
         <MudGrid>
             <MudItem xs="12" sm="4" md="4" lg="4" xl="4" xxl="4">
                 <NumericInputWithPopover T="int"
@@ -53,7 +57,11 @@
 
     private ConfigurationStatus Status => OrnamentationConfigurationState.Value[OrnamentationType]?.Status ?? ConfigurationStatus.Enabled;
 
+    private OrnamentationExamplePlayer? _ornamentationPlayer { get; set; }
+
     private void HandleProbabilityChange(int value) => Dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(OrnamentationType, Status, value));
 
     private void HandleIsEnabledChange(ConfigurationStatus status) => Dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(OrnamentationType, status, Probability));
+
+    private async Task PlayOrnamentation() => await _ornamentationPlayer!.PlayOrnamentation();
 }
