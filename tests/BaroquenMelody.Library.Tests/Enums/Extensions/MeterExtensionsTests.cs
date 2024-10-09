@@ -75,4 +75,12 @@ internal sealed class MeterExtensionsTests
         // assert
         actual.Should().Be(expected);
     }
+
+    [Test]
+    public void ToTimeSignature_throws_on_unsupported_meter()
+    {
+        var act = () => ((Meter)int.MaxValue).ToTimeSignature();
+
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
 }
