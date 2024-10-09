@@ -41,6 +41,7 @@ internal sealed class NoteOnsetCalculator(
         var bitArray = meter switch
         {
             Meter.FourFour => new BitArray(16),
+            Meter.FiveEight => new BitArray(20),
             Meter.ThreeFour => new BitArray(24),
             _ => throw new ArgumentOutOfRangeException(nameof(meter), meter, "Unsupported meter for note onset calculation.")
         };

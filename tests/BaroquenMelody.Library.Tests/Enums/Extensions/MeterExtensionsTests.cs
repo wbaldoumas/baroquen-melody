@@ -11,7 +11,8 @@ internal sealed class MeterExtensionsTests
 {
     [Test]
     [TestCase(Meter.FourFour, 4)]
-    [TestCase(Meter.ThreeFour, 3)]
+    [TestCase(Meter.ThreeFour, 4)]
+    [TestCase(Meter.FiveEight, 4)]
     public void BeatsPerMeasure_returns_expected_value(Meter meter, int expectedBeatsPerMeasure) =>
         meter.BeatsPerMeasure().Should().Be(expectedBeatsPerMeasure);
 
@@ -39,6 +40,7 @@ internal sealed class MeterExtensionsTests
     [Test]
     [TestCase(Meter.FourFour, "4/4")]
     [TestCase(Meter.ThreeFour, "3/4")]
+    [TestCase(Meter.FiveEight, "5/8")]
     public void AsString_generates_expected_string(Meter meter, string expected)
     {
         meter.AsString().Should().Be(expected);
@@ -58,12 +60,14 @@ internal sealed class MeterExtensionsTests
         {
             yield return new TestCaseData(Meter.FourFour, MusicalTimeSpan.Half);
             yield return new TestCaseData(Meter.ThreeFour, MusicalTimeSpan.Half.Dotted(1));
+            yield return new TestCaseData(Meter.FiveEight, MusicalTimeSpan.Half + MusicalTimeSpan.Eighth);
         }
     }
 
     [Test]
     [TestCase(Meter.FourFour, 4, 4)]
     [TestCase(Meter.ThreeFour, 3, 4)]
+    [TestCase(Meter.FiveEight, 5, 8)]
     public void ToTimeSignature_returns_expected_value(Meter meter, int expectedNumerator, int expectedDenominator)
     {
         // arrange

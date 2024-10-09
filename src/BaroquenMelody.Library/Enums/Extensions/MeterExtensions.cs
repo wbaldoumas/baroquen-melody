@@ -16,7 +16,8 @@ public static class MeterExtensions
     public static int BeatsPerMeasure(this Meter meter) => meter switch
     {
         Meter.FourFour => 4,
-        Meter.ThreeFour => 3,
+        Meter.ThreeFour => 4,
+        Meter.FiveEight => 4,
         _ => throw new ArgumentOutOfRangeException(nameof(meter), meter, "Meter not supported.")
     };
 
@@ -30,6 +31,7 @@ public static class MeterExtensions
     {
         Meter.FourFour => MusicalTimeSpan.Half,
         Meter.ThreeFour => MusicalTimeSpan.Half.Dotted(1),
+        Meter.FiveEight => MusicalTimeSpan.Half + MusicalTimeSpan.Eighth,
         _ => throw new ArgumentOutOfRangeException(nameof(meter), meter, "Meter not supported.")
     };
 
@@ -43,6 +45,7 @@ public static class MeterExtensions
     {
         Meter.FourFour => "4/4",
         Meter.ThreeFour => "3/4",
+        Meter.FiveEight => "5/8",
         _ => throw new ArgumentOutOfRangeException(nameof(meter), meter, "Meter not supported.")
     };
 
@@ -56,6 +59,7 @@ public static class MeterExtensions
     {
         Meter.FourFour => new TimeSignature(4, 4),
         Meter.ThreeFour => new TimeSignature(3, 4),
+        Meter.FiveEight => new TimeSignature(5, 8),
         _ => throw new ArgumentOutOfRangeException(nameof(meter), meter, "Meter not supported.")
     };
 }

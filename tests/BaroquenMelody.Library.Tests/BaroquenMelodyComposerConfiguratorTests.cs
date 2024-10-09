@@ -18,17 +18,17 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
-    public void Configure_returns_configured_BaroquenMelodyComposer_which_can_compose_a_BaroquenMelody(CompositionConfiguration compositionConfiguration)
+    public void Configure_returns_configured_MidiFileComposer_which_can_compose_a_MidiFileComposition(CompositionConfiguration compositionConfiguration)
     {
         // arrange
-        var baroquenMelodyComposer = _baroquenMelodyComposerConfigurator.Configure(compositionConfiguration);
+        var midiFileComposer = _baroquenMelodyComposerConfigurator.Configure(compositionConfiguration);
 
         // act
-        var baroquenMelody = baroquenMelodyComposer.Compose(CancellationToken.None);
+        var midiFileComposition = midiFileComposer.Compose(CancellationToken.None);
 
         // assert
-        baroquenMelody.Should().NotBeNull();
-        baroquenMelody.MidiFile.Should().NotBeNull();
+        midiFileComposition.Should().NotBeNull();
+        midiFileComposition.MidiFile.Should().NotBeNull();
     }
 
     private static IEnumerable<TestCaseData> TestCases

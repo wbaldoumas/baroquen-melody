@@ -81,7 +81,8 @@ internal sealed class CompositionConfigurationServiceTests
         var expectedConfigurableMeters = new[]
         {
             Meter.FourFour,
-            Meter.ThreeFour
+            Meter.ThreeFour,
+            Meter.FiveEight
         };
 
         // act
