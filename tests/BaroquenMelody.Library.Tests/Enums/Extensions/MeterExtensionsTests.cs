@@ -60,4 +60,27 @@ internal sealed class MeterExtensionsTests
             yield return new TestCaseData(Meter.ThreeFour, MusicalTimeSpan.Half.Dotted(1));
         }
     }
+
+    [Test]
+    [TestCase(Meter.FourFour, 4, 4)]
+    [TestCase(Meter.ThreeFour, 3, 4)]
+    public void ToTimeSignature_returns_expected_value(Meter meter, int expectedNumerator, int expectedDenominator)
+    {
+        // arrange
+        var expected = new TimeSignature(expectedNumerator, expectedDenominator);
+
+        // act
+        var actual = meter.ToTimeSignature();
+
+        // assert
+        actual.Should().Be(expected);
+    }
+
+    [Test]
+    public void ToTimeSignature_throws_on_unsupported_meter()
+    {
+        var act = () => ((Meter)int.MaxValue).ToTimeSignature();
+
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
 }

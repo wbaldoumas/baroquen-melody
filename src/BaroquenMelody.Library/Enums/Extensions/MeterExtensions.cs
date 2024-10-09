@@ -45,4 +45,17 @@ public static class MeterExtensions
         Meter.ThreeFour => "3/4",
         _ => throw new ArgumentOutOfRangeException(nameof(meter), meter, "Meter not supported.")
     };
+
+    /// <summary>
+    ///     Converts the <see cref="Meter"/> to a <see cref="TimeSignature"/>.
+    /// </summary>
+    /// <param name="meter">The source <see cref="Meter"/>.</param>
+    /// <returns>The <see cref="Meter"/> as a <see cref="TimeSignature"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the given <see cref="Meter"/> is not supported.</exception>
+    public static TimeSignature ToTimeSignature(this Meter meter) => meter switch
+    {
+        Meter.FourFour => new TimeSignature(4, 4),
+        Meter.ThreeFour => new TimeSignature(3, 4),
+        _ => throw new ArgumentOutOfRangeException(nameof(meter), meter, "Meter not supported.")
+    };
 }
