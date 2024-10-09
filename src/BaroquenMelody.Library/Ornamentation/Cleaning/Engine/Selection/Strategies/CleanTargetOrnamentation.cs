@@ -7,6 +7,12 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
 {
     public BaroquenNote? Select(BaroquenNote note, BaroquenNote otherNote) => SelectInternal(note, otherNote) ?? SelectInternal(otherNote, note);
 
+    /// <summary>
+    ///     An opinionated method for selecting a note to clean ornamentations for out of the two notes provided, based on personal preference.
+    /// </summary>
+    /// <param name="note">The primary note to consider for ornamentation cleaning.</param>
+    /// <param name="otherNote">The secondary note to consider for ornamentation cleaning.</param>
+    /// <returns>The note to clean, or null if the selector could not determine which note to clean.</returns>
 #pragma warning disable MA0051
     private static BaroquenNote? SelectInternal(BaroquenNote note, BaroquenNote otherNote) => (note.OrnamentationType, otherNote.OrnamentationType) switch
 #pragma warning restore MA0051
@@ -19,6 +25,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.DecorateInterval, OrnamentationType.DelayedRun) => otherNote,
         (OrnamentationType.DecorateInterval, OrnamentationType.DoublePassingTone) => note,
         (OrnamentationType.DecorateInterval, OrnamentationType.DoubleRun) => note,
+        (OrnamentationType.DecorateInterval, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.DecorateInterval, OrnamentationType.DoubleInvertedTurn) => note,
         (OrnamentationType.DecorateInterval, OrnamentationType.InvertedTurn) => otherNote,
         (OrnamentationType.DecorateInterval, OrnamentationType.Mordent) => otherNote,
@@ -36,6 +43,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DelayedRun) => note,
         (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DoublePassingTone) => otherNote,
         (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DoubleRun) => note,
+        (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.DoubleInvertedTurn) => note,
         (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.InvertedTurn) => note,
         (OrnamentationType.DelayedDoublePassingTone, OrnamentationType.Mordent) => otherNote,
@@ -52,6 +60,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.DelayedNeighborTone, OrnamentationType.DelayedRun) => note,
         (OrnamentationType.DelayedNeighborTone, OrnamentationType.DoublePassingTone) => note,
         (OrnamentationType.DelayedNeighborTone, OrnamentationType.DoubleRun) => note,
+        (OrnamentationType.DelayedNeighborTone, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.DelayedNeighborTone, OrnamentationType.DoubleInvertedTurn) => note,
         (OrnamentationType.DelayedNeighborTone, OrnamentationType.InvertedTurn) => note,
         (OrnamentationType.DelayedNeighborTone, OrnamentationType.Mordent) => otherNote,
@@ -67,6 +76,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.DelayedPassingTone, OrnamentationType.DelayedRun) => note,
         (OrnamentationType.DelayedPassingTone, OrnamentationType.DoublePassingTone) => note,
         (OrnamentationType.DelayedPassingTone, OrnamentationType.DoubleRun) => note,
+        (OrnamentationType.DelayedPassingTone, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.DelayedPassingTone, OrnamentationType.DoubleInvertedTurn) => note,
         (OrnamentationType.DelayedPassingTone, OrnamentationType.InvertedTurn) => note,
         (OrnamentationType.DelayedPassingTone, OrnamentationType.Mordent) => otherNote,
@@ -81,6 +91,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.DelayedPickup, OrnamentationType.DelayedRun) => note,
         (OrnamentationType.DelayedPickup, OrnamentationType.DoublePassingTone) => note,
         (OrnamentationType.DelayedPickup, OrnamentationType.DoubleRun) => note,
+        (OrnamentationType.DelayedPickup, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.DelayedPickup, OrnamentationType.DoubleInvertedTurn) => note,
         (OrnamentationType.DelayedPickup, OrnamentationType.InvertedTurn) => note,
         (OrnamentationType.DelayedPickup, OrnamentationType.Mordent) => otherNote,
@@ -94,6 +105,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.DelayedRepeatedNote, OrnamentationType.DelayedRun) => note,
         (OrnamentationType.DelayedRepeatedNote, OrnamentationType.DoublePassingTone) => note,
         (OrnamentationType.DelayedRepeatedNote, OrnamentationType.DoubleRun) => note,
+        (OrnamentationType.DelayedRepeatedNote, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.DelayedRepeatedNote, OrnamentationType.DoubleInvertedTurn) => note,
         (OrnamentationType.DelayedRepeatedNote, OrnamentationType.InvertedTurn) => note,
         (OrnamentationType.DelayedRepeatedNote, OrnamentationType.Mordent) => otherNote,
@@ -106,6 +118,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.DelayedRepeatedNote, OrnamentationType.Turn) => note,
         (OrnamentationType.DelayedRun, OrnamentationType.DoublePassingTone) => otherNote,
         (OrnamentationType.DelayedRun, OrnamentationType.DoubleRun) => note,
+        (OrnamentationType.DelayedRun, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.DelayedRun, OrnamentationType.DoubleInvertedTurn) => note,
         (OrnamentationType.DelayedRun, OrnamentationType.InvertedTurn) => note,
         (OrnamentationType.DelayedRun, OrnamentationType.Mordent) => otherNote,
@@ -117,6 +130,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.DelayedRun, OrnamentationType.Run) => otherNote,
         (OrnamentationType.DelayedRun, OrnamentationType.Turn) => note,
         (OrnamentationType.DoublePassingTone, OrnamentationType.DoubleRun) => note,
+        (OrnamentationType.DoublePassingTone, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.DoublePassingTone, OrnamentationType.DoubleInvertedTurn) => note,
         (OrnamentationType.DoublePassingTone, OrnamentationType.InvertedTurn) => note,
         (OrnamentationType.DoublePassingTone, OrnamentationType.Mordent) => otherNote,
@@ -127,6 +141,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.DoublePassingTone, OrnamentationType.RepeatedNote) => otherNote,
         (OrnamentationType.DoublePassingTone, OrnamentationType.Run) => note,
         (OrnamentationType.DoublePassingTone, OrnamentationType.Turn) => otherNote,
+        (OrnamentationType.DoubleRun, OrnamentationType.DoubleTurn) => otherNote,
         (OrnamentationType.DoubleRun, OrnamentationType.DoubleInvertedTurn) => otherNote,
         (OrnamentationType.DoubleRun, OrnamentationType.InvertedTurn) => otherNote,
         (OrnamentationType.DoubleRun, OrnamentationType.Mordent) => otherNote,
@@ -137,6 +152,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.DoubleRun, OrnamentationType.RepeatedNote) => otherNote,
         (OrnamentationType.DoubleRun, OrnamentationType.Run) => otherNote,
         (OrnamentationType.DoubleRun, OrnamentationType.Turn) => otherNote,
+        (OrnamentationType.DoubleInvertedTurn, OrnamentationType.DoubleTurn) => otherNote,
         (OrnamentationType.DoubleInvertedTurn, OrnamentationType.InvertedTurn) => otherNote,
         (OrnamentationType.DoubleInvertedTurn, OrnamentationType.Mordent) => otherNote,
         (OrnamentationType.DoubleInvertedTurn, OrnamentationType.NeighborTone) => otherNote,
@@ -146,6 +162,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.DoubleInvertedTurn, OrnamentationType.RepeatedNote) => otherNote,
         (OrnamentationType.DoubleInvertedTurn, OrnamentationType.Run) => otherNote,
         (OrnamentationType.DoubleInvertedTurn, OrnamentationType.Turn) => otherNote,
+        (OrnamentationType.InvertedTurn, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.InvertedTurn, OrnamentationType.Mordent) => otherNote,
         (OrnamentationType.InvertedTurn, OrnamentationType.NeighborTone) => otherNote,
         (OrnamentationType.InvertedTurn, OrnamentationType.PassingTone) => otherNote,
@@ -154,6 +171,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.InvertedTurn, OrnamentationType.RepeatedNote) => otherNote,
         (OrnamentationType.InvertedTurn, OrnamentationType.Run) => otherNote,
         (OrnamentationType.InvertedTurn, OrnamentationType.Turn) => otherNote,
+        (OrnamentationType.Mordent, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.Mordent, OrnamentationType.NeighborTone) => note,
         (OrnamentationType.Mordent, OrnamentationType.PassingTone) => note,
         (OrnamentationType.Mordent, OrnamentationType.Pedal) => note,
@@ -161,26 +179,32 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
         (OrnamentationType.Mordent, OrnamentationType.RepeatedNote) => note,
         (OrnamentationType.Mordent, OrnamentationType.Run) => note,
         (OrnamentationType.Mordent, OrnamentationType.Turn) => note,
+        (OrnamentationType.NeighborTone, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.NeighborTone, OrnamentationType.PassingTone) => note,
         (OrnamentationType.NeighborTone, OrnamentationType.Pedal) => note,
         (OrnamentationType.NeighborTone, OrnamentationType.Pickup) => note,
         (OrnamentationType.NeighborTone, OrnamentationType.RepeatedNote) => otherNote,
         (OrnamentationType.NeighborTone, OrnamentationType.Run) => note,
         (OrnamentationType.NeighborTone, OrnamentationType.Turn) => note,
+        (OrnamentationType.PassingTone, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.PassingTone, OrnamentationType.Pedal) => note,
         (OrnamentationType.PassingTone, OrnamentationType.Pickup) => note,
         (OrnamentationType.PassingTone, OrnamentationType.RepeatedNote) => otherNote,
         (OrnamentationType.PassingTone, OrnamentationType.Run) => note,
         (OrnamentationType.PassingTone, OrnamentationType.Turn) => note,
+        (OrnamentationType.Pedal, OrnamentationType.DoubleTurn) => otherNote,
         (OrnamentationType.Pedal, OrnamentationType.Pickup) => otherNote,
         (OrnamentationType.Pedal, OrnamentationType.RepeatedNote) => otherNote,
         (OrnamentationType.Pedal, OrnamentationType.Run) => otherNote,
         (OrnamentationType.Pedal, OrnamentationType.Turn) => otherNote,
+        (OrnamentationType.Pickup, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.Pickup, OrnamentationType.RepeatedNote) => otherNote,
         (OrnamentationType.Pickup, OrnamentationType.Run) => note,
         (OrnamentationType.Pickup, OrnamentationType.Turn) => note,
+        (OrnamentationType.RepeatedNote, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.RepeatedNote, OrnamentationType.Run) => note,
         (OrnamentationType.RepeatedNote, OrnamentationType.Turn) => note,
+        (OrnamentationType.Run, OrnamentationType.DoubleTurn) => note,
         (OrnamentationType.Run, OrnamentationType.Turn) => note,
         _ => null
     };
