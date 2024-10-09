@@ -11,9 +11,9 @@ internal sealed class DoubleTurnProcessor(
     CompositionConfiguration compositionConfiguration
 ) : IProcessor<OrnamentationItem>
 {
-    public const int Interval = 2;
+    public const int Interval = 4;
 
-    private readonly int[] _ornamentationTranslations = [1, -1, 0, 1, 2, 0, 1];
+    private readonly int[] _ornamentationTranslations = [-1, 0, 1, 2, 1, 2, 3];
 
     public void Process(OrnamentationItem item)
     {

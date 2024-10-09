@@ -42,6 +42,9 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DoubleTurn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoubleTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter + MusicalTimeSpan.Sixteenth,
 
+        OrnamentationType.DoubleInvertedTurn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.DoubleInvertedTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter + MusicalTimeSpan.Sixteenth,
+
         OrnamentationType.DelayedRun when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
         OrnamentationType.DelayedRun when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter,
 
@@ -111,6 +114,9 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
 
         OrnamentationType.DoubleTurn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoubleTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Sixteenth,
+
+        OrnamentationType.DoubleInvertedTurn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.DoubleInvertedTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Sixteenth,
 
         OrnamentationType.DelayedRun when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DelayedRun when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,

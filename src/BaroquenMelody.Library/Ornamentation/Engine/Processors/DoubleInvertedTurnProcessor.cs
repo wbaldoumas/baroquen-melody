@@ -6,14 +6,14 @@ using BaroquenMelody.Library.Ornamentation.Utilities;
 
 namespace BaroquenMelody.Library.Ornamentation.Engine.Processors;
 
-internal sealed class TurnProcessor(
+internal sealed class DoubleInvertedTurnProcessor(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     CompositionConfiguration compositionConfiguration
 ) : IProcessor<OrnamentationItem>
 {
     public const int Interval = 2;
 
-    private readonly int[] _ornamentationTranslations = [-1, 0, 1];
+    private readonly int[] _ornamentationTranslations = [1, -1, 0, 1, 2, 0, 1];
 
     public void Process(OrnamentationItem item)
     {
@@ -30,15 +30,15 @@ internal sealed class TurnProcessor(
             .Select(ornamentationTranslation => isDescending ? currentNoteIndex - ornamentationTranslation : currentNoteIndex + ornamentationTranslation)
             .Select(index => notes[index]);
 
-        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.Turn, compositionConfiguration.Meter);
+        currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(OrnamentationType.DoubleInvertedTurn, compositionConfiguration.Meter);
 
-        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.Turn, compositionConfiguration.Meter);
+        var ornamentationTimeSpan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.DoubleInvertedTurn, compositionConfiguration.Meter);
 
-        foreach (var note in ornamentationNotes)
+        foreach (var ornamentation in ornamentationNotes)
         {
-            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Instrument, note, ornamentationTimeSpan));
+            currentNote.Ornamentations.Add(new BaroquenNote(currentNote.Instrument, ornamentation, ornamentationTimeSpan));
         }
 
-        currentNote.OrnamentationType = OrnamentationType.Turn;
+        currentNote.OrnamentationType = OrnamentationType.DoubleInvertedTurn;
     }
 }

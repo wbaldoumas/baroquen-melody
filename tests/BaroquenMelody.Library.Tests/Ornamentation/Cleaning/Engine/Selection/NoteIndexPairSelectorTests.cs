@@ -254,8 +254,8 @@ internal sealed class NoteIndexPairSelectorTests
         var ornamentationsWithSixteenthNoteIndices = new List<(OrnamentationType, OrnamentationType)>
         {
             (OrnamentationType.DoubleRun, OrnamentationType.DoubleRun),
-            (OrnamentationType.DoubleTurn, OrnamentationType.DoubleTurn),
-            (OrnamentationType.DoubleRun, OrnamentationType.DoubleTurn)
+            (OrnamentationType.DoubleInvertedTurn, OrnamentationType.DoubleInvertedTurn),
+            (OrnamentationType.DoubleRun, OrnamentationType.DoubleInvertedTurn)
         };
 
         foreach (var (primaryOrnamentationType, secondaryOrnamentationType) in ornamentationsWithSixteenthNoteIndices)
@@ -284,11 +284,11 @@ internal sealed class NoteIndexPairSelectorTests
             (OrnamentationType.DoubleRun, OrnamentationType.InvertedTurn),
             (OrnamentationType.DoubleRun, OrnamentationType.DecorateInterval),
             (OrnamentationType.DoubleRun, OrnamentationType.Pedal),
-            (OrnamentationType.DoubleTurn, OrnamentationType.Run),
-            (OrnamentationType.DoubleTurn, OrnamentationType.Turn),
-            (OrnamentationType.DoubleTurn, OrnamentationType.InvertedTurn),
-            (OrnamentationType.DoubleTurn, OrnamentationType.DecorateInterval),
-            (OrnamentationType.DoubleTurn, OrnamentationType.Pedal)
+            (OrnamentationType.DoubleInvertedTurn, OrnamentationType.Run),
+            (OrnamentationType.DoubleInvertedTurn, OrnamentationType.Turn),
+            (OrnamentationType.DoubleInvertedTurn, OrnamentationType.InvertedTurn),
+            (OrnamentationType.DoubleInvertedTurn, OrnamentationType.DecorateInterval),
+            (OrnamentationType.DoubleInvertedTurn, OrnamentationType.Pedal)
         };
 
         foreach (var (primaryOrnamentationType, secondaryOrnamentationType) in ornamentationsWithSixteenthEighthIndices)
@@ -405,8 +405,8 @@ internal sealed class NoteIndexPairSelectorTests
         var ornamentationsWithSixteenthNoteIndicesInThreeFour = new List<(OrnamentationType, OrnamentationType)>
         {
             (OrnamentationType.DoubleRun, OrnamentationType.DoubleRun),
-            (OrnamentationType.DoubleRun, OrnamentationType.DoubleTurn),
-            (OrnamentationType.DoubleTurn, OrnamentationType.DoubleTurn)
+            (OrnamentationType.DoubleRun, OrnamentationType.DoubleInvertedTurn),
+            (OrnamentationType.DoubleInvertedTurn, OrnamentationType.DoubleInvertedTurn)
         };
 
         foreach (var (primaryOrnamentationType, secondaryOrnamentationType) in ornamentationsWithSixteenthNoteIndicesInThreeFour)

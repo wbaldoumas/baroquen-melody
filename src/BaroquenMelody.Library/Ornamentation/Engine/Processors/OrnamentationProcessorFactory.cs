@@ -20,6 +20,7 @@ internal sealed class OrnamentationProcessorFactory(
         OrnamentationType.InvertedTurn => new InvertedTurnProcessor(musicalTimeSpanCalculator, compositionConfiguration),
         OrnamentationType.DelayedRun => new DelayedRunProcessor(musicalTimeSpanCalculator, compositionConfiguration),
         OrnamentationType.DoubleTurn => new DoubleTurnProcessor(musicalTimeSpanCalculator, compositionConfiguration),
+        OrnamentationType.DoubleInvertedTurn => new DoubleInvertedTurnProcessor(musicalTimeSpanCalculator, compositionConfiguration),
         OrnamentationType.DoublePassingTone => new DoublePassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration, ornamentationType),
         OrnamentationType.DelayedDoublePassingTone => new DoublePassingToneProcessor(musicalTimeSpanCalculator, compositionConfiguration, ornamentationType),
         OrnamentationType.DecorateInterval => new DecorateIntervalProcessor(musicalTimeSpanCalculator, compositionConfiguration, interval),

@@ -88,7 +88,10 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
                     processors.Add(BuildDelayedRunEngine(ornamentationConfiguration));
                     break;
                 case OrnamentationType.DoubleTurn:
-                    processors.Add(BuildDoubleTurnEngine(ornamentationConfiguration));
+                    processors.Add(BuildDoubleTurnProcessor(ornamentationConfiguration));
+                    break;
+                case OrnamentationType.DoubleInvertedTurn:
+                    processors.Add(BuildDoubleInvertedTurnEngine(ornamentationConfiguration));
                     break;
                 case OrnamentationType.DoublePassingTone:
                     processors.Add(BuildDoublePassingToneEngine(ornamentationConfiguration));
@@ -203,7 +206,17 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DelayedRun, logger))
         .Build();
 
-    private IPolicyEngine<OrnamentationItem> BuildDoubleTurnEngine(OrnamentationConfiguration configuration) => PolicyEngineBuilder<OrnamentationItem>.Configure()
+    private IPolicyEngine<OrnamentationItem> BuildDoubleInvertedTurnEngine(OrnamentationConfiguration configuration) => PolicyEngineBuilder<OrnamentationItem>.Configure()
+        .WithInputPolicies(
+            new WantsToOrnament(_weightedRandomBooleanGenerator, configuration.Probability),
+            _hasNoOrnamentation,
+            new IsApplicableInterval(compositionConfiguration, DoubleInvertedTurnProcessor.Interval)
+        )
+        .WithProcessors(_ornamentationProcessorFactory.Create(OrnamentationType.DoubleInvertedTurn, compositionConfiguration))
+        .WithOutputPolicies(new LogOrnamentation(OrnamentationType.DoubleInvertedTurn, logger))
+        .Build();
+
+    private IPolicyEngine<OrnamentationItem> BuildDoubleTurnProcessor(OrnamentationConfiguration configuration) => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
             new WantsToOrnament(_weightedRandomBooleanGenerator, configuration.Probability),
             _hasNoOrnamentation,

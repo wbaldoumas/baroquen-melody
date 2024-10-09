@@ -14,6 +14,7 @@ public sealed record AggregateOrnamentationConfiguration(ISet<OrnamentationConfi
             new(OrnamentationType.DoublePassingTone, ConfigurationStatus.Enabled, 80),
             new(OrnamentationType.DelayedDoublePassingTone, ConfigurationStatus.Enabled, 80),
             new(OrnamentationType.DoubleTurn, ConfigurationStatus.Enabled, 30),
+            new(OrnamentationType.DoubleInvertedTurn, ConfigurationStatus.Enabled, 30),
             new(OrnamentationType.DelayedPassingTone, ConfigurationStatus.Enabled, 80),
             new(OrnamentationType.DelayedNeighborTone, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.NeighborTone, ConfigurationStatus.Enabled, 25),

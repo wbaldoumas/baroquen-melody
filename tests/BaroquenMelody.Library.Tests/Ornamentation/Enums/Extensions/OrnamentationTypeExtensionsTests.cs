@@ -15,7 +15,7 @@ internal sealed class OrnamentationTypeExtensionsTests
     [TestCase(OrnamentationType.DoublePassingTone, 2)]
     [TestCase(OrnamentationType.DelayedDoublePassingTone, 2)]
     [TestCase(OrnamentationType.DoubleRun, 7)]
-    [TestCase(OrnamentationType.DoubleTurn, 7)]
+    [TestCase(OrnamentationType.DoubleInvertedTurn, 7)]
     [TestCase(OrnamentationType.InvertedTurn, 3)]
     [TestCase(OrnamentationType.Mordent, 2)]
     [TestCase(OrnamentationType.NeighborTone, 1)]
