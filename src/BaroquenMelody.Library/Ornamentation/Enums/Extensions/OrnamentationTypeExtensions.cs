@@ -12,6 +12,7 @@ internal static class OrnamentationTypeExtensions
         { OrnamentationType.DelayedDoublePassingTone, 2 },
         { OrnamentationType.DoubleRun, 7 },
         { OrnamentationType.DoubleTurn, 7 },
+        { OrnamentationType.DoubleInvertedTurn, 7 },
         { OrnamentationType.InvertedTurn, 3 },
         { OrnamentationType.Mordent, 2 },
         { OrnamentationType.NeighborTone, 1 },

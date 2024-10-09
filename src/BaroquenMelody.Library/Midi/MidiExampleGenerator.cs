@@ -81,7 +81,8 @@ internal sealed class MidiExampleGenerator(IOrnamentationProcessorFactory orname
         OrnamentationType.Turn => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.InvertedTurn => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Supertonic, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.DelayedRun => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Submediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
-        OrnamentationType.DoubleTurn => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
+        OrnamentationType.DoubleTurn => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Dominant, 4), compositionConfiguration.DefaultNoteTimeSpan),
+        OrnamentationType.DoubleInvertedTurn => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.DoublePassingTone => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Subdominant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.DelayedDoublePassingTone => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Subdominant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.DecorateInterval => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 4), compositionConfiguration.DefaultNoteTimeSpan),
@@ -94,6 +95,6 @@ internal sealed class MidiExampleGenerator(IOrnamentationProcessorFactory orname
         OrnamentationType.DelayedNeighborTone => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.Pickup => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.DelayedPickup => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
-        _ => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 4), compositionConfiguration.DefaultNoteTimeSpan)
+        _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, "Ornamentation type not supported.")
     };
 }

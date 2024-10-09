@@ -32,6 +32,7 @@ internal sealed class OrnamentationProcessorFactoryTests
     [TestCase(OrnamentationType.InvertedTurn, typeof(InvertedTurnProcessor))]
     [TestCase(OrnamentationType.DelayedRun, typeof(DelayedRunProcessor))]
     [TestCase(OrnamentationType.DoubleTurn, typeof(DoubleTurnProcessor))]
+    [TestCase(OrnamentationType.DoubleInvertedTurn, typeof(DoubleInvertedTurnProcessor))]
     [TestCase(OrnamentationType.DoublePassingTone, typeof(DoublePassingToneProcessor))]
     [TestCase(OrnamentationType.DelayedDoublePassingTone, typeof(DoublePassingToneProcessor))]
     [TestCase(OrnamentationType.DecorateInterval, typeof(DecorateIntervalProcessor))]

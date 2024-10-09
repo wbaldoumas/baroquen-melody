@@ -53,6 +53,11 @@ public enum OrnamentationType : byte
     DoubleTurn,
 
     /// <summary>
+    ///     A double turn between two notes.
+    /// </summary>
+    DoubleInvertedTurn,
+
+    /// <summary>
     ///     Two passing tones between two notes.
     /// </summary>
     DoublePassingTone,

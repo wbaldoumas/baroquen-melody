@@ -43,9 +43,9 @@ internal sealed class MidiGeneratorTests
             Ornamentations = { new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half) }
         };
 
-        var altoWithDoubleTurn = new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
+        var altoWithDoubleInvertedTurn = new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
         {
-            OrnamentationType = OrnamentationType.DoubleTurn,
+            OrnamentationType = OrnamentationType.DoubleInvertedTurn,
             Ornamentations = { new BaroquenNote(Instrument.Two, Notes.B3, MusicalTimeSpan.Half), new BaroquenNote(Instrument.Two, Notes.D4, MusicalTimeSpan.Half) }
         };
 
@@ -54,9 +54,9 @@ internal sealed class MidiGeneratorTests
                 new Measure(
                     [
                         new Beat(new BaroquenChord([sopranoWithMidSustain])),
-                        new Beat(new BaroquenChord([sopranoWithPassingTone, altoWithDoubleTurn])),
+                        new Beat(new BaroquenChord([sopranoWithPassingTone, altoWithDoubleInvertedTurn])),
                         new Beat(new BaroquenChord([sopranoWithMidSustain, altoWithRest])),
-                        new Beat(new BaroquenChord([sopranoWithPassingTone, altoWithDoubleTurn]))
+                        new Beat(new BaroquenChord([sopranoWithPassingTone, altoWithDoubleInvertedTurn]))
                     ],
                     Meter.FourFour
                 )
