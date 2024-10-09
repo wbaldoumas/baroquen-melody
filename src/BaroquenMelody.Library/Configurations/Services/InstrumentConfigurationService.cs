@@ -6,7 +6,6 @@ using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using Fluxor;
 using Melanchall.DryWetMidi.Common;
-using Melanchall.DryWetMidi.MusicTheory;
 using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Configurations.Services;
@@ -88,8 +87,13 @@ internal sealed class InstrumentConfigurationService(
         var minVelocity = ThreadLocalRandom.Next(MinMinRandomVelocity, MaxMinRandomVelocity);
         var maxVelocity = ThreadLocalRandom.Next(minVelocity, MaxMaxRandomVelocity);
 
-        var minRandomIndex = compositionConfigurationState.Value.AvailableNotes.IndexOf(Notes.C1);
-        var maxRandomIndex = compositionConfigurationState.Value.AvailableNotes.IndexOf(Notes.C7);
+        var availableNotes = compositionConfigurationState.Value.AvailableNotes;
+
+        var lowerNoteBoundary = availableNotes.Skip(CompositionConfiguration.MinInstrumentRange).First();
+        var upperNoteBoundary = availableNotes.SkipLast(CompositionConfiguration.MinInstrumentRange).Last();
+
+        var minRandomIndex = availableNotes.IndexOf(lowerNoteBoundary);
+        var maxRandomIndex = availableNotes.IndexOf(upperNoteBoundary);
 
         var minNoteIndex = ThreadLocalRandom.Next(minRandomIndex, maxRandomIndex - CompositionConfiguration.MinInstrumentRange);
         var maxNoteIndex = ThreadLocalRandom.Next(minNoteIndex + CompositionConfiguration.MinInstrumentRange, Math.Min(maxRandomIndex, minNoteIndex + CompositionConfiguration.MaxInstrumentRange));

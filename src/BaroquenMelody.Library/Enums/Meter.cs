@@ -10,5 +10,10 @@ public enum Meter
     /// <summary>
     ///     3/4 time.
     /// </summary>
-    ThreeFour
+    ThreeFour,
+
+    /// <summary>
+    ///     7/8 time.
+    /// </summary>
+    FiveEight
 }

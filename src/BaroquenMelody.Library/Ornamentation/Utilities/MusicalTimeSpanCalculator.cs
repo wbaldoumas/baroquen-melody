@@ -14,69 +14,91 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
     {
         OrnamentationType.None when meter == Meter.FourFour => MusicalTimeSpan.Half,
         OrnamentationType.None when meter == Meter.ThreeFour => MusicalTimeSpan.Half.Dotted(1),
+        OrnamentationType.None when meter == Meter.FiveEight => MusicalTimeSpan.Half + MusicalTimeSpan.Eighth,
 
         OrnamentationType.PassingTone when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
         OrnamentationType.PassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Half,
+        OrnamentationType.PassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
 
         OrnamentationType.Pickup when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
         OrnamentationType.Pickup when meter == Meter.ThreeFour => MusicalTimeSpan.Half,
+        OrnamentationType.Pickup when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
 
         OrnamentationType.DelayedPickup when meter == Meter.FourFour => MusicalTimeSpan.Quarter.Dotted(1),
         OrnamentationType.DelayedPickup when meter == Meter.ThreeFour => MusicalTimeSpan.Half + MusicalTimeSpan.Eighth,
+        OrnamentationType.DelayedPickup when meter == Meter.FiveEight => MusicalTimeSpan.Half,
 
         OrnamentationType.Run when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.Run when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter.Dotted(1),
+        OrnamentationType.Run when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
 
         OrnamentationType.DelayedPassingTone when meter == Meter.FourFour => MusicalTimeSpan.Quarter.Dotted(1),
         OrnamentationType.DelayedPassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Half + MusicalTimeSpan.Eighth,
+        OrnamentationType.DelayedPassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Half,
 
         OrnamentationType.Turn when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.Turn when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter.Dotted(1),
+        OrnamentationType.Turn when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
 
         OrnamentationType.InvertedTurn when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.InvertedTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter.Dotted(1),
+        OrnamentationType.InvertedTurn when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
 
         OrnamentationType.Sustain when meter == Meter.FourFour => MusicalTimeSpan.Whole,
         OrnamentationType.Sustain when meter == Meter.ThreeFour => MusicalTimeSpan.Half.Dotted(1) + MusicalTimeSpan.Half.Dotted(1),
+        OrnamentationType.Sustain when meter == Meter.FiveEight => MusicalTimeSpan.Half + MusicalTimeSpan.Eighth + MusicalTimeSpan.Half + MusicalTimeSpan.Eighth,
 
         OrnamentationType.DoubleTurn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoubleTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter + MusicalTimeSpan.Sixteenth,
+        OrnamentationType.DoubleTurn when meter == Meter.FiveEight => MusicalTimeSpan.Eighth.Dotted(1),
 
         OrnamentationType.DoubleInvertedTurn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoubleInvertedTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter + MusicalTimeSpan.Sixteenth,
+        OrnamentationType.DoubleInvertedTurn when meter == Meter.FiveEight => MusicalTimeSpan.Eighth.Dotted(1),
 
         OrnamentationType.DelayedRun when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
         OrnamentationType.DelayedRun when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter,
+        OrnamentationType.DelayedRun when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
 
         OrnamentationType.DoublePassingTone when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
         OrnamentationType.DoublePassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter,
+        OrnamentationType.DoublePassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
 
         OrnamentationType.DelayedDoublePassingTone when meter == Meter.FourFour => MusicalTimeSpan.Quarter.Dotted(1),
         OrnamentationType.DelayedDoublePassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Half,
+        OrnamentationType.DelayedDoublePassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Quarter.Dotted(1),
 
         OrnamentationType.DecorateInterval when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.DecorateInterval when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter.Dotted(1),
+        OrnamentationType.DecorateInterval when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
 
         OrnamentationType.DoubleRun when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoubleRun when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter + MusicalTimeSpan.Sixteenth,
+        OrnamentationType.DoubleRun when meter == Meter.FiveEight => MusicalTimeSpan.Eighth.Dotted(1),
 
         OrnamentationType.Pedal when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.Pedal when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter.Dotted(1),
+        OrnamentationType.Pedal when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
 
         OrnamentationType.Mordent when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.Mordent when meter == Meter.ThreeFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Mordent when meter == Meter.FiveEight => MusicalTimeSpan.Sixteenth,
 
         OrnamentationType.RepeatedNote when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
         OrnamentationType.RepeatedNote when meter == Meter.ThreeFour => MusicalTimeSpan.Half,
+        OrnamentationType.RepeatedNote when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
 
         OrnamentationType.DelayedRepeatedNote when meter == Meter.FourFour => MusicalTimeSpan.Quarter.Dotted(1),
         OrnamentationType.DelayedRepeatedNote when meter == Meter.ThreeFour => MusicalTimeSpan.Half + MusicalTimeSpan.Eighth,
+        OrnamentationType.DelayedRepeatedNote when meter == Meter.FiveEight => MusicalTimeSpan.Half,
 
         OrnamentationType.NeighborTone when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
         OrnamentationType.NeighborTone when meter == Meter.ThreeFour => MusicalTimeSpan.Half,
+        OrnamentationType.NeighborTone when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
 
         OrnamentationType.DelayedNeighborTone when meter == Meter.FourFour => MusicalTimeSpan.Quarter.Dotted(1),
         OrnamentationType.DelayedNeighborTone when meter == Meter.ThreeFour => MusicalTimeSpan.Half + MusicalTimeSpan.Eighth,
+        OrnamentationType.DelayedNeighborTone when meter == Meter.FiveEight => MusicalTimeSpan.Half,
 
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,
@@ -91,68 +113,89 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
 
         OrnamentationType.PassingTone when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
         OrnamentationType.PassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter,
+        OrnamentationType.PassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Quarter.Dotted(1),
 
         OrnamentationType.Pickup when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
         OrnamentationType.Pickup when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter,
+        OrnamentationType.Pickup when meter == Meter.FiveEight => MusicalTimeSpan.Quarter.Dotted(1),
 
         OrnamentationType.DelayedPickup when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.DelayedPickup when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.DelayedPickup when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
         OrnamentationType.Run when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.Run when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.Run when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
         OrnamentationType.DelayedPassingTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.DelayedPassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.DelayedPassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
         OrnamentationType.Turn when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.Turn when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.Turn when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
         OrnamentationType.InvertedTurn when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.InvertedTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.InvertedTurn when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
         OrnamentationType.Sustain => throw new NotSupportedException($"{nameof(OrnamentationType.Sustain)} cannot be applied to an ornamentation."),
 
         OrnamentationType.DoubleTurn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoubleTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.DoubleTurn when meter == Meter.FiveEight => MusicalTimeSpan.Sixteenth,
 
         OrnamentationType.DoubleInvertedTurn when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoubleInvertedTurn when meter == Meter.ThreeFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.DoubleInvertedTurn when meter == Meter.FiveEight => MusicalTimeSpan.Sixteenth,
 
         OrnamentationType.DelayedRun when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DelayedRun when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.DelayedRun when meter == Meter.FiveEight => MusicalTimeSpan.Sixteenth.Dotted(1),
 
         OrnamentationType.DoublePassingTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.DoublePassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter,
+        OrnamentationType.DoublePassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Eighth.Dotted(1),
 
         OrnamentationType.DelayedDoublePassingTone when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DelayedDoublePassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.DelayedDoublePassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
         OrnamentationType.DecorateInterval when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.DecorateInterval when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.DecorateInterval when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
         OrnamentationType.DoubleRun when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoubleRun when meter == Meter.ThreeFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.DoubleRun when meter == Meter.FiveEight => MusicalTimeSpan.Sixteenth,
 
         OrnamentationType.Pedal when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.Pedal when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.Pedal when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
         OrnamentationType.Mordent when meter == Meter.FourFour && ornamentationStep == 1 => MusicalTimeSpan.Sixteenth,
         OrnamentationType.Mordent when meter == Meter.ThreeFour && ornamentationStep == 1 => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Mordent when meter == Meter.FiveEight && ornamentationStep == 1 => MusicalTimeSpan.Sixteenth,
 
         OrnamentationType.Mordent when meter == Meter.FourFour && ornamentationStep == 2 => MusicalTimeSpan.Quarter.Dotted(1),
         OrnamentationType.Mordent when meter == Meter.ThreeFour && ornamentationStep == 2 => MusicalTimeSpan.Half + MusicalTimeSpan.Eighth,
+        OrnamentationType.Mordent when meter == Meter.FiveEight && ornamentationStep == 2 => MusicalTimeSpan.Half,
 
         OrnamentationType.RepeatedNote when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
         OrnamentationType.RepeatedNote when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter,
+        OrnamentationType.RepeatedNote when meter == Meter.FiveEight => MusicalTimeSpan.Quarter.Dotted(1),
 
         OrnamentationType.DelayedRepeatedNote when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.DelayedRepeatedNote when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.DelayedRepeatedNote when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
         OrnamentationType.NeighborTone when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
         OrnamentationType.NeighborTone when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter,
+        OrnamentationType.NeighborTone when meter == Meter.FiveEight => MusicalTimeSpan.Quarter.Dotted(1),
 
         OrnamentationType.DelayedNeighborTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.DelayedNeighborTone when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.DelayedNeighborTone when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,
