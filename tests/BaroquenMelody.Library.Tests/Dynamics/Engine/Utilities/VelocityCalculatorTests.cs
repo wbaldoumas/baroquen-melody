@@ -119,7 +119,7 @@ internal sealed class VelocityCalculatorTests
         {
             new(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half) { Velocity = new SevenBitNumber(99) }])),
             new(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half) { Velocity = new SevenBitNumber(9) }])),
-            new(new BaroquenChord([noteWithOrnamentation])),
+            new(new BaroquenChord([noteWithOrnamentation]))
         };
 
         var expectedVelocities = new List<SevenBitNumber>

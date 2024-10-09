@@ -1,8 +1,10 @@
 ﻿using BaroquenMelody.App.Components;
 using BaroquenMelody.App.Components.Extensions;
+using BaroquenMelody.App.Infrastructure.Application;
 using BaroquenMelody.App.Infrastructure.Devices;
 using BaroquenMelody.App.Infrastructure.FileSystem;
 using BaroquenMelody.App.Infrastructure.Theme;
+using BaroquenMelody.Infrastructure.Application;
 using BaroquenMelody.Infrastructure.Devices;
 using BaroquenMelody.Library.Midi;
 using CommunityToolkit.Maui;
@@ -29,6 +31,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<IThemeProvider, MauiThemeProvider>();
         builder.Services.AddSingleton<IDeviceDirectoryProvider, MauiDeviceDirectoryProvider>();
         builder.Services.AddBaroquenMelodyComponents();
+        builder.Services.AddSingleton(AppInfo.Current);
+        builder.Services.AddSingleton<IApplicationInfo, ApplicationInfo>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
