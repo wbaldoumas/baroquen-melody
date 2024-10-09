@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Enums.Extensions;
 using BaroquenMelody.Library.Midi.Extensions;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using Melanchall.DryWetMidi.Common;
@@ -23,7 +24,7 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
             ProcessMeasure(measure, patternBuildersByInstrument);
         }
 
-        var tempoMap = TempoMap.Create(Tempo.FromBeatsPerMinute(compositionConfiguration.Tempo));
+        var tempoMap = TempoMap.Create(Tempo.FromBeatsPerMinute(compositionConfiguration.Tempo), compositionConfiguration.Meter.ToTimeSignature());
         var chunks = patternBuildersByInstrument.Values.Select((patternBuilder, channelNumber) => patternBuilder.Build().ToTrackChunk(tempoMap, FourBitNumber.Values[channelNumber]));
         var midiFile = new MidiFile(chunks);
 
