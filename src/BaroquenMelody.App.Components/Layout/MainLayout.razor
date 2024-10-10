@@ -5,7 +5,7 @@
 <MudThemeProvider Theme="@ThemeProvider.Theme" IsDarkMode="ThemeProvider.IsDarkMode"/>
 <MudPopoverProvider/>
 <MudSnackbarProvider/>
-<MudDialogProvider 
+<MudDialogProvider
     BackdropClick="false"
     FullWidth="true"
     MaxWidth="MaxWidth.Small"/>
@@ -24,10 +24,11 @@
             <MudMenu Icon="@Icons.Material.Sharp.MoreVert"
                      Class="mr-2"
                      AriaLabel="more options">
-                <MudMenuItem Icon="@Icons.Material.Sharp.Lightbulb" IconColor="Color.Warning" Href="https://github.com/wbaldoumas/baroquen-melody/issues/new?template=FEATURE_REQUEST.md">Feature request</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Sharp.Lightbulb" IconColor="Color.Warning" Href="https://github.com/wbaldoumas/baroquen-melody/issues/new?template=FEATURE_REQUEST.md" >Feature request</MudMenuItem>
                 <MudMenuItem Icon="@Icons.Material.Sharp.BugReport" IconColor="Color.Tertiary" Href="https://github.com/wbaldoumas/baroquen-melody/issues/new?template=BUG_REPORT.md">Report a bug</MudMenuItem>
                 <MudMenuItem Icon="@Icons.Material.Sharp.Shield" IconColor="Color.Info" Href="https://github.com/wbaldoumas/baroquen-melody/security/policy">Report a vulnerability</MudMenuItem>
-                <MudMenuItem Icon="@Icons.Material.Sharp.Coffee" IconColor="Color.Secondary" Href="https://buymeacoffee.com/baroquenmelody">Buy me a coffee</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Sharp.Chat" IconColor="Color.Secondary" Href="https://github.com/wbaldoumas/baroquen-melody/discussions">Discuss</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Sharp.QuestionMark" IconColor="Color.Primary" OnClick="OpenAbout">About</MudMenuItem>
             </MudMenu>
         </MudTooltip>
     </MudAppBar>
@@ -45,4 +46,16 @@
 @code
 {
     private bool _isDrawerOpen;
+
+    private void OpenAbout()
+    {
+        DialogService.Show<About>(
+            "About Baroquen Melody",
+            new DialogOptions
+            {
+                MaxWidth = MaxWidth.Small,
+                CloseButton = true
+            }
+        );
+    }
 }

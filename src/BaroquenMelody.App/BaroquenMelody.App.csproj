@@ -30,7 +30,7 @@
         <ApplicationTitle>Baroquen Melody</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.wbaldoumas.baroquenmelody.app</ApplicationId>
+        <ApplicationId>com.baroquenmelody.app</ApplicationId>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -71,6 +71,10 @@
 
     <ItemGroup>
         <PackageReference Include="CommunityToolkit.Maui" Version="9.1.0" />
+        <PackageReference Include="GitInfo" Version="3.3.5">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Meziantou.Analyzer" Version="2.0.169">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

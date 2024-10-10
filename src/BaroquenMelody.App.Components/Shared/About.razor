@@ -1,0 +1,32 @@
+﻿<MudDialog Gutters="true">
+    <TitleContent>
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <MudAvatar Color="Color.Tertiary" Variant="Variant.Filled">
+                <MudIcon Color="@(ThemeProvider.IsDarkMode ? Color.Dark : Color.Surface)" Icon="@Icons.Material.Sharp.MusicNote" Size="Size.Large" />
+            </MudAvatar>
+            <MudText Typo="Typo.h4" Color="Color.Tertiary">Baroquen Melody</MudText>
+        </MudStack>
+    </TitleContent>
+    <DialogContent>
+        <MudContainer Gutters="false">
+            <MudStack>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.caption">Version: @ApplicationInfo.Version</MudText>
+                    <MudText Typo="Typo.caption">Revision: <MudLink Typo="Typo.inherit" Href="@($"{ApplicationInfo.RepositoryUrl}/tree/{ApplicationInfo.Sha}")">@ApplicationInfo.Commit</MudLink></MudText>
+                    <MudText Typo="Typo.caption">Revision Date: @ApplicationInfo.CommitDate</MudText>
+                </MudStack>
+                <MudDivider DividerType="DividerType.Middle"/>
+                <MudStack>
+                    <MudText Typo="Typo.body1">Baroquen Melody ("broken melody") is an app that automagically generates neo-baroque style music based on your own configurations and rules. Explore, experiment, and learn a bit about making music!</MudText>
+                    <MudText Typo="Typo.body2">Want to help? <MudLink Typo="Typo.inherit" Href="@ApplicationInfo.SupportUrl">Show your support</MudLink> or <MudLink Typo="Typo.inherit" Href="@ApplicationInfo.ContributeUrl">get involved!</MudLink></MudText>
+                </MudStack>
+                <MudDivider/>
+                <MudStack Row="true" Justify="Justify.SpaceEvenly" Class="mb-1">
+                    <MudLink Href="@ApplicationInfo.RepositoryUrl" Typo="Typo.caption">source code</MudLink>
+                    <MudText Typo="Typo.caption">© @DateTime.Now.Year William Baldoumas</MudText>
+                    <MudLink Href="@ApplicationInfo.LicenseUrl" Typo="Typo.caption">licensing info</MudLink>
+                </MudStack>
+            </MudStack>
+        </MudContainer>
+    </DialogContent>
+</MudDialog>
