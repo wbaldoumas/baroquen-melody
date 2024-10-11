@@ -23,7 +23,7 @@ internal sealed class NoteOnsetCalculator(
         var ornamentationCount = ornamentationType.OrnamentationCount();
         var noteOnsetCursor = primaryNoteDuration.DivideBy(_resolution);
 
-        for (var ornamentationStep = 1; ornamentationStep <= ornamentationCount; ornamentationStep++)
+        for (var ornamentationStep = 0; ornamentationStep < ornamentationCount; ornamentationStep++)
         {
             var ornamentationDuration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter, ornamentationStep);
             var cursorProgressionValue = ornamentationDuration.DivideBy(_resolution);

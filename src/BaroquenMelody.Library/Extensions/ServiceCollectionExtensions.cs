@@ -2,7 +2,7 @@
 using BaroquenMelody.Library.Configurations.Services;
 using BaroquenMelody.Library.Midi;
 using BaroquenMelody.Library.Midi.Repositories;
-using BaroquenMelody.Library.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Ornamentation.Engine.Processors.Providers;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using Fluxor;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,5 +33,5 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IMidiExampleGenerator, MidiExampleGenerator>()
         .AddSingleton<IWeightedRandomBooleanGenerator, WeightedRandomBooleanGenerator>()
         .AddSingleton<IMusicalTimeSpanCalculator, MusicalTimeSpanCalculator>()
-        .AddSingleton<IOrnamentationProcessorFactory, OrnamentationProcessorFactory>();
+        .AddSingleton<IOrnamentationProcessorConfigurationFactoryProvider, OrnamentationProcessorConfigurationFactoryProvider>();
 }

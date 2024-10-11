@@ -1,4 +1,7 @@
-﻿using BaroquenMelody.Library.Configurations;
+﻿using Atrea.Utilities.Enums;
+using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Fluxor;
@@ -9,6 +12,7 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests;
 
 [TestFixture]
+[Parallelizable(ParallelScope.All)]
 internal sealed class BaroquenMelodyComposerConfiguratorTests
 {
     private BaroquenMelodyComposerConfigurator _baroquenMelodyComposerConfigurator = null!;
@@ -31,13 +35,9 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
         midiFileComposition.MidiFile.Should().NotBeNull();
     }
 
-    private static IEnumerable<TestCaseData> TestCases
-    {
-        get
-        {
-            yield return new TestCaseData(TestCompositionConfigurations.Get(2, 10));
-
-            yield return new TestCaseData(TestCompositionConfigurations.Get(3, 10));
-        }
-    }
+    private static IEnumerable<TestCaseData> TestCases =>
+        from numberOfInstruments in Enumerable.Range(1, 3)
+        from meter in EnumUtils<Meter>.AsEnumerable()
+        from mode in EnumUtils<Mode>.AsEnumerable()
+        select new TestCaseData(TestCompositionConfigurations.Get(numberOfInstruments, 10) with { Meter = meter, Mode = mode });
 }

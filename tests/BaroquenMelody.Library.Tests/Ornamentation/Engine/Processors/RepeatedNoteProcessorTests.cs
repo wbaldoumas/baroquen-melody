@@ -1,14 +1,20 @@
 ﻿using BaroquenMelody.Infrastructure.Collections;
+using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -17,17 +23,29 @@ namespace BaroquenMelody.Library.Tests.Ornamentation.Engine.Processors;
 [TestFixture]
 internal sealed class RepeatedNoteProcessorTests
 {
-    private IMusicalTimeSpanCalculator _mockMusicalTimeSpanCalculator;
-
-    private RepeatedNoteProcessor _repeatedNoteProcessor;
+    private OrnamentationProcessor _repeatedNoteProcessor;
 
     [SetUp]
     public void SetUp()
     {
         var compositionConfiguration = TestCompositionConfigurations.Get(3);
 
-        _mockMusicalTimeSpanCalculator = Substitute.For<IMusicalTimeSpanCalculator>();
-        _repeatedNoteProcessor = new RepeatedNoteProcessor(_mockMusicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.RepeatedNote);
+        var ornamentationProcessorConfigurationFactory = new OrnamentationProcessorConfigurationFactory(
+            new ChordNumberIdentifier(compositionConfiguration),
+            new WeightedRandomBooleanGenerator(),
+            compositionConfiguration,
+            Substitute.For<ILogger>()
+        );
+
+        var configuration = ornamentationProcessorConfigurationFactory.Create(
+            new OrnamentationConfiguration(
+                OrnamentationType.RepeatedNote,
+                ConfigurationStatus.Enabled,
+                Probability: 100
+            )
+        ).First();
+
+        _repeatedNoteProcessor = new OrnamentationProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, configuration);
     }
 
     [Test]
@@ -41,9 +59,6 @@ internal sealed class RepeatedNoteProcessorTests
             new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half)]))
         );
 
-        _mockMusicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Eighth);
-        _mockMusicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Eighth);
-
         // act
         _repeatedNoteProcessor.Process(ornamentationItem);
 
@@ -52,8 +67,8 @@ internal sealed class RepeatedNoteProcessorTests
 
         noteToAssert.OrnamentationType.Should().Be(OrnamentationType.RepeatedNote);
         noteToAssert.Ornamentations.Should().ContainSingle();
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.C4);
-        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
     }
 }

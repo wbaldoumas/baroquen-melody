@@ -9,7 +9,6 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
 {
     private static MusicalTimeSpan Zero => new();
 
-#pragma warning disable MA0051 // Method is too long
     public MusicalTimeSpan CalculatePrimaryNoteTimeSpan(OrnamentationType ornamentationType, Meter meter) => ornamentationType switch
     {
         OrnamentationType.None when meter == Meter.FourFour => MusicalTimeSpan.Half,
@@ -106,7 +105,6 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, $"Invalid {nameof(OrnamentationType)}")
     };
 
-#pragma warning disable MA0051 // Method is too long
     public MusicalTimeSpan CalculateOrnamentationTimeSpan(OrnamentationType ornamentationType, Meter meter, int ornamentationStep = 1) => ornamentationType switch
     {
         OrnamentationType.None => throw new NotSupportedException($"{nameof(OrnamentationType.None)} cannot be applied to an ornamentation."),
@@ -173,13 +171,13 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.Pedal when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
         OrnamentationType.Pedal when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
-        OrnamentationType.Mordent when meter == Meter.FourFour && ornamentationStep == 1 => MusicalTimeSpan.Sixteenth,
-        OrnamentationType.Mordent when meter == Meter.ThreeFour && ornamentationStep == 1 => MusicalTimeSpan.Sixteenth,
-        OrnamentationType.Mordent when meter == Meter.FiveEight && ornamentationStep == 1 => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Mordent when meter == Meter.FourFour && ornamentationStep == 0 => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Mordent when meter == Meter.ThreeFour && ornamentationStep == 0 => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Mordent when meter == Meter.FiveEight && ornamentationStep == 0 => MusicalTimeSpan.Sixteenth,
 
-        OrnamentationType.Mordent when meter == Meter.FourFour && ornamentationStep == 2 => MusicalTimeSpan.Quarter.Dotted(1),
-        OrnamentationType.Mordent when meter == Meter.ThreeFour && ornamentationStep == 2 => MusicalTimeSpan.Half + MusicalTimeSpan.Eighth,
-        OrnamentationType.Mordent when meter == Meter.FiveEight && ornamentationStep == 2 => MusicalTimeSpan.Half,
+        OrnamentationType.Mordent when meter == Meter.FourFour && ornamentationStep == 1 => MusicalTimeSpan.Quarter.Dotted(1),
+        OrnamentationType.Mordent when meter == Meter.ThreeFour && ornamentationStep == 1 => MusicalTimeSpan.Half + MusicalTimeSpan.Eighth,
+        OrnamentationType.Mordent when meter == Meter.FiveEight && ornamentationStep == 1 => MusicalTimeSpan.Half,
 
         OrnamentationType.RepeatedNote when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
         OrnamentationType.RepeatedNote when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter,

@@ -1,14 +1,21 @@
 ﻿using BaroquenMelody.Infrastructure.Collections;
+using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests.Ornamentation.Engine.Processors;
@@ -16,14 +23,29 @@ namespace BaroquenMelody.Library.Tests.Ornamentation.Engine.Processors;
 [TestFixture]
 internal sealed class DelayedRunProcessorTests
 {
-    private DelayedRunProcessor _processor = null!;
+    private OrnamentationProcessor _processor = null!;
 
     [SetUp]
     public void SetUp()
     {
         var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
-        _processor = new DelayedRunProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
+        var ornamentationProcessorConfigurationFactory = new OrnamentationProcessorConfigurationFactory(
+            new ChordNumberIdentifier(compositionConfiguration),
+            new WeightedRandomBooleanGenerator(),
+            compositionConfiguration,
+            Substitute.For<ILogger>()
+        );
+
+        var configuration = ornamentationProcessorConfigurationFactory.Create(
+            new OrnamentationConfiguration(
+                OrnamentationType.DelayedRun,
+                ConfigurationStatus.Enabled,
+                Probability: 100
+            )
+        ).First();
+
+        _processor = new OrnamentationProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, configuration);
     }
 
     [Test]

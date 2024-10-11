@@ -1,14 +1,20 @@
 ﻿using BaroquenMelody.Infrastructure.Collections;
+using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -17,18 +23,28 @@ namespace BaroquenMelody.Library.Tests.Ornamentation.Engine.Processors;
 [TestFixture]
 internal sealed class PickupProcessorTests
 {
-    private IMusicalTimeSpanCalculator _mockMusicalTimeSpanCalculator = null!;
-
-    private PickupProcessor _pickupProcessor = null!;
+    private OrnamentationProcessor _pickupProcessor = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _mockMusicalTimeSpanCalculator = Substitute.For<IMusicalTimeSpanCalculator>();
-
         var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
-        _pickupProcessor = new PickupProcessor(_mockMusicalTimeSpanCalculator, compositionConfiguration, OrnamentationType.Pickup);
+        var ornamentationProcessorConfigurationFactory = new OrnamentationProcessorConfigurationFactory(
+            new ChordNumberIdentifier(compositionConfiguration),
+            new WeightedRandomBooleanGenerator(),
+            compositionConfiguration,
+            Substitute.For<ILogger>()
+        );
+        var configuration = ornamentationProcessorConfigurationFactory.Create(
+            new OrnamentationConfiguration(
+                OrnamentationType.Pickup,
+                ConfigurationStatus.Enabled,
+                Probability: 100
+            )
+        ).First();
+
+        _pickupProcessor = new OrnamentationProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, configuration);
     }
 
     [Test]
@@ -41,9 +57,6 @@ internal sealed class PickupProcessorTests
             new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)])),
             new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half)]))
         );
-
-        _mockMusicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Quarter);
-        _mockMusicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Quarter);
 
         // act
         _pickupProcessor.Process(ornamentationItem);
@@ -67,9 +80,6 @@ internal sealed class PickupProcessorTests
             new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half)])),
             new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]))
         );
-
-        _mockMusicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Quarter);
-        _mockMusicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Quarter);
 
         // act
         _pickupProcessor.Process(ornamentationItem);
