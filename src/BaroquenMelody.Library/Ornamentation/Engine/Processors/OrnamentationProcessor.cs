@@ -27,7 +27,7 @@ internal sealed class OrnamentationProcessor(
         currentNote.OrnamentationType = configuration.OrnamentationType;
     }
 
-    private List<BaroquenNote> GetOrnamentations(BaroquenNote currentNote, BaroquenNote? nextNote)
+    private IEnumerable<BaroquenNote> GetOrnamentations(BaroquenNote currentNote, BaroquenNote? nextNote)
     {
         var shouldInvert = configuration.ShouldInvertTranslations((currentNote, nextNote));
 
@@ -37,35 +37,18 @@ internal sealed class OrnamentationProcessor(
 
         var notes = compositionConfiguration.Scale.GetNotes();
 
-        var ornamentations = new List<BaroquenNote>();
-
-        for (var i = 0; i < configuration.Translations.Length; i++)
-        {
-            var translation = configuration.Translations[i];
-
-            var ornamentationIndex = shouldInvert && configuration.TranslationInversionIndices.Contains(i)
+        return configuration.Translations
+            .Select((translation, translationIndex) => shouldInvert && configuration.TranslationInversionIndices.Contains(translationIndex)
                 ? translationPivot - translation
-                : translationPivot + translation;
-
-            var note = notes[ornamentationIndex];
-            var timespan = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(configuration.OrnamentationType, compositionConfiguration.Meter, i);
-
-            ornamentations.Add(new BaroquenNote(currentNote.Instrument, note, timespan));
-        }
-
-        // var ornamentations = configuration.Translations
-        //   .Select((translation, translationIndex) => shouldInvert && configuration.TranslationInversionIndices.Contains(translationIndex)
-        //       ? translationPivot - translation
-        //       : translationPivot + translation
-        //   )
-        //   .Select(noteIndex => notes[noteIndex])
-        //   .Select((note, ornamentationStep) =>
-        //       new BaroquenNote(
-        //           currentNote.Instrument,
-        //           note,
-        //           musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(configuration.OrnamentationType, compositionConfiguration.Meter, ornamentationStep)
-        //       )
-        //   );
-        return ornamentations;
+                : translationPivot + translation
+            )
+            .Select(noteIndex => notes[noteIndex])
+            .Select((note, ornamentationStep) =>
+                new BaroquenNote(
+                    currentNote.Instrument,
+                    note,
+                    musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(configuration.OrnamentationType, compositionConfiguration.Meter, ornamentationStep)
+                )
+            );
     }
 }

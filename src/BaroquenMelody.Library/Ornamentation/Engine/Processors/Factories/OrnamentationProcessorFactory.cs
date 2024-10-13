@@ -1,17 +1,14 @@
 ﻿using Atrea.PolicyEngine.Builders;
 using Atrea.PolicyEngine.Processors;
 using BaroquenMelody.Library.Configurations;
-using BaroquenMelody.Library.Ornamentation.Engine.Policies.Output;
 using BaroquenMelody.Library.Ornamentation.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 
-internal sealed class OrnamentationEngineFactory(
+internal sealed class OrnamentationProcessorFactory(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
-    IOrnamentationProcessorConfigurationFactory configurationFactory,
-    ILogger logger
-) : IOrnamentationEngineFactory
+    IOrnamentationProcessorConfigurationFactory configurationFactory
+) : IOrnamentationProcessorFactory
 {
     public IEnumerable<IProcessor<OrnamentationItem>> Create(CompositionConfiguration compositionConfiguration) =>
         from ornamentationConfiguration in compositionConfiguration.AggregateOrnamentationConfiguration.Configurations.Where(configuration => configuration.IsEnabled)
@@ -19,6 +16,6 @@ internal sealed class OrnamentationEngineFactory(
         select PolicyEngineBuilder<OrnamentationItem>.Configure()
             .WithInputPolicies(processorConfiguration.InputPolicies)
             .WithProcessors(new OrnamentationProcessor(musicalTimeSpanCalculator, compositionConfiguration, processorConfiguration))
-            .WithOutputPolicies(new LogOrnamentation(processorConfiguration.OrnamentationType, logger))
+            .WithOutputPolicies(processorConfiguration.OutputPolicies)
             .Build();
 }

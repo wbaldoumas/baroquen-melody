@@ -33,20 +33,19 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
 
     private readonly NoteIndexPairSelector _noteIndexPairSelector = new(new NoteOnsetCalculator(musicalTimeSpanCalculator, compositionConfiguration));
 
-    private readonly OrnamentationEngineFactory _engineFactory = new(
+    private readonly OrnamentationProcessorFactory _processorFactory = new(
         musicalTimeSpanCalculator,
         new OrnamentationProcessorConfigurationFactory(
             new ChordNumberIdentifier(compositionConfiguration),
             new WeightedRandomBooleanGenerator(),
             compositionConfiguration,
             logger
-        ),
-        logger
+        )
     );
 
     public IPolicyEngine<OrnamentationItem> BuildOrnamentationEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithoutInputPolicies()
-        .WithProcessors(_engineFactory.Create(compositionConfiguration).ToArray())
+        .WithProcessors(_processorFactory.Create(compositionConfiguration).ToArray())
         .WithOutputPolicies(new CleanConflictingOrnamentations(BuildOrnamentationCleaningEngine()))
         .Build();
 

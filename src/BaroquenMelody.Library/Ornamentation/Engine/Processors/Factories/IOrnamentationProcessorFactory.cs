@@ -3,7 +3,7 @@ using BaroquenMelody.Library.Configurations;
 
 namespace BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 
-internal interface IOrnamentationEngineFactory
+internal interface IOrnamentationProcessorFactory
 {
     IEnumerable<IProcessor<OrnamentationItem>> Create(CompositionConfiguration compositionConfiguration);
 }
