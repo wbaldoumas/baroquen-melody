@@ -52,6 +52,9 @@ dotnet_diagnostic.SA1508.severity = none
 dotnet_diagnostic.SA1502.severity = none
 dotnet_diagnostic.SA1500.severity = none
 
+# MA0051: Method is too long
+dotnet_diagnostic.MA0051.severity = none
+
 # require that opening braces be preceded by a space
 dotnet_diagnostic.SA1012.severity = none
 
@@ -63,6 +66,9 @@ dotnet_diagnostic.SA1201.severity = none
 
 # force constructor documentation text
 dotnet_diagnostic.SA1642.severity = none
+
+# prevent parameter spanning multiple lines
+dotnet_diagnostic.SA1118.severity = none
 
 # force static members to appear before non-static
 dotnet_diagnostic.SA1204.severity = none
@@ -88,6 +94,7 @@ dotnet_diagnostic.SA1600.severity = none
 indent_style = space
 indent_size = 2
 tab_size = 2
+
 [*.{cs,vb}]
 #### Naming styles ####
 

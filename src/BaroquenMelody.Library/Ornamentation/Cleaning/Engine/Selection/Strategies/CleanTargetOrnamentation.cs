@@ -13,9 +13,7 @@ internal sealed class CleanTargetOrnamentation : IOrnamentationCleaningSelectorS
     /// <param name="note">The primary note to consider for ornamentation cleaning.</param>
     /// <param name="otherNote">The secondary note to consider for ornamentation cleaning.</param>
     /// <returns>The note to clean, or null if the selector could not determine which note to clean.</returns>
-#pragma warning disable MA0051
     private static BaroquenNote? SelectInternal(BaroquenNote note, BaroquenNote otherNote) => (note.OrnamentationType, otherNote.OrnamentationType) switch
-#pragma warning restore MA0051
     {
         (OrnamentationType.DecorateInterval, OrnamentationType.DelayedDoublePassingTone) => note,
         (OrnamentationType.DecorateInterval, OrnamentationType.DelayedNeighborTone) => otherNote,

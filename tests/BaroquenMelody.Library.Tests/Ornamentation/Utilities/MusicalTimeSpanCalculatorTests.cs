@@ -96,7 +96,7 @@ internal sealed class MusicalTimeSpanCalculatorTests
         {
             var ornamentationCount = ornamentationType.OrnamentationCount();
 
-            for (var i = 1; i <= ornamentationCount; i++)
+            for (var i = 0; i < ornamentationCount; i++)
             {
                 var ornamentationStep = i;
 
@@ -261,13 +261,13 @@ internal sealed class MusicalTimeSpanCalculatorTests
 
             yield return new TestCaseData(OrnamentationType.Pedal, Meter.ThreeFour, MusicalTimeSpan.Eighth, 1);
 
-            yield return new TestCaseData(OrnamentationType.Mordent, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
+            yield return new TestCaseData(OrnamentationType.Mordent, Meter.FourFour, MusicalTimeSpan.Sixteenth, 0);
 
-            yield return new TestCaseData(OrnamentationType.Mordent, Meter.ThreeFour, MusicalTimeSpan.Sixteenth, 1);
+            yield return new TestCaseData(OrnamentationType.Mordent, Meter.ThreeFour, MusicalTimeSpan.Sixteenth, 0);
 
-            yield return new TestCaseData(OrnamentationType.Mordent, Meter.FourFour, MusicalTimeSpan.Quarter.Dotted(1), 2);
+            yield return new TestCaseData(OrnamentationType.Mordent, Meter.FourFour, MusicalTimeSpan.Quarter.Dotted(1), 1);
 
-            yield return new TestCaseData(OrnamentationType.Mordent, Meter.ThreeFour, MusicalTimeSpan.Eighth + MusicalTimeSpan.Half, 2);
+            yield return new TestCaseData(OrnamentationType.Mordent, Meter.ThreeFour, MusicalTimeSpan.Eighth + MusicalTimeSpan.Half, 1);
 
             yield return new TestCaseData(OrnamentationType.Rest, Meter.FourFour, new MusicalTimeSpan(), 1);
 

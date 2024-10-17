@@ -1,7 +1,7 @@
 ﻿using Atrea.Utilities.Enums;
 using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Midi;
-using BaroquenMelody.Library.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Ornamentation.Engine.Processors.Providers;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Tests.TestData;
@@ -9,6 +9,8 @@ using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using NUnit.Framework;
 using System.Collections.Frozen;
 
@@ -20,12 +22,16 @@ internal sealed class MidiExampleGeneratorTests
     private MidiExampleGenerator _midiExampleGenerator = null!;
 
     [SetUp]
-    public void SetUp() => _midiExampleGenerator = new MidiExampleGenerator(
-        new OrnamentationProcessorFactory(
+    public void SetUp()
+    {
+        _midiExampleGenerator = new MidiExampleGenerator(
             new MusicalTimeSpanCalculator(),
-            new WeightedRandomBooleanGenerator()
-        )
-    );
+            new OrnamentationProcessorConfigurationFactoryProvider(
+                new WeightedRandomBooleanGenerator(),
+                Substitute.For<ILogger<MidiFileComposition>>()
+            )
+        );
+    }
 
     [Test]
     public void GenerateExampleMidiFile_WhenGivenValidInput_ReturnsMidiFile()

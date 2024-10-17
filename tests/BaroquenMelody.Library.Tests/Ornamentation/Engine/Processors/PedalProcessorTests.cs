@@ -1,14 +1,21 @@
 ﻿using BaroquenMelody.Infrastructure.Collections;
+using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests.Ornamentation.Engine.Processors;
@@ -16,36 +23,35 @@ namespace BaroquenMelody.Library.Tests.Ornamentation.Engine.Processors;
 [TestFixture]
 internal sealed class PedalProcessorTests
 {
-    private PedalProcessor _rootPedalProcessor = null!;
+    private OrnamentationProcessor _rootPedalProcessor = null!;
 
-    private PedalProcessor _thirdPedalProcessor = null!;
+    private OrnamentationProcessor _thirdPedalProcessor = null!;
 
-    private PedalProcessor _fifthPedalProcessor = null!;
+    private OrnamentationProcessor _fifthPedalProcessor = null!;
 
     [SetUp]
     public void SetUp()
     {
         var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
-        var musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
-
-        _rootPedalProcessor = new PedalProcessor(
-            musicalTimeSpanCalculator,
+        var ornamentationProcessorConfigurationFactory = new OrnamentationProcessorConfigurationFactory(
+            new ChordNumberIdentifier(compositionConfiguration),
+            new WeightedRandomBooleanGenerator(),
             compositionConfiguration,
-            PedalProcessor.RootPedalInterval
+            Substitute.For<ILogger>()
         );
 
-        _thirdPedalProcessor = new PedalProcessor(
-            musicalTimeSpanCalculator,
-            compositionConfiguration,
-            PedalProcessor.ThirdPedalInterval
-        );
+        var configurations = ornamentationProcessorConfigurationFactory.Create(
+            new OrnamentationConfiguration(
+                OrnamentationType.Pedal,
+                ConfigurationStatus.Enabled,
+                Probability: 100
+            )
+        ).ToList();
 
-        _fifthPedalProcessor = new PedalProcessor(
-            musicalTimeSpanCalculator,
-            compositionConfiguration,
-            PedalProcessor.FifthPedalInterval
-        );
+        _rootPedalProcessor = new OrnamentationProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, configurations[0]);
+        _thirdPedalProcessor = new OrnamentationProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, configurations[1]);
+        _fifthPedalProcessor = new OrnamentationProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, configurations[2]);
     }
 
     [Test]

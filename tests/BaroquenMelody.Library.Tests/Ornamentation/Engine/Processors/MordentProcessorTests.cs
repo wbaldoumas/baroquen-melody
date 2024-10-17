@@ -1,15 +1,20 @@
 ﻿using BaroquenMelody.Infrastructure.Collections;
 using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -20,7 +25,7 @@ internal sealed class MordentProcessorTests
 {
     private IWeightedRandomBooleanGenerator _mockWeightedRandomBooleanGenerator;
 
-    private MordentProcessor _mordentProcessor = null!;
+    private OrnamentationProcessor _mordentProcessor = null!;
 
     [SetUp]
     public void SetUp()
@@ -29,7 +34,22 @@ internal sealed class MordentProcessorTests
 
         _mockWeightedRandomBooleanGenerator = Substitute.For<IWeightedRandomBooleanGenerator>();
 
-        _mordentProcessor = new MordentProcessor(new MusicalTimeSpanCalculator(), _mockWeightedRandomBooleanGenerator, compositionConfiguration);
+        var ornamentationProcessorConfigurationFactory = new OrnamentationProcessorConfigurationFactory(
+            new ChordNumberIdentifier(compositionConfiguration),
+            _mockWeightedRandomBooleanGenerator,
+            compositionConfiguration,
+            Substitute.For<ILogger>()
+        );
+
+        var configuration = ornamentationProcessorConfigurationFactory.Create(
+        new OrnamentationConfiguration(
+                OrnamentationType.Mordent,
+                ConfigurationStatus.Enabled,
+                Probability: 100
+            )
+        ).First();
+
+        _mordentProcessor = new OrnamentationProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, configuration);
     }
 
     [Test]
@@ -43,7 +63,7 @@ internal sealed class MordentProcessorTests
             new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Half)]))
         );
 
-        _mockWeightedRandomBooleanGenerator.IsTrue().Returns(true);
+        _mockWeightedRandomBooleanGenerator.IsTrue().Returns(false);
 
         // act
         _mordentProcessor.Process(ornamentationItem);
@@ -73,7 +93,7 @@ internal sealed class MordentProcessorTests
             new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Half)]))
         );
 
-        _mockWeightedRandomBooleanGenerator.IsTrue().Returns(false);
+        _mockWeightedRandomBooleanGenerator.IsTrue().Returns(true);
 
         // act
         _mordentProcessor.Process(ornamentationItem);

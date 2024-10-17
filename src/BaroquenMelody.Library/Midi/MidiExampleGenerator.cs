@@ -4,7 +4,9 @@ using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Midi.Extensions;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Ornamentation.Engine.Processors.Providers;
 using BaroquenMelody.Library.Ornamentation.Enums;
+using BaroquenMelody.Library.Ornamentation.Utilities;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Composing;
 using Melanchall.DryWetMidi.Core;
@@ -14,7 +16,10 @@ using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
 namespace BaroquenMelody.Library.Midi;
 
-internal sealed class MidiExampleGenerator(IOrnamentationProcessorFactory ornamentationProcessorFactory) : IMidiExampleGenerator
+internal sealed class MidiExampleGenerator(
+    IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
+    IOrnamentationProcessorConfigurationFactoryProvider ornamentationProcessorConfigurationFactoryProvider
+) : IMidiExampleGenerator
 {
     private const int DefaultTempo = 120;
 
@@ -36,14 +41,18 @@ internal sealed class MidiExampleGenerator(IOrnamentationProcessorFactory orname
 
     public MidiFile GenerateExampleOrnamentationMidiFile(OrnamentationType ornamentationType, CompositionConfiguration compositionConfiguration)
     {
-        var ornamentationProcessor = ornamentationProcessorFactory.Create(ornamentationType, compositionConfiguration, GetInterval(ornamentationType));
+        var ornamentationConfiguration = compositionConfiguration.AggregateOrnamentationConfiguration.Configurations.First(configuration => configuration.OrnamentationType == ornamentationType);
+        var ornamentationProcessorConfigurationFactory = ornamentationProcessorConfigurationFactoryProvider.Get(compositionConfiguration);
+        var processorConfiguration = ornamentationProcessorConfigurationFactory.Create(ornamentationConfiguration).First();
+        var processor = new OrnamentationProcessor(musicalTimeSpanCalculator, compositionConfiguration, processorConfiguration);
+
         var note = GetNote(ornamentationType, compositionConfiguration);
         var beat = new Beat(new BaroquenChord([note]));
         var nextNote = GetNextNote(ornamentationType, compositionConfiguration);
         var nextBeat = new Beat(new BaroquenChord([nextNote]));
         var ornamentationItem = new OrnamentationItem(note.Instrument, [], beat, nextBeat);
 
-        ornamentationProcessor.Process(ornamentationItem);
+        processor.Process(ornamentationItem);
 
         var patternBuilder = new PatternBuilder().ProgramChange(GeneralMidi2Program.AcousticGrandPiano);
 
@@ -59,13 +68,6 @@ internal sealed class MidiExampleGenerator(IOrnamentationProcessorFactory orname
 
         return midiFile;
     }
-
-    private static int GetInterval(OrnamentationType ornamentationType) => ornamentationType switch
-    {
-        OrnamentationType.DecorateInterval => -4,
-        OrnamentationType.Pedal => PedalProcessor.RootPedalInterval,
-        _ => 0
-    };
 
     private static BaroquenNote GetNote(OrnamentationType ornamentationType, CompositionConfiguration compositionConfiguration) => ornamentationType switch
     {

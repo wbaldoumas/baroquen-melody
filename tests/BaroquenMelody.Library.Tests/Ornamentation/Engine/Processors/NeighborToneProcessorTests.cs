@@ -1,15 +1,20 @@
 ﻿using BaroquenMelody.Infrastructure.Collections;
 using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -18,21 +23,33 @@ namespace BaroquenMelody.Library.Tests.Ornamentation.Engine.Processors;
 [TestFixture]
 internal sealed class NeighborToneProcessorTests
 {
-    private IMusicalTimeSpanCalculator _mockMusicalTimeSpanCalculator;
-
     private IWeightedRandomBooleanGenerator _mockWeightedRandomBooleanGenerator;
 
-    private NeighborToneProcessor _neighborToneProcessor;
+    private OrnamentationProcessor _neighborToneProcessor;
 
     [SetUp]
     public void SetUp()
     {
         var compositionConfiguration = TestCompositionConfigurations.Get(3);
 
-        _mockMusicalTimeSpanCalculator = Substitute.For<IMusicalTimeSpanCalculator>();
         _mockWeightedRandomBooleanGenerator = Substitute.For<IWeightedRandomBooleanGenerator>();
 
-        _neighborToneProcessor = new NeighborToneProcessor(_mockMusicalTimeSpanCalculator, _mockWeightedRandomBooleanGenerator, OrnamentationType.DelayedNeighborTone, compositionConfiguration);
+        var ornamentationProcessorConfigurationFactory = new OrnamentationProcessorConfigurationFactory(
+            new ChordNumberIdentifier(compositionConfiguration),
+            _mockWeightedRandomBooleanGenerator,
+            compositionConfiguration,
+            Substitute.For<ILogger>()
+        );
+
+        var configuration = ornamentationProcessorConfigurationFactory.Create(
+            new OrnamentationConfiguration(
+                OrnamentationType.NeighborTone,
+                ConfigurationStatus.Enabled,
+                Probability: 100
+            )
+        ).First();
+
+        _neighborToneProcessor = new OrnamentationProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, configuration);
     }
 
     [Test]
@@ -46,9 +63,7 @@ internal sealed class NeighborToneProcessorTests
             new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
-        _mockMusicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Eighth.Dotted(1));
-        _mockMusicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Sixteenth);
-        _mockWeightedRandomBooleanGenerator.IsTrue().Returns(true);
+        _mockWeightedRandomBooleanGenerator.IsTrue().Returns(false);
 
         // act
         _neighborToneProcessor.Process(ornamentationItem);
@@ -56,11 +71,11 @@ internal sealed class NeighborToneProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Instrument.One];
 
-        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.DelayedNeighborTone);
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth.Dotted(1));
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.NeighborTone);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
         noteToAssert.Ornamentations.Should().ContainSingle();
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.D4);
-        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
     }
 
     [Test]
@@ -74,9 +89,7 @@ internal sealed class NeighborToneProcessorTests
             new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]))
         );
 
-        _mockMusicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Eighth.Dotted(1));
-        _mockMusicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(Arg.Any<OrnamentationType>(), Arg.Any<Meter>()).Returns(MusicalTimeSpan.Sixteenth);
-        _mockWeightedRandomBooleanGenerator.IsTrue().Returns(false);
+        _mockWeightedRandomBooleanGenerator.IsTrue().Returns(true);
 
         // act
         _neighborToneProcessor.Process(ornamentationItem);
@@ -84,10 +97,10 @@ internal sealed class NeighborToneProcessorTests
         // assert
         var noteToAssert = ornamentationItem.CurrentBeat[Instrument.One];
 
-        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.DelayedNeighborTone);
-        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth.Dotted(1));
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.NeighborTone);
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
         noteToAssert.Ornamentations.Should().ContainSingle();
         noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.B3);
-        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Sixteenth);
+        noteToAssert.Ornamentations[0].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
     }
 }
