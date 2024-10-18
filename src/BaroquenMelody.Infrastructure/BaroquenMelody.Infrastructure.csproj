@@ -16,7 +16,7 @@
     <PackageReference Include="Fluxor" Version="6.1.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2024.2.0" />
     <PackageReference Include="Melanchall.DryWetMidi" Version="7.2.0" />
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.170">
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.172">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
