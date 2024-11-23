@@ -9,15 +9,7 @@ namespace BaroquenMelody.Library.Rules;
 /// <inheritdoc cref="ICompositionRule"/>
 internal sealed class AvoidParallelIntervals(Interval targetInterval) : ICompositionRule
 {
-    public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
-    {
-        if (precedingChords.Count == 0)
-        {
-            return true;
-        }
-
-        return !HasParallelIntervals(precedingChords[^1], nextChord);
-    }
+    public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord) => precedingChords.Count == 0 || !HasParallelIntervals(precedingChords[^1], nextChord);
 
     private bool HasParallelIntervals(BaroquenChord lastChord, BaroquenChord nextChord)
     {

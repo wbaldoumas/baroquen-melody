@@ -50,15 +50,10 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
 
     private readonly IInputPolicy<OrnamentationItem> _isFifthOfChord = new IsFifthOfChord(chordNumberIdentifier, compositionConfiguration);
 
-    private static readonly Predicate<(BaroquenNote? CurrentNote, BaroquenNote? NextNote)> ShouldInvertBasedOnDirection = notes =>
-    {
-        if (notes.CurrentNote is null || notes.NextNote is null)
-        {
-            return false;
-        }
-
-        return notes.CurrentNote.NoteNumber > notes.NextNote.NoteNumber;
-    };
+    private static readonly Predicate<(BaroquenNote? CurrentNote, BaroquenNote? NextNote)> ShouldInvertBasedOnDirection =
+        notes => notes.CurrentNote is not null
+                 && notes.NextNote is not null
+                 && notes.CurrentNote.NoteNumber > notes.NextNote.NoteNumber;
 
     private static readonly Predicate<(BaroquenNote? CurrentNote, BaroquenNote? NextNote)> ShouldNotInvert = _ => false;
 

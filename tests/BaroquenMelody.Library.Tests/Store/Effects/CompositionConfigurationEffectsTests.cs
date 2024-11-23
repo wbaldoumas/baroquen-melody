@@ -109,8 +109,7 @@ internal sealed class CompositionConfigurationEffectsTests
                                                  updateInstrumentConfiguration.MinNote == Notes.B3 &&
                                                  updateInstrumentConfiguration.MaxNote == Notes.B4 &&
                                                  updateInstrumentConfiguration.Status == ConfigurationStatus.Enabled &&
-                                                 updateInstrumentConfiguration.IsUserApplied == false
-            )
+                                                 !updateInstrumentConfiguration.IsUserApplied)
         );
     }
 
@@ -141,8 +140,7 @@ internal sealed class CompositionConfigurationEffectsTests
                                                      updateInstrumentConfiguration.MaxNote == instrumentConfiguration.MaxNote &&
                                                      updateInstrumentConfiguration.MidiProgram == instrumentConfiguration.MidiProgram &&
                                                      updateInstrumentConfiguration.Status == instrumentConfiguration.Status &&
-                                                     updateInstrumentConfiguration.IsUserApplied == true
-                )
+                                                     updateInstrumentConfiguration.IsUserApplied)
             );
         }
 

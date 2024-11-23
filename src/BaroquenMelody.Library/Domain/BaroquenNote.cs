@@ -125,20 +125,7 @@ public sealed class BaroquenNote(Instrument instrument, Note raw, MusicalTimeSpa
     /// <param name="note">The first <see cref="BaroquenNote"/> to compare.</param>
     /// <param name="otherNote">The second <see cref="BaroquenNote"/> to compare.</param>
     /// <returns>Whether the <see cref="BaroquenNote"/> is equal to the other <see cref="BaroquenNote"/>.</returns>
-    public static bool operator ==(BaroquenNote? note, BaroquenNote? otherNote)
-    {
-        if (ReferenceEquals(note, otherNote))
-        {
-            return true;
-        }
-
-        if (note is null || otherNote is null)
-        {
-            return false;
-        }
-
-        return note.Equals(otherNote);
-    }
+    public static bool operator ==(BaroquenNote? note, BaroquenNote? otherNote) => ReferenceEquals(note, otherNote) || (note is not null && otherNote is not null && note.Equals(otherNote));
 
     /// <summary>
     ///     Determines if the <see cref="BaroquenNote"/> is not equal to another <see cref="BaroquenNote"/>.

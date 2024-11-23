@@ -16,7 +16,7 @@ internal sealed class MidiInstrumentTypeTests
         // arrange
         var midiInstrumentTypes = EnumUtils<MidiInstrumentType>
             .AsEnumerable()
-            .Where(midiInstrumentType => midiInstrumentType != MidiInstrumentType.None && midiInstrumentType != MidiInstrumentType.All)
+            .Where(midiInstrumentType => midiInstrumentType is not MidiInstrumentType.None and not MidiInstrumentType.All)
             .OrderBy(_ => ThreadLocalRandom.Next())
             .ToList();
 

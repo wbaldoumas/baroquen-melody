@@ -21,7 +21,7 @@ internal sealed class CompositionProgressReducersTests
         var newState = CompositionProgressReducers.ReduceUpdateCompositionProgressAction(state, action);
 
         // assert
-        newState.CompletedSteps.Should().BeEquivalentTo(new HashSet<CompositionStep> { CompositionStep.Waiting });
+        newState.CompletedSteps.Should().BeEquivalentTo([CompositionStep.Waiting]);
         newState.CurrentStep.Should().Be(CompositionStep.Theme);
         newState.Message.Should().Be("Composing main theme...");
         newState.ThemeProgress.Should().Be(0.0d);

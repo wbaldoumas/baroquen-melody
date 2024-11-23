@@ -18,15 +18,7 @@ internal sealed record ChordChoice
         init { _noteChoices = [.. value.OrderBy(static noteChoice => noteChoice.Instrument)]; }
     }
 
-    public bool Equals(ChordChoice? other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
-        return ReferenceEquals(this, other) || NoteChoices.SequenceEqual(other.NoteChoices);
-    }
+    public bool Equals(ChordChoice? other) => other is not null && (ReferenceEquals(this, other) || NoteChoices.SequenceEqual(other.NoteChoices));
 
     public override int GetHashCode()
     {

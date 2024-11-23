@@ -44,15 +44,7 @@ internal sealed class BaroquenChord(List<BaroquenNote> notes) : IEquatable<Baroq
     /// </summary>
     /// <param name="other">The other <see cref="BaroquenChord"/> to compare against.</param>
     /// <returns>Whether the <see cref="BaroquenChord"/> is equal to the other <see cref="BaroquenChord"/>.</returns>
-    public bool Equals(BaroquenChord? other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
-        return ReferenceEquals(this, other) || Notes.SequenceEqual(other.Notes);
-    }
+    public bool Equals(BaroquenChord? other) => other is not null && (ReferenceEquals(this, other) || Notes.SequenceEqual(other.Notes));
 
     /// <summary>
     ///     Determines if the <see cref="BaroquenChord"/> is equal to another object.
@@ -75,20 +67,7 @@ internal sealed class BaroquenChord(List<BaroquenNote> notes) : IEquatable<Baroq
     /// <param name="chord">The first <see cref="BaroquenChord"/> to compare.</param>
     /// <param name="otherChord">The second <see cref="BaroquenChord"/> to compare.</param>
     /// <returns>Whether the <see cref="BaroquenChord"/> is equal to the other <see cref="BaroquenChord"/>.</returns>
-    public static bool operator ==(BaroquenChord? chord, BaroquenChord? otherChord)
-    {
-        if (ReferenceEquals(chord, otherChord))
-        {
-            return true;
-        }
-
-        if (chord is null || otherChord is null)
-        {
-            return false;
-        }
-
-        return chord.Equals(otherChord);
-    }
+    public static bool operator ==(BaroquenChord? chord, BaroquenChord? otherChord) => ReferenceEquals(chord, otherChord) || (chord is not null && otherChord is not null && chord.Equals(otherChord));
 
     /// <summary>
     ///     Determines if the <see cref="BaroquenChord"/> is not equal to another <see cref="BaroquenChord"/>.

@@ -44,14 +44,7 @@ public static class WebViewSoftInputPatch
                 heightDifference = usableHeightSansKeyboard - usableHeightNow;
             }
 
-            if (heightDifference > usableHeightSansKeyboard / 4)
-            {
-                _frameLayoutParams!.Height = usableHeightSansKeyboard - heightDifference;
-            }
-            else
-            {
-                _frameLayoutParams!.Height = usableHeightNow;
-            }
+            _frameLayoutParams!.Height = heightDifference > usableHeightSansKeyboard / 4 ? usableHeightSansKeyboard - heightDifference : usableHeightNow;
         }
 
         _mChildOfContent!.RequestLayout();

@@ -72,12 +72,11 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             .ToList();
 
         var cleaningSelector = new NoteTargetSelector(
-            new List<IOrnamentationCleaningSelectorStrategy>
-            {
+            [
                 new CleanTargetOrnamentation(),
                 new CleanLowerNote(),
                 new CleanRandomNote(_weightedRandomBooleanGenerator)
-            }
+            ]
         );
 
         var ornamentationCombinations = new LazyCartesianProduct<OrnamentationType, OrnamentationType>(ornamentationTypes, ornamentationTypes);
@@ -109,7 +108,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
         return PolicyEngineBuilder<OrnamentationCleaningItem>
             .Configure()
             .WithoutInputPolicies()
-            .WithProcessors(processors.ToArray())
+            .WithProcessors([.. processors])
             .WithOutputPolicies()
             .Build();
     }

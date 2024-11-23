@@ -9,7 +9,9 @@ using BaroquenMelody.Infrastructure.Devices;
 using BaroquenMelody.Library.Midi;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.WebView.Maui;
+#pragma warning disable IDE0005 // Using directive is unnecessary.
 using Microsoft.Extensions.Logging;
+#pragma warning restore IDE0005 // Using directive is unnecessary.
 
 namespace BaroquenMelody.App;
 

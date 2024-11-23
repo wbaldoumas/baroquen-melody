@@ -24,11 +24,8 @@ internal sealed class NotePairSelector(
             return new NotePair(item.Note, item.OtherNote);
         }
 
-        if (_primaryNoteOrnamentationTypes.Contains(item.OtherNote.OrnamentationType) && _secondaryNoteOrnamentationTypes.Contains(item.Note.OrnamentationType))
-        {
-            return new NotePair(item.OtherNote, item.Note);
-        }
-
-        throw new InvalidOperationException("The ornamentation cleaning item does not contain the expected ornamentation types.");
+        return _primaryNoteOrnamentationTypes.Contains(item.OtherNote.OrnamentationType) && _secondaryNoteOrnamentationTypes.Contains(item.Note.OrnamentationType)
+            ? new NotePair(item.OtherNote, item.Note)
+            : throw new InvalidOperationException("The ornamentation cleaning item does not contain the expected ornamentation types.");
     }
 }

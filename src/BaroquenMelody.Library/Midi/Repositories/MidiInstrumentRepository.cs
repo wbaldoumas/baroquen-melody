@@ -6,8 +6,8 @@ namespace BaroquenMelody.Library.Midi.Repositories;
 
 internal sealed class MidiInstrumentRepository : IMidiInstrumentRepository
 {
-    private static readonly IEnumerable<GeneralMidi2Program> Keyboard = new List<GeneralMidi2Program>
-    {
+    private static readonly IEnumerable<GeneralMidi2Program> Keyboard =
+    [
         GeneralMidi2Program.AcousticGrandPiano,
         GeneralMidi2Program.AcousticGrandPianoWide,
         GeneralMidi2Program.AcousticGrandPianoDark,
@@ -32,10 +32,10 @@ internal sealed class MidiInstrumentRepository : IMidiInstrumentRepository
         GeneralMidi2Program.HarpsichordWithKeyOff,
         GeneralMidi2Program.Clavi,
         GeneralMidi2Program.PulseClavi
-    };
+    ];
 
-    private static readonly IEnumerable<GeneralMidi2Program> ChromaticPercussion = new List<GeneralMidi2Program>
-    {
+    private static readonly IEnumerable<GeneralMidi2Program> ChromaticPercussion =
+    [
         GeneralMidi2Program.Celesta,
         GeneralMidi2Program.Glockenspiel,
         GeneralMidi2Program.MusicBox,
@@ -51,10 +51,10 @@ internal sealed class MidiInstrumentRepository : IMidiInstrumentRepository
         GeneralMidi2Program.YangChin,
         GeneralMidi2Program.Timpani,
         GeneralMidi2Program.Kalimba
-    };
+    ];
 
-    private static readonly IEnumerable<GeneralMidi2Program> Organ = new List<GeneralMidi2Program>
-    {
+    private static readonly IEnumerable<GeneralMidi2Program> Organ =
+    [
         GeneralMidi2Program.DrawbarOrgan,
         GeneralMidi2Program.DetunedDrawbarOrgan,
         GeneralMidi2Program.ItalianSixtiesOrgan,
@@ -72,10 +72,10 @@ internal sealed class MidiInstrumentRepository : IMidiInstrumentRepository
         GeneralMidi2Program.Accordion2,
         GeneralMidi2Program.Harmonica,
         GeneralMidi2Program.TangoAccordion
-    };
+    ];
 
-    private static readonly IEnumerable<GeneralMidi2Program> Guitar = new List<GeneralMidi2Program>
-    {
+    private static readonly IEnumerable<GeneralMidi2Program> Guitar =
+    [
         GeneralMidi2Program.AcousticGuitarNylon,
         GeneralMidi2Program.Ukulele,
         GeneralMidi2Program.AcousticGuitarNylonKeyOff,
@@ -100,10 +100,10 @@ internal sealed class MidiInstrumentRepository : IMidiInstrumentRepository
         GeneralMidi2Program.DistortedRhythmGuitar,
         GeneralMidi2Program.GuitarHarmonics,
         GeneralMidi2Program.GuitarFeedback
-    };
+    ];
 
-    private static readonly IEnumerable<GeneralMidi2Program> Bass = new List<GeneralMidi2Program>
-    {
+    private static readonly IEnumerable<GeneralMidi2Program> Bass =
+    [
         GeneralMidi2Program.AcousticBass,
         GeneralMidi2Program.ElectricBassFinger,
         GeneralMidi2Program.FingerSlapBass,
@@ -120,10 +120,10 @@ internal sealed class MidiInstrumentRepository : IMidiInstrumentRepository
         GeneralMidi2Program.SynthBass4Attack,
         GeneralMidi2Program.SynthBassRubber,
         GeneralMidi2Program.AttackPulse
-    };
+    ];
 
-    private static readonly IEnumerable<GeneralMidi2Program> Strings = new List<GeneralMidi2Program>
-    {
+    private static readonly IEnumerable<GeneralMidi2Program> Strings =
+    [
         GeneralMidi2Program.Violin,
         GeneralMidi2Program.ViolinSlowAttack,
         GeneralMidi2Program.Viola,
@@ -139,10 +139,10 @@ internal sealed class MidiInstrumentRepository : IMidiInstrumentRepository
         GeneralMidi2Program.Koto,
         GeneralMidi2Program.TaishoKoto,
         GeneralMidi2Program.Fiddle
-    };
+    ];
 
-    private static readonly IEnumerable<GeneralMidi2Program> Ensemble = new List<GeneralMidi2Program>
-    {
+    private static readonly IEnumerable<GeneralMidi2Program> Ensemble =
+    [
         GeneralMidi2Program.StringEnsembles1,
         GeneralMidi2Program.StringsAndBrass,
         GeneralMidi2Program.SixtiesStrings,
@@ -154,20 +154,20 @@ internal sealed class MidiInstrumentRepository : IMidiInstrumentRepository
         GeneralMidi2Program.BassHitPlus,
         GeneralMidi2Program.SixthHit,
         GeneralMidi2Program.EuroHit
-    };
+    ];
 
-    private static readonly IEnumerable<GeneralMidi2Program> Voice = new List<GeneralMidi2Program>
-    {
+    private static readonly IEnumerable<GeneralMidi2Program> Voice =
+    [
         GeneralMidi2Program.ChoirAahs,
         GeneralMidi2Program.ChoirAahs2,
         GeneralMidi2Program.VoiceOohs,
         GeneralMidi2Program.Humming,
         GeneralMidi2Program.SynthVoice,
         GeneralMidi2Program.AnalogVoice
-    };
+    ];
 
-    private static readonly IEnumerable<GeneralMidi2Program> Brass = new List<GeneralMidi2Program>
-    {
+    private static readonly IEnumerable<GeneralMidi2Program> Brass =
+    [
         GeneralMidi2Program.Trumpet,
         GeneralMidi2Program.DarkTrumpetSoft,
         GeneralMidi2Program.Trombone,
@@ -187,10 +187,10 @@ internal sealed class MidiInstrumentRepository : IMidiInstrumentRepository
         GeneralMidi2Program.SynthBrass2,
         GeneralMidi2Program.SynthBrass4,
         GeneralMidi2Program.AnalogSynthBrass2
-    };
+    ];
 
-    private static readonly IEnumerable<GeneralMidi2Program> Woodwind = new List<GeneralMidi2Program>
-    {
+    private static readonly IEnumerable<GeneralMidi2Program> Woodwind =
+    [
         GeneralMidi2Program.SopranoSax,
         GeneralMidi2Program.AltoSax,
         GeneralMidi2Program.TenorSax,
@@ -209,10 +209,10 @@ internal sealed class MidiInstrumentRepository : IMidiInstrumentRepository
         GeneralMidi2Program.Ocarina,
         GeneralMidi2Program.Shanai,
         GeneralMidi2Program.BagPipe
-    };
+    ];
 
-    private static readonly IEnumerable<GeneralMidi2Program> Synth = new List<GeneralMidi2Program>
-    {
+    private static readonly IEnumerable<GeneralMidi2Program> Synth =
+    [
         GeneralMidi2Program.Lead1Square,
         GeneralMidi2Program.Lead1ASquare2,
         GeneralMidi2Program.Lead1BSine,
@@ -229,21 +229,23 @@ internal sealed class MidiInstrumentRepository : IMidiInstrumentRepository
         GeneralMidi2Program.Lead7Fifths,
         GeneralMidi2Program.Lead8BassLead,
         GeneralMidi2Program.Lead8ASoftWrl
-    };
+    ];
 
-    private static readonly IEnumerable<GeneralMidi2Program> All = Keyboard
-        .Concat(ChromaticPercussion)
-        .Concat(Organ)
-        .Concat(Guitar)
-        .Concat(Bass)
-        .Concat(Strings)
-        .Concat(Ensemble)
-        .Concat(Voice)
-        .Concat(Brass)
-        .Concat(Woodwind)
-        .Concat(Synth)
-        .OrderBy(instrument => instrument.ToSpaceSeparatedString(), StringComparer.OrdinalIgnoreCase)
-        .ToList();
+    private static readonly IEnumerable<GeneralMidi2Program> All =
+    [
+        .. Keyboard
+            .Concat(ChromaticPercussion)
+            .Concat(Organ)
+            .Concat(Guitar)
+            .Concat(Bass)
+            .Concat(Strings)
+            .Concat(Ensemble)
+            .Concat(Voice)
+            .Concat(Brass)
+            .Concat(Woodwind)
+            .Concat(Synth)
+            .OrderBy(instrument => instrument.ToSpaceSeparatedString(), StringComparer.OrdinalIgnoreCase)
+    ];
 
     public IEnumerable<GeneralMidi2Program> GetMidiInstruments(MidiInstrumentType midiInstrumentType)
     {

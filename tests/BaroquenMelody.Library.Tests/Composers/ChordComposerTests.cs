@@ -1,5 +1,4 @@
-﻿using BaroquenMelody.Library.Choices;
-using BaroquenMelody.Library.Composers;
+﻿using BaroquenMelody.Library.Composers;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Exceptions;
@@ -74,7 +73,7 @@ internal sealed class ChordComposerTests
     public void WhenComposeIsInvoked_AndNoValidChordChoicesAreAvailable_ThenNoValidChordChoicesAvailableExceptionIsThrown()
     {
         // arrange
-        _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns(new List<ChordChoice>());
+        _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns([]);
 
         var precedingChords = new List<BaroquenChord>
         {

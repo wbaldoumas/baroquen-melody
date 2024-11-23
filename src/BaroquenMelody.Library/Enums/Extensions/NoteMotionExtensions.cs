@@ -22,13 +22,9 @@ internal static class NoteMotionExtensions
     /// <param name="previousNote">The first note.</param>
     /// <param name="currentNote">The second note.</param>
     /// <returns>A <see cref="NoteMotion"/> representing the motion between the two notes.</returns>
-    public static NoteMotion FromNotes(Note previousNote, Note currentNote)
-    {
-        if (previousNote == currentNote)
-        {
-            return NoteMotion.Oblique;
-        }
-
-        return previousNote.NoteNumber > currentNote.NoteNumber ? NoteMotion.Descending : NoteMotion.Ascending;
-    }
+    public static NoteMotion FromNotes(Note previousNote, Note currentNote) => previousNote == currentNote
+        ? NoteMotion.Oblique
+        : previousNote.NoteNumber > currentNote.NoteNumber
+            ? NoteMotion.Descending
+            : NoteMotion.Ascending;
 }

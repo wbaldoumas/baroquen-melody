@@ -73,6 +73,17 @@ dotnet_diagnostic.SA1118.severity = none
 # force static members to appear before non-static
 dotnet_diagnostic.SA1204.severity = none
 
+# style warnings
+dotnet_diagnostic.IDE0008.severity = none
+dotnet_diagnostic.IDE0021.severity = none
+dotnet_diagnostic.IDE0022.severity = none
+dotnet_diagnostic.IDE0024.severity = none
+dotnet_diagnostic.IDE0027.severity = none
+dotnet_diagnostic.IDE0046.severity = none
+dotnet_diagnostic.IDE0060.severity = none
+dotnet_diagnostic.IDE0130.severity = none
+dotnet_diagnostic.IDE0055.severity = none
+
 # force abstraction over implementation
 dotnet_diagnostic.MA0016.severity = none
 csharp_using_directive_placement = outside_namespace:silent
