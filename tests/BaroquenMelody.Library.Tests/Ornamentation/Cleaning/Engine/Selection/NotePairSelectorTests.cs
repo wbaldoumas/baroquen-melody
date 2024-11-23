@@ -88,8 +88,8 @@ internal sealed class NotePairSelectorTests
     {
         // arrange
         var selector = new NotePairSelector(
-            new List<OrnamentationType> { OrnamentationType.Run },
-            new List<OrnamentationType> { OrnamentationType.DoubleRun }
+            [OrnamentationType.Run],
+            [OrnamentationType.DoubleRun]
         );
 
         var ornamentationCleaningItem = new OrnamentationCleaningItem(

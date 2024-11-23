@@ -9,15 +9,7 @@ internal sealed class AvoidDissonantLeaps(CompositionConfiguration compositionCo
 {
     private const int LeapThreshold = 1;
 
-    public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
-    {
-        if (precedingChords.Count == 0)
-        {
-            return true;
-        }
-
-        return !IsDissonantLeap(precedingChords[^1], nextChord);
-    }
+    public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord) => precedingChords.Count == 0 || !IsDissonantLeap(precedingChords[^1], nextChord);
 
     private bool IsDissonantLeap(BaroquenChord lastChord, BaroquenChord nextChord)
     {

@@ -15,10 +15,12 @@ public partial class App : Application
 
         _themeProvider = themeProvider;
 
-        _themeProvider.IsDarkMode = Preferences.Default.Get("IsDarkMode", true);
+        _themeProvider.IsDarkMode = Preferences.Default.Get("IsDarkMode", defaultValue: true);
 
-        MainPage = new MainPage();
-        MainPage.Title = "Baroquen Melody";
+        MainPage = new MainPage
+        {
+            Title = "Baroquen Melody"
+        };
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

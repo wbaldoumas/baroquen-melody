@@ -21,7 +21,7 @@ internal sealed class SoloChordChoiceRepository : IChordChoiceRepository
             );
         }
 
-        _noteChoices = noteChoiceGenerator.GenerateNoteChoices(compositionConfiguration.Instruments[0]).ToList();
+        _noteChoices = [.. noteChoiceGenerator.GenerateNoteChoices(compositionConfiguration.Instruments[0])];
     }
 
     public BigInteger Count => _noteChoices.Count;

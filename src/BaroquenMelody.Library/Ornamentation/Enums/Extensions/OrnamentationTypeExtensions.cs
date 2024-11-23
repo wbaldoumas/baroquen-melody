@@ -32,13 +32,7 @@ internal static class OrnamentationTypeExtensions
         { OrnamentationType.Rest, 0 }
     }.ToFrozenDictionary();
 
-    public static int OrnamentationCount(this OrnamentationType ornamentationType)
-    {
-        if (_ornamentationCountsByType.TryGetValue(ornamentationType, out var ornamentationCount))
-        {
-            return ornamentationCount;
-        }
-
-        throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, "Ornamentation type not found.");
-    }
+    public static int OrnamentationCount(this OrnamentationType ornamentationType) => _ornamentationCountsByType.TryGetValue(ornamentationType, out var ornamentationCount)
+        ? ornamentationCount
+        : throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, "Ornamentation type not found.");
 }
