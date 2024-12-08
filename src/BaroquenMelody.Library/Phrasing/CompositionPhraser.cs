@@ -19,13 +19,13 @@ internal sealed class CompositionPhraser(
     CompositionConfiguration compositionConfiguration
 ) : ICompositionPhraser
 {
-    private readonly List<RepeatedPhrase> phrasesToRepeat = [];
+    private readonly List<RepeatedPhrase> _phrasesToRepeat = [];
 
-    private readonly Queue<RepeatedPhrase> coolOffPhrases = new();
+    private readonly Queue<RepeatedPhrase> _coolOffPhrases = new();
 
-    private List<RepeatedPhrase> themePhrasesToRepeat = [];
+    private List<RepeatedPhrase> _themePhrasesToRepeat = [];
 
-    private RepeatedPhrase? themeCoolOffPhrase;
+    private RepeatedPhrase? _themeCoolOffPhrase;
 
     public void AttemptPhraseRepetition(List<Measure> measures)
     {
@@ -39,9 +39,9 @@ internal sealed class CompositionPhraser(
 
     public void AddTheme(BaroquenTheme theme)
     {
-        themePhrasesToRepeat = themeSplitter.SplitThemeIntoPhrases(theme);
+        _themePhrasesToRepeat = themeSplitter.SplitThemeIntoPhrases(theme);
 
-        foreach (var themePhraseToRepeat in themePhrasesToRepeat.ToList())
+        foreach (var themePhraseToRepeat in _themePhrasesToRepeat.ToList())
         {
             ResetPhraseEndOrnamentation(themePhraseToRepeat.Phrase[^1], compositionConfiguration.DefaultNoteTimeSpan);
         }
@@ -49,14 +49,14 @@ internal sealed class CompositionPhraser(
 
     private bool AttemptToRepeatExistingThemePhrase(List<Measure> measures)
     {
-        foreach (var themePhraseToRepeat in themePhrasesToRepeat.Where(themePhraseToRepeat => themePhraseToRepeat != themeCoolOffPhrase).OrderBy(static _ => ThreadLocalRandom.Next()))
+        foreach (var themePhraseToRepeat in _themePhrasesToRepeat.Where(themePhraseToRepeat => themePhraseToRepeat != _themeCoolOffPhrase).OrderBy(static _ => ThreadLocalRandom.Next()))
         {
             if (!TryRepeatPhrase(measures, themePhraseToRepeat))
             {
                 continue;
             }
 
-            themeCoolOffPhrase = themePhraseToRepeat;
+            _themeCoolOffPhrase = themePhraseToRepeat;
 
             logger.LogInfoMessage("Repeated main theme phrase.");
 
@@ -70,24 +70,24 @@ internal sealed class CompositionPhraser(
     {
         var minPhraseRepetitionPoolSize = compositionConfiguration.PhrasingConfiguration.MinPhraseRepetitionPoolSize;
 
-        if (phrasesToRepeat.Count < minPhraseRepetitionPoolSize)
+        if (_phrasesToRepeat.Count < minPhraseRepetitionPoolSize)
         {
             return false;
         }
 
-        foreach (var repeatedPhrase in phrasesToRepeat.OrderBy(static _ => ThreadLocalRandom.Next()).Where(repeatedPhrase => TryRepeatPhrase(measures, repeatedPhrase)))
+        foreach (var repeatedPhrase in _phrasesToRepeat.OrderBy(static _ => ThreadLocalRandom.Next()).Where(repeatedPhrase => TryRepeatPhrase(measures, repeatedPhrase)))
         {
-            phrasesToRepeat.Remove(repeatedPhrase);
+            _phrasesToRepeat.Remove(repeatedPhrase);
 
-            if (coolOffPhrases.Count >= minPhraseRepetitionPoolSize && coolOffPhrases.TryDequeue(out var coolOffPhrase))
+            if (_coolOffPhrases.Count >= minPhraseRepetitionPoolSize && _coolOffPhrases.TryDequeue(out var coolOffPhrase))
             {
-                phrasesToRepeat.Add(coolOffPhrase);
+                _phrasesToRepeat.Add(coolOffPhrase);
             }
 
             // If the phrase has not reached the maximum number of repetitions, add it to the cool off queue.
             if (repeatedPhrase.RepetitionCount < compositionConfiguration.PhrasingConfiguration.MaxPhraseRepetitions)
             {
-                coolOffPhrases.Enqueue(repeatedPhrase);
+                _coolOffPhrases.Enqueue(repeatedPhrase);
             }
 
             logger.LogInfoMessage("Repeated non-theme phrase.");
@@ -120,7 +120,7 @@ internal sealed class CompositionPhraser(
                 RepetitionCount = 1
             };
 
-            phrasesToRepeat.Add(repeatedPhrase);
+            _phrasesToRepeat.Add(repeatedPhrase);
 
             ResetPhraseEndOrnamentation(measures[^1], compositionConfiguration.DefaultNoteTimeSpan);
 

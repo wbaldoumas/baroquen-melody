@@ -22,9 +22,9 @@ internal sealed class TrioChordChoiceRepository : IChordChoiceRepository
             );
         }
 
-        var noteChoicesForInstruments = configuration.InstrumentConfigurations
-            .OrderBy(static instrumentConfiguration => instrumentConfiguration.Instrument)
-            .Select(instrumentConfiguration => noteChoiceGenerator.GenerateNoteChoices(instrumentConfiguration.Instrument))
+        var noteChoicesForInstruments = configuration.Instruments
+            .Order()
+            .Select(noteChoiceGenerator.GenerateNoteChoices)
             .ToList();
 
         _noteChoices = new LazyCartesianProduct<NoteChoice, NoteChoice, NoteChoice>(
@@ -37,12 +37,4 @@ internal sealed class TrioChordChoiceRepository : IChordChoiceRepository
     public BigInteger Count => _noteChoices.Size;
 
     public ChordChoice GetChordChoice(BigInteger id) => _noteChoices[id].ToChordChoice();
-
-    public BigInteger GetChordChoiceId(ChordChoice chordChoice) => _noteChoices.IndexOf(
-        (
-            chordChoice.NoteChoices[0],
-            chordChoice.NoteChoices[1],
-            chordChoice.NoteChoices[2]
-        )
-    );
 }

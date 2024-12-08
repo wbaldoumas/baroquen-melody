@@ -7,6 +7,10 @@ namespace BaroquenMelody.App;
 /// </summary>
 public partial class App : Application
 {
+    private const string Title = "Baroquen Melody";
+
+    private const string IsDarkModeKey = "IsDarkMode";
+
     private readonly IThemeProvider _themeProvider;
 
     public App(IThemeProvider themeProvider)
@@ -15,24 +19,17 @@ public partial class App : Application
 
         _themeProvider = themeProvider;
 
-        _themeProvider.IsDarkMode = Preferences.Default.Get("IsDarkMode", defaultValue: true);
-
-        MainPage = new MainPage
-        {
-            Title = "Baroquen Melody"
-        };
+        _themeProvider.IsDarkMode = Preferences.Default.Get(IsDarkModeKey, defaultValue: true);
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        var window = base.CreateWindow(activationState) ?? throw new InvalidOperationException("Window is null");
-
-        window.Title = "Baroquen Melody";
-
-        window.Destroying += (_, _) =>
+        var window = new Window(new MainPage { Title = Title })
         {
-            Preferences.Default.Set("IsDarkMode", _themeProvider.IsDarkMode);
+            Title = Title
         };
+
+        window.Destroying += (_, _) => { Preferences.Default.Set(IsDarkModeKey, _themeProvider.IsDarkMode); };
 
         return window;
     }

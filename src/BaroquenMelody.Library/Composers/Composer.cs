@@ -108,16 +108,15 @@ internal sealed class Composer(
 
         compositionPhraser.AddTheme(theme);
 
-        var currentMeasureIndex = 0;
         var phrasedMeasures = new List<Measure>();
 
-        foreach (var measure in initialComposition.Measures)
+        foreach (var (currentMeasureIndex, measure) in initialComposition.Measures.Index())
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             phrasedMeasures.Add(measure);
 
-            if (currentMeasureIndex++ % compositionConfiguration.PhrasingConfiguration.MinPhraseLength == 0)
+            if (currentMeasureIndex % compositionConfiguration.PhrasingConfiguration.MinPhraseLength == 0)
             {
                 compositionPhraser.AttemptPhraseRepetition(phrasedMeasures);
             }

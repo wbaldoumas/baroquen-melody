@@ -85,29 +85,4 @@ internal sealed class DuetChordChoiceRepositoryTests
         // assert
         act.Should().Throw<ArgumentException>();
     }
-
-    [Test]
-    public void GetChordChoiceId_ReturnsExpectedId()
-    {
-        // arrange
-        var compositionConfiguration = TestCompositionConfigurations.Get(2);
-
-        var duetChordChoiceRepository = new DuetChordChoiceRepository(
-            compositionConfiguration,
-            _mockNoteChoiceGenerator
-        );
-
-        // act
-        var id = duetChordChoiceRepository.GetChordChoiceId(
-            new ChordChoice(
-                [
-                    new NoteChoice(Instrument.One, NoteMotion.Ascending, 2),
-                    new NoteChoice(Instrument.Two, NoteMotion.Descending, 3)
-                ]
-            )
-        );
-
-        // assert
-        id.Should().Be(5);
-    }
 }

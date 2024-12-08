@@ -35,7 +35,7 @@ internal sealed class FixedSizeListTests
             2
         };
 
-        list.Should().Equal([1, 2]);
+        list.Should().Equal(1, 2);
     }
 
     [Test]
@@ -48,7 +48,7 @@ internal sealed class FixedSizeListTests
             3
         };
 
-        list.Should().Equal([2, 3]);
+        list.Should().Equal(2, 3);
     }
 
     [Test]
@@ -63,7 +63,7 @@ internal sealed class FixedSizeListTests
 
         var items = list.ToList();
 
-        items.Should().Equal([1, 2, 3]);
+        items.Should().Equal(1, 2, 3);
     }
 
     [Test]
@@ -118,6 +118,6 @@ internal sealed class FixedSizeListTests
             items.Add(item);
         }
 
-        items.Should().Equal([1, 2, 3]);
+        items.Should().Equal(1, 2, 3);
     }
 }

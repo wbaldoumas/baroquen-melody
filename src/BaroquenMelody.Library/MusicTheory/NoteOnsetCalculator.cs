@@ -14,19 +14,19 @@ internal sealed class NoteOnsetCalculator(
     CompositionConfiguration compositionConfiguration
 ) : INoteOnsetCalculator
 {
-    private static readonly MusicalTimeSpan _resolution = MusicalTimeSpan.ThirtySecond;
+    private static readonly MusicalTimeSpan Resolution = MusicalTimeSpan.ThirtySecond;
 
     public BitArray CalculateNoteOnsets(OrnamentationType ornamentationType)
     {
         var bitArray = InitializeNoteOnsetBitArray(compositionConfiguration.Meter);
         var primaryNoteDuration = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, compositionConfiguration.Meter);
         var ornamentationCount = ornamentationType.OrnamentationCount();
-        var noteOnsetCursor = primaryNoteDuration.DivideBy(_resolution);
+        var noteOnsetCursor = primaryNoteDuration.DivideBy(Resolution);
 
         for (var ornamentationStep = 0; ornamentationStep < ornamentationCount; ornamentationStep++)
         {
             var ornamentationDuration = musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, compositionConfiguration.Meter, ornamentationStep);
-            var cursorProgressionValue = ornamentationDuration.DivideBy(_resolution);
+            var cursorProgressionValue = ornamentationDuration.DivideBy(Resolution);
 
             bitArray[noteOnsetCursor] = true;
 

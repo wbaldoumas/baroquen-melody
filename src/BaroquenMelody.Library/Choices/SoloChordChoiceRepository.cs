@@ -27,6 +27,4 @@ internal sealed class SoloChordChoiceRepository : IChordChoiceRepository
     public BigInteger Count => _noteChoices.Count;
 
     public ChordChoice GetChordChoice(BigInteger id) => _noteChoices[(int)id].ToChordChoice();
-
-    public BigInteger GetChordChoiceId(ChordChoice chordChoice) => _noteChoices.IndexOf(chordChoice.NoteChoices[0]);
 }

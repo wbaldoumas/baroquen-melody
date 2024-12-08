@@ -109,31 +109,4 @@ internal sealed class QuartetChordChoiceRepositoryTests
         // assert
         act.Should().Throw<ArgumentException>();
     }
-
-    [Test]
-    public void GetChordChoiceId_ReturnsExpectedIndex()
-    {
-        // arrange
-        var compositionConfiguration = TestCompositionConfigurations.Get();
-
-        var quartetChordChoiceRepository = new QuartetChordChoiceRepository(
-            compositionConfiguration,
-            _mockNoteChoiceGenerator
-        );
-
-        // act
-        var id = quartetChordChoiceRepository.GetChordChoiceId(
-            new ChordChoice(
-                [
-                    new NoteChoice(Instrument.One, NoteMotion.Oblique, 0),
-                    new NoteChoice(Instrument.Two, NoteMotion.Oblique, 0),
-                    new NoteChoice(Instrument.Three, NoteMotion.Oblique, 0),
-                    new NoteChoice(Instrument.Four, NoteMotion.Ascending, 2)
-                ]
-            )
-        );
-
-        // assert
-        id.Should().Be(1);
-    }
 }
