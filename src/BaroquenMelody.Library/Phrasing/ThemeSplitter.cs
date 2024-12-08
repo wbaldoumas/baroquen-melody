@@ -5,7 +5,7 @@ namespace BaroquenMelody.Library.Phrasing;
 /// <inheritdoc cref="IThemeSplitter"/>
 internal sealed class ThemeSplitter : IThemeSplitter
 {
-    private static readonly List<(int PhraseLength, int MaxStartIndex)> _phraseSplits =
+    private static readonly List<(int PhraseLength, int MaxStartIndex)> PhraseSplits =
     [
         (2, 2),
         (3, 1),
@@ -18,7 +18,7 @@ internal sealed class ThemeSplitter : IThemeSplitter
             .Select(static measure => new RepeatedPhrase { Phrase = [new Measure(measure)] })
             .ToList();
 
-        foreach (var (phraseLength, maxStartIndex) in _phraseSplits)
+        foreach (var (phraseLength, maxStartIndex) in PhraseSplits)
         {
             if (theme.Recapitulation.Count < phraseLength)
             {

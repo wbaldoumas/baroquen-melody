@@ -12,18 +12,18 @@ internal sealed class DuetChordChoiceRepository : IChordChoiceRepository
 
     private readonly LazyCartesianProduct<NoteChoice, NoteChoice> _noteChoices;
 
-    public DuetChordChoiceRepository(CompositionConfiguration compositionConfiguration, INoteChoiceGenerator noteChoiceGenerator)
+    public DuetChordChoiceRepository(CompositionConfiguration configuration, INoteChoiceGenerator noteChoiceGenerator)
     {
-        if (compositionConfiguration.Instruments.Count != NumberOfInstruments)
+        if (configuration.Instruments.Count != NumberOfInstruments)
         {
             throw new ArgumentException(
                 "The composition configuration must contain exactly two instrument configurations.",
-                nameof(compositionConfiguration)
+                nameof(configuration)
             );
         }
 
-        var noteChoicesForInstruments = compositionConfiguration.Instruments
-            .OrderBy(static instrument => instrument)
+        var noteChoicesForInstruments = configuration.Instruments
+            .Order()
             .Select(noteChoiceGenerator.GenerateNoteChoices)
             .ToList();
 
@@ -36,8 +36,4 @@ internal sealed class DuetChordChoiceRepository : IChordChoiceRepository
     public BigInteger Count => _noteChoices.Size;
 
     public ChordChoice GetChordChoice(BigInteger id) => _noteChoices[id].ToChordChoice();
-
-    public BigInteger GetChordChoiceId(ChordChoice chordChoice) => _noteChoices.IndexOf(
-        (chordChoice.NoteChoices[0], chordChoice.NoteChoices[1])
-    );
 }

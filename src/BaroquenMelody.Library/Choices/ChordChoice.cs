@@ -26,7 +26,8 @@ internal sealed record ChordChoice
         {
             return NoteChoices.Aggregate(
                 HashCodeGeneration.Seed,
-                (current, noteChoice) => current * HashCodeGeneration.Multiplier ^ noteChoice.GetHashCode());
+                (current, noteChoice) => current * HashCodeGeneration.Multiplier ^ noteChoice.GetHashCode()
+            );
         }
     }
 }

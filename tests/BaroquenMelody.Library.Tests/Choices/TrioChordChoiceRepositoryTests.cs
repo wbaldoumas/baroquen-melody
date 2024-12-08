@@ -97,30 +97,4 @@ internal sealed class TrioChordChoiceRepositoryTests
         // assert
         act.Should().Throw<ArgumentException>();
     }
-
-    [Test]
-    public void GetChordChoiceId_ReturnsExpectedId()
-    {
-        // arrange
-        var compositionConfiguration = TestCompositionConfigurations.Get(3);
-
-        var trioChordChoiceRepository = new TrioChordChoiceRepository(
-            compositionConfiguration,
-            _mockNoteChoiceGenerator
-        );
-
-        // act
-        var id = trioChordChoiceRepository.GetChordChoiceId(
-            new ChordChoice(
-                [
-                    new NoteChoice(Instrument.One, NoteMotion.Oblique, 0),
-                    new NoteChoice(Instrument.Two, NoteMotion.Oblique, 0),
-                    new NoteChoice(Instrument.Three, NoteMotion.Ascending, 2)
-                ]
-            )
-        );
-
-        // assert
-        id.Should().Be(1);
-    }
 }

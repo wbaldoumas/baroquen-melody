@@ -64,28 +64,4 @@ internal sealed class SoloChordChoiceRepositoryTests
         // assert
         act.Should().Throw<ArgumentException>();
     }
-
-    [Test]
-    public void GetChordChoiceId_ReturnsExpectedId()
-    {
-        // arrange
-        var compositionConfiguration = TestCompositionConfigurations.Get(1);
-
-        var soloChordChoiceRepository = new SoloChordChoiceRepository(
-            compositionConfiguration,
-            _mockNoteChoiceGenerator
-        );
-
-        // act
-        var id = soloChordChoiceRepository.GetChordChoiceId(
-            new ChordChoice(
-                [
-                    new NoteChoice(Instrument.One, NoteMotion.Ascending, 2)
-                ]
-            )
-        );
-
-        // assert
-        id.Should().Be(1);
-    }
 }

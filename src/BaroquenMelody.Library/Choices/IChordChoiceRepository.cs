@@ -18,11 +18,4 @@ internal interface IChordChoiceRepository
     /// <param name="id"> The ID of the <see cref="ChordChoice"/> to get. </param>
     /// <returns> The <see cref="ChordChoice"/> for the given ID. </returns>
     public ChordChoice GetChordChoice(BigInteger id);
-
-    /// <summary>
-    ///     Get the ID of the given <see cref="ChordChoice"/>.
-    /// </summary>
-    /// <param name="chordChoice"> The <see cref="ChordChoice"/> to get the ID of. </param>
-    /// <returns> The ID of the given <see cref="ChordChoice"/>. </returns>
-    BigInteger GetChordChoiceId(ChordChoice chordChoice);
 }

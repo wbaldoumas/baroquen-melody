@@ -20,7 +20,8 @@ internal sealed class VelocityCalculator : IVelocityCalculator
     {
         Validate(precedingBeats, instrument);
 
-        return precedingBeats.TakeLast(count)
+        return precedingBeats
+            .TakeLast(count)
             .Reverse()
             .Select(beat =>
             {
