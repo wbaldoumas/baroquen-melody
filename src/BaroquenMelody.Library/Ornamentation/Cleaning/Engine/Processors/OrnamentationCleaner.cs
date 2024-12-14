@@ -22,8 +22,10 @@ internal sealed class OrnamentationCleaner(
         var notePair = configuration.NotePairSelector.Select(item);
 
         var hasStrongPulseConflicts = configuration.NoteIndexPairs
-            .Where(noteIndexPair => noteIndexPair.OccursOnStrongPulse)
-            .Any(noteIndexPair => notePair.PrimaryNote.Ornamentations[noteIndexPair.PrimaryNoteIndex].IsDissonantWith(notePair.SecondaryNote.Ornamentations[noteIndexPair.SecondaryNoteIndex]));
+            .Any(noteIndexPair =>
+                noteIndexPair.OccursOnStrongPulse &&
+                notePair.PrimaryNote.Ornamentations[noteIndexPair.PrimaryNoteIndex].IsDissonantWith(notePair.SecondaryNote.Ornamentations[noteIndexPair.SecondaryNoteIndex])
+            );
 
         if (hasStrongPulseConflicts)
         {
@@ -33,8 +35,10 @@ internal sealed class OrnamentationCleaner(
         }
 
         var hasWeakPulseConflicts = configuration.NoteIndexPairs
-            .Where(noteIndexPair => !noteIndexPair.OccursOnStrongPulse)
-            .Any(noteIndexPair => notePair.PrimaryNote.Ornamentations[noteIndexPair.PrimaryNoteIndex].IsDissonantWith(notePair.SecondaryNote.Ornamentations[noteIndexPair.SecondaryNoteIndex]));
+            .Any(noteIndexPair =>
+                !noteIndexPair.OccursOnStrongPulse &&
+                notePair.PrimaryNote.Ornamentations[noteIndexPair.PrimaryNoteIndex].IsDissonantWith(notePair.SecondaryNote.Ornamentations[noteIndexPair.SecondaryNoteIndex])
+            );
 
         if (hasWeakPulseConflicts && weightedRandomBooleanGenerator.IsTrue(ChanceOfCleaningWeakConflicts))
         {
@@ -44,8 +48,6 @@ internal sealed class OrnamentationCleaner(
 
     private void CleanConflictingOrnamentation(OrnamentationCleaningItem item)
     {
-        var noteToClean = configuration.NoteTargetSelector.Select(item);
-
-        noteToClean.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
+        item.Note.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
     }
 }

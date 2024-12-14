@@ -54,6 +54,6 @@ internal sealed class CleanConflictingOrnamentationsTests
         _cleanConflictingOrnamentations.Apply(ornamentationItem);
 
         // assert
-        _mockOrnamentationCleaningEngine.Received(6).Process(Arg.Any<OrnamentationCleaningItem>());
+        _mockOrnamentationCleaningEngine.Received(3).Process(Arg.Any<OrnamentationCleaningItem>());
     }
 }

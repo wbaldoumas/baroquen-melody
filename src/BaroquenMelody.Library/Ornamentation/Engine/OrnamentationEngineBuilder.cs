@@ -25,39 +25,59 @@ using System.Diagnostics.CodeAnalysis;
 namespace BaroquenMelody.Library.Ornamentation.Engine;
 
 [ExcludeFromCodeCoverage(Justification = "Trivial builder methods.")]
-internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compositionConfiguration, IMusicalTimeSpanCalculator musicalTimeSpanCalculator, ILogger logger)
+internal sealed class OrnamentationEngineBuilder
 {
     private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
 
     private readonly IInputPolicy<OrnamentationItem> _hasNoOrnamentation = new Not<OrnamentationItem>(new HasOrnamentation());
 
-    private readonly NoteIndexPairSelector _noteIndexPairSelector = new(new NoteOnsetCalculator(musicalTimeSpanCalculator, compositionConfiguration));
+    private readonly NoteIndexPairSelector _noteIndexPairSelector;
 
-    private readonly OrnamentationProcessorFactory _processorFactory = new(
-        musicalTimeSpanCalculator,
-        new OrnamentationProcessorConfigurationFactory(
-            new ChordNumberIdentifier(compositionConfiguration),
-            new WeightedRandomBooleanGenerator(),
-            compositionConfiguration,
-            logger
-        )
-    );
+    private readonly OrnamentationProcessorFactory _processorFactory;
+
+    private readonly CompositionConfiguration _compositionConfiguration;
+
+    private readonly IMusicalTimeSpanCalculator _musicalTimeSpanCalculator;
+
+    private readonly ILogger _logger;
+
+    public OrnamentationEngineBuilder(
+        CompositionConfiguration compositionConfiguration,
+        IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
+        ILogger logger)
+    {
+        _compositionConfiguration = compositionConfiguration;
+        _musicalTimeSpanCalculator = musicalTimeSpanCalculator;
+        _logger = logger;
+        _noteIndexPairSelector = new NoteIndexPairSelector(new NoteOnsetCalculator(musicalTimeSpanCalculator, compositionConfiguration));
+
+        _processorFactory = new OrnamentationProcessorFactory(
+            musicalTimeSpanCalculator,
+            new OrnamentationProcessorConfigurationFactory(
+                new ChordNumberIdentifier(compositionConfiguration),
+                new WeightedRandomBooleanGenerator(),
+                compositionConfiguration,
+                logger
+            ),
+            new CleanConflictingOrnamentations(BuildOrnamentationCleaningEngine())
+        );
+    }
 
     public IPolicyEngine<OrnamentationItem> BuildOrnamentationEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithoutInputPolicies()
-        .WithProcessors(_processorFactory.Create(compositionConfiguration).ToArray())
-        .WithOutputPolicies(new CleanConflictingOrnamentations(BuildOrnamentationCleaningEngine()))
+        .WithProcessors(_processorFactory.Create(_compositionConfiguration).ToArray())
+        .WithoutOutputPolicies()
         .Build();
 
-    public IProcessor<OrnamentationItem> BuildSustainedNoteEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
+    public IPolicyEngine<OrnamentationItem> BuildSustainedNoteEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
             new WantsToOrnament(_weightedRandomBooleanGenerator),
             new IsRepeatedNote(),
             _hasNoOrnamentation,
-            new IsApplicableInterval(compositionConfiguration, SustainedNoteProcessor.Interval)
+            new IsApplicableInterval(_compositionConfiguration, SustainedNoteProcessor.Interval)
         )
-        .WithProcessors(new SustainedNoteProcessor(musicalTimeSpanCalculator, compositionConfiguration))
-        .WithOutputPolicies(new LogOrnamentation(OrnamentationType.Sustain, logger))
+        .WithProcessors(new SustainedNoteProcessor(_musicalTimeSpanCalculator, _compositionConfiguration))
+        .WithOutputPolicies(new LogOrnamentation(OrnamentationType.Sustain, _logger))
         .Build();
 
     private IPolicyEngine<OrnamentationCleaningItem> BuildOrnamentationCleaningEngine()
@@ -99,7 +119,7 @@ internal sealed class OrnamentationEngineBuilder(CompositionConfiguration compos
             var processor = PolicyEngineBuilder<OrnamentationCleaningItem>
                 .Configure()
                 .WithInputPolicies(new HasTargetOrnamentations(primaryOrnamentation, secondaryOrnamentation))
-                .WithProcessors(new OrnamentationCleaner(ornamentationCleaningConfiguration, compositionConfiguration, _weightedRandomBooleanGenerator))
+                .WithProcessors(new OrnamentationCleaner(ornamentationCleaningConfiguration, _compositionConfiguration, _weightedRandomBooleanGenerator))
                 .Build();
 
             processors.Add(processor);
