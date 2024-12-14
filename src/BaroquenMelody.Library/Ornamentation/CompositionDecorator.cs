@@ -1,4 +1,4 @@
-﻿using Atrea.PolicyEngine.Processors;
+﻿using Atrea.PolicyEngine;
 using BaroquenMelody.Infrastructure.Collections;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
@@ -8,12 +8,12 @@ namespace BaroquenMelody.Library.Ornamentation;
 
 /// <inheritdoc cref="ICompositionDecorator"/>
 internal sealed class CompositionDecorator(
-    IProcessor<OrnamentationItem> ornamentationEngine,
-    IProcessor<OrnamentationItem> sustainEngine,
+    IPolicyEngine<OrnamentationItem> ornamentationEngine,
+    IPolicyEngine<OrnamentationItem> sustainEngine,
     CompositionConfiguration configuration
 ) : ICompositionDecorator
 {
-    public void Decorate(Composition composition) => Decorate(composition, ornamentationEngine);
+    public void Decorate(Composition composition) => Decorate(composition, ornamentationEngine, shuffleProcessors: true);
 
     public void ApplySustain(Composition composition) => Decorate(composition, sustainEngine);
 
@@ -22,10 +22,10 @@ internal sealed class CompositionDecorator(
         var compositionContext = new FixedSizeList<Beat>(configuration.CompositionContextSize);
         var beats = composition.Measures.SelectMany(static measure => measure.Beats).ToList();
 
-        Decorate(instrument, beats, compositionContext, ornamentationEngine);
+        Decorate(instrument, beats, compositionContext, ornamentationEngine, shuffleProcessors: true);
     }
 
-    private void Decorate(Composition composition, IProcessor<OrnamentationItem> processor)
+    private void Decorate(Composition composition, IPolicyEngine<OrnamentationItem> processor, bool shuffleProcessors = false)
     {
         var compositionContext = new FixedSizeList<Beat>(configuration.CompositionContextSize);
         var instruments = configuration.InstrumentConfigurations.Select(static instrumentConfiguration => instrumentConfiguration.Instrument);
@@ -33,11 +33,16 @@ internal sealed class CompositionDecorator(
 
         foreach (var instrument in instruments)
         {
-            Decorate(instrument, beats, compositionContext, processor);
+            Decorate(instrument, beats, compositionContext, processor, shuffleProcessors);
         }
     }
 
-    private static void Decorate(Instrument instrument, List<Beat> beats, FixedSizeList<Beat> compositionContext, IProcessor<OrnamentationItem> processor)
+    private static void Decorate(
+        Instrument instrument,
+        List<Beat> beats,
+        FixedSizeList<Beat> compositionContext,
+        IPolicyEngine<OrnamentationItem> processor,
+        bool shuffleProcessors = false)
     {
         for (var i = 0; i < beats.Count; ++i)
         {
@@ -52,6 +57,11 @@ internal sealed class CompositionDecorator(
             );
 
             processor.Process(ornamentationItem);
+
+            if (shuffleProcessors)
+            {
+                processor.Shuffle();
+            }
 
             compositionContext.Add(beats[i]);
         }

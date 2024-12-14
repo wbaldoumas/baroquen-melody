@@ -2,7 +2,6 @@
 using Atrea.PolicyEngine.Policies.Output;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Ornamentation.Cleaning;
-using LazyCart;
 
 namespace BaroquenMelody.Library.Ornamentation.Engine.Policies.Output;
 
@@ -13,26 +12,22 @@ internal sealed class CleanConflictingOrnamentations(IPolicyEngine<Ornamentation
 {
     public void Apply(OrnamentationItem item)
     {
-        var instruments = item.CurrentBeat.Chord.Notes.Select(note => note.Instrument).ToList();
-        var instrumentCombinations = new LazyCartesianProduct<Instrument, Instrument>(instruments, instruments);
+        var instruments = item.CurrentBeat.Chord.Notes.Select(note => note.Instrument).ToHashSet();
         var processedInstrumentCombinations = new HashSet<(Instrument, Instrument)>();
 
-        for (var i = 0; i < instrumentCombinations.Size; ++i)
+        foreach (var otherInstrument in instruments)
         {
-            var (instrumentA, instrumentB) = instrumentCombinations[i];
-
-            if (instrumentA == instrumentB || processedInstrumentCombinations.Contains((instrumentA, instrumentB)))
+            if (item.Instrument == otherInstrument || processedInstrumentCombinations.Contains((item.Instrument, otherInstrument)))
             {
                 continue;
             }
 
-            var noteA = item.CurrentBeat[instrumentA];
-            var noteB = item.CurrentBeat[instrumentB];
+            var note = item.CurrentBeat[item.Instrument];
+            var otherNote = item.CurrentBeat[otherInstrument];
 
-            ornamentationCleaningEngine.Process(new OrnamentationCleaningItem(noteA, noteB));
+            ornamentationCleaningEngine.Process(new OrnamentationCleaningItem(note, otherNote));
 
-            processedInstrumentCombinations.Add((instrumentA, instrumentB));
-            processedInstrumentCombinations.Add((instrumentB, instrumentA));
+            processedInstrumentCombinations.Add((item.Instrument, otherInstrument));
         }
     }
 }
