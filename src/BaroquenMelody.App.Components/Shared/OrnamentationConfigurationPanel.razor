@@ -36,7 +36,7 @@
     </MudStack>
 </div>
 <MudGrid Spacing="0" Justify="Justify.Center">
-    @foreach (var ornamentation in Ornamentations)
+    @foreach (var ornamentation in Ornamentations.OrderBy(ornamentation => ornamentation.ToSpaceSeparatedString()))
     {
         <MudItem xs="12" sm="12" md="6" lg="6" xl="6" xxl="6">
             <OrnamentationConfigurationCard OrnamentationType="ornamentation"/>

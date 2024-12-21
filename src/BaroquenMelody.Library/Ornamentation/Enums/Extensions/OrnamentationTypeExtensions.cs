@@ -4,7 +4,7 @@ namespace BaroquenMelody.Library.Ornamentation.Enums.Extensions;
 
 internal static class OrnamentationTypeExtensions
 {
-    private static readonly FrozenDictionary<OrnamentationType, int> _ornamentationCountsByType = new Dictionary<OrnamentationType, int>
+    private static readonly FrozenDictionary<OrnamentationType, int> OrnamentationCountsByType = new Dictionary<OrnamentationType, int>
     {
         { OrnamentationType.DecorateInterval, 3 },
         { OrnamentationType.DelayedRun, 4 },
@@ -26,13 +26,14 @@ internal static class OrnamentationTypeExtensions
         { OrnamentationType.Turn, 3 },
         { OrnamentationType.Pickup, 1 },
         { OrnamentationType.DelayedPickup, 1 },
+        { OrnamentationType.DoublePickup, 2 },
         { OrnamentationType.None, 0 },
         { OrnamentationType.Sustain, 0 },
         { OrnamentationType.MidSustain, 0 },
         { OrnamentationType.Rest, 0 }
     }.ToFrozenDictionary();
 
-    public static int OrnamentationCount(this OrnamentationType ornamentationType) => _ornamentationCountsByType.TryGetValue(ornamentationType, out var ornamentationCount)
+    public static int OrnamentationCount(this OrnamentationType ornamentationType) => OrnamentationCountsByType.TryGetValue(ornamentationType, out var ornamentationCount)
         ? ornamentationCount
         : throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, "Ornamentation type not found.");
 }

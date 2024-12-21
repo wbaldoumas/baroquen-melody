@@ -120,5 +120,10 @@ public enum OrnamentationType : byte
     /// <summary>
     ///     A delayed pickup note before another note.
     /// </summary>
-    DelayedPickup
+    DelayedPickup,
+
+    /// <summary>
+    ///     A double pickup note before another note.
+    /// </summary>
+    DoublePickup
 }

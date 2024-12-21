@@ -38,7 +38,7 @@ public sealed record InstrumentConfiguration(
 
     public static readonly SevenBitNumber DefaultMinVelocity = new(50);
 
-    public static readonly SevenBitNumber DefaultMaxVelocity = new(75);
+    public static readonly SevenBitNumber DefaultMaxVelocity = new(60);
 
     [JsonIgnore]
     public bool IsEnabled => Status.IsEnabled();
@@ -57,8 +57,8 @@ public sealed record InstrumentConfiguration(
     public static readonly FrozenDictionary<Instrument, InstrumentConfiguration> DefaultConfigurations = new Dictionary<Instrument, InstrumentConfiguration>
     {
         { Instrument.One, new InstrumentConfiguration(Instrument.One, Notes.C5, Notes.E6, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
-        { Instrument.Two, new InstrumentConfiguration(Instrument.Two, Notes.G3, Notes.B4, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
-        { Instrument.Three, new InstrumentConfiguration(Instrument.Three, Notes.D3, Notes.F4, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
-        { Instrument.Four, new InstrumentConfiguration(Instrument.Four, Notes.C2, Notes.E3, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Disabled) }
+        { Instrument.Two, new InstrumentConfiguration(Instrument.Two, Notes.B3, Notes.D5, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
+        { Instrument.Three, new InstrumentConfiguration(Instrument.Three, Notes.A2, Notes.C4, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
+        { Instrument.Four, new InstrumentConfiguration(Instrument.Four, Notes.G1, Notes.B2, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Disabled) }
     }.ToFrozenDictionary();
 }
