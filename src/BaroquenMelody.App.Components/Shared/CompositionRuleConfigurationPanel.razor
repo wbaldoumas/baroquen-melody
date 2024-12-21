@@ -36,7 +36,7 @@
     </MudStack>
 </div>
 <MudGrid Spacing="0" Justify="Justify.Center">
-    @foreach (var compositionRule in CompositionRules)
+    @foreach (var compositionRule in CompositionRules.OrderBy(rule => rule.ToSpaceSeparatedString()))
     {
         <MudItem xs="12" sm="12" md="6" lg="6" xl="6" xxl="6">
             <CompositionRuleConfigurationCard CompositionRule="compositionRule"/>

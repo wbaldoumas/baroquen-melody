@@ -30,6 +30,7 @@ internal sealed class OrnamentationTypeExtensionsTests
     [TestCase(OrnamentationType.Turn, 3)]
     [TestCase(OrnamentationType.Pickup, 1)]
     [TestCase(OrnamentationType.DelayedPickup, 1)]
+    [TestCase(OrnamentationType.DoublePickup, 2)]
     [TestCase(OrnamentationType.None, 0)]
     [TestCase(OrnamentationType.Sustain, 0)]
     [TestCase(OrnamentationType.MidSustain, 0)]

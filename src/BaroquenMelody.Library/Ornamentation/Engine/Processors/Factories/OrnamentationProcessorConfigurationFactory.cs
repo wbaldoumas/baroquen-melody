@@ -436,6 +436,26 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                     )
                 );
                 break;
+            case OrnamentationType.DoublePickup:
+                processorConfigurations.Add(
+                    new OrnamentationProcessorConfiguration(
+                        OrnamentationType.DoublePickup,
+                        InputPolicies:
+                        [
+                            wantsToOrnament,
+                            _hasNoOrnamentation,
+                            _hasNextBeat,
+                            _isNotRepeatedNote,
+                            new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, 2).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -2))
+                        ],
+                        OutputPolicies: [logOrnamentation],
+                        Translations: [2, 1],
+                        ShouldInvertBasedOnDirection,
+                        TranslationInversionIndices: new HashSet<int> { 0, 1 }.ToFrozenSet(),
+                        ShouldTranslateOnCurrentNote: false
+                    )
+                );
+                break;
             case OrnamentationType.None:
             case OrnamentationType.Sustain:
             case OrnamentationType.MidSustain:

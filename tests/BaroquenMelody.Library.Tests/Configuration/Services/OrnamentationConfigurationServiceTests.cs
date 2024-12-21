@@ -54,7 +54,8 @@ internal sealed class OrnamentationConfigurationServiceTests
             OrnamentationType.RepeatedNote,
             OrnamentationType.DelayedRepeatedNote,
             OrnamentationType.Pickup,
-            OrnamentationType.DelayedPickup
+            OrnamentationType.DelayedPickup,
+            OrnamentationType.DoublePickup
         };
 
         // act
@@ -101,7 +102,8 @@ internal sealed class OrnamentationConfigurationServiceTests
             { OrnamentationType.RepeatedNote, new OrnamentationConfiguration(OrnamentationType.RepeatedNote, ConfigurationStatus.Disabled, 100) },
             { OrnamentationType.DelayedRepeatedNote, new OrnamentationConfiguration(OrnamentationType.DelayedRepeatedNote, ConfigurationStatus.Locked, 100) },
             { OrnamentationType.Pickup, new OrnamentationConfiguration(OrnamentationType.Pickup, ConfigurationStatus.Enabled, 100) },
-            { OrnamentationType.DelayedPickup, new OrnamentationConfiguration(OrnamentationType.DelayedPickup, ConfigurationStatus.Enabled, 100) }
+            { OrnamentationType.DelayedPickup, new OrnamentationConfiguration(OrnamentationType.DelayedPickup, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.DoublePickup, new OrnamentationConfiguration(OrnamentationType.DoublePickup, ConfigurationStatus.Enabled, 100) }
         };
 
         _mockState.Value.Returns(new CompositionOrnamentationConfigurationState(configurations));
