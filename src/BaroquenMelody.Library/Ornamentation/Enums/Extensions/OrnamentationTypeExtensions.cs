@@ -26,6 +26,7 @@ internal static class OrnamentationTypeExtensions
         { OrnamentationType.Turn, 3 },
         { OrnamentationType.Pickup, 1 },
         { OrnamentationType.DelayedPickup, 1 },
+        { OrnamentationType.DelayedDoublePickup, 2 },
         { OrnamentationType.DoublePickup, 2 },
         { OrnamentationType.None, 0 },
         { OrnamentationType.Sustain, 0 },
