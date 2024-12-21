@@ -206,6 +206,10 @@ internal sealed class MusicalTimeSpanCalculatorTests
             yield return new TestCaseData(OrnamentationType.DoublePickup, Meter.FourFour, MusicalTimeSpan.Quarter);
 
             yield return new TestCaseData(OrnamentationType.DoublePickup, Meter.ThreeFour, MusicalTimeSpan.Half);
+
+            yield return new TestCaseData(OrnamentationType.DelayedDoublePickup, Meter.FourFour, MusicalTimeSpan.Quarter.Dotted(1));
+
+            yield return new TestCaseData(OrnamentationType.DelayedDoublePickup, Meter.ThreeFour, MusicalTimeSpan.Half + MusicalTimeSpan.Eighth);
         }
     }
 
@@ -304,6 +308,10 @@ internal sealed class MusicalTimeSpanCalculatorTests
             yield return new TestCaseData(OrnamentationType.DoublePickup, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
 
             yield return new TestCaseData(OrnamentationType.DoublePickup, Meter.ThreeFour, MusicalTimeSpan.Eighth, 1);
+
+            yield return new TestCaseData(OrnamentationType.DelayedDoublePickup, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
+
+            yield return new TestCaseData(OrnamentationType.DelayedDoublePickup, Meter.ThreeFour, MusicalTimeSpan.Sixteenth, 1);
         }
     }
 }

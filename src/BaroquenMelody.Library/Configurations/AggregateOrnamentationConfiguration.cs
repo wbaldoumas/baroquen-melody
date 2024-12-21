@@ -30,7 +30,8 @@ public sealed record AggregateOrnamentationConfiguration(ISet<OrnamentationConfi
             new(OrnamentationType.DelayedRepeatedNote, ConfigurationStatus.Enabled, 15),
             new(OrnamentationType.Pickup, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.DelayedPickup, ConfigurationStatus.Enabled, 25),
-            new(OrnamentationType.DoublePickup, ConfigurationStatus.Enabled, 25)
+            new(OrnamentationType.DoublePickup, ConfigurationStatus.Enabled, 25),
+            new(OrnamentationType.DelayedDoublePickup, ConfigurationStatus.Enabled, 25)
         }
     );
 }
