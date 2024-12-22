@@ -111,6 +111,18 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DecorateThird when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter,
         OrnamentationType.DecorateThird when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
 
+        OrnamentationType.OctavePedal when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.OctavePedal when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter.Dotted(1),
+        OrnamentationType.OctavePedal when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
+
+        OrnamentationType.OctavePedalPassingTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.OctavePedalPassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter.Dotted(1),
+        OrnamentationType.OctavePedalPassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
+
+        OrnamentationType.OctavePedalArpeggio when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.OctavePedalArpeggio when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter.Dotted(1),
+        OrnamentationType.OctavePedalArpeggio when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
+
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,
 
@@ -226,6 +238,18 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DecorateThird when meter == Meter.FiveEight && ornamentationStep == 0 => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DecorateThird when meter == Meter.FiveEight && ornamentationStep == 1 => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DecorateThird when meter == Meter.FiveEight && ornamentationStep == 2 => MusicalTimeSpan.Quarter,
+
+        OrnamentationType.OctavePedal when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.OctavePedal when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.OctavePedal when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
+
+        OrnamentationType.OctavePedalPassingTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.OctavePedalPassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.OctavePedalPassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
+
+        OrnamentationType.OctavePedalArpeggio when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.OctavePedalArpeggio when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.OctavePedalArpeggio when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,

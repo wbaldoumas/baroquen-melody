@@ -32,7 +32,10 @@ public sealed record AggregateOrnamentationConfiguration(ISet<OrnamentationConfi
             new(OrnamentationType.DelayedPickup, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.DoublePickup, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.DelayedDoublePickup, ConfigurationStatus.Enabled, 25),
-            new(OrnamentationType.DecorateThird, ConfigurationStatus.Enabled, 60)
+            new(OrnamentationType.DecorateThird, ConfigurationStatus.Enabled, 60),
+            new(OrnamentationType.OctavePedal, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.OctavePedalPassingTone, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.OctavePedalArpeggio, ConfigurationStatus.Enabled, 80)
         }
     );
 }

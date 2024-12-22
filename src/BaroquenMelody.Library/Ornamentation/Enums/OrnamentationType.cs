@@ -135,5 +135,20 @@ public enum OrnamentationType : byte
     /// <summary>
     ///     A decoration to a lower third from the starting note.
     /// </summary>
-    DecorateThird
+    DecorateThird,
+
+    /// <summary>
+    ///     A pedal one octave below the starting note.
+    /// </summary>
+    OctavePedal,
+
+    /// <summary>
+    ///     An octave pedal with a passing tone.
+    /// </summary>
+    OctavePedalPassingTone,
+
+    /// <summary>
+    ///     An octave pedal with an arpeggio.
+    /// </summary>
+    OctavePedalArpeggio,
 }

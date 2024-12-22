@@ -42,6 +42,8 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
 
     private static readonly IInputPolicy<OrnamentationItem> _isRepeatedNote = new IsRepeatedNote();
 
+    private static readonly IInputPolicy<OrnamentationItem> _isAscending = new IsAscending();
+
     private static readonly IInputPolicy<OrnamentationItem> _isDescending = new IsDescending();
 
     private static readonly IInputPolicy<OrnamentationItem> _isNotRepeatedNote = new Not<OrnamentationItem>(new IsRepeatedNote());
@@ -491,6 +493,63 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                         ],
                         OutputPolicies: [logOrnamentation],
                         Translations: [-1, 0, -2],
+                        ShouldNotInvert,
+                        TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
+                    )
+                );
+                break;
+            case OrnamentationType.OctavePedal:
+                processorConfigurations.Add(
+                    new OrnamentationProcessorConfiguration(
+                        OrnamentationType.OctavePedal,
+                        InputPolicies:
+                        [
+                            wantsToOrnament,
+                            _hasNoOrnamentation,
+                            new IsIntervalWithinInstrumentRange(compositionConfiguration, -7),
+                            new Not<OrnamentationItem>(new IsApplicableInterval(compositionConfiguration, PassingToneInterval)),
+                            new Not<OrnamentationItem>(new IsApplicableInterval(compositionConfiguration, 4))
+                        ],
+                        OutputPolicies: [logOrnamentation],
+                        Translations: [-7, 0, -7],
+                        ShouldNotInvert,
+                        TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
+                    )
+                );
+                break;
+            case OrnamentationType.OctavePedalPassingTone:
+                processorConfigurations.Add(
+                    new OrnamentationProcessorConfiguration(
+                        OrnamentationType.OctavePedalPassingTone,
+                        InputPolicies:
+                        [
+                            wantsToOrnament,
+                            _hasNoOrnamentation,
+                            new IsIntervalWithinInstrumentRange(compositionConfiguration, -7),
+                            new IsApplicableInterval(compositionConfiguration, PassingToneInterval).Or(_isRepeatedNote)
+                        ],
+                        OutputPolicies: [logOrnamentation],
+                        Translations: [-7, 1, -7],
+                        ShouldInvertBasedOnDirection,
+                        TranslationInversionIndices: new HashSet<int> { 1 }.ToFrozenSet()
+                    )
+                );
+                break;
+            case OrnamentationType.OctavePedalArpeggio:
+                processorConfigurations.Add(
+                    new OrnamentationProcessorConfiguration(
+                        OrnamentationType.OctavePedalPassingTone,
+                        InputPolicies:
+                        [
+                            wantsToOrnament,
+                            _hasNoOrnamentation,
+                            _hasNextBeat,
+                            _isAscending,
+                            new IsIntervalWithinInstrumentRange(compositionConfiguration, -7),
+                            new IsApplicableInterval(compositionConfiguration, 4).Or(_isRepeatedNote),
+                        ],
+                        OutputPolicies: [logOrnamentation],
+                        Translations: [-7, 2, -7],
                         ShouldNotInvert,
                         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
                     )
