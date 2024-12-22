@@ -107,6 +107,10 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DelayedNeighborTone when meter == Meter.ThreeFour => MusicalTimeSpan.Half + MusicalTimeSpan.Eighth,
         OrnamentationType.DelayedNeighborTone when meter == Meter.FiveEight => MusicalTimeSpan.Half,
 
+        OrnamentationType.DecorateThird when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
+        OrnamentationType.DecorateThird when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter,
+        OrnamentationType.DecorateThird when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
+
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,
 
@@ -210,6 +214,18 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DelayedNeighborTone when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
         OrnamentationType.DelayedNeighborTone when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
         OrnamentationType.DelayedNeighborTone when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
+
+        OrnamentationType.DecorateThird when meter == Meter.FourFour && ornamentationStep == 0 => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.DecorateThird when meter == Meter.FourFour && ornamentationStep == 1 => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.DecorateThird when meter == Meter.FourFour && ornamentationStep == 2 => MusicalTimeSpan.Eighth,
+
+        OrnamentationType.DecorateThird when meter == Meter.ThreeFour && ornamentationStep == 0 => MusicalTimeSpan.Eighth,
+        OrnamentationType.DecorateThird when meter == Meter.ThreeFour && ornamentationStep == 1 => MusicalTimeSpan.Eighth,
+        OrnamentationType.DecorateThird when meter == Meter.ThreeFour && ornamentationStep == 2 => MusicalTimeSpan.Quarter,
+
+        OrnamentationType.DecorateThird when meter == Meter.FiveEight && ornamentationStep == 0 => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.DecorateThird when meter == Meter.FiveEight && ornamentationStep == 1 => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.DecorateThird when meter == Meter.FiveEight && ornamentationStep == 2 => MusicalTimeSpan.Quarter,
 
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,

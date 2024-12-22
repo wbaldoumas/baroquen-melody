@@ -99,6 +99,7 @@ internal sealed class MidiExampleGenerator(
         OrnamentationType.DelayedPickup => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.DoublePickup => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.DelayedDoublePickup => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
+        OrnamentationType.DecorateThird => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 4), compositionConfiguration.DefaultNoteTimeSpan),
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, "Ornamentation type not supported.")
     };
 }
