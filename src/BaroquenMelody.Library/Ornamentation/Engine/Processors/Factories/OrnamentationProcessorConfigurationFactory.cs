@@ -42,6 +42,8 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
 
     private static readonly IInputPolicy<OrnamentationItem> _isRepeatedNote = new IsRepeatedNote();
 
+    private static readonly IInputPolicy<OrnamentationItem> _isDescending = new IsDescending();
+
     private static readonly IInputPolicy<OrnamentationItem> _isNotRepeatedNote = new Not<OrnamentationItem>(new IsRepeatedNote());
 
     private readonly IInputPolicy<OrnamentationItem> _isRootOfChord = new IsRootOfChord(chordNumberIdentifier, compositionConfiguration);
@@ -473,6 +475,24 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1 }.ToFrozenSet(),
                         ShouldTranslateOnCurrentNote: false
+                    )
+                );
+                break;
+            case OrnamentationType.DecorateThird:
+                processorConfigurations.Add(
+                    new OrnamentationProcessorConfiguration(
+                        OrnamentationType.DecorateThird,
+                        InputPolicies:
+                        [
+                            wantsToOrnament,
+                            _hasNoOrnamentation,
+                            _hasNextBeat,
+                            _isDescending.And(new IsApplicableInterval(compositionConfiguration, interval: 1)).Or(_isRepeatedNote)
+                        ],
+                        OutputPolicies: [logOrnamentation],
+                        Translations: [-1, 0, -2],
+                        ShouldNotInvert,
+                        TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
                     )
                 );
                 break;
