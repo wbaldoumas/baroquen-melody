@@ -151,4 +151,19 @@ public enum OrnamentationType : byte
     ///     An octave pedal with an arpeggio.
     /// </summary>
     OctavePedalArpeggio,
+
+    /// <summary>
+    ///     An octave pedal above the starting note.
+    /// </summary>
+    UpperOctavePedal,
+
+    /// <summary>
+    ///     An upper octave pedal with a passing tone.
+    /// </summary>
+    UpperOctavePedalPassingTone,
+
+    /// <summary>
+    ///     An upper octave pedal with an arpeggio.
+    /// </summary>
+    UpperOctavePedalArpeggio,
 }

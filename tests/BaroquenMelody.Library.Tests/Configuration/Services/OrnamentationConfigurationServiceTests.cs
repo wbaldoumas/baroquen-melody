@@ -60,7 +60,10 @@ internal sealed class OrnamentationConfigurationServiceTests
             OrnamentationType.DecorateThird,
             OrnamentationType.OctavePedal,
             OrnamentationType.OctavePedalPassingTone,
-            OrnamentationType.OctavePedalArpeggio
+            OrnamentationType.OctavePedalArpeggio,
+            OrnamentationType.UpperOctavePedal,
+            OrnamentationType.UpperOctavePedalPassingTone,
+            OrnamentationType.UpperOctavePedalArpeggio
         };
 
         // act
@@ -113,7 +116,10 @@ internal sealed class OrnamentationConfigurationServiceTests
             { OrnamentationType.DecorateThird, new OrnamentationConfiguration(OrnamentationType.DecorateThird, ConfigurationStatus.Enabled, 100) },
             { OrnamentationType.OctavePedal, new OrnamentationConfiguration(OrnamentationType.OctavePedal, ConfigurationStatus.Enabled, 100) },
             { OrnamentationType.OctavePedalPassingTone, new OrnamentationConfiguration(OrnamentationType.OctavePedalPassingTone, ConfigurationStatus.Enabled, 100) },
-            { OrnamentationType.OctavePedalArpeggio, new OrnamentationConfiguration(OrnamentationType.OctavePedalArpeggio, ConfigurationStatus.Enabled, 100) }
+            { OrnamentationType.OctavePedalArpeggio, new OrnamentationConfiguration(OrnamentationType.OctavePedalArpeggio, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.UpperOctavePedal, new OrnamentationConfiguration(OrnamentationType.UpperOctavePedal, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.UpperOctavePedalPassingTone, new OrnamentationConfiguration(OrnamentationType.UpperOctavePedalPassingTone, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.UpperOctavePedalArpeggio, new OrnamentationConfiguration(OrnamentationType.UpperOctavePedalArpeggio, ConfigurationStatus.Enabled, 100) }
         };
 
         _mockState.Value.Returns(new CompositionOrnamentationConfigurationState(configurations));
