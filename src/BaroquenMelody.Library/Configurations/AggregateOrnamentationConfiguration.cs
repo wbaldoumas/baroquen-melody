@@ -35,7 +35,10 @@ public sealed record AggregateOrnamentationConfiguration(ISet<OrnamentationConfi
             new(OrnamentationType.DecorateThird, ConfigurationStatus.Enabled, 60),
             new(OrnamentationType.OctavePedal, ConfigurationStatus.Enabled, 80),
             new(OrnamentationType.OctavePedalPassingTone, ConfigurationStatus.Enabled, 80),
-            new(OrnamentationType.OctavePedalArpeggio, ConfigurationStatus.Enabled, 80)
+            new(OrnamentationType.OctavePedalArpeggio, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.UpperOctavePedal, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.UpperOctavePedalPassingTone, ConfigurationStatus.Enabled, 80),
+            new(OrnamentationType.UpperOctavePedalArpeggio, ConfigurationStatus.Enabled, 80)
         }
     );
 }

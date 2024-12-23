@@ -101,8 +101,11 @@ internal sealed class MidiExampleGenerator(
         OrnamentationType.DelayedDoublePickup => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.DecorateThird => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.OctavePedal => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 4), compositionConfiguration.DefaultNoteTimeSpan),
-        OrnamentationType.OctavePedalPassingTone => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 4), compositionConfiguration.DefaultNoteTimeSpan),
-        OrnamentationType.OctavePedalArpeggio => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 4), compositionConfiguration.DefaultNoteTimeSpan),
+        OrnamentationType.OctavePedalPassingTone => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
+        OrnamentationType.OctavePedalArpeggio => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Dominant, 4), compositionConfiguration.DefaultNoteTimeSpan),
+        OrnamentationType.UpperOctavePedal => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 4), compositionConfiguration.DefaultNoteTimeSpan),
+        OrnamentationType.UpperOctavePedalPassingTone => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
+        OrnamentationType.UpperOctavePedalArpeggio => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Dominant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, "Ornamentation type not supported.")
     };
 }

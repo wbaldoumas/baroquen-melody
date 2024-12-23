@@ -555,6 +555,63 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                     )
                 );
                 break;
+            case OrnamentationType.UpperOctavePedal:
+                processorConfigurations.Add(
+                    new OrnamentationProcessorConfiguration(
+                        OrnamentationType.UpperOctavePedal,
+                        InputPolicies:
+                        [
+                            wantsToOrnament,
+                            _hasNoOrnamentation,
+                            new IsIntervalWithinInstrumentRange(compositionConfiguration, 7),
+                            new Not<OrnamentationItem>(new IsApplicableInterval(compositionConfiguration, PassingToneInterval)),
+                            new Not<OrnamentationItem>(new IsApplicableInterval(compositionConfiguration, 4))
+                        ],
+                        OutputPolicies: [logOrnamentation],
+                        Translations: [7, 0, 7],
+                        ShouldNotInvert,
+                        TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
+                    )
+                );
+                break;
+            case OrnamentationType.UpperOctavePedalPassingTone:
+                processorConfigurations.Add(
+                    new OrnamentationProcessorConfiguration(
+                        OrnamentationType.UpperOctavePedalPassingTone,
+                        InputPolicies:
+                        [
+                            wantsToOrnament,
+                            _hasNoOrnamentation,
+                            new IsIntervalWithinInstrumentRange(compositionConfiguration, 7),
+                            new IsApplicableInterval(compositionConfiguration, PassingToneInterval).Or(_isRepeatedNote)
+                        ],
+                        OutputPolicies: [logOrnamentation],
+                        Translations: [7, 1, 7],
+                        ShouldInvertBasedOnDirection,
+                        TranslationInversionIndices: new HashSet<int> { 1 }.ToFrozenSet()
+                    )
+                );
+                break;
+            case OrnamentationType.UpperOctavePedalArpeggio:
+                processorConfigurations.Add(
+                    new OrnamentationProcessorConfiguration(
+                        OrnamentationType.UpperOctavePedalArpeggio,
+                        InputPolicies:
+                        [
+                            wantsToOrnament,
+                            _hasNoOrnamentation,
+                            _hasNextBeat,
+                            _isDescending,
+                            new IsIntervalWithinInstrumentRange(compositionConfiguration, 7),
+                            new IsApplicableInterval(compositionConfiguration, 4).Or(_isRepeatedNote),
+                        ],
+                        OutputPolicies: [logOrnamentation],
+                        Translations: [7, 2, 7],
+                        ShouldNotInvert,
+                        TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
+                    )
+                );
+                break;
             case OrnamentationType.None:
             case OrnamentationType.Sustain:
             case OrnamentationType.MidSustain:
