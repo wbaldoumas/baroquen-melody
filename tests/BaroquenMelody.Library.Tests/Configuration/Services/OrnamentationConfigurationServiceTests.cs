@@ -63,7 +63,9 @@ internal sealed class OrnamentationConfigurationServiceTests
             OrnamentationType.OctavePedalArpeggio,
             OrnamentationType.UpperOctavePedal,
             OrnamentationType.UpperOctavePedalPassingTone,
-            OrnamentationType.UpperOctavePedalArpeggio
+            OrnamentationType.UpperOctavePedalArpeggio,
+            OrnamentationType.TriplePickup,
+            OrnamentationType.SequencedThirds
         };
 
         // act
@@ -119,7 +121,9 @@ internal sealed class OrnamentationConfigurationServiceTests
             { OrnamentationType.OctavePedalArpeggio, new OrnamentationConfiguration(OrnamentationType.OctavePedalArpeggio, ConfigurationStatus.Enabled, 100) },
             { OrnamentationType.UpperOctavePedal, new OrnamentationConfiguration(OrnamentationType.UpperOctavePedal, ConfigurationStatus.Enabled, 100) },
             { OrnamentationType.UpperOctavePedalPassingTone, new OrnamentationConfiguration(OrnamentationType.UpperOctavePedalPassingTone, ConfigurationStatus.Enabled, 100) },
-            { OrnamentationType.UpperOctavePedalArpeggio, new OrnamentationConfiguration(OrnamentationType.UpperOctavePedalArpeggio, ConfigurationStatus.Enabled, 100) }
+            { OrnamentationType.UpperOctavePedalArpeggio, new OrnamentationConfiguration(OrnamentationType.UpperOctavePedalArpeggio, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.TriplePickup, new OrnamentationConfiguration(OrnamentationType.TriplePickup, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.SequencedThirds, new OrnamentationConfiguration(OrnamentationType.SequencedThirds, ConfigurationStatus.Enabled, 100) }
         };
 
         _mockState.Value.Returns(new CompositionOrnamentationConfigurationState(configurations));

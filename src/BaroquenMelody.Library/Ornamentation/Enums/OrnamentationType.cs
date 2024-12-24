@@ -166,4 +166,14 @@ public enum OrnamentationType : byte
     ///     An upper octave pedal with an arpeggio.
     /// </summary>
     UpperOctavePedalArpeggio,
+
+    /// <summary>
+    ///     Three notes leading into the next note.
+    /// </summary>
+    TriplePickup,
+
+    /// <summary>
+    ///     A sequence of thirds.
+    /// </summary>
+    SequencedThirds,
 }
