@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Ornamentation.Enums;
 using Melanchall.DryWetMidi.Composing;
 using Melanchall.DryWetMidi.Interaction;
 
@@ -17,10 +18,13 @@ internal static class PatternBuilderExtensions
     /// <returns>The <see cref="PatternBuilder"/> with the <see cref="BaroquenNote"/> and its ornamentations added.</returns>
     public static PatternBuilder AddNote(this PatternBuilder patternBuilder, BaroquenNote note)
     {
-        patternBuilder
-            .SetNoteLength(note.MusicalTimeSpan)
-            .SetVelocity(note.Velocity)
-            .Note(note.Raw);
+        if (note.OrnamentationType != OrnamentationType.MidSustain)
+        {
+            patternBuilder
+                .SetNoteLength(note.MusicalTimeSpan)
+                .SetVelocity(note.Velocity)
+                .Note(note.Raw);
+        }
 
         foreach (var ornamentation in note.Ornamentations)
         {
