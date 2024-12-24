@@ -612,6 +612,48 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                     )
                 );
                 break;
+            case OrnamentationType.TriplePickup:
+                processorConfigurations.Add(
+                    new OrnamentationProcessorConfiguration(
+                        OrnamentationType.TriplePickup,
+                        InputPolicies:
+                        [
+                            wantsToOrnament,
+                            _hasNoOrnamentation,
+                            _hasNextBeat,
+                            _isNotRepeatedNote,
+                            new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, 3).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -3))
+                        ],
+                        OutputPolicies: [logOrnamentation],
+                        Translations: [3, 2, 1],
+                        ShouldInvertBasedOnDirection,
+                        TranslationInversionIndices: new HashSet<int> { 0, 1, 2 }.ToFrozenSet(),
+                        ShouldTranslateOnCurrentNote: false
+                    )
+                );
+                break;
+            case OrnamentationType.SequencedThirds:
+                processorConfigurations.Add(
+                    new OrnamentationProcessorConfiguration(
+                        OrnamentationType.SequencedThirds,
+                        InputPolicies:
+                        [
+                            wantsToOrnament,
+                            _hasNoOrnamentation,
+                            _hasNextBeat,
+                            _isNotRepeatedNote,
+                            new IsApplicableInterval(compositionConfiguration, 4),
+                            _isAscending.And(new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, 1))
+                                .Or(_isDescending.And(new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, -1)))
+                        ],
+                        OutputPolicies: [logOrnamentation],
+                        Translations: [2, 1, 3, 2, 4, 3, 5],
+                        ShouldInvertBasedOnDirection,
+                        TranslationInversionIndices: new HashSet<int> { 0, 1, 2, 3, 4, 5, 6 }.ToFrozenSet(),
+                        ShouldTranslateOnCurrentNote: true
+                    )
+                );
+                break;
             case OrnamentationType.None:
             case OrnamentationType.Sustain:
             case OrnamentationType.MidSustain:
