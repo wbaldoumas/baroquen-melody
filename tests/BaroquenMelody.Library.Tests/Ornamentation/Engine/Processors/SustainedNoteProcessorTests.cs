@@ -23,7 +23,7 @@ internal sealed class SustainedNoteProcessorTests
     {
         var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
-        _sustainedNoteProcessor = new SustainedNoteProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration);
+        _sustainedNoteProcessor = new SustainedNoteProcessor(compositionConfiguration);
     }
 
     [Test]
@@ -49,6 +49,6 @@ internal sealed class SustainedNoteProcessorTests
         noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Whole);
         nextNoteToAssert.OrnamentationType.Should().Be(OrnamentationType.MidSustain);
         nextNoteToAssert.Ornamentations.Should().BeEmpty();
-        nextNoteToAssert.MusicalTimeSpan.Should().Be(new MusicalTimeSpan());
+        nextNoteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Half);
     }
 }

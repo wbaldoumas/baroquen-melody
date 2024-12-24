@@ -76,7 +76,7 @@ internal sealed class OrnamentationEngineBuilder
             _hasNoOrnamentation,
             new IsApplicableInterval(_compositionConfiguration, SustainedNoteProcessor.Interval)
         )
-        .WithProcessors(new SustainedNoteProcessor(_musicalTimeSpanCalculator, _compositionConfiguration))
+        .WithProcessors(new SustainedNoteProcessor(_compositionConfiguration))
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.Sustain, _logger))
         .Build();
 

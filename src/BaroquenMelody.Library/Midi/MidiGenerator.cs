@@ -65,31 +65,13 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
 
         var note = beat[instrument];
 
-        if (HandledRestfulOrnamentation(patternBuilder, note))
+        if (note.OrnamentationType == OrnamentationType.Rest)
         {
+            patternBuilder.AddRest(compositionConfiguration.DefaultNoteTimeSpan);
+
             return;
         }
 
         patternBuilder.AddNote(note);
-    }
-
-    /// <summary>
-    ///     Determines if a "restful" ornamentation is needed and handles it.
-    /// </summary>
-    /// <param name="patternBuilder">The pattern builder to potentially handle a restful ornamentation in.</param>
-    /// <param name="note">The note, which might have a restful ornamentation.</param>
-    /// <returns>Whether a restful ornamentation was handled.</returns>
-    private bool HandledRestfulOrnamentation(PatternBuilder patternBuilder, BaroquenNote note)
-    {
-        switch (note.OrnamentationType)
-        {
-            case OrnamentationType.MidSustain:
-                return true;
-            case OrnamentationType.Rest:
-                patternBuilder.AddRest(compositionConfiguration.DefaultNoteTimeSpan);
-                return true;
-            default:
-                return false;
-        }
     }
 }
