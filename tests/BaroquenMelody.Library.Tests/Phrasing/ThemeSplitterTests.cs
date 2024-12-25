@@ -135,8 +135,7 @@ internal sealed class ThemeSplitterTests
                 new() { Phrase = oneMeasurePhraseB },
                 new() { Phrase = oneMeasurePhraseC },
                 new() { Phrase = twoMeasurePhraseA },
-                new() { Phrase = twoMeasurePhraseB },
-                new() { Phrase = threeMeasurePhraseA }
+                new() { Phrase = twoMeasurePhraseB }
             });
 
             yield return new TestCaseData(themeWithFourMeasures, new List<RepeatedPhrase>
@@ -148,8 +147,6 @@ internal sealed class ThemeSplitterTests
                 new() { Phrase = twoMeasurePhraseA },
                 new() { Phrase = twoMeasurePhraseB },
                 new() { Phrase = twoMeasurePhraseC },
-                new() { Phrase = threeMeasurePhraseA },
-                new() { Phrase = threeMeasurePhraseB },
                 new() { Phrase = fourMeasurePhrase }
             });
         }

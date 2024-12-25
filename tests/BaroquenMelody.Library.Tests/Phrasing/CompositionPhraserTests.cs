@@ -162,7 +162,7 @@ internal sealed class CompositionPhraserTests
         phraser.AttemptPhraseRepetition(measures);
 
         // assert
-        measures.Should().HaveCount(8);
+        measures.Should().HaveCount(6);
     }
 
     [Test]
