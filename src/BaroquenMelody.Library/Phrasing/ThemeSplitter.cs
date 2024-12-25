@@ -8,7 +8,6 @@ internal sealed class ThemeSplitter : IThemeSplitter
     private static readonly List<(int PhraseLength, int MaxStartIndex)> PhraseSplits =
     [
         (2, 2),
-        (3, 1),
         (4, 0)
     ];
 
