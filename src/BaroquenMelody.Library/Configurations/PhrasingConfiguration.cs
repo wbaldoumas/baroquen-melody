@@ -9,12 +9,12 @@
 /// <param name="PhraseRepetitionProbability"> The probability that a phrase will be repeated in the composition. </param>
 public sealed record PhrasingConfiguration(
     IList<int> PhraseLengths,
-    int MaxPhraseRepetitions = 8,
-    int MinPhraseRepetitionPoolSize = 2,
+    int MaxPhraseRepetitions = 4,
+    int MinPhraseRepetitionPoolSize = 4,
     int PhraseRepetitionProbability = 100
 )
 {
-    public static PhrasingConfiguration Default => new(PhraseLengths: [1, 2, 3, 4, 5, 6, 7, 8]);
+    public static PhrasingConfiguration Default => new(PhraseLengths: [2, 4, 8]);
 
     public int MinPhraseLength { get; } = PhraseLengths.Min();
 }
