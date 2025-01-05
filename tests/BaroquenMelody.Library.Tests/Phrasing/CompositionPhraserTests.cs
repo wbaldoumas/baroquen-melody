@@ -152,7 +152,7 @@ internal sealed class CompositionPhraserTests
     public void AttemptPhraseRepetition_WithCoolOffPhrase_ShouldUtilizeCoolOffPhrase()
     {
         // arrange
-        var phraser = CreatePhraser(new PhrasingConfiguration([2], 1, 1)); // Ensuring coolOffPhrase can be set
+        var phraser = CreatePhraser(new PhrasingConfiguration([2], 2, 1)); // Ensuring coolOffPhrase can be set
         var measures = CreateMeasures(4);
 
         SetRuleEvaluationOutcome(_mockCompositionRule, true);
@@ -162,7 +162,7 @@ internal sealed class CompositionPhraserTests
         phraser.AttemptPhraseRepetition(measures);
 
         // assert
-        measures.Should().HaveCount(6);
+        measures.Should().HaveCount(8);
     }
 
     [Test]

@@ -11,7 +11,7 @@ public sealed record PhrasingConfiguration(
     IList<int> PhraseLengths,
     int MaxPhraseRepetitions = 4,
     int MinPhraseRepetitionPoolSize = 4,
-    int PhraseRepetitionProbability = 90
+    int PhraseRepetitionProbability = 100
 )
 {
     public static PhrasingConfiguration Default => new(PhraseLengths: [2, 4, 8]);
