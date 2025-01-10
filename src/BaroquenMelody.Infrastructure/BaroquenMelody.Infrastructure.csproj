@@ -13,10 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fluxor" Version="6.5.0" />
+    <PackageReference Include="Fluxor" Version="6.5.2" />
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
     <PackageReference Include="Melanchall.DryWetMidi" Version="7.2.0" />
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.184">
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.186">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
