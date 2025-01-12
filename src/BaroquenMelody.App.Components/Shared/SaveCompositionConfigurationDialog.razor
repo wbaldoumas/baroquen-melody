@@ -77,6 +77,8 @@
             new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token
         );
 
+        Dispatcher.Dispatch(new UpdateLastLoadedConfigurationName(ConfigurationName));
+
         MudDialog?.Close(DialogResult.Ok(isSaved));
     }
 
