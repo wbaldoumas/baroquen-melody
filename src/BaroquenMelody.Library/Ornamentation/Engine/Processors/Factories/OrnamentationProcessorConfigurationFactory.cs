@@ -30,6 +30,8 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
 
     private const int PassingToneInterval = 2;
 
+    private const int DoublePedalPassingToneInterval = 4;
+
     private const int RootPedalInterval = -3;
 
     private const int ThirdPedalInterval = -2;
@@ -651,6 +653,23 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1, 2, 3, 4, 5, 6 }.ToFrozenSet(),
                         ShouldTranslateOnCurrentNote: true
+                    )
+                );
+                break;
+            case OrnamentationType.DoublePedalPassingTone:
+                processorConfigurations.Add(
+                    new OrnamentationProcessorConfiguration(
+                        OrnamentationType.DoublePedalPassingTone,
+                        InputPolicies:
+                        [
+                            wantsToOrnament,
+                            _hasNoOrnamentation,
+                            new IsApplicableInterval(compositionConfiguration, DoublePedalPassingToneInterval)
+                        ],
+                        OutputPolicies: [logOrnamentation],
+                        Translations: [0, 1, 0, 2, 0, 3, 0],
+                        ShouldInvertBasedOnDirection,
+                        TranslationInversionIndices: new HashSet<int> { 1, 3, 5 }.ToFrozenSet()
                     )
                 );
                 break;

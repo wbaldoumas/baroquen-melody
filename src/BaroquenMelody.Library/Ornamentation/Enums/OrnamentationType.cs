@@ -176,4 +176,9 @@ public enum OrnamentationType : byte
     ///     A sequence of thirds.
     /// </summary>
     SequencedThirds,
+
+    /// <summary>
+    ///     A double pedal with passing tones connecting two notes.
+    /// </summary>
+    DoublePedalPassingTone
 }
