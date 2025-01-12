@@ -28,7 +28,7 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Configuration">
-                <MudLink Color="Color.Tertiary" Class="cursor-pointer" OnClick="_ => LoadConfiguration(context.Configuration)">
+                <MudLink Color="Color.Tertiary" Class="cursor-pointer" OnClick="_ => LoadConfiguration(context)">
                     @(Path.GetFileNameWithoutExtension(context.ConfigurationFile.Name))
                 </MudLink>
             </MudTd>
@@ -41,7 +41,7 @@
                         <MudIconButton Icon="@Icons.Material.Filled.FileOpen"
                                        Color="Color.Primary"
                                        Variant="Variant.Outlined"
-                                       OnClick="_ => LoadConfiguration(context.Configuration)"/>
+                                       OnClick="_ => LoadConfiguration(context)"/>
                     </MudTooltip>
                     <MudTooltip Text="delete configuration" Delay="@ThemeProvider.TooltipDelay" Duration="@ThemeProvider.TooltipDuration">
                         <MudIconButton Icon="@Icons.Material.Filled.Delete"
@@ -115,9 +115,10 @@
         ));
     }
 
-    private void LoadConfiguration(CompositionConfiguration compositionConfiguration)
+    private void LoadConfiguration(SavedCompositionConfiguration savedCompositionConfiguration)
     {
-        Dispatcher.Dispatch(new LoadSavedCompositionConfiguration(compositionConfiguration));
+        Dispatcher.Dispatch(new LoadSavedCompositionConfiguration(savedCompositionConfiguration.Configuration));
+        Dispatcher.Dispatch(new UpdateLastLoadedConfigurationName(Path.GetFileNameWithoutExtension(savedCompositionConfiguration.ConfigurationFile.Name)));
 
         NavigationManager.NavigateTo("");
     }

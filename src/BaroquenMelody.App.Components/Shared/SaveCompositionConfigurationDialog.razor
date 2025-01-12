@@ -29,6 +29,13 @@
 
     [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
 
+    protected override void OnInitialized()
+    {
+        ConfigurationName = SavedCompositionConfigurationState.Value.LastLoadedConfigurationName;
+
+        base.OnInitialized();
+    }
+
     private async Task SaveCompositionConfiguration()
     {
         var configurationFileExists = await CompositionConfigurationPersistenceService.DoesConfigurationExist(
@@ -69,6 +76,8 @@
             ConfigurationName,
             new CancellationTokenSource(TimeSpan.FromSeconds(10)).Token
         );
+
+        Dispatcher.Dispatch(new UpdateLastLoadedConfigurationName(ConfigurationName));
 
         MudDialog?.Close(DialogResult.Ok(isSaved));
     }
