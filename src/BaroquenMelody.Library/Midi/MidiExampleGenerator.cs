@@ -108,6 +108,7 @@ internal sealed class MidiExampleGenerator(
         OrnamentationType.UpperOctavePedalArpeggio => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Dominant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.TriplePickup => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.SequencedThirds => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Subdominant, 3), compositionConfiguration.DefaultNoteTimeSpan),
+        OrnamentationType.DoublePedalPassingTone => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Dominant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, "Ornamentation type not supported.")
     };
 }
