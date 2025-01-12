@@ -107,7 +107,7 @@
 
     private IDisposable? _compositionProgressSubscription;
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
         _compositionProgressSubscription = CompositionProgressState
             .ObserveChanges()
@@ -134,7 +134,7 @@
                 }
             });
 
-        await base.OnInitializedAsync();
+        return base.OnInitializedAsync();
     }
 
     private async Task Compose()
