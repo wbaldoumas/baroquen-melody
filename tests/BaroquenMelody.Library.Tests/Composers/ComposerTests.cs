@@ -119,7 +119,7 @@ internal sealed class ComposerTests
 
         // assert
         composition.Should().NotBeNull();
-        composition.Measures.Should().HaveCountGreaterOrEqualTo(_compositionConfiguration.MinimumMeasures);
+        composition.Measures.Should().HaveCountGreaterThanOrEqualTo(_compositionConfiguration.MinimumMeasures);
 
         foreach (var measure in composition.Measures)
         {

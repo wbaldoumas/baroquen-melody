@@ -121,7 +121,7 @@
                     case CompositionStep.Complete when _tabs?.ActivePanel != _compositionTab:
                         Snackbar.Add("Composition complete!", Severity.Success, snackbarOptions =>
                         {
-                            snackbarOptions.Onclick = _ =>
+                            snackbarOptions.OnClick = _ =>
                             {
                                 ActivateCompositionTab();
 

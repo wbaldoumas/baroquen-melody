@@ -16,7 +16,7 @@ internal sealed class ThreadLocalRandomTests
         var result = ThreadLocalRandom.Next(maxValue);
 
         // assert
-        result.Should().BeGreaterOrEqualTo(0).And.BeLessThan(maxValue);
+        result.Should().BeGreaterThanOrEqualTo(0).And.BeLessThan(maxValue);
     }
 
     [TestCase(10, 20)]
@@ -28,7 +28,7 @@ internal sealed class ThreadLocalRandomTests
         var result = ThreadLocalRandom.Next(minValue, maxValue);
 
         // assert
-        result.Should().BeGreaterOrEqualTo(minValue).And.BeLessThan(maxValue);
+        result.Should().BeGreaterThanOrEqualTo(minValue).And.BeLessThan(maxValue);
     }
 
     [Test]

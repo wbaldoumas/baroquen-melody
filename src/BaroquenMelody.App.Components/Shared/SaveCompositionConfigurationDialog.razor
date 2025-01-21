@@ -27,7 +27,7 @@
 @code {
     private string ConfigurationName { get; set; } = string.Empty;
 
-    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
 
     protected override void OnInitialized()
     {
