@@ -18,11 +18,11 @@
   <ItemGroup>
     <PackageReference Include="CodeBeam.MudBlazor.Extensions" Version="8.2.3" />
     <PackageReference Include="Fluxor.Blazor.Web" Version="6.6.0" />
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.203">
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.205">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.7" />
     <PackageReference Include="MudBlazor" Version="8.9.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
