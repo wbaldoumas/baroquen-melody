@@ -13,8 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.15.2" />
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.217">
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.3" />
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.220">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
