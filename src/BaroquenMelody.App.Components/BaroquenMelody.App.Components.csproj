@@ -18,7 +18,7 @@
   <ItemGroup>
     <PackageReference Include="CodeBeam.MudBlazor.Extensions" Version="8.3.0" />
     <PackageReference Include="Fluxor.Blazor.Web" Version="6.9.0" />
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.263">
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.264">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
