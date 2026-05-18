@@ -7,6 +7,7 @@ using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Exceptions;
 using BaroquenMelody.Library.Extensions;
+using BaroquenMelody.Library.Logging;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation;
@@ -113,7 +114,7 @@ internal sealed class EndingComposer(
 
             if (chords.Count < MaxBridgingChords)
             {
-                logger.LogInfoMessage($"Composed bridging chord {chords.Count} of {MaxBridgingChords}.");
+                logger.LogBridgingChordComposed(chords.Count, MaxBridgingChords);
 
                 continue;
             }
@@ -244,7 +245,7 @@ internal sealed class EndingComposer(
 
             if (chords.Count < MaxChordsToTonic)
             {
-                logger.LogInfoMessage($"Composed chord {chords.Count} of {MaxChordsToTonic} to tonic.");
+                logger.LogChordToTonicComposed(chords.Count, MaxChordsToTonic);
                 continue;
             }
 

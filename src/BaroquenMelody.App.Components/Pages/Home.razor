@@ -121,12 +121,7 @@
                     case CompositionStep.Complete when _tabs?.ActivePanel != _compositionTab:
                         Snackbar.Add("Composition complete!", Severity.Success, snackbarOptions =>
                         {
-                            snackbarOptions.OnClick = _ =>
-                            {
-                                ActivateCompositionTab();
-
-                                return Task.CompletedTask;
-                            };
+                            snackbarOptions.OnClick = _ => ActivateCompositionTab();
 
                             snackbarOptions.Icon = Icons.Material.Filled.MusicNote;
                         });
@@ -162,14 +157,14 @@
 
         Dispatcher.Dispatch(new Compose());
 
-        ActivateCompositionTab();
+        await ActivateCompositionTab();
     }
 
-    private void ActivateCompositionTab()
+    private async Task ActivateCompositionTab()
     {
-        if (_tabs?.ActivePanel != _compositionTab)
+        if (_tabs is not null && _tabs.ActivePanel != _compositionTab)
         {
-            _tabs?.ActivatePanel(_compositionTab);
+            await _tabs.ActivatePanelAsync(_compositionTab);
         }
     }
 

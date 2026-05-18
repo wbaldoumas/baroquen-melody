@@ -41,7 +41,7 @@ internal sealed class CompositionConfigurationPersistenceService(
         }
         catch (Exception exception)
         {
-            logger.LogException("Failed to save composition configuration", exception.GetType().ToString(), exception.Message, exception.StackTrace);
+            logger.LogException(exception, "Failed to save composition configuration");
 
             return false;
         }
@@ -74,7 +74,7 @@ internal sealed class CompositionConfigurationPersistenceService(
         }
         catch (Exception exception)
         {
-            logger.LogException("Failed to load composition configurations", exception.GetType().ToString(), exception.Message, exception.StackTrace);
+            logger.LogException(exception, "Failed to load composition configurations");
 
             throw;
         }
@@ -95,7 +95,7 @@ internal sealed class CompositionConfigurationPersistenceService(
         }
         catch (Exception exception)
         {
-            logger.LogException("Failed to delete composition configuration", exception.GetType().ToString(), exception.Message, exception.StackTrace);
+            logger.LogException(exception, "Failed to delete composition configuration");
 
             return Task.FromResult(false);
         }
