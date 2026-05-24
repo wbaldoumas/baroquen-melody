@@ -86,4 +86,33 @@ internal sealed class CompositionConfigurationPersistenceServiceTests
         // assert
         result.Should().BeFalse();
     }
+
+    [Test]
+    public async Task LoadConfigurationsAsync_WhenFails_Throws()
+    {
+        // arrange
+        _mockDeviceDirectoryProvider.AppDataDirectory.Returns("test-dir");
+        _mockDirectory.Exists(Arg.Any<string>()).Returns(true);
+        _mockDirectory.EnumerateFiles(Arg.Any<string>()).Throws(new InvalidOperationException());
+
+        // act
+        var act = () => _persistenceService.LoadConfigurationsAsync(CancellationToken.None);
+
+        // assert
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Test]
+    public async Task DeleteConfigurationAsync_WhenFails_ReturnsFalse()
+    {
+        // arrange
+        _mockDeviceDirectoryProvider.AppDataDirectory.Returns("test-dir");
+        _mockFile.Exists(Arg.Any<string>()).Throws(new InvalidOperationException());
+
+        // act
+        var result = await _persistenceService.DeleteConfigurationAsync("test", CancellationToken.None);
+
+        // assert
+        result.Should().BeFalse();
+    }
 }

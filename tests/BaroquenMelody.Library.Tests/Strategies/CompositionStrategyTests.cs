@@ -1,13 +1,17 @@
 ﻿using BaroquenMelody.Library.Choices;
 using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Exceptions;
+using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Rules;
 using BaroquenMelody.Library.Strategies;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using Melanchall.DryWetMidi.Standards;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
@@ -285,5 +289,46 @@ internal sealed class CompositionStrategyTests
 
         // Assert
         possibleChords.Should().NotBeNull();
+    }
+
+    [Test]
+    public void GenerateInitialChord_WhenStartingNoteCannotBeFound_Throws()
+    {
+        // arrange - instrument range contains only F#3, which is not in C Major
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(
+                    Instrument.One,
+                    Notes.FSharp3,
+                    Notes.FSharp3,
+                    InstrumentConfiguration.DefaultMinVelocity,
+                    InstrumentConfiguration.DefaultMaxVelocity,
+                    GeneralMidi2Program.AcousticGrandPiano,
+                    ConfigurationStatus.Enabled
+                )
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100
+        );
+
+        var strategy = new CompositionStrategy(
+            _mockChordChoiceRepository,
+            _mockCompositionRule,
+            _mockLogger,
+            compositionConfiguration
+        );
+
+        // act
+        var act = () => strategy.GenerateInitialChord();
+
+        // assert
+        act.Should().Throw<CouldNotFindStartingNoteForInstrumentException>();
     }
 }
