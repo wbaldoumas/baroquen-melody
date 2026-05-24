@@ -1,4 +1,4 @@
-﻿using Android.Views;
+using Android.Views;
 using Android.Widget;
 using System.Runtime.Versioning;
 using static Android.Resource;

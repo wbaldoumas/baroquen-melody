@@ -25,6 +25,6 @@ public static partial class Log
     [LoggerMessage(EventId = 5, Level = LogLevel.Critical, Message = "{message}")]
     public static partial void LogCriticalMessage(this ILogger logger, string message);
 
-    [LoggerMessage(EventId = 6, Level = LogLevel.Critical, Message = "{message}: {exceptionType}: {exceptionMessage}\n Stack trace: {stackTrace}")]
-    public static partial void LogException(this ILogger logger, string message, string exceptionType, string exceptionMessage, string? stackTrace);
+    [LoggerMessage(EventId = 6, Level = LogLevel.Critical, Message = "{message}")]
+    public static partial void LogException(this ILogger logger, Exception exception, string message);
 }

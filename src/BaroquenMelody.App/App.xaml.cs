@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.App.Components;
+using BaroquenMelody.App.Components;
 
 namespace BaroquenMelody.App;
 

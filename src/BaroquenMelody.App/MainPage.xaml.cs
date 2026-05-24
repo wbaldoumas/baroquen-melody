@@ -1,4 +1,4 @@
-﻿namespace BaroquenMelody.App;
+namespace BaroquenMelody.App;
 
 /// <summary>
 ///     The main page of the application.

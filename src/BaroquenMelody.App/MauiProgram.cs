@@ -1,4 +1,4 @@
-﻿using BaroquenMelody.App.Components;
+using BaroquenMelody.App.Components;
 using BaroquenMelody.App.Components.Extensions;
 using BaroquenMelody.App.Infrastructure.Application;
 using BaroquenMelody.App.Infrastructure.Devices;
@@ -46,7 +46,6 @@ public static class MauiProgram
             handler.PlatformView.Opaque = false;
             handler.PlatformView.BackgroundColor = UIKit.UIColor.Clear;
 #elif WINDOWS
-            handler.PlatformView.Opacity = 0;
             handler.PlatformView.DefaultBackgroundColor = new Windows.UI.Color() { A = 0, R = 0, G = 0, B = 0 };
 #endif
         });
