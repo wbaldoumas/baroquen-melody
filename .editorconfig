@@ -63,6 +63,9 @@ dotnet_diagnostic.SA1012.severity = none
 # don't throw NotImplementedException
 dotnet_diagnostic.MA0025.severity = none
 
+# identifiers should not match reserved keywords of other languages (C#-only codebase; IRandomProvider.Next mirrors System.Random)
+dotnet_diagnostic.CA1716.severity = none
+
 # a constructor should not follow a property
 dotnet_diagnostic.SA1201.severity = none
 
