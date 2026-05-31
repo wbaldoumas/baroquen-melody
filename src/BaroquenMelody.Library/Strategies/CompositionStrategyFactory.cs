@@ -20,6 +20,6 @@ internal sealed class CompositionStrategyFactory(
         logger,
         compositionConfiguration,
         randomProvider,
-        maxLookAheadDepth: 1
+        maxLookAheadDepth: compositionConfiguration.MaxLookAheadDepth
     );
 }
