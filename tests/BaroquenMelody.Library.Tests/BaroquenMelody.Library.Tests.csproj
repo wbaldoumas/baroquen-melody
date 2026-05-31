@@ -9,9 +9,6 @@
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <!-- Point Verify at the real solution so it skips solution auto-discovery (the .sln lives in ..\..\src, outside Verify's search path). -->
-    <SolutionDir>$(MSBuildThisFileDirectory)..\..\src\</SolutionDir>
-    <SolutionName>BaroquenMelody</SolutionName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -46,7 +43,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="22.1.1" />
-    <PackageReference Include="Verify.NUnit" Version="31.18.0" />
   </ItemGroup>
 
   <ItemGroup>
