@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Choices;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Choices;
 using BaroquenMelody.Library.Composers;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
@@ -52,6 +53,7 @@ internal sealed class EndingComposerTests
             _mockCompositionStrategy,
             _mockCompositionDecorator,
             _mockChordNumberIdentifier,
+            new ThreadLocalRandomProvider(),
             _mockDispatcher,
             _mockLogger,
             _compositionConfiguration

@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Composers;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Composers;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
@@ -47,7 +48,7 @@ internal sealed class ThemeComposerTests
 
         _compositionConfiguration = TestCompositionConfigurations.Get();
 
-        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockNoteTransposer, _mockDispatcher, _mockLogger, _compositionConfiguration);
+        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockNoteTransposer, new ThreadLocalRandomProvider(), _mockDispatcher, _mockLogger, _compositionConfiguration);
     }
 
     [Test]

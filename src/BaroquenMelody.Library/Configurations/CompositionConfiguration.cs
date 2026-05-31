@@ -26,6 +26,7 @@ namespace BaroquenMelody.Library.Configurations;
 /// <param name="DefaultNoteTimeSpan"> The default note time span to be used in the composition. </param>
 /// <param name="CompositionContextSize"> The size of the context to be used in the composition. </param>
 /// <param name="Tempo"> The tempo of the composition, in beats per minute. </param>
+/// <param name="ShuffleOrnamentationProcessors"> Whether to shuffle the ornamentation processor order between beats. Defaults to <see langword="true"/> (production variety); set to <see langword="false"/> for deterministic, seed-reproducible ornamentation. </param>
 public sealed record CompositionConfiguration(
     ISet<InstrumentConfiguration> InstrumentConfigurations,
     PhrasingConfiguration PhrasingConfiguration,
@@ -38,7 +39,8 @@ public sealed record CompositionConfiguration(
     MusicalTimeSpan DefaultNoteTimeSpan,
     int MinimumMeasures,
     int CompositionContextSize = 4,
-    int Tempo = 120)
+    int Tempo = 120,
+    bool ShuffleOrnamentationProcessors = true)
 {
     public const int MaxScaleStepChange = 5;
 

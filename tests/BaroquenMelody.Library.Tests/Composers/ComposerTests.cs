@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Choices;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Choices;
 using BaroquenMelody.Library.Composers;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
@@ -70,9 +71,9 @@ internal sealed class ComposerTests
         _compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         _noteTransposer = new NoteTransposer(_compositionConfiguration);
-        _chordComposer = new ChordComposer(_mockCompositionStrategy, _mockLogger);
-        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _noteTransposer, _mockDispatcher, _mockLogger, _compositionConfiguration);
-        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, _mockDispatcher, _mockLogger, _compositionConfiguration);
+        _chordComposer = new ChordComposer(_mockCompositionStrategy, new ThreadLocalRandomProvider(), _mockLogger);
+        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _noteTransposer, new ThreadLocalRandomProvider(), _mockDispatcher, _mockLogger, _compositionConfiguration);
+        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, new ThreadLocalRandomProvider(), _mockDispatcher, _mockLogger, _compositionConfiguration);
         _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, _themeComposer, _endingComposer, _mockDynamicsApplicator, _mockDispatcher, _compositionConfiguration);
     }
 

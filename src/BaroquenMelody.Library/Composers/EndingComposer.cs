@@ -25,6 +25,7 @@ internal sealed class EndingComposer(
     ICompositionStrategy compositionStrategy,
     ICompositionDecorator compositionDecorator,
     IChordNumberIdentifier chordNumberIdentifier,
+    IRandomProvider randomProvider,
     IDispatcher dispatcher,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
@@ -298,7 +299,7 @@ internal sealed class EndingComposer(
 
     private BaroquenChord GetNextChord(IReadOnlyList<ChordChoice> possibleChordChoices, IReadOnlyList<BaroquenChord> compositionContext)
     {
-        var chordChoice = possibleChordChoices.MinBy(static _ => ThreadLocalRandom.Next());
+        var chordChoice = possibleChordChoices.MinByRandom(randomProvider);
 
         if (chordChoice is not null)
         {

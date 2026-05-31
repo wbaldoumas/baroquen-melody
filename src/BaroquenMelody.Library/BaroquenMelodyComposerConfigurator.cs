@@ -22,13 +22,14 @@ namespace BaroquenMelody.Library;
 /// </summary>
 /// <param name="logger">A logger to be used throughout the composition process.</param>
 /// <param name="dispatcher">A dispatcher to be used to dispatch actions to the store.</param>
-internal sealed class BaroquenMelodyComposerConfigurator(ILogger<MidiFileComposition> logger, IDispatcher dispatcher) : IBaroquenMelodyComposerConfigurator
+/// <param name="randomProvider">The random provider threaded through the composition graph so randomness is reproducible under a seed.</param>
+internal sealed class BaroquenMelodyComposerConfigurator(ILogger<MidiFileComposition> logger, IDispatcher dispatcher, IRandomProvider randomProvider) : IBaroquenMelodyComposerConfigurator
 {
     private readonly IMusicalTimeSpanCalculator _musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
 
     private readonly IChordChoiceRepositoryFactory _chordChoiceRepositoryFactory = new ChordChoiceRepositoryFactory(new NoteChoiceGenerator());
 
-    private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
+    private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator(randomProvider);
 
     private readonly IThemeSplitter _themeSplitter = new ThemeSplitter();
 
@@ -37,17 +38,17 @@ internal sealed class BaroquenMelodyComposerConfigurator(ILogger<MidiFileComposi
         var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
         var compositionRuleFactory = new CompositionRuleFactory(compositionConfiguration, _weightedRandomBooleanGenerator, chordNumberIdentifier);
         var compositionRule = compositionRuleFactory.CreateAggregate(compositionConfiguration.AggregateCompositionRuleConfiguration);
-        var compositionStrategyFactory = new CompositionStrategyFactory(_chordChoiceRepositoryFactory, compositionRule, logger);
+        var compositionStrategyFactory = new CompositionStrategyFactory(_chordChoiceRepositoryFactory, compositionRule, randomProvider, logger);
         var compositionStrategy = compositionStrategyFactory.Create(compositionConfiguration);
-        var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, _musicalTimeSpanCalculator, logger);
-        var dynamicsEngineBuilder = new DynamicsEngineBuilder(compositionConfiguration);
+        var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, _musicalTimeSpanCalculator, randomProvider, logger);
+        var dynamicsEngineBuilder = new DynamicsEngineBuilder(compositionConfiguration, randomProvider);
         var dynamicsApplicator = new DynamicsApplicator(compositionConfiguration, dynamicsEngineBuilder.Build());
         var compositionDecorator = new CompositionDecorator(ornamentationEngineBuilder.BuildOrnamentationEngine(), ornamentationEngineBuilder.BuildSustainedNoteEngine(), compositionConfiguration);
-        var compositionPhraser = new CompositionPhraser(compositionRule, _themeSplitter, _weightedRandomBooleanGenerator, logger, compositionConfiguration);
+        var compositionPhraser = new CompositionPhraser(compositionRule, _themeSplitter, _weightedRandomBooleanGenerator, randomProvider, logger, compositionConfiguration);
         var noteTransposer = new NoteTransposer(compositionConfiguration);
-        var chordComposer = new ChordComposer(compositionStrategy, logger);
-        var themeComposer = new ThemeComposer(compositionStrategy, compositionDecorator, chordComposer, noteTransposer, dispatcher, logger, compositionConfiguration);
-        var endingComposer = new EndingComposer(compositionStrategy, compositionDecorator, chordNumberIdentifier, dispatcher, logger, compositionConfiguration);
+        var chordComposer = new ChordComposer(compositionStrategy, randomProvider, logger);
+        var themeComposer = new ThemeComposer(compositionStrategy, compositionDecorator, chordComposer, noteTransposer, randomProvider, dispatcher, logger, compositionConfiguration);
+        var endingComposer = new EndingComposer(compositionStrategy, compositionDecorator, chordNumberIdentifier, randomProvider, dispatcher, logger, compositionConfiguration);
         var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
         var midiGenerator = new MidiGenerator(compositionConfiguration);
 

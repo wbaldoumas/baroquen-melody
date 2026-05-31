@@ -18,6 +18,7 @@ internal sealed class ThemeComposer(
     ICompositionDecorator compositionDecorator,
     IChordComposer chordComposer,
     INoteTransposer noteTransposer,
+    IRandomProvider randomProvider,
     IDispatcher dispatcher,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
@@ -135,7 +136,7 @@ internal sealed class ThemeComposer(
                     return [];
                 }
 
-                var nextChord = possibleChords.OrderBy(static _ => ThreadLocalRandom.Next()).First();
+                var nextChord = possibleChords.OrderByRandom(randomProvider).First();
                 var transposedSubjectNote = transposedSubjectChord[instrument];
                 var otherNotes = nextChord.Notes.Where(note => note.Instrument != instrument);
                 var workingChord = new BaroquenChord([.. otherNotes, transposedSubjectNote]);

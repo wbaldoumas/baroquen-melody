@@ -27,7 +27,7 @@ namespace BaroquenMelody.Library.Ornamentation.Engine;
 [ExcludeFromCodeCoverage(Justification = "Trivial builder methods.")]
 internal sealed class OrnamentationEngineBuilder
 {
-    private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
+    private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator;
 
     private readonly IInputPolicy<OrnamentationItem> _hasNoOrnamentation = new Not<OrnamentationItem>(new HasOrnamentation());
 
@@ -44,18 +44,20 @@ internal sealed class OrnamentationEngineBuilder
     public OrnamentationEngineBuilder(
         CompositionConfiguration compositionConfiguration,
         IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
+        IRandomProvider randomProvider,
         ILogger logger)
     {
         _compositionConfiguration = compositionConfiguration;
         _musicalTimeSpanCalculator = musicalTimeSpanCalculator;
         _logger = logger;
+        _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator(randomProvider);
         _noteIndexPairSelector = new NoteIndexPairSelector(new NoteOnsetCalculator(musicalTimeSpanCalculator, compositionConfiguration));
 
         _processorFactory = new OrnamentationProcessorFactory(
             musicalTimeSpanCalculator,
             new OrnamentationProcessorConfigurationFactory(
                 new ChordNumberIdentifier(compositionConfiguration),
-                new WeightedRandomBooleanGenerator(),
+                _weightedRandomBooleanGenerator,
                 compositionConfiguration,
                 logger
             ),

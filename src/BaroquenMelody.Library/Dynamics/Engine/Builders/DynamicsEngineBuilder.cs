@@ -10,7 +10,7 @@ using BaroquenMelody.Library.Dynamics.Engine.Utilities;
 
 namespace BaroquenMelody.Library.Dynamics.Engine.Builders;
 
-internal sealed class DynamicsEngineBuilder(CompositionConfiguration configuration)
+internal sealed class DynamicsEngineBuilder(CompositionConfiguration configuration, IRandomProvider randomProvider)
 {
     private readonly IVelocityCalculator _velocityCalculator = new VelocityCalculator();
 
@@ -22,7 +22,7 @@ internal sealed class DynamicsEngineBuilder(CompositionConfiguration configurati
 
     private readonly IInputPolicy<DynamicsApplicationItem> _instrumentIsNotPresentInPreviousBeat = new Not<DynamicsApplicationItem>(new InstrumentIsPresentInPreviousBeat());
 
-    private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator();
+    private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator(randomProvider);
 
     public IPolicyEngine<DynamicsApplicationItem> Build()
     {

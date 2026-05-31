@@ -13,7 +13,7 @@ internal sealed class CompositionDecorator(
     CompositionConfiguration configuration
 ) : ICompositionDecorator
 {
-    public void Decorate(Composition composition) => Decorate(composition, ornamentationEngine, shuffleProcessors: true);
+    public void Decorate(Composition composition) => Decorate(composition, ornamentationEngine, shuffleProcessors: configuration.ShuffleOrnamentationProcessors);
 
     public void ApplySustain(Composition composition) => Decorate(composition, sustainEngine);
 
@@ -22,7 +22,7 @@ internal sealed class CompositionDecorator(
         var compositionContext = new FixedSizeList<Beat>(configuration.CompositionContextSize);
         var beats = composition.Measures.SelectMany(static measure => measure.Beats).ToList();
 
-        Decorate(instrument, beats, compositionContext, ornamentationEngine, shuffleProcessors: true);
+        Decorate(instrument, beats, compositionContext, ornamentationEngine, shuffleProcessors: configuration.ShuffleOrnamentationProcessors);
     }
 
     private void Decorate(Composition composition, IPolicyEngine<OrnamentationItem> processor, bool shuffleProcessors = false)

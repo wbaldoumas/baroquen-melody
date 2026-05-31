@@ -15,6 +15,7 @@ internal sealed class CompositionPhraser(
     ICompositionRule compositionRule,
     IThemeSplitter themeSplitter,
     IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
+    IRandomProvider randomProvider,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
 ) : ICompositionPhraser
@@ -49,7 +50,7 @@ internal sealed class CompositionPhraser(
 
     private bool AttemptToRepeatExistingThemePhrase(List<Measure> measures)
     {
-        foreach (var themePhraseToRepeat in _themePhrasesToRepeat.Where(themePhraseToRepeat => themePhraseToRepeat != _themeCoolOffPhrase).OrderBy(static _ => ThreadLocalRandom.Next()))
+        foreach (var themePhraseToRepeat in _themePhrasesToRepeat.Where(themePhraseToRepeat => themePhraseToRepeat != _themeCoolOffPhrase).OrderByRandom(randomProvider))
         {
             if (!TryRepeatPhrase(measures, themePhraseToRepeat))
             {
@@ -75,7 +76,7 @@ internal sealed class CompositionPhraser(
             return false;
         }
 
-        foreach (var repeatedPhrase in _phrasesToRepeat.OrderBy(static _ => ThreadLocalRandom.Next()).Where(repeatedPhrase => TryRepeatPhrase(measures, repeatedPhrase)))
+        foreach (var repeatedPhrase in _phrasesToRepeat.OrderByRandom(randomProvider).Where(repeatedPhrase => TryRepeatPhrase(measures, repeatedPhrase)))
         {
             _phrasesToRepeat.Remove(repeatedPhrase);
 

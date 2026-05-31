@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Composers;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Composers;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Exceptions;
@@ -27,7 +28,7 @@ internal sealed class ChordComposerTests
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
         _mockLogger = Substitute.For<ILogger>();
 
-        _chordComposer = new ChordComposer(_mockCompositionStrategy, _mockLogger);
+        _chordComposer = new ChordComposer(_mockCompositionStrategy, new ThreadLocalRandomProvider(), _mockLogger);
     }
 
     [Test]

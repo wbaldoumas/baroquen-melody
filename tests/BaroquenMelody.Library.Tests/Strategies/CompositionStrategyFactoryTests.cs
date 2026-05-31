@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Choices;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Choices;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Rules;
 using BaroquenMelody.Library.Strategies;
@@ -28,7 +29,7 @@ internal sealed class CompositionStrategyFactoryTests
         _mockCompositionRule = Substitute.For<ICompositionRule>();
         _mockLogger = Substitute.For<ILogger>();
 
-        _compositionStrategyFactory = new CompositionStrategyFactory(_mockChordChoiceRepositoryFactory, _mockCompositionRule, _mockLogger);
+        _compositionStrategyFactory = new CompositionStrategyFactory(_mockChordChoiceRepositoryFactory, _mockCompositionRule, new ThreadLocalRandomProvider(), _mockLogger);
     }
 
     [Test]
