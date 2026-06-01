@@ -13,17 +13,22 @@ internal sealed class DynamicsApplicator(CompositionConfiguration configuration,
     public void Apply(Composition composition)
     {
         var beats = composition.Measures.SelectMany(static measure => measure.Beats).ToList();
+
+        var beatStrengths = composition.Measures
+            .SelectMany(static measure => measure.Beats.Select((_, beatIndexInMeasure) => BeatStrengthCalculator.Calculate(beatIndexInMeasure, measure.Beats.Count)))
+            .ToList();
+
         var processedInstruments = new HashSet<Instrument>();
 
         foreach (var instrument in configuration.Instruments)
         {
-            Apply(instrument, processedInstruments, beats);
+            Apply(instrument, processedInstruments, beats, beatStrengths);
 
             processedInstruments.Add(instrument);
         }
     }
 
-    private void Apply(Instrument instrument, HashSet<Instrument> processedInstruments, List<Beat> beats)
+    private void Apply(Instrument instrument, HashSet<Instrument> processedInstruments, List<Beat> beats, List<MetricStrength> beatStrengths)
     {
         var compositionContext = new FixedSizeList<Beat>(ContextSize);
 
@@ -38,7 +43,8 @@ internal sealed class DynamicsApplicator(CompositionConfiguration configuration,
                 ProcessedInstruments = processedInstruments,
                 PrecedingBeats = compositionContext,
                 CurrentBeat = currentBeat,
-                NextBeat = nextBeat
+                NextBeat = nextBeat,
+                CurrentBeatStrength = beatStrengths[i]
             };
 
             dynamicsEngine.Process(dynamicsApplicationItem);

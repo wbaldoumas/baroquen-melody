@@ -30,7 +30,8 @@ internal sealed class DynamicsEngineBuilder(CompositionConfiguration configurati
             .WithoutInputPolicies()
             .WithProcessors(
                 BuildInitialDynamicsProcessor(),
-                BuildDefaultDynamicsProcessor()
+                BuildDefaultDynamicsProcessor(),
+                BuildMetricAccentDynamicsProcessor()
             )
             .WithoutOutputPolicies()
             .Build();
@@ -60,6 +61,14 @@ internal sealed class DynamicsEngineBuilder(CompositionConfiguration configurati
                 configuration
             )
         )
+        .WithoutOutputPolicies()
+        .Build();
+
+    // layered after the base velocity is set, so it accents strong beats regardless of which base processor ran.
+    private IProcessor<DynamicsApplicationItem> BuildMetricAccentDynamicsProcessor() => PolicyEngineBuilder<DynamicsApplicationItem>
+        .Configure()
+        .WithInputPolicies(_instrumentIsPresentInCurrentBeat)
+        .WithProcessors(new MetricAccentDynamicsProcessor(configuration))
         .WithoutOutputPolicies()
         .Build();
 }

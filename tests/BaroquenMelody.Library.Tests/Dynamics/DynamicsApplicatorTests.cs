@@ -127,4 +127,35 @@ internal sealed class DynamicsApplicatorTests
         actualInstrumentOneVelocities.Should().HaveSameCount(expectedInstrumentOneVelocities).And.BeEquivalentTo(expectedInstrumentOneVelocities);
         actualInstrumentTwoVelocities.Should().HaveSameCount(expectedInstrumentTwoVelocities).And.BeEquivalentTo(expectedInstrumentTwoVelocities);
     }
+
+    [Test]
+    public void Apply_threads_metric_strength_for_each_beat_within_its_measure()
+    {
+        // arrange
+        var capturedStrengths = new List<MetricStrength>();
+
+        _mockPolicyEngine.When(policyEngine => policyEngine.Process(Arg.Any<DynamicsApplicationItem>()))
+            .Do(callInfo => capturedStrengths.Add(callInfo.Arg<DynamicsApplicationItem>().CurrentBeatStrength));
+
+        BaroquenChord Chord() => new([
+            new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.C4, MusicalTimeSpan.Half)
+        ]);
+
+        var composition = new Composition([
+            new Measure([new Beat(Chord()), new Beat(Chord()), new Beat(Chord()), new Beat(Chord())], Meter.FourFour)
+        ]);
+
+        // act
+        _dynamicsApplicator.Apply(composition);
+
+        // assert: each instrument is processed across the four-beat measure as strong - weak - medium - weak.
+        var expectedStrengthsPerInstrument = new[] { MetricStrength.Strong, MetricStrength.Weak, MetricStrength.Medium, MetricStrength.Weak };
+
+        capturedStrengths.Should().Equal(
+        [
+            .. expectedStrengthsPerInstrument,
+            .. expectedStrengthsPerInstrument
+        ]);
+    }
 }
