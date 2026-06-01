@@ -10,12 +10,13 @@ namespace BaroquenMelody.Library.Composers;
 /// <inheritdoc cref="IChordComposer"/>
 internal sealed class ChordComposer(
     ICompositionStrategy compositionStrategy,
+    IRandomProvider randomProvider,
     ILogger logger
 ) : IChordComposer
 {
     public BaroquenChord Compose(IReadOnlyList<BaroquenChord> precedingChords)
     {
-        var possibleChord = compositionStrategy.GetPossibleChords(precedingChords).MinBy(static _ => ThreadLocalRandom.Next());
+        var possibleChord = compositionStrategy.GetPossibleChords(precedingChords).MinByRandom(randomProvider);
 
         if (possibleChord is not null)
         {

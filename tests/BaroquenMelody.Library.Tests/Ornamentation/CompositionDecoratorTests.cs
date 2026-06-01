@@ -191,4 +191,54 @@ internal sealed class CompositionDecoratorTests
         _mockSustainEngine.ReceivedWithAnyArgs(8).Process(Arg.Any<OrnamentationItem>());
         _mockOrnamentationEngine.DidNotReceiveWithAnyArgs().Process(Arg.Any<OrnamentationItem>());
     }
+
+    [Test]
+    public void WhenDecorateIsInvoked_AndShuffleOrnamentationProcessorsIsTrue_ThenTheOrnamentationEngineIsShuffled()
+    {
+        // arrange
+        var composition = CreateTwoInstrumentComposition();
+
+        // act
+        _compositionDecorator.Decorate(composition);
+
+        // assert
+        _mockOrnamentationEngine.Received(8).Shuffle();
+    }
+
+    [Test]
+    public void WhenDecorateIsInvoked_AndShuffleOrnamentationProcessorsIsFalse_ThenTheOrnamentationEngineIsNotShuffled()
+    {
+        // arrange
+        var compositionConfiguration = TestCompositionConfigurations.Get(2) with { ShuffleOrnamentationProcessors = false };
+        var compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, _mockSustainEngine, compositionConfiguration);
+        var composition = CreateTwoInstrumentComposition();
+
+        // act
+        compositionDecorator.Decorate(composition);
+
+        // assert
+        _mockOrnamentationEngine.DidNotReceive().Shuffle();
+        _mockOrnamentationEngine.ReceivedWithAnyArgs(8).Process(Arg.Any<OrnamentationItem>());
+    }
+
+    private static Composition CreateTwoInstrumentComposition() => new(
+        [
+            new Measure(
+                [
+                    new Beat(CreateChord()),
+                    new Beat(CreateChord()),
+                    new Beat(CreateChord()),
+                    new Beat(CreateChord())
+                ],
+                Meter.FourFour
+            )
+        ]
+    );
+
+    private static BaroquenChord CreateChord() => new(
+        [
+            new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)
+        ]
+    );
 }

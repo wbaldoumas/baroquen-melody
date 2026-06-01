@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Choices;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Choices;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Rules;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ namespace BaroquenMelody.Library.Strategies;
 internal sealed class CompositionStrategyFactory(
     IChordChoiceRepositoryFactory chordChoiceRepositoryFactory,
     ICompositionRule compositionRule,
+    IRandomProvider randomProvider,
     ILogger logger
 ) : ICompositionStrategyFactory
 {
@@ -17,6 +19,7 @@ internal sealed class CompositionStrategyFactory(
         compositionRule,
         logger,
         compositionConfiguration,
+        randomProvider,
         maxLookAheadDepth: 1
     );
 }

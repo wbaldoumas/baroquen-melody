@@ -18,6 +18,7 @@ internal sealed class CompositionStrategy(
     ICompositionRule compositionRule,
     ILogger logger,
     CompositionConfiguration compositionConfiguration,
+    IRandomProvider randomProvider,
     int maxRepeatedNotes = 2,
     int maxLookAheadDepth = 2,
     int minLookAheadChordChoices = 2
@@ -93,9 +94,9 @@ internal sealed class CompositionStrategy(
 
             chosenNote = notes
                 .Where(note => compositionConfiguration.IsNoteInInstrumentRange(instrumentConfiguration.Instrument, note) && unChosenNotes.Contains(note.NoteName))
-                .MinBy(static _ => ThreadLocalRandom.Next()) ?? notes
+                .MinByRandom(randomProvider) ?? notes
                 .Where(note => compositionConfiguration.IsNoteInInstrumentRange(instrumentConfiguration.Instrument, note) && startingNoteNames.Contains(note.NoteName))
-                .MinBy(static _ => ThreadLocalRandom.Next());
+                .MinByRandom(randomProvider);
 
             if (chosenNote is not null)
             {

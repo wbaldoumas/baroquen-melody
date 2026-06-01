@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Choices;
+﻿using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Choices;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
@@ -49,7 +50,8 @@ internal sealed class CompositionStrategyTests
             _mockChordChoiceRepository,
             _mockCompositionRule,
             _mockLogger,
-            _compositionConfiguration
+            _compositionConfiguration,
+            new ThreadLocalRandomProvider()
         );
     }
 
@@ -322,7 +324,8 @@ internal sealed class CompositionStrategyTests
             _mockChordChoiceRepository,
             _mockCompositionRule,
             _mockLogger,
-            compositionConfiguration
+            compositionConfiguration,
+            new ThreadLocalRandomProvider()
         );
 
         // act

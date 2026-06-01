@@ -32,6 +32,7 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IMidiInstrumentRepository, MidiInstrumentRepository>()
         .AddSingleton<IMidiExampleGenerator, MidiExampleGenerator>()
         .AddSingleton<IWeightedRandomBooleanGenerator, WeightedRandomBooleanGenerator>()
+        .AddSingleton<IRandomProvider, ThreadLocalRandomProvider>()
         .AddSingleton<IMusicalTimeSpanCalculator, MusicalTimeSpanCalculator>()
         .AddSingleton<IOrnamentationProcessorConfigurationFactoryProvider, OrnamentationProcessorConfigurationFactoryProvider>();
 }

@@ -1,4 +1,5 @@
 ﻿using Atrea.Utilities.Enums;
+using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
@@ -18,7 +19,7 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
     private BaroquenMelodyComposerConfigurator _baroquenMelodyComposerConfigurator = null!;
 
     [SetUp]
-    public void SetUp() => _baroquenMelodyComposerConfigurator = new BaroquenMelodyComposerConfigurator(Substitute.For<ILogger<MidiFileComposition>>(), Substitute.For<IDispatcher>());
+    public void SetUp() => _baroquenMelodyComposerConfigurator = new BaroquenMelodyComposerConfigurator(Substitute.For<ILogger<MidiFileComposition>>(), Substitute.For<IDispatcher>(), new ThreadLocalRandomProvider());
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
