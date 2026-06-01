@@ -540,7 +540,7 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
             case OrnamentationType.OctavePedalArpeggio:
                 processorConfigurations.Add(
                     new OrnamentationProcessorConfiguration(
-                        OrnamentationType.OctavePedalPassingTone,
+                        OrnamentationType.OctavePedalArpeggio,
                         InputPolicies:
                         [
                             wantsToOrnament,

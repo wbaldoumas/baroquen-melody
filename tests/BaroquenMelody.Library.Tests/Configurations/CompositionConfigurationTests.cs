@@ -16,4 +16,14 @@ internal sealed class CompositionConfigurationTests
         // assert
         configuration.ShuffleOrnamentationProcessors.Should().BeTrue();
     }
+
+    [Test]
+    public void MaxLookAheadDepth_DefaultsToOne()
+    {
+        // arrange / act
+        var configuration = TestCompositionConfigurations.Get();
+
+        // assert
+        configuration.MaxLookAheadDepth.Should().Be(1);
+    }
 }

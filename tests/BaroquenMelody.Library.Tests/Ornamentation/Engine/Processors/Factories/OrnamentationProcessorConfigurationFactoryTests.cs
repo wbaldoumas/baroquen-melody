@@ -57,4 +57,36 @@ internal sealed class OrnamentationProcessorConfigurationFactoryTests
             act.Should().NotThrow();
         }
     }
+
+    [Test]
+    public void Create_ProducesConfigurationsLabeledWithTheRequestedOrnamentationType()
+    {
+        // arrange
+        var excludedOrnamentationTypes = new HashSet<OrnamentationType>
+        {
+            OrnamentationType.None,
+            OrnamentationType.Sustain,
+            OrnamentationType.MidSustain,
+            OrnamentationType.Rest
+        }.ToFrozenSet();
+
+        var ornamentationTypes = EnumUtils<OrnamentationType>.AsEnumerable()
+            .Where(ornamentationType => !excludedOrnamentationTypes.Contains(ornamentationType));
+
+        foreach (var ornamentationType in ornamentationTypes)
+        {
+            // act
+            var processorConfigurations = _ornamentationProcessorConfigurationFactory
+                .Create(new OrnamentationConfiguration(ornamentationType, ConfigurationStatus.Enabled, 100))
+                .ToList();
+
+            // assert
+            processorConfigurations.Should().NotBeEmpty();
+            processorConfigurations.Should().OnlyContain(
+                configuration => configuration.OrnamentationType == ornamentationType,
+                "the '{0}' case must produce configurations labeled with that ornamentation type",
+                ornamentationType
+            );
+        }
+    }
 }
