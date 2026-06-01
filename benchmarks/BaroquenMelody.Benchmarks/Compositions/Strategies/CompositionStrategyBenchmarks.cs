@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Infrastructure.Collections;
+using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Choices;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.MusicTheory;
@@ -39,7 +40,8 @@ public class CompositionStrategyBenchmarks
             ]
         ),
         LoggerFactory.Create(loggingBuilder => loggingBuilder.AddConsole()).CreateLogger("Benchmarks"),
-        BenchmarkData.CompositionConfiguration
+        BenchmarkData.CompositionConfiguration,
+        new ThreadLocalRandomProvider()
     );
 
     private static readonly IReadOnlyList<BaroquenChord> PrecedingChords = new FixedSizeList<BaroquenChord>(4)
