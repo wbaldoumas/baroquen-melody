@@ -68,5 +68,20 @@ public enum CompositionRule : byte
     /// <summary>
     ///     Avoid repeated chords.
     /// </summary>
-    AvoidRepeatedChords
+    AvoidRepeatedChords,
+
+    /// <summary>
+    ///     Avoid voice crossing, where a lower-register voice rises above an adjacent higher-register voice.
+    /// </summary>
+    AvoidVoiceCrossing,
+
+    /// <summary>
+    ///     Avoid voice overlap, where a voice moves beyond the previous position of an adjacent voice.
+    /// </summary>
+    AvoidVoiceOverlap,
+
+    /// <summary>
+    ///     Enforce that adjacent upper voices are spaced no more than an octave apart.
+    /// </summary>
+    EnforceVoiceSpacing
 }
