@@ -18,6 +18,7 @@ internal sealed class ThemeComposer(
     ICompositionDecorator compositionDecorator,
     IChordComposer chordComposer,
     INoteTransposer noteTransposer,
+    IFugalAnswerStrategy fugalAnswerStrategy,
     IRandomProvider randomProvider,
     IDispatcher dispatcher,
     ILogger logger,
@@ -115,14 +116,20 @@ internal sealed class ThemeComposer(
 
         var processedInstruments = new List<Instrument> { fugueSubjectInstrument };
 
-        foreach (var instrument in instruments.Where(instrument => instrument != fugueSubjectInstrument))
+        foreach (var (entryIndex, instrument) in instruments.Where(instrument => instrument != fugueSubjectInstrument).Index())
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var precedingChord = workingChords[^1];
             var nextChords = new List<BaroquenChord>();
 
-            var transposedSubjectChords = noteTransposer.TransposeToInstrument(fugueSubject, fugueSubjectInstrument, instrument)
+            // Fugal entries alternate subject, answer, subject, answer...; the subject voice is the first entry, so the
+            // non-subject entries at even indices state the answer (a fifth up) while odd indices restate the subject.
+            var subjectOrAnswer = entryIndex % 2 == 0
+                ? fugalAnswerStrategy.GenerateAnswer(fugueSubject)
+                : fugueSubject;
+
+            var transposedSubjectChords = noteTransposer.TransposeToInstrument(subjectOrAnswer, fugueSubjectInstrument, instrument)
                 .Select(static note => new BaroquenChord([note]));
 
             foreach (var transposedSubjectChord in transposedSubjectChords)
