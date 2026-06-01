@@ -47,7 +47,10 @@ internal sealed class CompositionRuleConfigurationServiceTests
             CompositionRule.AvoidDirectOctaves,
             CompositionRule.AvoidOverDoubling,
             CompositionRule.FollowStandardChordProgression,
-            CompositionRule.AvoidRepeatedChords
+            CompositionRule.AvoidRepeatedChords,
+            CompositionRule.AvoidVoiceCrossing,
+            CompositionRule.AvoidVoiceOverlap,
+            CompositionRule.EnforceVoiceSpacing
         };
 
         // act
@@ -87,7 +90,10 @@ internal sealed class CompositionRuleConfigurationServiceTests
             { CompositionRule.AvoidRepeatedNotes, new CompositionRuleConfiguration(CompositionRule.AvoidRepeatedNotes) },
             { CompositionRule.FollowStandardChordProgression, new CompositionRuleConfiguration(CompositionRule.FollowStandardChordProgression) },
             { CompositionRule.HandleAscendingSeventh, new CompositionRuleConfiguration(CompositionRule.HandleAscendingSeventh, Status: ConfigurationStatus.Locked) },
-            { CompositionRule.AvoidRepeatedChords, new CompositionRuleConfiguration(CompositionRule.AvoidRepeatedChords, Status: ConfigurationStatus.Disabled) }
+            { CompositionRule.AvoidRepeatedChords, new CompositionRuleConfiguration(CompositionRule.AvoidRepeatedChords, Status: ConfigurationStatus.Disabled) },
+            { CompositionRule.AvoidVoiceCrossing, new CompositionRuleConfiguration(CompositionRule.AvoidVoiceCrossing) },
+            { CompositionRule.AvoidVoiceOverlap, new CompositionRuleConfiguration(CompositionRule.AvoidVoiceOverlap) },
+            { CompositionRule.EnforceVoiceSpacing, new CompositionRuleConfiguration(CompositionRule.EnforceVoiceSpacing, Status: ConfigurationStatus.Disabled) }
         };
 
         _mockState.Value.Returns(new CompositionRuleConfigurationState(configurations));

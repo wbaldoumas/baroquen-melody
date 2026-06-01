@@ -114,6 +114,15 @@
         CompositionRule.AvoidRepeatedChords => @<MudText>
                                                    Repeated chords are the recurrence of the same <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Chord_(music)">chord</MudLink> multiple times in a row in a composition. <br/><br/> While repetition can be used to create a sense of unity and structure in a composition, too much repetition can make a composition sound monotonous and boring.
                                                </MudText>,
+        CompositionRule.AvoidVoiceCrossing => @<MudText>
+                                                  <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Voice_leading">Voice crossing</MudLink> occurs when a lower-register voice rises above an adjacent higher-register voice, blurring the independence of the two melodic lines. <br/><br/> Avoiding voice crossing keeps each voice in its own register so the listener can follow the separate lines clearly.
+                                              </MudText>,
+        CompositionRule.AvoidVoiceOverlap => @<MudText>
+                                                 Voice overlap occurs when a voice moves beyond the <em>previous</em> position of an adjacent voice — rising above where the upper voice just was, or falling below where the lower voice just was. <br/><br/> Avoiding overlap preserves the sense of <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Voice_leading">independent voice leading</MudLink> from one chord to the next.
+                                             </MudText>,
+        CompositionRule.EnforceVoiceSpacing => @<MudText>
+                                                   Spacing keeps adjacent upper voices (such as soprano–alto and alto–tenor) within an <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Octave">octave</MudLink> of each other, while the lowest pair may spread further apart. <br/><br/> Close upper-voice spacing produces a fuller, more balanced <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Voicing_(music)">voicing</MudLink> in the style of Baroque chorales.
+                                               </MudText>,
         _ => throw new ArgumentOutOfRangeException(nameof(rule), rule, null)
     };
 }

@@ -40,6 +40,9 @@ internal sealed class CompositionRuleFactory(
             CompositionRule.AvoidOverDoubling => new AvoidOverDoubling(),
             CompositionRule.FollowStandardChordProgression => new FollowsStandardProgression(compositionConfiguration),
             CompositionRule.AvoidRepeatedChords => new AvoidRepeatedChords(chordNumberIdentifier),
+            CompositionRule.AvoidVoiceCrossing => new AvoidVoiceCrossing(compositionConfiguration),
+            CompositionRule.AvoidVoiceOverlap => new AvoidVoiceOverlap(compositionConfiguration),
+            CompositionRule.EnforceVoiceSpacing => new EnforceVoiceSpacing(compositionConfiguration),
             _ => throw new ArgumentOutOfRangeException(nameof(configuration), configuration.Rule, "The composition rule is not supported.")
         };
 

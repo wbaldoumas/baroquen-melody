@@ -42,6 +42,9 @@ internal sealed class CompositionRuleFactoryTests
     [TestCase(CompositionRule.AvoidOverDoubling, int.MaxValue, typeof(AvoidOverDoubling))]
     [TestCase(CompositionRule.FollowStandardChordProgression, int.MaxValue, typeof(FollowsStandardProgression))]
     [TestCase(CompositionRule.AvoidRepeatedChords, int.MaxValue, typeof(AvoidRepeatedChords))]
+    [TestCase(CompositionRule.AvoidVoiceCrossing, int.MaxValue, typeof(AvoidVoiceCrossing))]
+    [TestCase(CompositionRule.AvoidVoiceOverlap, int.MaxValue, typeof(AvoidVoiceOverlap))]
+    [TestCase(CompositionRule.EnforceVoiceSpacing, int.MaxValue, typeof(EnforceVoiceSpacing))]
     [TestCase(CompositionRule.AvoidDissonance, int.MinValue, typeof(CompositionRuleBypass))]
     public void Create_returns_expected_rule(CompositionRule rule, int strictness, Type expectedRuleType)
     {

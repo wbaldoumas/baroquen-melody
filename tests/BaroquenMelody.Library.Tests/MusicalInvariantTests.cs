@@ -14,7 +14,15 @@ namespace BaroquenMelody.Library.Tests;
 ///     configured dynamic range, and valid MIDI pitch numbers. Structural / voice-leading invariants (final-chord
 ///     resolution, parallel perfect intervals, voice crossing) and the strict per-instrument pitch range operate on
 ///     the in-memory <c>Composition</c> rather than the ornamented MIDI (ornament sub-notes intentionally extend
-///     beyond the base instrument range); those land with the voice-leading work in a later phase.
+///     beyond the base instrument range).
+///     <para>
+///         Voice crossing and overlap are now enforced during body composition by the default-enabled
+///         <c>AvoidVoiceCrossing</c> / <c>AvoidVoiceOverlap</c> rules (see their unit tests), but a full-composition
+///         "no crossing" invariant is intentionally not asserted here: the flattened MIDI carries no per-voice
+///         identity, and the thematic <c>GenerateInitialChord</c> is not rule-checked, so it can voice a crossing.
+///         A MIDI/composition-level crossing invariant is deferred until the composition exposes its in-memory voices
+///         and the theme's initial voicing is constrained.
+///     </para>
 /// </remarks>
 [TestFixture]
 internal sealed class MusicalInvariantTests
