@@ -26,7 +26,7 @@ internal sealed class ThemeComposerTests
 
     private IChordComposer _mockChordComposer = null!;
 
-    private INoteTransposer _mockNoteTransposer = null!;
+    private IFugalEntryPlacer _mockFugalEntryPlacer = null!;
 
     private IFugalAnswerStrategy _mockFugalAnswerStrategy = null!;
 
@@ -44,14 +44,14 @@ internal sealed class ThemeComposerTests
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
         _mockCompositionDecorator = Substitute.For<ICompositionDecorator>();
         _mockChordComposer = Substitute.For<IChordComposer>();
-        _mockNoteTransposer = Substitute.For<INoteTransposer>();
+        _mockFugalEntryPlacer = Substitute.For<IFugalEntryPlacer>();
         _mockFugalAnswerStrategy = Substitute.For<IFugalAnswerStrategy>();
         _mockDispatcher = Substitute.For<IDispatcher>();
         _mockLogger = Substitute.For<ILogger>();
 
         _compositionConfiguration = TestCompositionConfigurations.Get();
 
-        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockNoteTransposer, _mockFugalAnswerStrategy, new ThreadLocalRandomProvider(), _mockDispatcher, _mockLogger, _compositionConfiguration);
+        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockFugalEntryPlacer, _mockFugalAnswerStrategy, new ThreadLocalRandomProvider(), _mockDispatcher, _mockLogger, _compositionConfiguration);
     }
 
     [Test]

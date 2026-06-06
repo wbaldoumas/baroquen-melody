@@ -45,10 +45,10 @@ internal sealed class BaroquenMelodyComposerConfigurator(ILogger<MidiFileComposi
         var dynamicsApplicator = new DynamicsApplicator(compositionConfiguration, dynamicsEngineBuilder.Build());
         var compositionDecorator = new CompositionDecorator(ornamentationEngineBuilder.BuildOrnamentationEngine(), ornamentationEngineBuilder.BuildSustainedNoteEngine(), compositionConfiguration);
         var compositionPhraser = new CompositionPhraser(compositionRule, _themeSplitter, _weightedRandomBooleanGenerator, randomProvider, logger, compositionConfiguration);
-        var noteTransposer = new NoteTransposer(compositionConfiguration);
+        var fugalEntryPlacer = new FugalEntryPlacer(compositionConfiguration);
         var fugalAnswerStrategy = new FugalAnswerStrategy(compositionConfiguration);
         var chordComposer = new ChordComposer(compositionStrategy, randomProvider, logger);
-        var themeComposer = new ThemeComposer(compositionStrategy, compositionDecorator, chordComposer, noteTransposer, fugalAnswerStrategy, randomProvider, dispatcher, logger, compositionConfiguration);
+        var themeComposer = new ThemeComposer(compositionStrategy, compositionDecorator, chordComposer, fugalEntryPlacer, fugalAnswerStrategy, randomProvider, dispatcher, logger, compositionConfiguration);
         var endingComposer = new EndingComposer(compositionStrategy, compositionDecorator, chordNumberIdentifier, randomProvider, dispatcher, logger, compositionConfiguration);
         var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
         var midiGenerator = new MidiGenerator(compositionConfiguration);

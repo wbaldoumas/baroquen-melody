@@ -17,7 +17,7 @@ internal sealed class ThemeComposer(
     ICompositionStrategy compositionStrategy,
     ICompositionDecorator compositionDecorator,
     IChordComposer chordComposer,
-    INoteTransposer noteTransposer,
+    IFugalEntryPlacer fugalEntryPlacer,
     IFugalAnswerStrategy fugalAnswerStrategy,
     IRandomProvider randomProvider,
     IDispatcher dispatcher,
@@ -129,14 +129,14 @@ internal sealed class ThemeComposer(
                 ? fugalAnswerStrategy.GenerateAnswer(fugueSubject)
                 : fugueSubject;
 
-            var transposedSubjectChords = noteTransposer.TransposeToInstrument(subjectOrAnswer, fugueSubjectInstrument, instrument)
+            var placedEntryChords = fugalEntryPlacer.Place(subjectOrAnswer, instrument)
                 .Select(static note => new BaroquenChord([note]));
 
-            foreach (var transposedSubjectChord in transposedSubjectChords)
+            foreach (var placedEntryChord in placedEntryChords)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChord], transposedSubjectChord);
+                var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChord], placedEntryChord);
 
                 if (possibleChords.Count == 0)
                 {
@@ -144,9 +144,9 @@ internal sealed class ThemeComposer(
                 }
 
                 var nextChord = possibleChords.OrderByRandom(randomProvider).First();
-                var transposedSubjectNote = transposedSubjectChord[instrument];
+                var placedEntryNote = placedEntryChord[instrument];
                 var otherNotes = nextChord.Notes.Where(note => note.Instrument != instrument);
-                var workingChord = new BaroquenChord([.. otherNotes, transposedSubjectNote]);
+                var workingChord = new BaroquenChord([.. otherNotes, placedEntryNote]);
 
                 nextChords.Add(workingChord);
                 precedingChord = workingChord;
