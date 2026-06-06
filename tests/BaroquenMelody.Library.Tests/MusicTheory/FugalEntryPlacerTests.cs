@@ -1,8 +1,10 @@
+using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Tests.TestData;
+using CsCheck;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -13,15 +15,17 @@ namespace BaroquenMelody.Library.Tests.MusicTheory;
 [TestFixture]
 internal sealed class FugalEntryPlacerTests
 {
+    private CompositionConfiguration _compositionConfiguration = null!;
+
     private FugalEntryPlacer _fugalEntryPlacer = null!;
 
     [SetUp]
     public void SetUp()
     {
         // C major (Ionian); ranges: One C4-C6, Two G2-G4, Three C2-C3, Four C1-C2.
-        var compositionConfiguration = TestCompositionConfigurations.Get(4);
+        _compositionConfiguration = TestCompositionConfigurations.Get(4);
 
-        _fugalEntryPlacer = new FugalEntryPlacer(compositionConfiguration);
+        _fugalEntryPlacer = new FugalEntryPlacer(_compositionConfiguration);
     }
 
     [Test]
@@ -156,6 +160,74 @@ internal sealed class FugalEntryPlacerTests
 
         // assert
         AssertEquivalent(placed, expected);
+    }
+
+    [Test]
+    public void Place_WhenEntryIsBelowRange_TransposesUpToFit()
+    {
+        // arrange: into One (C4-C6); the entry sits below the range, so only shifting up an octave seats it fully.
+        var entry = new List<BaroquenNote>
+        {
+            new(Instrument.Two, Notes.C3, MusicalTimeSpan.Half),
+            new(Instrument.Two, Notes.E4, MusicalTimeSpan.Half)
+        };
+
+        var expected = new List<BaroquenNote>
+        {
+            new(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+            new(Instrument.One, Notes.E5, MusicalTimeSpan.Half)
+        };
+
+        // act
+        var placed = _fugalEntryPlacer.Place(entry, Instrument.One);
+
+        // assert
+        AssertEquivalent(placed, expected);
+    }
+
+    [Test]
+    public void Place_WhenEntryIsEmpty_ReturnsEmpty()
+    {
+        // act
+        var placed = _fugalEntryPlacer.Place([], Instrument.One);
+
+        // assert
+        placed.Should().BeEmpty();
+    }
+
+    [Test]
+    public void Place_PreservesEachNotesPitchClassCountAndInstrument()
+    {
+        var notes = _compositionConfiguration.Scale.GetNotes();
+        var instruments = _compositionConfiguration.Instruments;
+
+        // A comfortable middle band (C2-C7) so every entry can be octave-shifted in either direction within the scale.
+        var lowestIndex = notes.FindIndex(note => (int)note.NoteNumber >= (int)Notes.C2.NoteNumber);
+        var highestIndex = notes.FindLastIndex(note => (int)note.NoteNumber <= (int)Notes.C7.NoteNumber);
+
+        var generateEntryIndices = Gen.Int[lowestIndex, highestIndex].List[1, 8];
+        var generateTargetIndex = Gen.Int[0, instruments.Count - 1];
+
+        Gen.Select(generateEntryIndices, generateTargetIndex, (indices, targetIndex) => (indices, targetIndex)).Sample(
+            generated =>
+            {
+                var entry = generated.indices.Select(index => new BaroquenNote(Instrument.One, notes[index], MusicalTimeSpan.Half)).ToList();
+                var target = instruments[generated.targetIndex];
+
+                var placed = _fugalEntryPlacer.Place(entry, target);
+                var placedAgain = _fugalEntryPlacer.Place(entry, target);
+
+                placed.Should().HaveCount(entry.Count, "placement must never add or drop notes");
+
+                for (var i = 0; i < placed.Count; i++)
+                {
+                    placed[i].Instrument.Should().Be(target, "every placed note belongs to the target voice");
+                    placed[i].NoteName.Should().Be(entry[i].NoteName, "whole-octave placement preserves each note's pitch class");
+                    placed[i].Should().BeEquivalentTo(placedAgain[i], "placement is deterministic");
+                }
+            },
+            iter: 200
+        );
     }
 
     private static void AssertEquivalent(IReadOnlyList<BaroquenNote> actual, List<BaroquenNote> expected)

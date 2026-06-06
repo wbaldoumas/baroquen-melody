@@ -12,6 +12,10 @@ namespace BaroquenMelody.Library.MusicTheory;
 ///     outside the target instrument's range is chosen. Ties are broken toward the most centered placement, and then
 ///     toward the lower placement. When the entry spans a wider range than the instrument, the least-spilling octave is
 ///     still chosen and any spilling notes are left at their true pitch rather than clamped.
+///     <para>
+///         Every entry note is assumed to be diatonic to the configured scale, as the subject and answer supplied by the
+///         theme composer always are; a non-scale note would be a programming error.
+///     </para>
 /// </remarks>
 internal sealed class FugalEntryPlacer(CompositionConfiguration compositionConfiguration) : IFugalEntryPlacer
 {
