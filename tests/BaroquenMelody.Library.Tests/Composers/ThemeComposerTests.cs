@@ -26,7 +26,9 @@ internal sealed class ThemeComposerTests
 
     private IChordComposer _mockChordComposer = null!;
 
-    private INoteTransposer _mockNoteTransposer = null!;
+    private IFugalEntryPlacer _mockFugalEntryPlacer = null!;
+
+    private IFugalAnswerStrategy _mockFugalAnswerStrategy = null!;
 
     private IDispatcher _mockDispatcher = null!;
 
@@ -42,13 +44,14 @@ internal sealed class ThemeComposerTests
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
         _mockCompositionDecorator = Substitute.For<ICompositionDecorator>();
         _mockChordComposer = Substitute.For<IChordComposer>();
-        _mockNoteTransposer = Substitute.For<INoteTransposer>();
+        _mockFugalEntryPlacer = Substitute.For<IFugalEntryPlacer>();
+        _mockFugalAnswerStrategy = Substitute.For<IFugalAnswerStrategy>();
         _mockDispatcher = Substitute.For<IDispatcher>();
         _mockLogger = Substitute.For<ILogger>();
 
         _compositionConfiguration = TestCompositionConfigurations.Get();
 
-        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockNoteTransposer, new ThreadLocalRandomProvider(), _mockDispatcher, _mockLogger, _compositionConfiguration);
+        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockFugalEntryPlacer, _mockFugalAnswerStrategy, new ThreadLocalRandomProvider(), _mockDispatcher, _mockLogger, _compositionConfiguration);
     }
 
     [Test]
@@ -77,5 +80,27 @@ internal sealed class ThemeComposerTests
         result.Should().NotBeNull();
         result.Exposition.Should().NotBeEmpty();
         result.Recapitulation.Should().NotBeEmpty();
+    }
+
+    [Test]
+    public void Compose_uses_the_fugal_answer_strategy_for_alternating_answer_entries()
+    {
+        // arrange
+        var chord = new BaroquenChord([
+            new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Three, Notes.G2, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Four, Notes.C1, MusicalTimeSpan.Half)
+        ]);
+
+        _mockCompositionStrategy.GenerateInitialChord().Returns(chord);
+        _mockChordComposer.Compose(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns(_ => new BaroquenChord(chord));
+        _mockFugalAnswerStrategy.GenerateAnswer(Arg.Any<IReadOnlyList<BaroquenNote>>()).Returns(static callInfo => callInfo.Arg<IReadOnlyList<BaroquenNote>>());
+
+        // act
+        _themeComposer.Compose(CancellationToken.None);
+
+        // assert: the answer voice entries are derived through the fugal answer strategy.
+        _mockFugalAnswerStrategy.Received().GenerateAnswer(Arg.Any<IReadOnlyList<BaroquenNote>>());
     }
 }

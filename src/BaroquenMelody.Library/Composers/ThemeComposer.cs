@@ -17,7 +17,8 @@ internal sealed class ThemeComposer(
     ICompositionStrategy compositionStrategy,
     ICompositionDecorator compositionDecorator,
     IChordComposer chordComposer,
-    INoteTransposer noteTransposer,
+    IFugalEntryPlacer fugalEntryPlacer,
+    IFugalAnswerStrategy fugalAnswerStrategy,
     IRandomProvider randomProvider,
     IDispatcher dispatcher,
     ILogger logger,
@@ -115,21 +116,27 @@ internal sealed class ThemeComposer(
 
         var processedInstruments = new List<Instrument> { fugueSubjectInstrument };
 
-        foreach (var instrument in instruments.Where(instrument => instrument != fugueSubjectInstrument))
+        foreach (var (entryIndex, instrument) in instruments.Where(instrument => instrument != fugueSubjectInstrument).Index())
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var precedingChord = workingChords[^1];
             var nextChords = new List<BaroquenChord>();
 
-            var transposedSubjectChords = noteTransposer.TransposeToInstrument(fugueSubject, fugueSubjectInstrument, instrument)
+            // Fugal entries alternate subject, answer, subject, answer...; the subject voice is the first entry, so the
+            // non-subject entries at even indices state the answer (a fifth up) while odd indices restate the subject.
+            var subjectOrAnswer = entryIndex % 2 == 0
+                ? fugalAnswerStrategy.GenerateAnswer(fugueSubject)
+                : fugueSubject;
+
+            var placedEntryChords = fugalEntryPlacer.Place(subjectOrAnswer, instrument)
                 .Select(static note => new BaroquenChord([note]));
 
-            foreach (var transposedSubjectChord in transposedSubjectChords)
+            foreach (var placedEntryChord in placedEntryChords)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChord], transposedSubjectChord);
+                var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChord], placedEntryChord);
 
                 if (possibleChords.Count == 0)
                 {
@@ -137,9 +144,9 @@ internal sealed class ThemeComposer(
                 }
 
                 var nextChord = possibleChords.OrderByRandom(randomProvider).First();
-                var transposedSubjectNote = transposedSubjectChord[instrument];
+                var placedEntryNote = placedEntryChord[instrument];
                 var otherNotes = nextChord.Notes.Where(note => note.Instrument != instrument);
-                var workingChord = new BaroquenChord([.. otherNotes, transposedSubjectNote]);
+                var workingChord = new BaroquenChord([.. otherNotes, placedEntryNote]);
 
                 nextChords.Add(workingChord);
                 precedingChord = workingChord;
