@@ -180,5 +180,10 @@ public enum OrnamentationType : byte
     /// <summary>
     ///     A double pedal with passing tones connecting two notes.
     /// </summary>
-    DoublePedalPassingTone
+    DoublePedalPassingTone,
+
+    /// <summary>
+    ///     A trill: a rapid alternation with the upper neighbor, closed by a turned (Nachschlag) termination.
+    /// </summary>
+    Trill
 }

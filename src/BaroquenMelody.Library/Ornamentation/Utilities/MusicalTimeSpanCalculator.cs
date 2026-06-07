@@ -147,6 +147,10 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DoublePedalPassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter + MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoublePedalPassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Eighth.Dotted(1),
 
+        OrnamentationType.Trill when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Trill when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter + MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Trill when meter == Meter.FiveEight => MusicalTimeSpan.Eighth.Dotted(1),
+
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,
 
@@ -298,6 +302,10 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DoublePedalPassingTone when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoublePedalPassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoublePedalPassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Sixteenth,
+
+        OrnamentationType.Trill when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Trill when meter == Meter.ThreeFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Trill when meter == Meter.FiveEight => MusicalTimeSpan.Sixteenth,
 
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,

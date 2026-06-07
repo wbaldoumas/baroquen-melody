@@ -673,6 +673,24 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                     )
                 );
                 break;
+            case OrnamentationType.Trill:
+                processorConfigurations.Add(
+                    new OrnamentationProcessorConfiguration(
+                        OrnamentationType.Trill,
+                        InputPolicies:
+                        [
+                            wantsToOrnament,
+                            _hasNoOrnamentation,
+                            new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Trill)),
+                            new IsIntervalWithinInstrumentRange(compositionConfiguration, 1).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -1))
+                        ],
+                        OutputPolicies: [logOrnamentation],
+                        Translations: [1, 0, 1, 0, 1, -1, 0],
+                        ShouldNotInvert,
+                        TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
+                    )
+                );
+                break;
             case OrnamentationType.None:
             case OrnamentationType.Sustain:
             case OrnamentationType.MidSustain:

@@ -38,6 +38,7 @@ internal static class OrnamentationTypeExtensions
         { OrnamentationType.UpperOctavePedalArpeggio, 3 },
         { OrnamentationType.SequencedThirds, 7 },
         { OrnamentationType.DoublePedalPassingTone, 7 },
+        { OrnamentationType.Trill, 7 },
         { OrnamentationType.None, 0 },
         { OrnamentationType.Sustain, 0 },
         { OrnamentationType.MidSustain, 0 },
