@@ -18,7 +18,10 @@ internal static class PatternBuilderExtensions
     /// <returns>The <see cref="PatternBuilder"/> with the <see cref="BaroquenNote"/> and its ornamentations added.</returns>
     public static PatternBuilder AddNote(this PatternBuilder patternBuilder, BaroquenNote note)
     {
-        if (note.OrnamentationType != OrnamentationType.MidSustain)
+        // A MidSustain principal is carried by the preceding sustained note, and an Appoggiatura principal is the silent
+        // harmonic anchor whose sound is fully realized by its ornamentations (the dissonance and its resolution); neither
+        // is sounded directly here.
+        if (note.OrnamentationType is not OrnamentationType.MidSustain and not OrnamentationType.Appoggiatura)
         {
             patternBuilder
                 .SetNoteLength(note.MusicalTimeSpan)

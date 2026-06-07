@@ -70,4 +70,37 @@ internal sealed class MidiGeneratorTests
         midiFile.Should().NotBeNull();
         midiFile.Chunks.Should().HaveCount(2, "because there are two instruments");
     }
+
+    [Test]
+    public void Generate_does_not_sound_the_silent_principal_of_an_appoggiatura()
+    {
+        // arrange
+        var appoggiatura = new BaroquenNote(Instrument.One, Notes.C4, new MusicalTimeSpan())
+        {
+            OrnamentationType = OrnamentationType.Appoggiatura,
+            Ornamentations =
+            {
+                new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Quarter),
+                new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Quarter)
+            }
+        };
+
+        var composition = new Composition(
+            [
+                new Measure([new Beat(new BaroquenChord([appoggiatura]))], Meter.FourFour)
+            ]
+        );
+
+        // act
+        var midiFile = _midiGenerator.Generate(composition);
+
+        // assert
+        var emittedNotes = midiFile.GetNotes().OrderBy(static note => note.Time).ToList();
+
+        // the silent principal (the chord-tone anchor) is not sounded; only the accented dissonance (D4) and then its resolution (C4) are emitted.
+        emittedNotes.Should().HaveCount(2);
+        emittedNotes[0].NoteNumber.Should().Be(Notes.D4.NoteNumber);
+        emittedNotes[1].NoteNumber.Should().Be(Notes.C4.NoteNumber);
+        emittedNotes[1].Time.Should().BeGreaterThan(emittedNotes[0].Time);
+    }
 }

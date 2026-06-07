@@ -210,6 +210,11 @@ internal sealed class MusicalTimeSpanCalculatorTests
             yield return new TestCaseData(OrnamentationType.DelayedDoublePickup, Meter.FourFour, MusicalTimeSpan.Quarter.Dotted(1));
 
             yield return new TestCaseData(OrnamentationType.DelayedDoublePickup, Meter.ThreeFour, MusicalTimeSpan.Half + MusicalTimeSpan.Eighth);
+
+            // the appoggiatura's principal is the silent harmonic anchor, so it occupies no time.
+            yield return new TestCaseData(OrnamentationType.Appoggiatura, Meter.FourFour, new MusicalTimeSpan());
+
+            yield return new TestCaseData(OrnamentationType.Appoggiatura, Meter.ThreeFour, new MusicalTimeSpan());
         }
     }
 
@@ -312,6 +317,15 @@ internal sealed class MusicalTimeSpanCalculatorTests
             yield return new TestCaseData(OrnamentationType.DelayedDoublePickup, Meter.FourFour, MusicalTimeSpan.Sixteenth, 1);
 
             yield return new TestCaseData(OrnamentationType.DelayedDoublePickup, Meter.ThreeFour, MusicalTimeSpan.Sixteenth, 1);
+
+            // the accented dissonance (step 0) and its resolution (step 1) together fill the beat.
+            yield return new TestCaseData(OrnamentationType.Appoggiatura, Meter.FourFour, MusicalTimeSpan.Quarter, 0);
+
+            yield return new TestCaseData(OrnamentationType.Appoggiatura, Meter.FourFour, MusicalTimeSpan.Quarter, 1);
+
+            yield return new TestCaseData(OrnamentationType.Appoggiatura, Meter.ThreeFour, MusicalTimeSpan.Half, 0);
+
+            yield return new TestCaseData(OrnamentationType.Appoggiatura, Meter.ThreeFour, MusicalTimeSpan.Quarter, 1);
         }
     }
 }
