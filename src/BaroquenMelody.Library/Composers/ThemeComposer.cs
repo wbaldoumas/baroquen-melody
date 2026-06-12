@@ -120,7 +120,9 @@ internal sealed class ThemeComposer(
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var precedingChord = workingChords[^1];
+            // The strategy's rule context is the single preceding chord (unchanged), but the chord selector gets the
+            // last two chords of the running chain so context-sensitive scoring rules (e.g. leap recovery) can fire.
+            var precedingChords = workingChords.TakeLast(2).ToList();
             var nextChords = new List<BaroquenChord>();
 
             // Fugal entries alternate subject, answer, subject, answer...; the subject voice is the first entry, so the
@@ -136,8 +138,8 @@ internal sealed class ThemeComposer(
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChord], placedEntryChord);
-                var nextChord = chordSelector.SelectNextChord([precedingChord], possibleChords);
+                var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChords[^1]], placedEntryChord);
+                var nextChord = chordSelector.SelectNextChord(precedingChords, possibleChords);
 
                 if (nextChord is null)
                 {
@@ -149,7 +151,7 @@ internal sealed class ThemeComposer(
                 var workingChord = new BaroquenChord([.. otherNotes, placedEntryNote]);
 
                 nextChords.Add(workingChord);
-                precedingChord = workingChord;
+                precedingChords.Add(workingChord);
             }
 
             var tempComposition = new Composition([new Measure(nextChords.Select(static chord => new Beat(chord)).ToList(), compositionConfiguration.Meter)]);

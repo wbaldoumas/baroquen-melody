@@ -76,17 +76,79 @@ internal sealed class WeightedChordSelectorTests
 
         var mockRandomProvider = Substitute.For<IRandomProvider>();
 
-        mockRandomProvider.Next().Returns(7, 3);
+        mockRandomProvider.Next().Returns(7, 9, 3);
 
         var weightedChordSelector = new WeightedChordSelector(mockScoringRule, mockRandomProvider);
 
         // act
         var selectedChord = weightedChordSelector.SelectNextChord(precedingChords, [candidateA, candidateB, candidateC]);
 
-        // assert: only the two tied candidates participate in the random tie-break, and the smaller key wins.
+        // assert: every candidate draws a tie-break key, and among the tied minimum-penalty candidates the smaller key wins.
         selectedChord.Should().BeSameAs(candidateC);
 
-        mockRandomProvider.Received(2).Next();
+        mockRandomProvider.Received(3).Next();
+    }
+
+    [Test]
+    public void SelectNextChord_BreaksTiesAtNonZeroPenalties()
+    {
+        // arrange
+        var precedingChords = new List<BaroquenChord> { BuildChord(Notes.C4) };
+
+        var candidateA = BuildChord(Notes.D4);
+        var candidateB = BuildChord(Notes.E4);
+        var candidateC = BuildChord(Notes.F4);
+
+        var mockScoringRule = Substitute.For<IScoringRule>();
+
+        mockScoringRule.Score(precedingChords, candidateA).Returns(4d);
+        mockScoringRule.Score(precedingChords, candidateB).Returns(4d);
+        mockScoringRule.Score(precedingChords, candidateC).Returns(7d);
+
+        var mockRandomProvider = Substitute.For<IRandomProvider>();
+
+        mockRandomProvider.Next().Returns(8, 2, 5);
+
+        var weightedChordSelector = new WeightedChordSelector(mockScoringRule, mockRandomProvider);
+
+        // act
+        var selectedChord = weightedChordSelector.SelectNextChord(precedingChords, [candidateA, candidateB, candidateC]);
+
+        // assert: the tie at the minimum (non-zero) penalty is broken by the smaller key; the worse candidate never wins.
+        selectedChord.Should().BeSameAs(candidateB);
+    }
+
+    [Test]
+    public void SelectNextChord_WithoutScoringRules_MatchesTheLegacyRandomPickDrawForDraw()
+    {
+        // arrange: production candidate streams are lazy and may themselves consume random draws while being
+        // enumerated (rule-bypass strictness draws from the same provider), so the selector must interleave its
+        // tie-break draws with enumeration exactly like the legacy MinByRandom pick did.
+        const int seed = 1234;
+
+        var candidates = _distinctNotes.Take(6).Select(BuildChord).ToList();
+
+        static IEnumerable<BaroquenChord> DrawConsumingCandidates(List<BaroquenChord> source, IRandomProvider randomProvider)
+        {
+            foreach (var chord in source)
+            {
+                _ = randomProvider.Next();
+
+                yield return chord;
+            }
+        }
+
+        var legacyRandomProvider = new SeededRandomProvider(seed);
+        var legacyPick = DrawConsumingCandidates(candidates, legacyRandomProvider).MinByRandom(legacyRandomProvider);
+
+        var selectorRandomProvider = new SeededRandomProvider(seed);
+        var weightedChordSelector = new WeightedChordSelector(new AggregateScoringRule([]), selectorRandomProvider);
+
+        // act
+        var selectedChord = weightedChordSelector.SelectNextChord([], DrawConsumingCandidates(candidates, selectorRandomProvider));
+
+        // assert
+        selectedChord.Should().BeSameAs(legacyPick);
     }
 
     [Test]

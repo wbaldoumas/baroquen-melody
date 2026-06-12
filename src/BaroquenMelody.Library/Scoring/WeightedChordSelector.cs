@@ -8,32 +8,32 @@ namespace BaroquenMelody.Library.Scoring;
 ///     Selects a minimum-penalty candidate according to the configured <see cref="IScoringRule"/>, breaking ties
 ///     uniformly at random via the injected <see cref="IRandomProvider"/> (so selection stays deterministic under
 ///     a seed). Penalties are integer-valued sums (see <see cref="IScoringRule"/>), so exact equality identifies
-///     ties. With no enabled scoring rules every candidate ties at zero and selection degrades to the legacy
-///     uniform random pick over all candidates.
+///     ties. One tie-break key is drawn per candidate, interleaved with enumeration, which makes the
+///     no-scoring-rules path draw-for-draw identical to the legacy <see cref="RandomProviderExtensions.MinByRandom{T}"/>
+///     pick — even when the candidate stream itself consumes random draws while being enumerated (as the lazy
+///     rule-bypass pipeline does for strictness values below 100).
 /// </remarks>
 internal sealed class WeightedChordSelector(IScoringRule scoringRule, IRandomProvider randomProvider) : IChordSelector
 {
     public BaroquenChord? SelectNextChord(IReadOnlyList<BaroquenChord> precedingChords, IEnumerable<BaroquenChord> candidateChords)
     {
+        BaroquenChord? bestChord = null;
         var bestPenalty = double.MaxValue;
-        var bestChords = new List<BaroquenChord>();
+        var bestTieBreaker = int.MaxValue;
 
         foreach (var candidateChord in candidateChords)
         {
             var penalty = scoringRule.Score(precedingChords, candidateChord);
+            var tieBreaker = randomProvider.Next();
 
-            if (penalty < bestPenalty)
+            if (penalty < bestPenalty || (penalty == bestPenalty && tieBreaker < bestTieBreaker))
             {
+                bestChord = candidateChord;
                 bestPenalty = penalty;
-                bestChords.Clear();
-                bestChords.Add(candidateChord);
-            }
-            else if (penalty == bestPenalty)
-            {
-                bestChords.Add(candidateChord);
+                bestTieBreaker = tieBreaker;
             }
         }
 
-        return bestChords.MinByRandom(randomProvider);
+        return bestChord;
     }
 }

@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Configurations.Serialization.JsonSerializerContexts;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
+using BaroquenMelody.Library.Scoring.Enums;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -36,7 +37,14 @@ internal sealed class CompositionConfigurationSerializationTests
             Meter.FourFour,
             MusicalTimeSpan.Half,
             MinimumMeasures: 100,
-            AggregateScoringRuleConfiguration: AggregateScoringRuleConfiguration.Default
+            AggregateScoringRuleConfiguration: new AggregateScoringRuleConfiguration(
+                new HashSet<ScoringRuleConfiguration>
+                {
+                    new(ScoringRule.PreferShortestVoiceMovement, ConfigurationStatus.Enabled, Weight: 3),
+                    new(ScoringRule.PreferContraryOuterVoiceMotion, ConfigurationStatus.Disabled, Weight: 7),
+                    new(ScoringRule.PreferLeapRecovery, ConfigurationStatus.EnabledAndLocked, Weight: 0)
+                }
+            )
         );
 
         // act
@@ -97,16 +105,16 @@ internal sealed class CompositionConfigurationSerializationTests
         }
 
         deserializedConfiguration.AggregateScoringRuleConfiguration.Should().NotBeNull();
-        deserializedConfiguration.AggregateScoringRuleConfiguration!.Configurations.Should().HaveCount(AggregateScoringRuleConfiguration.Default.Configurations.Count);
+        deserializedConfiguration.AggregateScoringRuleConfiguration!.Configurations.Should().HaveCount(compositionConfiguration.AggregateScoringRuleConfiguration!.Configurations.Count);
 
         foreach (var deserializedScoringRuleConfiguration in deserializedConfiguration.AggregateScoringRuleConfiguration.Configurations)
         {
-            var originalScoringRuleConfiguration = AggregateScoringRuleConfiguration.Default.Configurations.First(scoringRuleConfiguration =>
+            var originalScoringRuleConfiguration = compositionConfiguration.AggregateScoringRuleConfiguration.Configurations.First(scoringRuleConfiguration =>
                 scoringRuleConfiguration.Rule == deserializedScoringRuleConfiguration.Rule
             );
 
             deserializedScoringRuleConfiguration.Rule.Should().Be(originalScoringRuleConfiguration.Rule);
-            deserializedScoringRuleConfiguration.IsEnabled.Should().Be(originalScoringRuleConfiguration.IsEnabled);
+            deserializedScoringRuleConfiguration.Status.Should().Be(originalScoringRuleConfiguration.Status);
             deserializedScoringRuleConfiguration.Weight.Should().Be(originalScoringRuleConfiguration.Weight);
         }
     }

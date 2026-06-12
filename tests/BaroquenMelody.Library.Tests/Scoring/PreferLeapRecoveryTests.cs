@@ -92,6 +92,18 @@ internal sealed class PreferLeapRecoveryTests
         ).SetName("No penalty when the previous move was not a leap");
 
         yield return new TestCaseData(
+            BuildPrecedingChords(Notes.C4, Notes.E4),
+            BuildNextChord(Notes.G4),
+            0d
+        ).SetName("No penalty when the previous move was a third, just below the leap threshold");
+
+        yield return new TestCaseData(
+            BuildPrecedingChords(Notes.C4, Notes.F4),
+            BuildNextChord(Notes.CSharp4),
+            0d
+        ).SetName("Notes outside the scale are not scored");
+
+        yield return new TestCaseData(
             BuildPrecedingChords(Notes.F4, Notes.C4),
             BuildNextChord(Notes.D4),
             0d

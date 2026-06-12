@@ -128,6 +128,52 @@ internal sealed class EndingComposerTests
     }
 
     [Test]
+    public void Compose_WithDefaultScoringRulesEnabled_StillComposesTheFallbackBridgingChord()
+    {
+        // arrange: same fallback path as above, but the selector scores candidates with the default scoring rules,
+        // exercising the materialize-and-score path through EndingComposer.GetNextChord.
+        var scoringRuleFactory = new ScoringRuleFactory(_compositionConfiguration);
+
+        var endingComposer = new EndingComposer(
+            _mockCompositionStrategy,
+            _mockCompositionDecorator,
+            _mockChordNumberIdentifier,
+            new WeightedChordSelector(scoringRuleFactory.CreateAggregate(AggregateScoringRuleConfiguration.Default), new ThreadLocalRandomProvider()),
+            _mockDispatcher,
+            _mockLogger,
+            _compositionConfiguration
+        );
+
+        var composition = CreateTestComposition();
+        var theme = CreateTestTheme();
+        var bridgingChords = new List<BaroquenChord> { new([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]) };
+
+        _mockCompositionStrategy.GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns([], bridgingChords);
+
+        _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>())
+            .Returns(ChordNumber.V, ChordNumber.V, ChordNumber.V, ChordNumber.I);
+
+        var fallbackChordChoice = new ChordChoice(
+        [
+            new NoteChoice(Instrument.One, NoteMotion.Oblique, 1),
+            new NoteChoice(Instrument.Two, NoteMotion.Oblique, 1),
+            new NoteChoice(Instrument.Three, NoteMotion.Oblique, 1),
+            new NoteChoice(Instrument.Four, NoteMotion.Oblique, 1)
+        ]);
+
+        _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns([fallbackChordChoice]);
+
+        // act
+        var result = endingComposer.Compose(composition, theme, CancellationToken.None);
+
+        // assert
+        result.Should().NotBeNull();
+        result.Measures.Should().NotBeEmpty();
+    }
+
+    [Test]
     public void WhenMaxBridgingChordsAndMaxChordsToTonicAreReached_ThenCompositionIsStillReturned()
     {
         // arrange

@@ -67,7 +67,7 @@ internal sealed class ScoringRuleFactoryTests
     [Test]
     public void CreateAggregate_excludes_disabled_and_zero_weight_rules()
     {
-        // arrange: both outer voices step upward, so shortest-movement costs 2 raw and similar motion costs 1 raw.
+        // arrange
         var aggregateScoringRule = _scoringRuleFactory.CreateAggregate(
             new AggregateScoringRuleConfiguration(
                 new HashSet<ScoringRuleConfiguration>
@@ -80,7 +80,7 @@ internal sealed class ScoringRuleFactoryTests
         );
 
         // act
-        var penalty = aggregateScoringRule.Score(StepwisePrecedingChords, StepwiseSimilarMotionNextChord);
+        var penalty = aggregateScoringRule.Score(LeapPrecedingChords, UnrecoveredLeapNextChord);
 
         // assert
         penalty.Should().Be(4d, "only the enabled, positively-weighted shortest-movement rule should contribute (2 steps x weight 2)");
@@ -102,11 +102,33 @@ internal sealed class ScoringRuleFactoryTests
         );
 
         // act
-        var penalty = aggregateScoringRule.Score(StepwisePrecedingChords, StepwiseSimilarMotionNextChord);
+        var penalty = aggregateScoringRule.Score(LeapPrecedingChords, UnrecoveredLeapNextChord);
 
         // assert
-        penalty.Should().Be(9d, "shortest movement (2 steps x weight 2) and similar outer-voice motion (1 x weight 5) should both contribute");
+        penalty.Should().Be(
+            13d,
+            "shortest movement (2 steps x weight 2), similar outer-voice motion (1 x weight 5), and the unrecovered leap (1 x weight 4) should all contribute"
+        );
     }
+
+    // Instrument.One leaps C4 -> F4 and then continues to G4 (an unrecovered leap) while both voices step upward in
+    // similar motion: shortest movement costs 2 raw, similar outer-voice motion 1 raw, and leap recovery 1 raw.
+    private static List<BaroquenChord> LeapPrecedingChords =>
+    [
+        new([
+            new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Half)
+        ]),
+        new([
+            new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Half)
+        ])
+    ];
+
+    private static BaroquenChord UnrecoveredLeapNextChord => new([
+        new BaroquenNote(Instrument.One, Notes.G4, MusicalTimeSpan.Half),
+        new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+    ]);
 
     private static List<BaroquenChord> StepwisePrecedingChords =>
     [
@@ -115,9 +137,4 @@ internal sealed class ScoringRuleFactoryTests
             new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Half)
         ])
     ];
-
-    private static BaroquenChord StepwiseSimilarMotionNextChord => new([
-        new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Half),
-        new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
-    ]);
 }
