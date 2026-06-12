@@ -9,6 +9,7 @@ using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Phrasing;
+using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Strategies;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
@@ -70,10 +71,12 @@ internal sealed class ComposerTests
 
         _compositionConfiguration = TestCompositionConfigurations.Get(2);
 
+        var chordSelector = new WeightedChordSelector(new AggregateScoringRule([]), new ThreadLocalRandomProvider());
+
         _fugalEntryPlacer = new FugalEntryPlacer(_compositionConfiguration);
-        _chordComposer = new ChordComposer(_mockCompositionStrategy, new ThreadLocalRandomProvider(), _mockLogger);
-        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _fugalEntryPlacer, new FugalAnswerStrategy(_compositionConfiguration), new ThreadLocalRandomProvider(), _mockDispatcher, _mockLogger, _compositionConfiguration);
-        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, new ThreadLocalRandomProvider(), _mockDispatcher, _mockLogger, _compositionConfiguration);
+        _chordComposer = new ChordComposer(_mockCompositionStrategy, chordSelector, _mockLogger);
+        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _fugalEntryPlacer, new FugalAnswerStrategy(_compositionConfiguration), chordSelector, _mockDispatcher, _mockLogger, _compositionConfiguration);
+        _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, chordSelector, _mockDispatcher, _mockLogger, _compositionConfiguration);
         _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, _themeComposer, _endingComposer, _mockDynamicsApplicator, _mockDispatcher, _compositionConfiguration);
     }
 

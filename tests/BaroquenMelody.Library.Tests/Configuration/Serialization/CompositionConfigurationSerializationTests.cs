@@ -9,6 +9,7 @@ using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
 using NUnit.Framework;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace BaroquenMelody.Library.Tests.Configuration.Serialization;
 
@@ -34,7 +35,8 @@ internal sealed class CompositionConfigurationSerializationTests
             Mode.Aeolian,
             Meter.FourFour,
             MusicalTimeSpan.Half,
-            MinimumMeasures: 100
+            MinimumMeasures: 100,
+            AggregateScoringRuleConfiguration: AggregateScoringRuleConfiguration.Default
         );
 
         // act
@@ -93,5 +95,50 @@ internal sealed class CompositionConfigurationSerializationTests
             deserializedOrnamentationConfiguration.IsEnabled.Should().Be(originalOrnamentationConfiguration.IsEnabled);
             deserializedOrnamentationConfiguration.Probability.Should().Be(originalOrnamentationConfiguration.Probability);
         }
+
+        deserializedConfiguration.AggregateScoringRuleConfiguration.Should().NotBeNull();
+        deserializedConfiguration.AggregateScoringRuleConfiguration!.Configurations.Should().HaveCount(AggregateScoringRuleConfiguration.Default.Configurations.Count);
+
+        foreach (var deserializedScoringRuleConfiguration in deserializedConfiguration.AggregateScoringRuleConfiguration.Configurations)
+        {
+            var originalScoringRuleConfiguration = AggregateScoringRuleConfiguration.Default.Configurations.First(scoringRuleConfiguration =>
+                scoringRuleConfiguration.Rule == deserializedScoringRuleConfiguration.Rule
+            );
+
+            deserializedScoringRuleConfiguration.Rule.Should().Be(originalScoringRuleConfiguration.Rule);
+            deserializedScoringRuleConfiguration.IsEnabled.Should().Be(originalScoringRuleConfiguration.IsEnabled);
+            deserializedScoringRuleConfiguration.Weight.Should().Be(originalScoringRuleConfiguration.Weight);
+        }
+    }
+
+    [Test]
+    public void Deserialization_of_a_legacy_configuration_without_scoring_rules_yields_a_null_scoring_configuration()
+    {
+        // arrange: a configuration saved before scoring rules existed has no scoring property at all.
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100
+        );
+
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var legacyConfigurationJson = JsonNode.Parse(serializedConfiguration)!.AsObject();
+
+        legacyConfigurationJson.Remove(nameof(CompositionConfiguration.AggregateScoringRuleConfiguration));
+
+        // act
+        var deserializedConfiguration = JsonSerializer.Deserialize(legacyConfigurationJson.ToJsonString(), CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.AggregateScoringRuleConfiguration.Should().BeNull();
     }
 }

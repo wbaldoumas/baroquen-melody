@@ -7,6 +7,7 @@ using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation;
+using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Strategies;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
@@ -53,7 +54,7 @@ internal sealed class EndingComposerTests
             _mockCompositionStrategy,
             _mockCompositionDecorator,
             _mockChordNumberIdentifier,
-            new ThreadLocalRandomProvider(),
+            new WeightedChordSelector(new AggregateScoringRule([]), new ThreadLocalRandomProvider()),
             _mockDispatcher,
             _mockLogger,
             _compositionConfiguration

@@ -1,10 +1,10 @@
 ﻿using BaroquenMelody.Infrastructure.Logging;
-using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
+using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Strategies;
 using Fluxor;
@@ -19,7 +19,7 @@ internal sealed class ThemeComposer(
     IChordComposer chordComposer,
     IFugalEntryPlacer fugalEntryPlacer,
     IFugalAnswerStrategy fugalAnswerStrategy,
-    IRandomProvider randomProvider,
+    IChordSelector chordSelector,
     IDispatcher dispatcher,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
@@ -137,13 +137,13 @@ internal sealed class ThemeComposer(
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChord], placedEntryChord);
+                var nextChord = chordSelector.SelectNextChord([precedingChord], possibleChords);
 
-                if (possibleChords.Count == 0)
+                if (nextChord is null)
                 {
                     return [];
                 }
 
-                var nextChord = possibleChords.OrderByRandom(randomProvider).First();
                 var placedEntryNote = placedEntryChord[instrument];
                 var otherNotes = nextChord.Notes.Where(note => note.Instrument != instrument);
                 var workingChord = new BaroquenChord([.. otherNotes, placedEntryNote]);
