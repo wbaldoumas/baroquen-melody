@@ -147,6 +147,14 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DoublePedalPassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter + MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoublePedalPassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Eighth.Dotted(1),
 
+        OrnamentationType.Trill when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Trill when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter + MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Trill when meter == Meter.FiveEight => MusicalTimeSpan.Eighth.Dotted(1),
+
+        // The appoggiatura's principal is the silent harmonic anchor (the chord tone); both the dissonance and its
+        // resolution are sounded as ornamentations, so the principal itself occupies no time.
+        OrnamentationType.Appoggiatura => Zero,
+
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,
 
@@ -298,6 +306,17 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.DoublePedalPassingTone when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoublePedalPassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoublePedalPassingTone when meter == Meter.FiveEight => MusicalTimeSpan.Sixteenth,
+
+        OrnamentationType.Trill when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Trill when meter == Meter.ThreeFour => MusicalTimeSpan.Sixteenth,
+        OrnamentationType.Trill when meter == Meter.FiveEight => MusicalTimeSpan.Sixteenth,
+
+        // The accented dissonance (step 0) takes the larger share of the beat and resolves down to the chord tone (step 1).
+        OrnamentationType.Appoggiatura when meter == Meter.FourFour => MusicalTimeSpan.Quarter,
+        OrnamentationType.Appoggiatura when meter == Meter.ThreeFour && ornamentationStep == 0 => MusicalTimeSpan.Half,
+        OrnamentationType.Appoggiatura when meter == Meter.ThreeFour && ornamentationStep == 1 => MusicalTimeSpan.Quarter,
+        OrnamentationType.Appoggiatura when meter == Meter.FiveEight && ornamentationStep == 0 => MusicalTimeSpan.Quarter.Dotted(1),
+        OrnamentationType.Appoggiatura when meter == Meter.FiveEight && ornamentationStep == 1 => MusicalTimeSpan.Quarter,
 
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,
