@@ -2,7 +2,6 @@ using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Scoring;
-using CsCheck;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -15,6 +14,8 @@ namespace BaroquenMelody.Library.Tests.Scoring;
 [TestFixture]
 internal sealed class WeightedChordSelectorTests
 {
+    private const int Seed = 1234;
+
     private static readonly Note[] _distinctNotes =
     [
         Notes.C4, Notes.D4, Notes.E4, Notes.F4, Notes.G4, Notes.A4, Notes.B4, Notes.C5, Notes.D5, Notes.E5, Notes.F5, Notes.G5
@@ -34,175 +35,135 @@ internal sealed class WeightedChordSelectorTests
     }
 
     [Test]
-    public void SelectNextChord_ReturnsTheMinimumPenaltyCandidate()
+    public void SelectNextChord_ReturnsTheOnlyCandidate_WhenThereIsASingleCandidate()
     {
         // arrange
         var precedingChords = new List<BaroquenChord> { BuildChord(Notes.C4) };
-
-        var candidateA = BuildChord(Notes.D4);
-        var candidateB = BuildChord(Notes.E4);
-        var candidateC = BuildChord(Notes.F4);
+        var candidate = BuildChord(Notes.D4);
 
         var mockScoringRule = Substitute.For<IScoringRule>();
 
-        mockScoringRule.Score(precedingChords, candidateA).Returns(2d);
-        mockScoringRule.Score(precedingChords, candidateB).Returns(0d);
-        mockScoringRule.Score(precedingChords, candidateC).Returns(1d);
+        mockScoringRule.Score(precedingChords, candidate).Returns(3d);
 
-        var weightedChordSelector = new WeightedChordSelector(mockScoringRule, Substitute.For<IRandomProvider>());
+        var weightedChordSelector = new WeightedChordSelector(mockScoringRule, new SeededRandomProvider(Seed));
 
         // act
-        var selectedChord = weightedChordSelector.SelectNextChord(precedingChords, [candidateA, candidateB, candidateC]);
+        var selectedChord = weightedChordSelector.SelectNextChord(precedingChords, [candidate]);
 
         // assert
-        selectedChord.Should().BeSameAs(candidateB);
+        selectedChord.Should().BeSameAs(candidate);
     }
 
     [Test]
-    public void SelectNextChord_BreaksTiesWithTheRandomProvider()
+    public void SelectNextChord_StronglyFavorsTheLowestPenaltyCandidate()
     {
         // arrange
         var precedingChords = new List<BaroquenChord> { BuildChord(Notes.C4) };
 
-        var candidateA = BuildChord(Notes.D4);
-        var candidateB = BuildChord(Notes.E4);
-        var candidateC = BuildChord(Notes.F4);
+        var lowPenaltyChord = BuildChord(Notes.D4);
+        var highPenaltyChord = BuildChord(Notes.E4);
 
         var mockScoringRule = Substitute.For<IScoringRule>();
 
-        mockScoringRule.Score(precedingChords, candidateA).Returns(0d);
-        mockScoringRule.Score(precedingChords, candidateB).Returns(5d);
-        mockScoringRule.Score(precedingChords, candidateC).Returns(0d);
+        mockScoringRule.Score(precedingChords, lowPenaltyChord).Returns(0d);
+        mockScoringRule.Score(precedingChords, highPenaltyChord).Returns(1000d);
 
+        // even with the random target at the very top of its range, the negligible-weight candidate is not chosen.
         var mockRandomProvider = Substitute.For<IRandomProvider>();
 
-        mockRandomProvider.Next().Returns(7, 9, 3);
+        mockRandomProvider.Next().Returns(int.MaxValue - 1);
 
         var weightedChordSelector = new WeightedChordSelector(mockScoringRule, mockRandomProvider);
 
         // act
-        var selectedChord = weightedChordSelector.SelectNextChord(precedingChords, [candidateA, candidateB, candidateC]);
+        var selectedChord = weightedChordSelector.SelectNextChord(precedingChords, [highPenaltyChord, lowPenaltyChord]);
 
-        // assert: every candidate draws a tie-break key, and among the tied minimum-penalty candidates the smaller key wins.
-        selectedChord.Should().BeSameAs(candidateC);
-
-        mockRandomProvider.Received(3).Next();
+        // assert
+        selectedChord.Should().BeSameAs(lowPenaltyChord);
     }
 
     [Test]
-    public void SelectNextChord_BreaksTiesAtNonZeroPenalties()
+    public void SelectNextChord_SometimesSelectsAHigherPenaltyCandidate_ButFavorsLowerPenaltyOnes()
     {
         // arrange
         var precedingChords = new List<BaroquenChord> { BuildChord(Notes.C4) };
 
-        var candidateA = BuildChord(Notes.D4);
-        var candidateB = BuildChord(Notes.E4);
-        var candidateC = BuildChord(Notes.F4);
+        var lowPenaltyChord = BuildChord(Notes.D4);
+        var highPenaltyChord = BuildChord(Notes.E4);
+        var candidates = new List<BaroquenChord> { lowPenaltyChord, highPenaltyChord };
 
         var mockScoringRule = Substitute.For<IScoringRule>();
 
-        mockScoringRule.Score(precedingChords, candidateA).Returns(4d);
-        mockScoringRule.Score(precedingChords, candidateB).Returns(4d);
-        mockScoringRule.Score(precedingChords, candidateC).Returns(7d);
+        mockScoringRule.Score(precedingChords, lowPenaltyChord).Returns(0d);
+        mockScoringRule.Score(precedingChords, highPenaltyChord).Returns(6d);
 
-        var mockRandomProvider = Substitute.For<IRandomProvider>();
-
-        mockRandomProvider.Next().Returns(8, 2, 5);
-
-        var weightedChordSelector = new WeightedChordSelector(mockScoringRule, mockRandomProvider);
+        var weightedChordSelector = new WeightedChordSelector(mockScoringRule, new SeededRandomProvider(Seed));
 
         // act
-        var selectedChord = weightedChordSelector.SelectNextChord(precedingChords, [candidateA, candidateB, candidateC]);
+        var counts = CountSelections(weightedChordSelector, precedingChords, candidates, iterations: 200);
 
-        // assert: the tie at the minimum (non-zero) penalty is broken by the smaller key; the worse candidate never wins.
-        selectedChord.Should().BeSameAs(candidateB);
+        // assert: the softmax keeps the music moving by giving the rougher candidate a real chance, while still
+        // preferring the smoother one (unlike a strict minimum-penalty pick, which would never choose the rougher one).
+        counts[0].Should().BeGreaterThan(counts[1], "the lower-penalty candidate should be favored");
+        counts[1].Should().BeGreaterThan(0, "the higher-penalty candidate should still be selected sometimes");
     }
 
     [Test]
-    public void SelectNextChord_WithoutScoringRules_MatchesTheLegacyRandomPickDrawForDraw()
+    public void SelectNextChord_SelectsUniformlyAtRandom_WhenThereAreNoScoringRules()
     {
-        // arrange: production candidate streams are lazy and may themselves consume random draws while being
-        // enumerated (rule-bypass strictness draws from the same provider), so the selector must interleave its
-        // tie-break draws with enumeration exactly like the legacy MinByRandom pick did.
-        const int seed = 1234;
+        // arrange
+        var precedingChords = new List<BaroquenChord> { BuildChord(Notes.C4) };
+        var candidates = _distinctNotes.Take(3).Select(BuildChord).ToList();
 
-        var candidates = _distinctNotes.Take(6).Select(BuildChord).ToList();
+        var weightedChordSelector = new WeightedChordSelector(new AggregateScoringRule([]), new SeededRandomProvider(Seed));
 
-        static IEnumerable<BaroquenChord> DrawConsumingCandidates(List<BaroquenChord> source, IRandomProvider randomProvider)
+        // act
+        var counts = CountSelections(weightedChordSelector, precedingChords, candidates, iterations: 200);
+
+        // assert: every candidate scores zero, so the distribution is uniform and every candidate is reachable.
+        counts.Should().OnlyContain(count => count > 0, "with no scoring rules selection degrades to a uniform random pick");
+    }
+
+    [Test]
+    public void SelectNextChord_IsDeterministicUnderASeed()
+    {
+        // arrange
+        var precedingChords = new List<BaroquenChord> { BuildChord(Notes.C4) };
+        var candidates = _distinctNotes.Take(5).Select(BuildChord).ToList();
+
+        var mockScoringRule = Substitute.For<IScoringRule>();
+
+        mockScoringRule
+            .Score(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(callInfo => (double)IndexOfReference(candidates, callInfo.Arg<BaroquenChord>()));
+
+        var firstSelector = new WeightedChordSelector(mockScoringRule, new SeededRandomProvider(Seed));
+        var secondSelector = new WeightedChordSelector(mockScoringRule, new SeededRandomProvider(Seed));
+
+        // act
+        var firstSelections = Enumerable.Range(0, 50).Select(_ => firstSelector.SelectNextChord(precedingChords, candidates)).ToList();
+        var secondSelections = Enumerable.Range(0, 50).Select(_ => secondSelector.SelectNextChord(precedingChords, candidates)).ToList();
+
+        // assert
+        firstSelections.Should().Equal(secondSelections);
+    }
+
+    private static int[] CountSelections(
+        WeightedChordSelector weightedChordSelector,
+        IReadOnlyList<BaroquenChord> precedingChords,
+        List<BaroquenChord> candidates,
+        int iterations)
+    {
+        var counts = new int[candidates.Count];
+
+        for (var iteration = 0; iteration < iterations; ++iteration)
         {
-            foreach (var chord in source)
-            {
-                _ = randomProvider.Next();
+            var selectedChord = weightedChordSelector.SelectNextChord(precedingChords, candidates);
 
-                yield return chord;
-            }
+            counts[IndexOfReference(candidates, selectedChord!)]++;
         }
 
-        var legacyRandomProvider = new SeededRandomProvider(seed);
-        var legacyPick = DrawConsumingCandidates(candidates, legacyRandomProvider).MinByRandom(legacyRandomProvider);
-
-        var selectorRandomProvider = new SeededRandomProvider(seed);
-        var weightedChordSelector = new WeightedChordSelector(new AggregateScoringRule([]), selectorRandomProvider);
-
-        // act
-        var selectedChord = weightedChordSelector.SelectNextChord([], DrawConsumingCandidates(candidates, selectorRandomProvider));
-
-        // assert
-        selectedChord.Should().BeSameAs(legacyPick);
-    }
-
-    [Test]
-    public void SelectNextChord_FallsBackToUniformRandomSelection_WhenThereAreNoScoringRules()
-    {
-        // arrange
-        var precedingChords = new List<BaroquenChord> { BuildChord(Notes.C4) };
-
-        var candidateA = BuildChord(Notes.D4);
-        var candidateB = BuildChord(Notes.E4);
-        var candidateC = BuildChord(Notes.F4);
-
-        var mockRandomProvider = Substitute.For<IRandomProvider>();
-
-        mockRandomProvider.Next().Returns(5, 1, 9);
-
-        var weightedChordSelector = new WeightedChordSelector(new AggregateScoringRule([]), mockRandomProvider);
-
-        // act
-        var selectedChord = weightedChordSelector.SelectNextChord(precedingChords, [candidateA, candidateB, candidateC]);
-
-        // assert: every candidate ties at zero, so selection degrades to the legacy uniform random pick.
-        selectedChord.Should().BeSameAs(candidateB);
-
-        mockRandomProvider.Received(3).Next();
-    }
-
-    [Test]
-    public void SelectNextChord_AlwaysSelectsACandidateWithTheMinimumPenalty()
-    {
-        Gen.Select(Gen.Int[0, 5].List[1, 12], Gen.Int, static (penalties, seed) => (Penalties: penalties, Seed: seed)).Sample(
-            input =>
-            {
-                // arrange
-                var candidates = input.Penalties.Select((_, index) => BuildChord(_distinctNotes[index])).ToList();
-
-                var mockScoringRule = Substitute.For<IScoringRule>();
-
-                mockScoringRule
-                    .Score(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
-                    .Returns(callInfo => input.Penalties[IndexOfReference(candidates, callInfo.Arg<BaroquenChord>())]);
-
-                var weightedChordSelector = new WeightedChordSelector(mockScoringRule, new SeededRandomProvider(input.Seed));
-
-                // act
-                var selectedChord = weightedChordSelector.SelectNextChord([], candidates);
-
-                // assert
-                selectedChord.Should().NotBeNull();
-
-                input.Penalties[IndexOfReference(candidates, selectedChord)].Should().Be(input.Penalties.Min());
-            },
-            iter: 25
-        );
+        return counts;
     }
 
     private static int IndexOfReference(List<BaroquenChord> chords, BaroquenChord chord)

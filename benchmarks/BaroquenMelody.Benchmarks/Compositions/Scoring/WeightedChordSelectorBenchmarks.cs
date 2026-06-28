@@ -71,7 +71,8 @@ public class WeightedChordSelectorBenchmarks
     );
 
     private static readonly WeightedChordSelector DefaultScoringChordSelector = new(
-        new ScoringRuleFactory(BenchmarkData.CompositionConfiguration).CreateAggregate(AggregateScoringRuleConfiguration.Default),
+        new ScoringRuleFactory(BenchmarkData.CompositionConfiguration).CreateAggregate(AggregateScoringRuleConfiguration
+            .Default),
         RandomProvider
     );
 
@@ -79,11 +80,14 @@ public class WeightedChordSelectorBenchmarks
     public int LegacyUniformRandomPick() => CandidateChords.MinByRandom(RandomProvider)!.Notes[0].NoteNumber;
 
     [Benchmark]
-    public int WeightedChordSelectorWithScoringDisabled() => ScoringDisabledChordSelector.SelectNextChord(PrecedingChords, CandidateChords)!.Notes[0].NoteNumber;
+    public int WeightedChordSelectorWithScoringDisabled() =>
+        ScoringDisabledChordSelector.SelectNextChord(PrecedingChords, CandidateChords)!.Notes[0].NoteNumber;
 
     [Benchmark]
-    public int WeightedChordSelectorWithDefaultScoring() => DefaultScoringChordSelector.SelectNextChord(PrecedingChords, CandidateChords)!.Notes[0].NoteNumber;
+    public int WeightedChordSelectorWithDefaultScoring() =>
+        DefaultScoringChordSelector.SelectNextChord(PrecedingChords, CandidateChords)!.Notes[0].NoteNumber;
 
     [Benchmark]
-    public int EnumerateValidChordChoicesAndChords() => CompositionStrategy.GetValidChordChoicesAndChords(PrecedingChords).Count();
+    public int EnumerateValidChordChoicesAndChords() =>
+        CompositionStrategy.GetValidChordChoicesAndChords(PrecedingChords).Count();
 }
