@@ -3,6 +3,7 @@ using BaroquenMelody.Infrastructure.Logging;
 using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Motifs;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Rules;
 using Melanchall.DryWetMidi.Interaction;
@@ -17,7 +18,9 @@ internal sealed class CompositionPhraser(
     IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
     IRandomProvider randomProvider,
     ILogger logger,
-    CompositionConfiguration compositionConfiguration
+    CompositionConfiguration compositionConfiguration,
+    IMotifBankFactory motifBankFactory,
+    IMotifDeveloper motifDeveloper
 ) : ICompositionPhraser
 {
     private readonly List<RepeatedPhrase> _phrasesToRepeat = [];
@@ -27,6 +30,8 @@ internal sealed class CompositionPhraser(
     private List<RepeatedPhrase> _themePhrasesToRepeat = [];
 
     private RepeatedPhrase? _themeCoolOffPhrase;
+
+    private MotifBank? _motifBank;
 
     public void AttemptPhraseRepetition(List<Measure> measures)
     {
@@ -40,6 +45,8 @@ internal sealed class CompositionPhraser(
 
     public void AddTheme(BaroquenTheme theme)
     {
+        _motifBank = motifBankFactory.Create(theme);
+
         _themePhrasesToRepeat = themeSplitter.SplitThemeIntoPhrases(theme);
 
         foreach (var themePhraseToRepeat in _themePhrasesToRepeat.ToList())
@@ -155,8 +162,61 @@ internal sealed class CompositionPhraser(
 
         ResetPhraseEndOrnamentation(measures[^1], compositionConfiguration.DefaultNoteTimeSpan);
 
-        measures.AddRange(repeatedPhrase.Phrase.Select(static measure => new Measure(measure)).ToList());
+        measures.AddRange(BuildRestatement(measures, repeatedPhrase.Phrase));
         repeatedPhrase.RepetitionCount++;
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Builds the measures to append for a restatement: a developed (transformed) restatement when motivic development
+    ///     produces a candidate that passes the rule gate, otherwise a verbatim copy of the phrase.
+    /// </summary>
+    /// <param name="measures">The composition so far, used as the rule-evaluation context.</param>
+    /// <param name="phrase">The phrase being restated.</param>
+    /// <returns>The measures to append.</returns>
+    private List<Measure> BuildRestatement(List<Measure> measures, List<Measure> phrase)
+    {
+        if (_motifBank is not null)
+        {
+            var developedPhrase = motifDeveloper.TryDevelop(_motifBank, phrase);
+
+            if (developedPhrase is not null && CanAppendDevelopedPhrase(measures, developedPhrase))
+            {
+                logger.LogInfoMessage("Substituted a developed motivic restatement.");
+
+                return developedPhrase;
+            }
+        }
+
+        return phrase.Select(static measure => new Measure(measure)).ToList();
+    }
+
+    /// <summary>
+    ///     Validates a developed restatement chord-by-chord against the same rules that govern body composition, so a
+    ///     developed candidate can only be appended if it is as valid as a verbatim repetition would be.
+    /// </summary>
+    /// <param name="measures">The composition so far, seeding the rule-evaluation context.</param>
+    /// <param name="developedPhrase">The candidate developed restatement.</param>
+    /// <returns>Whether every chord of the developed restatement passes the composition rules.</returns>
+    private bool CanAppendDevelopedPhrase(List<Measure> measures, List<Measure> developedPhrase)
+    {
+        var compositionContext = new FixedSizeList<BaroquenChord>(compositionConfiguration.CompositionContextSize);
+
+        foreach (var chord in measures.SelectMany(static measure => measure.Beats).Select(static beat => beat.Chord))
+        {
+            compositionContext.Add(chord);
+        }
+
+        foreach (var chord in developedPhrase.SelectMany(static measure => measure.Beats).Select(static beat => beat.Chord))
+        {
+            if (!compositionRule.Evaluate(compositionContext, chord))
+            {
+                return false;
+            }
+
+            compositionContext.Add(chord);
+        }
 
         return true;
     }
