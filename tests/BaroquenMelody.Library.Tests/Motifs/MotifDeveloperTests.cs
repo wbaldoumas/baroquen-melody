@@ -20,12 +20,14 @@ internal sealed class MotifDeveloperTests
 {
     private const int Seed = 1234;
 
-    [Test]
-    public void TryDevelop_DevelopsTheSelectedVoiceWithTheConfiguredTransform_ReAnchoredToThePhrase()
+    [TestCase(MotifTransform.Invert)]
+    [TestCase(MotifTransform.Retrograde)]
+    [TestCase(MotifTransform.Augment)] // a reserved (unwired) transform must degrade to the grid-safe Identity, not an unsafe path.
+    public void TryDevelop_DevelopsTheSelectedVoiceWithTheConfiguredTransform_ReAnchoredToThePhrase(MotifTransform transform)
     {
         // arrange: a single cataloged voice (Instrument.One) forces the voice draw, and a single-transform repertoire
-        // forces Invert, so the only thing under test is the re-anchor + apply + re-assembly math.
-        var configuration = ConfigurationWith(new MotifDevelopmentConfiguration(true, [MotifTransform.Invert], 100, MotifDevelopmentScope.SingleVoice));
+        // forces the transform under test, so the only thing exercised is the re-anchor + apply + re-assembly math.
+        var configuration = ConfigurationWith(new MotifDevelopmentConfiguration(true, [transform], 100, MotifDevelopmentScope.SingleVoice));
         var motifApplicator = new MotifApplicator(configuration);
 
         // the bank motif's own anchor is deliberately bogus (unused) — the developer must re-anchor to the phrase's head.
@@ -53,9 +55,17 @@ internal sealed class MotifDeveloperTests
             )
         };
 
-        // independently compute what an Invert, re-anchored to the phrase's first Instrument.One note, must produce.
+        // independently compute the developed line: the transform applied to the motif, re-anchored to the phrase's first
+        // Instrument.One note. A reserved transform (Augment) must map to Identity, mirroring MotifDeveloper.ApplyTransform.
+        var expectedMotif = transform switch
+        {
+            MotifTransform.Invert => MotifTransformations.Invert(motif),
+            MotifTransform.Retrograde => MotifTransformations.Retrograde(motif),
+            _ => MotifTransformations.Identity(motif)
+        };
+
         var expectedNotes = motifApplicator.Apply(new AnchoredMotif(
-            MotifTransformations.Invert(motif),
+            expectedMotif,
             configuration.Scale.IndexOf(BuildNote(Instrument.One, Notes.E4)),
             Instrument.One));
 
@@ -75,7 +85,7 @@ internal sealed class MotifDeveloperTests
         {
             var developedNote = developedBeats[beatIndex][Instrument.One];
 
-            developedNote.Raw.Should().Be(expectedNotes[beatIndex].Raw, "the developed voice is the inverted motif re-anchored to the phrase");
+            developedNote.Raw.Should().Be(expectedNotes[beatIndex].Raw, "the developed voice is the configured transform re-anchored to the phrase");
             developedNote.MusicalTimeSpan.Should().Be(configuration.DefaultNoteTimeSpan, "developed notes are clean principal notes for the trailing ornamentation pass");
             developedNote.OrnamentationType.Should().Be(OrnamentationType.None);
             developedNote.Ornamentations.Should().BeEmpty();
@@ -120,6 +130,90 @@ internal sealed class MotifDeveloperTests
     }
 
     [Test]
+    public void TryDevelop_SelectsTheCandidateVoiceFromTheOrderedInstrumentList()
+    {
+        // arrange: catalog BOTH voices (inserting in reverse instrument order), so a regression that iterated the bank's
+        // frozen key order instead of the ordered instrument list could select a different voice.
+        var configuration = ConfigurationWith(new MotifDevelopmentConfiguration(true, [MotifTransform.Invert], 100, MotifDevelopmentScope.SingleVoice));
+
+        var motif = new Motif([new MotivicGesture(0, MusicalTimeSpan.Half), new MotivicGesture(-1, MusicalTimeSpan.Half)]);
+
+        var motifBank = new MotifBank(new Dictionary<Instrument, AnchoredMotif>
+        {
+            [Instrument.Two] = new AnchoredMotif(motif, 0, Instrument.Two),
+            [Instrument.One] = new AnchoredMotif(motif, 0, Instrument.One)
+        });
+
+        var phrase = new List<Measure>
+        {
+            BuildMeasure(
+                BuildChord(BuildNote(Instrument.One, Notes.E4), BuildNote(Instrument.Two, Notes.G3)),
+                BuildChord(BuildNote(Instrument.One, Notes.F4), BuildNote(Instrument.Two, Notes.A3))
+            )
+        };
+
+        // with the voice draw pinned to index 0, the developed voice must be the FIRST candidate in instrument order.
+        var expectedVoice = configuration.Instruments.First(motifBank.Contains);
+
+        AnchoredMotif? developedAnchoredMotif = null;
+        var motifApplicator = Substitute.For<IMotifApplicator>();
+        motifApplicator
+            .Apply(Arg.Do<AnchoredMotif>(anchoredMotif => developedAnchoredMotif = anchoredMotif))
+            .Returns(callInfo => new List<BaroquenNote>
+            {
+                BuildNote(callInfo.Arg<AnchoredMotif>().Instrument, Notes.C4),
+                BuildNote(callInfo.Arg<AnchoredMotif>().Instrument, Notes.C4)
+            });
+
+        var randomProvider = Substitute.For<IRandomProvider>();
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var weightedRandomBooleanGenerator = Substitute.For<IWeightedRandomBooleanGenerator>();
+        weightedRandomBooleanGenerator.IsTrue(Arg.Any<int>()).Returns(true);
+
+        var motifDeveloper = new MotifDeveloper(motifApplicator, weightedRandomBooleanGenerator, randomProvider, configuration);
+
+        // act
+        motifDeveloper.TryDevelop(motifBank, phrase);
+
+        // assert
+        developedAnchoredMotif.Should().NotBeNull();
+        developedAnchoredMotif!.Instrument.Should().Be(expectedVoice, "the developed voice comes from the ordered instrument list, not the bank's key order");
+    }
+
+    [Test]
+    public void TryDevelop_LeavesLaterMeasuresOfTheRestatementVerbatim()
+    {
+        // arrange: a two-measure phrase; the motif (+2 leap) inverts to a descending line, so the first measure visibly
+        // develops while the tail measure must remain an untouched verbatim clone.
+        var configuration = ConfigurationWith(new MotifDevelopmentConfiguration(true, [MotifTransform.Invert], 100, MotifDevelopmentScope.SingleVoice));
+
+        var motif = new Motif([new MotivicGesture(0, MusicalTimeSpan.Half), new MotivicGesture(2, MusicalTimeSpan.Half)]);
+
+        var motifBank = new MotifBank(new Dictionary<Instrument, AnchoredMotif>
+        {
+            [Instrument.One] = new AnchoredMotif(motif, 0, Instrument.One)
+        });
+
+        var phrase = new List<Measure>
+        {
+            BuildMeasure(BuildChord(BuildNote(Instrument.One, Notes.E4)), BuildChord(BuildNote(Instrument.One, Notes.F4))),
+            BuildMeasure(BuildChord(BuildNote(Instrument.One, Notes.G4)), BuildChord(BuildNote(Instrument.One, Notes.A4)))
+        };
+
+        var motifDeveloper = BuildMotifDeveloper(new MotifApplicator(configuration), configuration, new SeededRandomProvider(Seed));
+
+        // act
+        var developed = motifDeveloper.TryDevelop(motifBank, phrase);
+
+        // assert
+        developed.Should().NotBeNull();
+        developed!.Should().HaveCount(2);
+        developed[0].Beats.Select(beat => beat[Instrument.One].Raw).Should().NotEqual([Notes.E4, Notes.F4], "the first measure is developed");
+        developed[1].Beats.Select(beat => beat[Instrument.One].Raw).Should().Equal([Notes.G4, Notes.A4], "later measures of the phrase stay verbatim");
+    }
+
+    [Test]
     public void TryDevelop_WhenDevelopmentIsDisabled_ReturnsNullWithoutDrawingAnyRandomness()
     {
         // arrange
@@ -155,8 +249,9 @@ internal sealed class MotifDeveloperTests
         // act
         var developed = motifDeveloper.TryDevelop(motifBank, phrase);
 
-        // assert
+        // assert: the develop-or-not draw is spent (exactly once), but no voice/transform is drawn.
         developed.Should().BeNull();
+        weightedRandomBooleanGenerator.Received(1).IsTrue(50);
         randomProvider.DidNotReceive().Next(Arg.Any<int>());
     }
 
@@ -177,8 +272,10 @@ internal sealed class MotifDeveloperTests
         // act
         var developed = motifDeveloper.TryDevelop(emptyBank, phrase);
 
-        // assert
+        // assert: the develop-or-not draw is spent (exactly once), then the empty candidate set short-circuits before any
+        // voice/transform draw, keeping the draw count a strict function of (config, seed).
         developed.Should().BeNull();
+        weightedRandomBooleanGenerator.Received(1).IsTrue(100);
         randomProvider.DidNotReceive().Next(Arg.Any<int>());
     }
 

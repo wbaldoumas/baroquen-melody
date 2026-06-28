@@ -1,4 +1,5 @@
 using BaroquenMelody.Library.Motifs.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BaroquenMelody.Library.Configurations;
 
@@ -9,6 +10,7 @@ namespace BaroquenMelody.Library.Configurations;
 /// <param name="AllowedTransforms"> The ordered repertoire of transforms a restatement may draw from. An empty repertoire degrades to verbatim. </param>
 /// <param name="DevelopmentProbability"> The probability (0-100) that an eligible restatement is developed rather than repeated verbatim. </param>
 /// <param name="Scope"> How widely a developed restatement is applied across a phrase's voices. </param>
+[ExcludeFromCodeCoverage(Justification = "Configuration")]
 public sealed record MotifDevelopmentConfiguration(
     bool Enabled,
     IList<MotifTransform> AllowedTransforms,

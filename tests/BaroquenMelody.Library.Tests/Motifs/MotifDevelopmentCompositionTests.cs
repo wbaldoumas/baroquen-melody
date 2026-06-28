@@ -64,8 +64,9 @@ internal sealed class MotifDevelopmentCompositionTests
         var enabled = TestCompositionConfigurations.Get(3, 10) with { ShuffleOrnamentationProcessors = false, MotifDevelopmentConfiguration = AlwaysDevelop };
         var disabled = enabled with { MotifDevelopmentConfiguration = NeverDevelop };
 
-        // act: development must change the music for at least one seed (otherwise it is a silent no-op). Some developed
-        // candidates fall back to verbatim when the rule gate rejects them, so we look across several seeds.
+        // act: a coarse end-to-end smoke check that enabling development changes the rendered composition for at least one
+        // seed (the per-transform pitch correctness is pinned by the MotifDeveloper unit tests). Some developed candidates
+        // fall back to verbatim when the rule gate rejects them, so we look across several seeds.
         var anySeedDiffers = Enumerable.Range(1, 25).Any(seed =>
         {
             var developed = SeededComposition.Notes(SeededComposition.Compose(enabled, seed));
@@ -75,6 +76,6 @@ internal sealed class MotifDevelopmentCompositionTests
         });
 
         // assert
-        anySeedDiffers.Should().BeTrue("enabling motivic development must produce different music than verbatim repetition");
+        anySeedDiffers.Should().BeTrue("enabling motivic development must change the rendered composition end-to-end");
     }
 }

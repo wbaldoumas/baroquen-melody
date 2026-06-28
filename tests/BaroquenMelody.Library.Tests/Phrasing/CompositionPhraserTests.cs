@@ -254,6 +254,34 @@ internal sealed class CompositionPhraserTests
         AppendedNotes(measures, fromIndex: 8).Should().OnlyContain(raw => raw == Notes.C4, "the developed restatement was rejected, so the verbatim phrase is appended");
     }
 
+    [Test]
+    public void AttemptPhraseRepetition_WhenADevelopedInteriorChordFailsTheRuleGate_FallsBackToVerbatim()
+    {
+        // arrange
+        var phraser = CreatePhraser(new PhrasingConfiguration([4], 2, 1));
+        var measures = CreateMeasures(8);
+        var themePhrase = measures.Take(4).ToList();
+
+        _mockThemeSplitter.SplitThemeIntoPhrases(Arg.Any<BaroquenTheme>()).Returns([new RepeatedPhrase { Phrase = themePhrase }]);
+        phraser.AddTheme(new BaroquenTheme { Recapitulation = themePhrase });
+
+        // the developed candidate's FIRST chord is acceptable (C4) but a later interior chord is not (E4); a gate that
+        // validated only the seam/first chord would wrongly accept it, so this discriminates the whole-phrase walk.
+        var developedCandidate = CreateMeasures(1, note: Notes.C4).Concat(CreateMeasures(3, note: Notes.E4)).ToList();
+        _mockMotifDeveloper.TryDevelop(Arg.Any<MotifBank>(), Arg.Any<IReadOnlyList<Measure>>()).Returns(developedCandidate);
+
+        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(true);
+        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Is<BaroquenChord>(chord => chord.Notes.Any(note => note.Raw == Notes.E4))).Returns(false);
+
+        // act
+        phraser.AttemptPhraseRepetition(measures);
+
+        // assert: the full-phrase walk rejects the candidate on its interior E4 chord, so the verbatim phrase is appended.
+        measures.Should().HaveCount(12);
+        AppendedNotes(measures, fromIndex: 8).Should().NotContain(raw => raw == Notes.E4, "the developed candidate failed the full-phrase rule walk");
+        AppendedNotes(measures, fromIndex: 8).Should().OnlyContain(raw => raw == Notes.C4);
+    }
+
     private static List<Measure> CreateMeasures(int count, int beatsPerMeasure = 4, Note? note = null)
     {
         var raw = note ?? Notes.C4;
