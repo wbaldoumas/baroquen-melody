@@ -35,7 +35,7 @@ dotnet run --project src/BaroquenMelody/
 
 ### Project Dependency Graph
 
-```
+```text
 BaroquenMelody.App (MAUI host)
 ├── BaroquenMelody.App.Components (Blazor/MudBlazor UI)
 │   └── BaroquenMelody.Library
@@ -51,6 +51,7 @@ BaroquenMelody (console app)
 `BaroquenMelodyComposerConfigurator` is the central factory that wires up all composition components from a `CompositionConfiguration`. It produces an `IMidiFileComposer`.
 
 The `Composer.Compose()` pipeline runs these steps in order:
+
 1. **Theme** — `ThemeComposer` generates an initial thematic exposition
 2. **Body** — `ChordComposer` builds chord-by-chord using `CompositionStrategy`, which uses look-ahead search with `ICompositionRule` validation
 3. **Ornamentation** — `CompositionDecorator` applies baroque ornaments (turns, mordents, passing tones, runs, etc.) via a policy engine
