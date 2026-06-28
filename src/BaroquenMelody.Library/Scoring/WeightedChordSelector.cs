@@ -56,7 +56,10 @@ internal sealed class WeightedChordSelector(IScoringRule scoringRule, IRandomPro
         var target = randomProvider.Next() / (double)int.MaxValue * totalWeight;
         var cumulativeWeight = 0d;
 
-        for (var index = 0; index < candidates.Count; ++index)
+        // Walk the cumulative weights and return the first bucket the target lands in. Because Next() is in
+        // [0, int.MaxValue), target is always strictly less than totalWeight, so the last candidate is the guaranteed
+        // fall-through: handling it with the final return (rather than a loop iteration) keeps every line reachable.
+        for (var index = 0; index < candidates.Count - 1; ++index)
         {
             cumulativeWeight += weights[index];
 

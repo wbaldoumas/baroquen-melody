@@ -4,6 +4,7 @@ using BaroquenMelody.Library.Composers;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Exceptions;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation;
@@ -194,6 +195,28 @@ internal sealed class EndingComposerTests
 
         // assert
         result.Should().NotBeNull();
+    }
+
+    [Test]
+    public void Compose_WhenNoChordChoicesAreAvailableToBridge_ThrowsNoValidChordChoicesAvailableException()
+    {
+        // arrange: the recapitulation is never reachable (no partially-voiced chords resolve), so a bridging chord
+        // must be composed - but no chord choices are available, so the selector yields nothing and the ending
+        // composer cannot proceed.
+        var composition = CreateTestComposition();
+        var theme = CreateTestTheme();
+
+        _mockCompositionStrategy.GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns([]);
+
+        _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns([]);
+
+        // act
+        var act = () => _endingComposer.Compose(composition, theme, CancellationToken.None);
+
+        // assert
+        act.Should().Throw<NoValidChordChoicesAvailableException>();
     }
 
     private static Composition CreateTestComposition()

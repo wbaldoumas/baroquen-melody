@@ -148,6 +148,27 @@ internal sealed class WeightedChordSelectorTests
         firstSelections.Should().Equal(secondSelections);
     }
 
+    [Test]
+    public void SelectNextChord_MaterializesANonListEnumerable_AndStillSelectsACandidate()
+    {
+        // arrange: a deferred enumerable that is not an IReadOnlyList, exercising the ToList() materialization path.
+        var precedingChords = new List<BaroquenChord> { BuildChord(Notes.C4) };
+        var candidate = BuildChord(Notes.D4);
+
+        var weightedChordSelector = new WeightedChordSelector(new AggregateScoringRule([]), new SeededRandomProvider(Seed));
+
+        // act
+        var selectedChord = weightedChordSelector.SelectNextChord(precedingChords, LazySingle(candidate));
+
+        // assert
+        selectedChord.Should().BeSameAs(candidate);
+    }
+
+    private static IEnumerable<BaroquenChord> LazySingle(BaroquenChord chord)
+    {
+        yield return chord;
+    }
+
     private static int[] CountSelections(
         WeightedChordSelector weightedChordSelector,
         IReadOnlyList<BaroquenChord> precedingChords,

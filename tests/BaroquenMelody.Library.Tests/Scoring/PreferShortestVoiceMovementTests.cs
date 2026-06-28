@@ -136,5 +136,20 @@ internal sealed class PreferShortestVoiceMovementTests
             ]),
             0d
         ).SetName("Notes outside the scale are not scored");
+
+        yield return new TestCaseData(
+            new List<BaroquenChord>
+            {
+                new([
+                    new BaroquenNote(Instrument.One, Notes.CSharp4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ])
+            },
+            new BaroquenChord([
+                new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+            ]),
+            0d
+        ).SetName("A preceding note outside the scale is not scored");
     }
 }

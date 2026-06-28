@@ -143,6 +143,60 @@ internal sealed class PreferLeapRecoveryTests
             ]),
             1d
         ).SetName("Voices absent from a context chord are not scored");
+
+        yield return new TestCaseData(
+            new List<BaroquenChord>
+            {
+                new([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]),
+                new([
+                    new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ])
+            },
+            new BaroquenChord([
+                new BaroquenNote(Instrument.One, Notes.G4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+            ]),
+            1d
+        ).SetName("A voice absent from the earlier context chord is not scored");
+
+        yield return new TestCaseData(
+            new List<BaroquenChord>
+            {
+                new([
+                    new BaroquenNote(Instrument.One, Notes.CSharp4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]),
+                new([
+                    new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ])
+            },
+            new BaroquenChord([
+                new BaroquenNote(Instrument.One, Notes.G4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+            ]),
+            0d
+        ).SetName("An out-of-scale note in the earliest context chord is not scored");
+
+        yield return new TestCaseData(
+            new List<BaroquenChord>
+            {
+                new([
+                    new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]),
+                new([
+                    new BaroquenNote(Instrument.One, Notes.CSharp4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ])
+            },
+            new BaroquenChord([
+                new BaroquenNote(Instrument.One, Notes.G4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+            ]),
+            0d
+        ).SetName("An out-of-scale note in the middle context chord is not scored");
     }
 
     private static List<BaroquenChord> BuildPrecedingChords(Note firstNote, Note secondNote) =>
