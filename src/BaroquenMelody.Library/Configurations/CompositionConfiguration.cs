@@ -29,6 +29,7 @@ namespace BaroquenMelody.Library.Configurations;
 /// <param name="ShuffleOrnamentationProcessors"> Whether to shuffle the ornamentation processor order between beats. Defaults to <see langword="true"/> (production variety); set to <see langword="false"/> for deterministic, seed-reproducible ornamentation. </param>
 /// <param name="MaxLookAheadDepth"> How many chords ahead the composition strategy searches to avoid dead-ends. Defaults to 1 (the prior hardcoded behavior); higher values constrain choices more strictly at a search-cost premium. </param>
 /// <param name="AggregateScoringRuleConfiguration"> The configuration of the scoring rules used to rank rule-passing candidate chords. When <see langword="null"/> (including configurations saved before scoring existed), <see cref="Configurations.AggregateScoringRuleConfiguration.Default"/> is used. </param>
+/// <param name="MotifDevelopmentConfiguration"> The configuration of how recurring themes/phrases are developed rather than repeated verbatim. When <see langword="null"/> (including configurations saved before motivic development existed), <see cref="Configurations.MotifDevelopmentConfiguration.Default"/> is used. </param>
 public sealed record CompositionConfiguration(
     ISet<InstrumentConfiguration> InstrumentConfigurations,
     PhrasingConfiguration PhrasingConfiguration,
@@ -44,7 +45,8 @@ public sealed record CompositionConfiguration(
     int Tempo = 120,
     bool ShuffleOrnamentationProcessors = true,
     int MaxLookAheadDepth = 1,
-    AggregateScoringRuleConfiguration? AggregateScoringRuleConfiguration = null)
+    AggregateScoringRuleConfiguration? AggregateScoringRuleConfiguration = null,
+    MotifDevelopmentConfiguration? MotifDevelopmentConfiguration = null)
 {
     public const int MaxScaleStepChange = 5;
 

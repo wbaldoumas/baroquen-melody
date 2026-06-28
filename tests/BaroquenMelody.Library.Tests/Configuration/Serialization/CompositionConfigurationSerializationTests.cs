@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Configurations.Serialization.JsonSerializerContexts;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Motifs.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Scoring.Enums;
 using FluentAssertions;
@@ -148,5 +149,73 @@ internal sealed class CompositionConfigurationSerializationTests
 
         // assert
         deserializedConfiguration.AggregateScoringRuleConfiguration.Should().BeNull();
+    }
+
+    [Test]
+    public void Serialization_preserves_the_motif_development_configuration()
+    {
+        // arrange
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100,
+            MotifDevelopmentConfiguration: new MotifDevelopmentConfiguration(
+                Enabled: true,
+                AllowedTransforms: [MotifTransform.Invert],
+                DevelopmentProbability: 33,
+                Scope: MotifDevelopmentScope.AllVoices
+            )
+        );
+
+        // act
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var deserializedConfiguration = JsonSerializer.Deserialize(serializedConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.MotifDevelopmentConfiguration.Should().NotBeNull();
+        deserializedConfiguration.MotifDevelopmentConfiguration!.Enabled.Should().BeTrue();
+        deserializedConfiguration.MotifDevelopmentConfiguration.AllowedTransforms.Should().Equal(MotifTransform.Invert);
+        deserializedConfiguration.MotifDevelopmentConfiguration.DevelopmentProbability.Should().Be(33);
+        deserializedConfiguration.MotifDevelopmentConfiguration.Scope.Should().Be(MotifDevelopmentScope.AllVoices);
+    }
+
+    [Test]
+    public void Deserialization_of_a_legacy_configuration_without_motif_development_yields_a_null_motif_development_configuration()
+    {
+        // arrange: a configuration saved before motivic development existed has no such property at all.
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100
+        );
+
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var legacyConfigurationJson = JsonNode.Parse(serializedConfiguration)!.AsObject();
+
+        legacyConfigurationJson.Remove(nameof(CompositionConfiguration.MotifDevelopmentConfiguration));
+
+        // act
+        var deserializedConfiguration = JsonSerializer.Deserialize(legacyConfigurationJson.ToJsonString(), CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.MotifDevelopmentConfiguration.Should().BeNull();
     }
 }
