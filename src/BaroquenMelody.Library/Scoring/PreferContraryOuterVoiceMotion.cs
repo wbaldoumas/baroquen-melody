@@ -25,6 +25,9 @@ internal sealed class PreferContraryOuterVoiceMotion(CompositionConfiguration co
         }
 
         var lastChord = precedingChords[^1];
+
+        // The outer voices rely on Instruments being ordered by register: CompositionConfiguration.Instruments sorts
+        // by descending MinNote, so index 0 is the highest-floor (soprano) voice and the last is the lowest (bass).
         var sopranoInstrument = compositionConfiguration.Instruments[0];
         var bassInstrument = compositionConfiguration.Instruments[^1];
 

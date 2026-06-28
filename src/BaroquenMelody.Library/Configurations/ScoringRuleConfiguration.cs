@@ -10,7 +10,12 @@ namespace BaroquenMelody.Library.Configurations;
 /// </summary>
 /// <param name="Rule">The scoring rule type.</param>
 /// <param name="Status">Whether the rule is enabled, locked, or disabled.</param>
-/// <param name="Weight">The weight applied to the rule's penalty when ranking candidate chords.</param>
+/// <param name="Weight">
+///     Multiplies this rule's penalty before the per-rule penalties are summed for chord selection. A higher weight
+///     makes the preference stricter, so it dominates when rules conflict; a lower weight (toward 1) makes it a gentle
+///     nudge that other rules can easily override; a weight of 0 (or a disabled <paramref name="Status"/>) removes the
+///     rule from scoring entirely.
+/// </param>
 public sealed record ScoringRuleConfiguration(ScoringRule Rule, ConfigurationStatus Status = ConfigurationStatus.Enabled, int Weight = 1)
 {
     [JsonIgnore]

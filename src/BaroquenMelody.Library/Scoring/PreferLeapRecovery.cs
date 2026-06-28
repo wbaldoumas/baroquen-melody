@@ -49,6 +49,10 @@ internal sealed class PreferLeapRecovery(CompositionConfiguration compositionCon
             }
 
             var nextMove = nextNoteScaleIndex - lastNoteScaleIndex;
+
+            // The leap is "recovered" when this next move steps back the other way. Both parts must hold: it heads the
+            // opposite direction to the leap (the signs are opposite, so a held or repeated note - sign 0 - does not
+            // count), and it is small (at most MaxRecoveryDistanceInScaleSteps), i.e. a step or two rather than another leap.
             var isRecovered = Math.Sign(nextMove) == -Math.Sign(previousMove) && Math.Abs(nextMove) <= MaxRecoveryDistanceInScaleSteps;
 
             if (!isRecovered)
