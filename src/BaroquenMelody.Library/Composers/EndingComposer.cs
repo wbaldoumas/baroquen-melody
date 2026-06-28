@@ -1,7 +1,6 @@
 ﻿using BaroquenMelody.Infrastructure.Collections;
 using BaroquenMelody.Infrastructure.Collections.Extensions;
 using BaroquenMelody.Infrastructure.Logging;
-using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Choices;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
@@ -12,6 +11,7 @@ using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Enums;
+using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Strategies;
 using Fluxor;
@@ -25,7 +25,7 @@ internal sealed class EndingComposer(
     ICompositionStrategy compositionStrategy,
     ICompositionDecorator compositionDecorator,
     IChordNumberIdentifier chordNumberIdentifier,
-    IRandomProvider randomProvider,
+    IChordSelector chordSelector,
     IDispatcher dispatcher,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
@@ -299,11 +299,17 @@ internal sealed class EndingComposer(
 
     private BaroquenChord GetNextChord(IReadOnlyList<ChordChoice> possibleChordChoices, IReadOnlyList<BaroquenChord> compositionContext)
     {
-        var chordChoice = possibleChordChoices.MinByRandom(randomProvider);
+        var currentChord = compositionContext[^1];
 
-        if (chordChoice is not null)
+        var candidateChords = possibleChordChoices.Select(chordChoice =>
+            currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan)
+        );
+
+        var nextChord = chordSelector.SelectNextChord(compositionContext, candidateChords);
+
+        if (nextChord is not null)
         {
-            return compositionContext[^1].ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan);
+            return nextChord;
         }
 
         logger.LogCriticalMessage("No valid chord choices available.");

@@ -4,9 +4,11 @@ using BaroquenMelody.Library.Composers;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Exceptions;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation;
+using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Strategies;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
@@ -53,7 +55,7 @@ internal sealed class EndingComposerTests
             _mockCompositionStrategy,
             _mockCompositionDecorator,
             _mockChordNumberIdentifier,
-            new ThreadLocalRandomProvider(),
+            new WeightedChordSelector(new AggregateScoringRule([]), new ThreadLocalRandomProvider()),
             _mockDispatcher,
             _mockLogger,
             _compositionConfiguration
@@ -127,6 +129,52 @@ internal sealed class EndingComposerTests
     }
 
     [Test]
+    public void Compose_WithDefaultScoringRulesEnabled_StillComposesTheFallbackBridgingChord()
+    {
+        // arrange: same fallback path as above, but the selector scores candidates with the default scoring rules,
+        // exercising the materialize-and-score path through EndingComposer.GetNextChord.
+        var scoringRuleFactory = new ScoringRuleFactory(_compositionConfiguration);
+
+        var endingComposer = new EndingComposer(
+            _mockCompositionStrategy,
+            _mockCompositionDecorator,
+            _mockChordNumberIdentifier,
+            new WeightedChordSelector(scoringRuleFactory.CreateAggregate(AggregateScoringRuleConfiguration.Default), new ThreadLocalRandomProvider()),
+            _mockDispatcher,
+            _mockLogger,
+            _compositionConfiguration
+        );
+
+        var composition = CreateTestComposition();
+        var theme = CreateTestTheme();
+        var bridgingChords = new List<BaroquenChord> { new([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]) };
+
+        _mockCompositionStrategy.GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns([], bridgingChords);
+
+        _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>())
+            .Returns(ChordNumber.V, ChordNumber.V, ChordNumber.V, ChordNumber.I);
+
+        var fallbackChordChoice = new ChordChoice(
+        [
+            new NoteChoice(Instrument.One, NoteMotion.Oblique, 1),
+            new NoteChoice(Instrument.Two, NoteMotion.Oblique, 1),
+            new NoteChoice(Instrument.Three, NoteMotion.Oblique, 1),
+            new NoteChoice(Instrument.Four, NoteMotion.Oblique, 1)
+        ]);
+
+        _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns([fallbackChordChoice]);
+
+        // act
+        var result = endingComposer.Compose(composition, theme, CancellationToken.None);
+
+        // assert
+        result.Should().NotBeNull();
+        result.Measures.Should().NotBeEmpty();
+    }
+
+    [Test]
     public void WhenMaxBridgingChordsAndMaxChordsToTonicAreReached_ThenCompositionIsStillReturned()
     {
         // arrange
@@ -147,6 +195,28 @@ internal sealed class EndingComposerTests
 
         // assert
         result.Should().NotBeNull();
+    }
+
+    [Test]
+    public void Compose_WhenNoChordChoicesAreAvailableToBridge_ThrowsNoValidChordChoicesAvailableException()
+    {
+        // arrange: the recapitulation is never reachable (no partially-voiced chords resolve), so a bridging chord
+        // must be composed - but no chord choices are available, so the selector yields nothing and the ending
+        // composer cannot proceed.
+        var composition = CreateTestComposition();
+        var theme = CreateTestTheme();
+
+        _mockCompositionStrategy.GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns([]);
+
+        _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns([]);
+
+        // act
+        var act = () => _endingComposer.Compose(composition, theme, CancellationToken.None);
+
+        // assert
+        act.Should().Throw<NoValidChordChoicesAvailableException>();
     }
 
     private static Composition CreateTestComposition()

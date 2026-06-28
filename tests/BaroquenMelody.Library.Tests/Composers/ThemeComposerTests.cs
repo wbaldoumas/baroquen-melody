@@ -5,6 +5,7 @@ using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
+using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Strategies;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
@@ -51,7 +52,7 @@ internal sealed class ThemeComposerTests
 
         _compositionConfiguration = TestCompositionConfigurations.Get();
 
-        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockFugalEntryPlacer, _mockFugalAnswerStrategy, new ThreadLocalRandomProvider(), _mockDispatcher, _mockLogger, _compositionConfiguration);
+        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockFugalEntryPlacer, _mockFugalAnswerStrategy, new WeightedChordSelector(new AggregateScoringRule([]), new ThreadLocalRandomProvider()), _mockDispatcher, _mockLogger, _compositionConfiguration);
     }
 
     [Test]

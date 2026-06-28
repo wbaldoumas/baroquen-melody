@@ -11,6 +11,7 @@ using BaroquenMelody.Library.Ornamentation.Engine;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Phrasing;
 using BaroquenMelody.Library.Rules;
+using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Strategies;
 using Fluxor;
 using Microsoft.Extensions.Logging;
@@ -47,9 +48,12 @@ internal sealed class BaroquenMelodyComposerConfigurator(ILogger<MidiFileComposi
         var compositionPhraser = new CompositionPhraser(compositionRule, _themeSplitter, _weightedRandomBooleanGenerator, randomProvider, logger, compositionConfiguration);
         var fugalEntryPlacer = new FugalEntryPlacer(compositionConfiguration);
         var fugalAnswerStrategy = new FugalAnswerStrategy(compositionConfiguration);
-        var chordComposer = new ChordComposer(compositionStrategy, randomProvider, logger);
-        var themeComposer = new ThemeComposer(compositionStrategy, compositionDecorator, chordComposer, fugalEntryPlacer, fugalAnswerStrategy, randomProvider, dispatcher, logger, compositionConfiguration);
-        var endingComposer = new EndingComposer(compositionStrategy, compositionDecorator, chordNumberIdentifier, randomProvider, dispatcher, logger, compositionConfiguration);
+        var scoringRuleFactory = new ScoringRuleFactory(compositionConfiguration);
+        var aggregateScoringRule = scoringRuleFactory.CreateAggregate(compositionConfiguration.AggregateScoringRuleConfiguration ?? AggregateScoringRuleConfiguration.Default);
+        var chordSelector = new WeightedChordSelector(aggregateScoringRule, randomProvider);
+        var chordComposer = new ChordComposer(compositionStrategy, chordSelector, logger);
+        var themeComposer = new ThemeComposer(compositionStrategy, compositionDecorator, chordComposer, fugalEntryPlacer, fugalAnswerStrategy, chordSelector, dispatcher, logger, compositionConfiguration);
+        var endingComposer = new EndingComposer(compositionStrategy, compositionDecorator, chordNumberIdentifier, chordSelector, dispatcher, logger, compositionConfiguration);
         var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
         var midiGenerator = new MidiGenerator(compositionConfiguration);
 

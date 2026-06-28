@@ -1,10 +1,10 @@
 ﻿using BaroquenMelody.Infrastructure.Logging;
-using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
+using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Strategies;
 using Fluxor;
@@ -19,7 +19,7 @@ internal sealed class ThemeComposer(
     IChordComposer chordComposer,
     IFugalEntryPlacer fugalEntryPlacer,
     IFugalAnswerStrategy fugalAnswerStrategy,
-    IRandomProvider randomProvider,
+    IChordSelector chordSelector,
     IDispatcher dispatcher,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
@@ -120,7 +120,9 @@ internal sealed class ThemeComposer(
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var precedingChord = workingChords[^1];
+            // The strategy's rule context is the single preceding chord (unchanged), but the chord selector gets the
+            // last two chords of the running chain so context-sensitive scoring rules (e.g. leap recovery) can fire.
+            var precedingChords = workingChords.TakeLast(2).ToList();
             var nextChords = new List<BaroquenChord>();
 
             // Fugal entries alternate subject, answer, subject, answer...; the subject voice is the first entry, so the
@@ -136,20 +138,20 @@ internal sealed class ThemeComposer(
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChord], placedEntryChord);
+                var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChords[^1]], placedEntryChord);
+                var nextChord = chordSelector.SelectNextChord(precedingChords, possibleChords);
 
-                if (possibleChords.Count == 0)
+                if (nextChord is null)
                 {
                     return [];
                 }
 
-                var nextChord = possibleChords.OrderByRandom(randomProvider).First();
                 var placedEntryNote = placedEntryChord[instrument];
                 var otherNotes = nextChord.Notes.Where(note => note.Instrument != instrument);
                 var workingChord = new BaroquenChord([.. otherNotes, placedEntryNote]);
 
                 nextChords.Add(workingChord);
-                precedingChord = workingChord;
+                precedingChords.Add(workingChord);
             }
 
             var tempComposition = new Composition([new Measure(nextChords.Select(static chord => new Beat(chord)).ToList(), compositionConfiguration.Meter)]);
