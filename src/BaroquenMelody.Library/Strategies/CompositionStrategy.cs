@@ -21,7 +21,8 @@ internal sealed class CompositionStrategy(
     IRandomProvider randomProvider,
     int maxRepeatedNotes = 2,
     int maxLookAheadDepth = 2,
-    int minLookAheadChordChoices = 2
+    int minLookAheadChordChoices = 2,
+    int maxInitialChordAttempts = 50
 ) : ICompositionStrategy
 {
     public IReadOnlyList<ChordChoice> GetPossibleChordChoices(IReadOnlyList<BaroquenChord> precedingChords) => GetValidChordChoicesAndChords(precedingChords)
@@ -40,20 +41,26 @@ internal sealed class CompositionStrategy(
 
     public BaroquenChord GenerateInitialChord()
     {
-        var startingNoteCounts = compositionConfiguration.Scale.I.ToDictionary(noteName => noteName, _ => 0);
-        var rawNotes = compositionConfiguration.Scale.GetNotes();
+        var attempt = 0;
+        BaroquenChord initialChord;
 
-        var notes = compositionConfiguration.InstrumentConfigurations
-            .Select(instrumentConfiguration =>
-                new BaroquenNote(
-                    instrumentConfiguration.Instrument,
-                    ChooseStartingNote(instrumentConfiguration, rawNotes, compositionConfiguration.Scale.I, ref startingNoteCounts),
-                    compositionConfiguration.DefaultNoteTimeSpan
-                )
-            )
-            .ToList();
+        // The initial voicing is not produced by the rule-checked search, so validate each candidate against the
+        // composition rules with an empty preceding-chord context and retry a bounded number of times. On exhaustion,
+        // fall back to the last candidate, which matches the legacy unvalidated behavior.
+        do
+        {
+            initialChord = GenerateInitialChordCandidate();
 
-        return new BaroquenChord(notes);
+            if (compositionRule.Evaluate([], initialChord))
+            {
+                return initialChord;
+            }
+        }
+        while (++attempt < maxInitialChordAttempts);
+
+        logger.LogNoRuleCompliantInitialChord(maxInitialChordAttempts);
+
+        return initialChord;
     }
 
     public IEnumerable<BaroquenChord> GetPossibleChords(IReadOnlyList<BaroquenChord> precedingChords) =>
@@ -70,6 +77,24 @@ internal sealed class CompositionStrategy(
                 yield return candidate;
             }
         }
+    }
+
+    private BaroquenChord GenerateInitialChordCandidate()
+    {
+        var startingNoteCounts = compositionConfiguration.Scale.I.ToDictionary(noteName => noteName, _ => 0);
+        var rawNotes = compositionConfiguration.Scale.GetNotes();
+
+        var notes = compositionConfiguration.InstrumentConfigurations
+            .Select(instrumentConfiguration =>
+                new BaroquenNote(
+                    instrumentConfiguration.Instrument,
+                    ChooseStartingNote(instrumentConfiguration, rawNotes, compositionConfiguration.Scale.I, ref startingNoteCounts),
+                    compositionConfiguration.DefaultNoteTimeSpan
+                )
+            )
+            .ToList();
+
+        return new BaroquenChord(notes);
     }
 
     private Note ChooseStartingNote(

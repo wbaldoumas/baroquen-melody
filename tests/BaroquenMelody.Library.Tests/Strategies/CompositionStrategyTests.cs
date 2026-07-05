@@ -54,6 +54,9 @@ internal sealed class CompositionStrategyTests
     [Test]
     public void GetInitialChord_generates_valid_chord()
     {
+        // arrange - the rule accepts every candidate, so the first generated voicing is returned
+        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(true);
+
         // run this test a bunch to account for randomness
         for (var i = 0; i < 1000; ++i)
         {
@@ -257,6 +260,59 @@ internal sealed class CompositionStrategyTests
 
         // Assert
         possibleChords.Should().NotBeNull();
+    }
+
+    [Test]
+    public void GenerateInitialChord_RetriesUntilTheCompositionRuleAcceptsACandidate()
+    {
+        // arrange - the rule rejects the first two candidates and accepts the third; every candidate must be
+        // evaluated against an empty preceding-chord context since no chords precede the initial chord
+        var evaluatedChords = new List<BaroquenChord>();
+
+        _mockCompositionRule.Evaluate(
+                Arg.Is<IReadOnlyList<BaroquenChord>>(static precedingChords => precedingChords.Count == 0),
+                Arg.Do<BaroquenChord>(evaluatedChords.Add))
+            .Returns(false, false, true);
+
+        // act
+        var initialChord = _compositionStrategy.GenerateInitialChord();
+
+        // assert
+        evaluatedChords.Should().HaveCount(3);
+        initialChord.Should().BeSameAs(evaluatedChords[^1]);
+    }
+
+    [Test]
+    public void GenerateInitialChord_WhenNoCompliantCandidateCanBeFound_ReturnsTheLastCandidate()
+    {
+        // arrange - the rule rejects every candidate, so the bounded retry exhausts its attempts, logs a
+        // warning, and degrades to the legacy behavior of using an unvalidated voicing
+        const int maxInitialChordAttempts = 3;
+
+        _mockLogger.IsEnabled(LogLevel.Warning).Returns(true);
+
+        var compositionStrategy = new CompositionStrategy(
+            _mockChordChoiceEnumerator,
+            _mockCompositionRule,
+            _mockLogger,
+            _compositionConfiguration,
+            new ThreadLocalRandomProvider(),
+            maxInitialChordAttempts: maxInitialChordAttempts
+        );
+
+        var evaluatedChords = new List<BaroquenChord>();
+
+        _mockCompositionRule.Evaluate(
+                Arg.Any<IReadOnlyList<BaroquenChord>>(),
+                Arg.Do<BaroquenChord>(evaluatedChords.Add))
+            .Returns(false);
+
+        // act
+        var initialChord = compositionStrategy.GenerateInitialChord();
+
+        // assert
+        evaluatedChords.Should().HaveCount(maxInitialChordAttempts);
+        initialChord.Should().BeSameAs(evaluatedChords[^1]);
     }
 
     [Test]

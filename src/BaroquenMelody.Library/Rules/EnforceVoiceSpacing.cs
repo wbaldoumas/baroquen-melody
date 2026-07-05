@@ -11,7 +11,11 @@ namespace BaroquenMelody.Library.Rules;
 /// </remarks>
 internal sealed class EnforceVoiceSpacing(CompositionConfiguration compositionConfiguration) : ICompositionRule
 {
-    private const int Octave = 12;
+    /// <summary>
+    ///     The widest interval, in semitones, allowed between adjacent upper voices: one octave. Shared with
+    ///     <see cref="VoiceSpacingSatisfiabilityAnalyzer"/> so satisfiability analysis and enforcement cannot drift apart.
+    /// </summary>
+    internal const int MaximumAdjacentVoiceSpacing = 12;
 
     public bool Evaluate(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
     {
@@ -23,7 +27,7 @@ internal sealed class EnforceVoiceSpacing(CompositionConfiguration compositionCo
             var higherNote = nextChord[voices[higherVoiceIndex]];
             var lowerNote = nextChord[voices[higherVoiceIndex + 1]];
 
-            if (Math.Abs((int)higherNote.NoteNumber - (int)lowerNote.NoteNumber) > Octave)
+            if (Math.Abs((int)higherNote.NoteNumber - (int)lowerNote.NoteNumber) > MaximumAdjacentVoiceSpacing)
             {
                 return false;
             }

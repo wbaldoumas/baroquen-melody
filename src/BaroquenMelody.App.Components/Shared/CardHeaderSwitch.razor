@@ -13,7 +13,7 @@
                                    Color="Color.Tertiary"
                                    LabelPlacement="Placement.Start"
                                    ThumbIcon="@IsEnabledIcon"
-                                   Disabled="IsLocked"
+                                   Disabled="@(IsLocked || IsReadOnly)"
                                    ThumbIconColor="Color.Dark"
                                    ValueChanged="IsEnabledChanged"/>
                         <MudSwitch T="bool"
@@ -23,6 +23,7 @@
                                    LabelPlacement="Placement.Start"
                                    ThumbIconColor="Color.Dark"
                                    ThumbIcon="@IsLockedIcon"
+                                   Disabled="IsReadOnly"
                                    ValueChanged="IsLockedChanged"/>
                     </MudStack>
                 </div>
@@ -34,7 +35,7 @@
                                    Color="Color.Tertiary"
                                    LabelPlacement="Placement.Start"
                                    ThumbIconColor="Color.Dark"
-                                   Disabled="IsLocked"
+                                   Disabled="@(IsLocked || IsReadOnly)"
                                    ThumbIcon="@IsEnabledIcon"
                                    ValueChanged="IsEnabledChanged"/>
                         <MudSwitch T="bool"
@@ -44,6 +45,7 @@
                                    LabelPlacement="Placement.Start"
                                    ThumbIconColor="Color.Dark"
                                    ThumbIcon="@IsLockedIcon"
+                                   Disabled="IsReadOnly"
                                    ValueChanged="IsLockedChanged"/>
                     </MudStack>
                 </div>
@@ -59,6 +61,12 @@
     [Parameter, EditorRequired] public required ConfigurationStatus ConfigurationStatus { get; set; } = ConfigurationStatus.Enabled;
 
     [Parameter, EditorRequired] public required EventCallback<ConfigurationStatus> ValueChanged { get; set; }
+
+    /// <summary>
+    ///     When set, both switches are non-interactive: the displayed status is determined by the
+    ///     application rather than the user (e.g. a rule that has been disabled automatically).
+    /// </summary>
+    [Parameter] public bool IsReadOnly { get; set; }
 
     private bool IsEnabled => ConfigurationStatus.HasFlag(ConfigurationStatus.Enabled);
 

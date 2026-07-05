@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Exceptions;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Scoring;
@@ -49,7 +50,7 @@ internal sealed class ThemeComposer(
 
         logger.LogWarningMessage($"Failed to compose fugal theme after {MaxFugueCompositionAttempts} attempts.");
 
-        var initialMeasures = ComposeInitialMeasures(cancellationToken);
+        var initialMeasures = ComposeFallbackMeasures(cancellationToken);
 
         return new BaroquenTheme(initialMeasures, initialMeasures);
     }
@@ -61,31 +62,61 @@ internal sealed class ThemeComposer(
 
     private bool TryComposeFugalTheme(out BaroquenTheme? theme, CancellationToken cancellationToken)
     {
-        var initialMeasures = ComposeInitialMeasures(cancellationToken);
-        var initialComposition = new Composition(initialMeasures);
-        var instruments = compositionConfiguration.Instruments;
-        var fugueSubjectInstrument = instruments[0];
-
-        compositionDecorator.Decorate(initialComposition, fugueSubjectInstrument);
-
-        var fugueSubject = initialComposition.Measures
-            .SelectMany(static measure => measure.Beats)
-            .Select(beat => beat.Chord[fugueSubjectInstrument])
-            .ToList();
-
-        var workingChords = initialComposition.Measures.SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord)).ToList();
-
-        workingChords = ContinueFugueSubject(fugueSubject, fugueSubjectInstrument, workingChords, instruments, cancellationToken);
-
-        if (workingChords.Count == 0)
+        try
         {
+            var initialMeasures = ComposeInitialMeasures(cancellationToken);
+            var initialComposition = new Composition(initialMeasures);
+            var instruments = compositionConfiguration.Instruments;
+            var fugueSubjectInstrument = instruments[0];
+
+            compositionDecorator.Decorate(initialComposition, fugueSubjectInstrument);
+
+            var fugueSubject = initialComposition.Measures
+                .SelectMany(static measure => measure.Beats)
+                .Select(beat => beat.Chord[fugueSubjectInstrument])
+                .ToList();
+
+            var workingChords = initialComposition.Measures.SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord)).ToList();
+
+            workingChords = ContinueFugueSubject(fugueSubject, fugueSubjectInstrument, workingChords, instruments, cancellationToken);
+
+            if (workingChords.Count == 0)
+            {
+                theme = null;
+                return false;
+            }
+
+            theme = StripInstrumentsFromFugueSubject(workingChords, instruments);
+
+            return true;
+        }
+        catch (NoValidChordChoicesAvailableException)
+        {
+            // A dead end from an unlucky starting voicing is retriable: the caller's attempt loop regenerates
+            // the initial chord, so surface it as a failed attempt rather than a fatal error.
+            logger.LogWarningMessage("Composition dead-ended while composing the fugal theme. Retrying from a new initial chord.");
+
             theme = null;
             return false;
         }
+    }
 
-        theme = StripInstrumentsFromFugueSubject(workingChords, instruments);
+    private List<Measure> ComposeFallbackMeasures(CancellationToken cancellationToken)
+    {
+        for (var attempt = 1; attempt < MaxFugueCompositionAttempts; ++attempt)
+        {
+            try
+            {
+                return ComposeInitialMeasures(cancellationToken);
+            }
+            catch (NoValidChordChoicesAvailableException)
+            {
+                logger.LogWarningMessage($"Composition dead-ended while composing the fallback theme attempt {attempt} of {MaxFugueCompositionAttempts}.");
+            }
+        }
 
-        return true;
+        // the final attempt runs unguarded: with every retry exhausted, a dead end here is genuinely fatal.
+        return ComposeInitialMeasures(cancellationToken);
     }
 
     private List<Measure> ComposeInitialMeasures(CancellationToken cancellationToken)

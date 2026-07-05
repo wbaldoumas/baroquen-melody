@@ -1,5 +1,6 @@
 using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Rules;
 using Fluxor;
 using Melanchall.DryWetMidi.Interaction;
 using Microsoft.Extensions.Logging;
@@ -18,7 +19,8 @@ internal static class SeededComposition
         var configurator = new BaroquenMelodyComposerConfigurator(
             Substitute.For<ILogger<MidiFileComposition>>(),
             Substitute.For<IDispatcher>(),
-            new SeededRandomProvider(seed)
+            new SeededRandomProvider(seed),
+            new VoiceSpacingSatisfiabilityAnalyzer()
         );
 
         return configurator.Configure(configuration).Compose(CancellationToken.None);

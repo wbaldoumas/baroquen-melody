@@ -1,4 +1,5 @@
 ﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@implements IDisposable
 
 <RandomizeResetButtonGroup OnRandomizeClick="InstrumentConfigurationService.Randomize"
                            OnResetClick="InstrumentConfigurationService.ConfigureDefaults"/>
@@ -23,3 +24,54 @@
 </MudGrid>
 
 <ScrollToTop/>
+
+@code {
+    private IDisposable? _instrumentConfigurationStateSubscription;
+
+    private bool _wasVoiceSpacingSatisfiable;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        // warn on the transition into unsatisfiability only, so an already-unsatisfiable configuration
+        // does not toast on every visit to this panel.
+        _wasVoiceSpacingSatisfiable = IsVoiceSpacingSatisfiable();
+
+        _instrumentConfigurationStateSubscription = InstrumentConfigurationState
+            .ObserveChanges()
+            .Subscribe(_ =>
+            {
+                var isVoiceSpacingSatisfiable = IsVoiceSpacingSatisfiable();
+
+                if (_wasVoiceSpacingSatisfiable && !isVoiceSpacingSatisfiable)
+                {
+                    Snackbar.Add(
+                        $"The selected instrument ranges cannot satisfy the {CompositionRule.EnforceVoiceSpacing.ToSpaceSeparatedString()} rule. It will be skipped during composition.",
+                        Severity.Warning
+                    );
+                }
+
+                _wasVoiceSpacingSatisfiable = isVoiceSpacingSatisfiable;
+            });
+    }
+
+    private bool IsVoiceSpacingSatisfiable() => VoiceSpacingSatisfiabilityAnalyzer.IsSatisfiable(
+        InstrumentConfigurationState.Value.EnabledConfigurations,
+        CompositionConfigurationState.Value.Scale
+    );
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _instrumentConfigurationStateSubscription?.Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+}

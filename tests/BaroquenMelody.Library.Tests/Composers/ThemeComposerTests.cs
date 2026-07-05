@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Composers;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Exceptions;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Scoring;
@@ -21,6 +22,9 @@ namespace BaroquenMelody.Library.Tests.Composers;
 [TestFixture]
 internal sealed class ThemeComposerTests
 {
+    // mirrors ThemeComposer.MaxFugueCompositionAttempts, which bounds both the fugal and fallback retry loops.
+    private const int MaxThemeCompositionAttempts = 50;
+
     private ICompositionStrategy _mockCompositionStrategy = null!;
 
     private ICompositionDecorator _mockCompositionDecorator = null!;
@@ -81,6 +85,63 @@ internal sealed class ThemeComposerTests
         result.Should().NotBeNull();
         result.Exposition.Should().NotBeEmpty();
         result.Recapitulation.Should().NotBeEmpty();
+    }
+
+    [Test]
+    public void WhenThemeCompositionDeadEnds_TheDeadEndIsRetriedAndAFallbackThemeIsReturned()
+    {
+        // arrange - every fugal attempt and the first fallback attempt dead-end with no valid chord choices;
+        // the composition only completes if each dead end is retried rather than treated as fatal
+        const int deadEndCount = MaxThemeCompositionAttempts + 1;
+
+        var chord = new BaroquenChord([
+            new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Three, Notes.G2, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Four, Notes.C1, MusicalTimeSpan.Half)
+        ]);
+
+        _mockCompositionStrategy.GenerateInitialChord().Returns(chord);
+
+        var composeCallCount = 0;
+
+        _mockChordComposer.Compose(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns(_ => ++composeCallCount <= deadEndCount
+                ? throw new NoValidChordChoicesAvailableException()
+                : new BaroquenChord(chord));
+
+        // act
+        var result = _themeComposer.Compose(CancellationToken.None);
+
+        // assert
+        result.Should().NotBeNull();
+        result.Exposition.Should().NotBeEmpty();
+        result.Recapitulation.Should().NotBeEmpty();
+    }
+
+    [Test]
+    public void WhenEveryThemeCompositionAttemptDeadEnds_TheDeadEndIsEventuallyFatal()
+    {
+        // arrange
+        var chord = new BaroquenChord([
+            new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Three, Notes.G2, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Four, Notes.C1, MusicalTimeSpan.Half)
+        ]);
+
+        _mockCompositionStrategy.GenerateInitialChord().Returns(chord);
+
+        _mockChordComposer.Compose(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns<BaroquenChord>(static _ => throw new NoValidChordChoicesAvailableException());
+
+        // act
+        var act = () => _themeComposer.Compose(CancellationToken.None);
+
+        // assert - every fugal attempt and every fallback attempt dead-ends on its first chord, so the
+        // exception propagates only after both bounded retry loops are exhausted
+        act.Should().Throw<NoValidChordChoicesAvailableException>();
+        _mockChordComposer.Received(2 * MaxThemeCompositionAttempts).Compose(Arg.Any<IReadOnlyList<BaroquenChord>>());
     }
 
     [Test]
