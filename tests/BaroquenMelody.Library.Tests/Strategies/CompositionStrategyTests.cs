@@ -5,6 +5,7 @@ using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Exceptions;
+using BaroquenMelody.Library.Extensions;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Rules;
 using BaroquenMelody.Library.Strategies;
@@ -16,16 +17,13 @@ using Melanchall.DryWetMidi.Standards;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
-using System.Numerics;
 
 namespace BaroquenMelody.Library.Tests.Strategies;
 
 [TestFixture]
 internal sealed class CompositionStrategyTests
 {
-    private static readonly BigInteger MockChordChoiceCount = 5;
-
-    private IChordChoiceRepository _mockChordChoiceRepository = default!;
+    private IChordChoiceEnumerator _mockChordChoiceEnumerator = default!;
 
     private ICompositionRule _mockCompositionRule = default!;
 
@@ -38,16 +36,14 @@ internal sealed class CompositionStrategyTests
     [SetUp]
     public void Setup()
     {
-        _mockChordChoiceRepository = Substitute.For<IChordChoiceRepository>();
+        _mockChordChoiceEnumerator = Substitute.For<IChordChoiceEnumerator>();
         _mockCompositionRule = Substitute.For<ICompositionRule>();
         _mockLogger = Substitute.For<ILogger>();
-
-        _mockChordChoiceRepository.Count.Returns(MockChordChoiceCount);
 
         _compositionConfiguration = TestCompositionConfigurations.Get();
 
         _compositionStrategy = new CompositionStrategy(
-            _mockChordChoiceRepository,
+            _mockChordChoiceEnumerator,
             _mockCompositionRule,
             _mockLogger,
             _compositionConfiguration,
@@ -123,28 +119,13 @@ internal sealed class CompositionStrategyTests
             otherGoodChordChoice
         };
 
-        _mockChordChoiceRepository.Count.Returns(mockChordChoices.Count);
+        // The enumerator yields the same materialized candidates for every enumeration, including the recursive
+        // look-ahead passes.
+        var candidates = mockChordChoices
+            .Select(chordChoice => (ChordChoice: chordChoice, Chord: precedingChords[^1].ApplyChordChoice(_compositionConfiguration.Scale, chordChoice, _compositionConfiguration.DefaultNoteTimeSpan)))
+            .ToList();
 
-        var mockChordChoiceRepositoryReturn = new List<ChordChoice>();
-
-        // Some fun times mocking here and below to account for recursion and look-ahead depth
-        foreach (var outerChordChoice in mockChordChoices)
-        {
-            mockChordChoiceRepositoryReturn.Add(outerChordChoice);
-
-            foreach (var innerChordChoice in mockChordChoices)
-            {
-                mockChordChoiceRepositoryReturn.Add(innerChordChoice);
-                mockChordChoiceRepositoryReturn.AddRange(mockChordChoices);
-            }
-        }
-
-        _mockChordChoiceRepository
-            .GetChordChoice(Arg.Any<BigInteger>())
-            .Returns(
-                mockChordChoiceRepositoryReturn[0],
-                mockChordChoiceRepositoryReturn.ToArray()[1..]
-            );
+        _mockChordChoiceEnumerator.EnumerateCandidates(Arg.Any<BaroquenChord>()).Returns(candidates);
 
         const bool goodChordChoiceResult = true;
         const bool otherGoodChordChoiceResult = true;
@@ -232,28 +213,13 @@ internal sealed class CompositionStrategyTests
             otherGoodChordChoice
         };
 
-        _mockChordChoiceRepository.Count.Returns(mockChordChoices.Count);
+        // The enumerator yields the same materialized candidates for every enumeration, including the recursive
+        // look-ahead passes.
+        var candidates = mockChordChoices
+            .Select(chordChoice => (ChordChoice: chordChoice, Chord: precedingChords[^1].ApplyChordChoice(_compositionConfiguration.Scale, chordChoice, _compositionConfiguration.DefaultNoteTimeSpan)))
+            .ToList();
 
-        var mockChordChoiceRepositoryReturn = new List<ChordChoice>();
-
-        // Some fun times mocking here and below to account for recursion and look-ahead depth
-        foreach (var outerChordChoice in mockChordChoices)
-        {
-            mockChordChoiceRepositoryReturn.Add(outerChordChoice);
-
-            foreach (var innerChordChoice in mockChordChoices)
-            {
-                mockChordChoiceRepositoryReturn.Add(innerChordChoice);
-                mockChordChoiceRepositoryReturn.AddRange(mockChordChoices);
-            }
-        }
-
-        _mockChordChoiceRepository
-            .GetChordChoice(Arg.Any<BigInteger>())
-            .Returns(
-                mockChordChoiceRepositoryReturn[0],
-                mockChordChoiceRepositoryReturn.ToArray()[1..]
-            );
+        _mockChordChoiceEnumerator.EnumerateCandidates(Arg.Any<BaroquenChord>()).Returns(candidates);
 
         const bool goodChordChoiceResult = true;
 
@@ -321,7 +287,7 @@ internal sealed class CompositionStrategyTests
         );
 
         var strategy = new CompositionStrategy(
-            _mockChordChoiceRepository,
+            _mockChordChoiceEnumerator,
             _mockCompositionRule,
             _mockLogger,
             compositionConfiguration,

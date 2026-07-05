@@ -10,7 +10,6 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
-using System.Numerics;
 
 namespace BaroquenMelody.Library.Tests.Strategies;
 
@@ -23,7 +22,7 @@ namespace BaroquenMelody.Library.Tests.Strategies;
 [TestFixture]
 internal sealed class LookAheadDepthTests
 {
-    private IChordChoiceRepositoryFactory _mockChordChoiceRepositoryFactory = null!;
+    private INoteChoiceGenerator _mockNoteChoiceGenerator = null!;
 
     private ICompositionRule _mockCompositionRule = null!;
 
@@ -34,28 +33,30 @@ internal sealed class LookAheadDepthTests
     [SetUp]
     public void SetUp()
     {
-        _mockChordChoiceRepositoryFactory = Substitute.For<IChordChoiceRepositoryFactory>();
+        // A small per-voice domain (stay / step up / step down) keeps the look-ahead search space tiny while still
+        // giving every voice multiple viable choices.
+        _mockNoteChoiceGenerator = Substitute.For<INoteChoiceGenerator>();
+        _mockNoteChoiceGenerator
+            .GenerateNoteChoices(Arg.Any<Instrument>())
+            .Returns(callInfo => new HashSet<NoteChoice>
+            {
+                new(callInfo.Arg<Instrument>(), NoteMotion.Oblique, 0),
+                new(callInfo.Arg<Instrument>(), NoteMotion.Ascending, 1),
+                new(callInfo.Arg<Instrument>(), NoteMotion.Descending, 1)
+            });
+
         _mockCompositionRule = Substitute.For<ICompositionRule>();
         _mockLogger = Substitute.For<ILogger>();
 
-        _compositionStrategyFactory = new CompositionStrategyFactory(_mockChordChoiceRepositoryFactory, _mockCompositionRule, new ThreadLocalRandomProvider(), _mockLogger);
+        _compositionStrategyFactory = new CompositionStrategyFactory(_mockNoteChoiceGenerator, _mockCompositionRule, new ThreadLocalRandomProvider(), _mockLogger);
     }
 
     [Test]
     public void Create_ThreadsConfiguredMaxLookAheadDepth_SoDeeperSearchPrunesChoicesAShallowSearchKeeps()
     {
-        // arrange: a chord graph that is valid one chord ahead but dead-ends once a third chord is appended.
-        // Every choice keeps every note in place (oblique, no scale-step change), so the only thing that varies
-        // between the two strategies under test is the configured look-ahead depth.
-        var mockChordChoiceRepository = Substitute.For<IChordChoiceRepository>();
-        mockChordChoiceRepository.Count.Returns(new BigInteger(3));
-
+        // arrange: a chord graph that is valid one chord ahead but dead-ends once a third chord is appended, so the
+        // only thing that varies between the two strategies under test is the configured look-ahead depth.
         var configuration = TestCompositionConfigurations.Get();
-
-        var obliqueChordChoice = new ChordChoice(configuration.Instruments.Select(static instrument => new NoteChoice(instrument, NoteMotion.Oblique, 0)));
-        mockChordChoiceRepository.GetChordChoice(Arg.Any<BigInteger>()).Returns(obliqueChordChoice);
-
-        _mockChordChoiceRepositoryFactory.Create(Arg.Any<CompositionConfiguration>()).Returns(mockChordChoiceRepository);
 
         // Chords remain valid while at most one chord has been appended to the preceding context (look-ahead depth one),
         // but every choice becomes invalid once a second chord is appended (look-ahead depth two reaches the dead-end).

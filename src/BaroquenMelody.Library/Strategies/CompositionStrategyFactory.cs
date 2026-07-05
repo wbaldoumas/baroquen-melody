@@ -8,14 +8,14 @@ namespace BaroquenMelody.Library.Strategies;
 
 /// <inheritdoc cref="ICompositionStrategyFactory"/>
 internal sealed class CompositionStrategyFactory(
-    IChordChoiceRepositoryFactory chordChoiceRepositoryFactory,
+    INoteChoiceGenerator noteChoiceGenerator,
     ICompositionRule compositionRule,
     IRandomProvider randomProvider,
     ILogger logger
 ) : ICompositionStrategyFactory
 {
     public ICompositionStrategy Create(CompositionConfiguration compositionConfiguration) => new CompositionStrategy(
-        chordChoiceRepositoryFactory.Create(compositionConfiguration),
+        new ForwardCheckingChordChoiceEnumerator(compositionConfiguration, noteChoiceGenerator),
         compositionRule,
         logger,
         compositionConfiguration,

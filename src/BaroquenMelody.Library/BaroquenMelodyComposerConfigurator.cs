@@ -29,7 +29,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(ILogger<MidiFileComposi
 {
     private readonly IMusicalTimeSpanCalculator _musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
 
-    private readonly IChordChoiceRepositoryFactory _chordChoiceRepositoryFactory = new ChordChoiceRepositoryFactory(new NoteChoiceGenerator());
+    private readonly INoteChoiceGenerator _noteChoiceGenerator = new NoteChoiceGenerator();
 
     private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator(randomProvider);
 
@@ -40,7 +40,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(ILogger<MidiFileComposi
         var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
         var compositionRuleFactory = new CompositionRuleFactory(compositionConfiguration, _weightedRandomBooleanGenerator, chordNumberIdentifier);
         var compositionRule = compositionRuleFactory.CreateAggregate(compositionConfiguration.AggregateCompositionRuleConfiguration);
-        var compositionStrategyFactory = new CompositionStrategyFactory(_chordChoiceRepositoryFactory, compositionRule, randomProvider, logger);
+        var compositionStrategyFactory = new CompositionStrategyFactory(_noteChoiceGenerator, compositionRule, randomProvider, logger);
         var compositionStrategy = compositionStrategyFactory.Create(compositionConfiguration);
         var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, _musicalTimeSpanCalculator, randomProvider, logger);
         var dynamicsEngineBuilder = new DynamicsEngineBuilder(compositionConfiguration, randomProvider);
