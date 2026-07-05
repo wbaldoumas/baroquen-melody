@@ -1,5 +1,5 @@
 ﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
-@implements IDisposable
+@implements IAsyncDisposable
 
 <RandomizeResetButtonGroup OnRandomizeClick="InstrumentConfigurationService.Randomize"
                            OnResetClick="InstrumentConfigurationService.ConfigureDefaults"/>
@@ -61,17 +61,13 @@
         CompositionConfigurationState.Value.Scale
     );
 
-    protected virtual void Dispose(bool disposing)
+    // FluxorComponent implements IAsyncDisposable, and Blazor only invokes the asynchronous overload when a
+    // component offers both - a synchronous Dispose() here would never run (see CompositionProgress for the
+    // same pattern).
+    public new async ValueTask DisposeAsync()
     {
-        if (disposing)
-        {
-            _instrumentConfigurationStateSubscription?.Dispose();
-        }
-    }
+        _instrumentConfigurationStateSubscription?.Dispose();
 
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        await base.DisposeAsync();
     }
 }
