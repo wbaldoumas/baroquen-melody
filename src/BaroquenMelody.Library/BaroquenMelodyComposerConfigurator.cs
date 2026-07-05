@@ -96,7 +96,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         return new AggregateCompositionRuleConfiguration(
             aggregateRuleConfiguration.Configurations
                 .Where(static configuration => configuration.Rule != CompositionRule.EnforceVoiceSpacing)
-                .Append(new CompositionRuleConfiguration(CompositionRule.EnforceVoiceSpacing, ConfigurationStatus.Disabled, voiceSpacingConfiguration.Strictness))
+                .Append(voiceSpacingConfiguration with { Status = ConfigurationStatus.Disabled })
                 .ToHashSet()
         );
     }
