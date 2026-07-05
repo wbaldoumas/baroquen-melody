@@ -26,7 +26,7 @@ namespace BaroquenMelody.Benchmarks.Compositions.Scoring;
 public class WeightedChordSelectorBenchmarks
 {
     private static readonly CompositionStrategy CompositionStrategy = new(
-        new QuartetChordChoiceRepository(
+        new ForwardCheckingChordChoiceEnumerator(
             BenchmarkData.CompositionConfiguration,
             new NoteChoiceGenerator()
         ),

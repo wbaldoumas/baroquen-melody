@@ -14,8 +14,6 @@ namespace BaroquenMelody.Library.Tests.Strategies;
 [TestFixture]
 internal sealed class CompositionStrategyFactoryTests
 {
-    private IChordChoiceRepositoryFactory _mockChordChoiceRepositoryFactory = null!;
-
     private ICompositionRule _mockCompositionRule = null!;
 
     private ILogger _mockLogger = null!;
@@ -25,23 +23,16 @@ internal sealed class CompositionStrategyFactoryTests
     [SetUp]
     public void SetUp()
     {
-        _mockChordChoiceRepositoryFactory = Substitute.For<IChordChoiceRepositoryFactory>();
         _mockCompositionRule = Substitute.For<ICompositionRule>();
         _mockLogger = Substitute.For<ILogger>();
 
-        _compositionStrategyFactory = new CompositionStrategyFactory(_mockChordChoiceRepositoryFactory, _mockCompositionRule, new ThreadLocalRandomProvider(), _mockLogger);
+        _compositionStrategyFactory = new CompositionStrategyFactory(new NoteChoiceGenerator(), _mockCompositionRule, new ThreadLocalRandomProvider(), _mockLogger);
     }
 
     [Test]
     public void CreateCompositionStrategy_GivenCompositionContext_ReturnsCompositionStrategy()
     {
         // arrange
-        var mockChordChoiceRepository = Substitute.For<IChordChoiceRepository>();
-
-        _mockChordChoiceRepositoryFactory.Create(Arg.Any<CompositionConfiguration>()).Returns(mockChordChoiceRepository);
-
-        mockChordChoiceRepository.Count.Returns(500);
-
         var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
         // act

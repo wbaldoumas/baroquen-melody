@@ -14,7 +14,7 @@ namespace BaroquenMelody.Library.Strategies;
 
 /// <inheritdoc cref="ICompositionStrategy"/>
 internal sealed class CompositionStrategy(
-    IChordChoiceRepository chordChoiceRepository,
+    IChordChoiceEnumerator chordChoiceEnumerator,
     ICompositionRule compositionRule,
     ILogger logger,
     CompositionConfiguration compositionConfiguration,
@@ -63,16 +63,11 @@ internal sealed class CompositionStrategy(
 
     public IEnumerable<(ChordChoice ChordChoice, BaroquenChord Chord)> GetValidChordChoicesAndChords(IReadOnlyList<BaroquenChord> precedingChords)
     {
-        var currentChord = precedingChords[^1];
-
-        for (var chordChoiceId = 0; chordChoiceId < chordChoiceRepository.Count; ++chordChoiceId)
+        foreach (var candidate in chordChoiceEnumerator.EnumerateCandidates(precedingChords[^1]))
         {
-            var chordChoice = chordChoiceRepository.GetChordChoice(chordChoiceId);
-            var nextChord = currentChord.ApplyChordChoice(compositionConfiguration.Scale, chordChoice, compositionConfiguration.DefaultNoteTimeSpan);
-
-            if (compositionRule.Evaluate(precedingChords, nextChord))
+            if (compositionRule.Evaluate(precedingChords, candidate.Chord))
             {
-                yield return (chordChoice, nextChord);
+                yield return candidate;
             }
         }
     }
