@@ -8,9 +8,11 @@ namespace BaroquenMelody.Library.Configurations;
 public sealed record AggregateCompositionRuleConfiguration(ISet<CompositionRuleConfiguration> Configurations)
 {
     /// <summary>
-    ///     Rules that are available but switched off by default. <see cref="CompositionRule.EnforceVoiceSpacing"/>
-    ///     over-constrains the current greedy look-ahead search and can leave the composer without a valid next chord,
-    ///     so it is opt-in until forward checking makes a deeper constrained search affordable.
+    ///     Rules that are available but switched off by default. <see cref="CompositionRule.EnforceVoiceSpacing"/> now
+    ///     composes at no measurable cost (forward checking prunes the search), but it must stay opt-in: the initial
+    ///     and fugal-entry voicings are not rule-checked, so a composition can start from a spacing-unsatisfiable
+    ///     position that no subsequent chord can repair, dead-ending the composer. Enabling it by default is blocked
+    ///     on validating those starting voicings.
     /// </summary>
     private static readonly FrozenSet<CompositionRule> _disabledByDefault = new[]
     {
