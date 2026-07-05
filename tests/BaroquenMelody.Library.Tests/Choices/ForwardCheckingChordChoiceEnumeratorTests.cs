@@ -120,6 +120,20 @@ internal sealed class ForwardCheckingChordChoiceEnumeratorTests
     }
 
     [Test]
+    public void Constructor_WithNoInstrumentConfigurations_ThrowsArgumentException()
+    {
+        // arrange: the legacy repository factory failed fast on an instrument-less configuration; the forward-checking
+        // path must preserve that contract instead of silently composing empty chords.
+        var configuration = TestCompositionConfigurations.Get(0);
+
+        // act
+        var act = () => new ForwardCheckingChordChoiceEnumerator(configuration, new NoteChoiceGenerator());
+
+        // assert
+        act.Should().Throw<ArgumentException>().WithParameterName("compositionConfiguration");
+    }
+
+    [Test]
     public void EnumerateCandidates_YieldsFreshNoteInstancesPerCandidate()
     {
         // arrange

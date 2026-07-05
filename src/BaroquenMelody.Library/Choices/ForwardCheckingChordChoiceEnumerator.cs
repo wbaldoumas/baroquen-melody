@@ -27,6 +27,14 @@ internal sealed class ForwardCheckingChordChoiceEnumerator : IChordChoiceEnumera
 
     public ForwardCheckingChordChoiceEnumerator(CompositionConfiguration compositionConfiguration, INoteChoiceGenerator noteChoiceGenerator)
     {
+        if (compositionConfiguration.Instruments.Count == 0)
+        {
+            throw new ArgumentException(
+                "The composition configuration must contain at least one instrument configuration.",
+                nameof(compositionConfiguration)
+            );
+        }
+
         _compositionConfiguration = compositionConfiguration;
 
         // Match the chord-choice repositories: voices in instrument-enum order, each voice's choices in the
