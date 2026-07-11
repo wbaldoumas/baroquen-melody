@@ -1,25 +1,27 @@
-﻿using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
-using BaroquenMelody.Library.Rules;
+using BaroquenMelody.Library.Rules.Melodic;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
-namespace BaroquenMelody.Library.Tests.Rules;
+namespace BaroquenMelody.Library.Tests.Rules.Melodic;
 
 [TestFixture]
 internal sealed class HandleAscendingSeventhTests
 {
-    private HandleAscendingSeventh _handleAscendingSeventh = null!;
+    private MelodicCompositionRuleAdapter _handleAscendingSeventh = null!;
 
+    // The chord-level cases predate the melodic viewpoint; evaluating through the adapter keeps them verbatim while
+    // covering the rule and its per-voice aggregation together.
     [SetUp]
     public void SetUp()
     {
         var compositionConfiguration = TestCompositionConfigurations.Get(2);
 
-        _handleAscendingSeventh = new HandleAscendingSeventh(compositionConfiguration);
+        _handleAscendingSeventh = new MelodicCompositionRuleAdapter(new HandleAscendingSeventh(compositionConfiguration));
     }
 
     [Test]
@@ -55,6 +57,12 @@ internal sealed class HandleAscendingSeventhTests
             yield return new TestCaseData(new List<BaroquenChord> { aMinor, eMinor }, aMinor, false).SetName("Incorrectly handles ascending seventh.");
 
             yield return new TestCaseData(new List<BaroquenChord> { cMajor, eMinor }, aMinor, true).SetName("No need to handle ascending seventh if its descending.");
+
+            // The pre-viewpoint rule threw a KeyNotFoundException for these voice-set mismatches; the melodic
+            // projection skips a voice without its full context instead.
+            yield return new TestCaseData(new List<BaroquenChord> { new BaroquenChord([altoE3]), eMinor }, cMajor, true).SetName("A leading tone whose earlier context chord lacks the voice is not evaluated.");
+
+            yield return new TestCaseData(new List<BaroquenChord> { aMinor, eMinor }, new BaroquenChord([altoE3]), true).SetName("A leading-tone voice absent from the next chord is not evaluated.");
         }
     }
 }

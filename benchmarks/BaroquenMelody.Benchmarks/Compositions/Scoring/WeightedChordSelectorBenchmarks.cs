@@ -7,6 +7,7 @@ using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Rules;
+using BaroquenMelody.Library.Rules.Melodic;
 using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Strategies;
 using BenchmarkDotNet.Attributes;
@@ -32,7 +33,7 @@ public class WeightedChordSelectorBenchmarks
         ),
         new AggregateCompositionRule(
             [
-                new HandleAscendingSeventh(BenchmarkData.CompositionConfiguration),
+                new MelodicCompositionRuleAdapter(new HandleAscendingSeventh(BenchmarkData.CompositionConfiguration)),
                 new EnsureInstrumentRange(BenchmarkData.CompositionConfiguration),
                 new AvoidDirectIntervals(Interval.PerfectFifth, BenchmarkData.CompositionConfiguration),
                 new AvoidDirectIntervals(Interval.PerfectFourth, BenchmarkData.CompositionConfiguration),
@@ -41,7 +42,7 @@ public class WeightedChordSelectorBenchmarks
                 new AvoidRepeatedChords(new ChordNumberIdentifier(BenchmarkData.CompositionConfiguration)),
                 new FollowsStandardProgression(BenchmarkData.CompositionConfiguration),
                 new AvoidDissonance(),
-                new AvoidDissonantLeaps(BenchmarkData.CompositionConfiguration),
+                new MelodicCompositionRuleAdapter(new AvoidDissonantLeaps(BenchmarkData.CompositionConfiguration)),
                 new AvoidRepetition(),
                 new AvoidParallelIntervals(Interval.PerfectFifth),
                 new AvoidParallelIntervals(Interval.PerfectFourth),

@@ -1,21 +1,23 @@
-﻿using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
-using BaroquenMelody.Library.Rules;
+using BaroquenMelody.Library.Rules.Melodic;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
-namespace BaroquenMelody.Library.Tests.Rules;
+namespace BaroquenMelody.Library.Tests.Rules.Melodic;
 
 [TestFixture]
 internal sealed class AvoidDissonantLeapsTests
 {
-    private AvoidDissonantLeaps _avoidDissonantLeaps = null!;
+    private MelodicCompositionRuleAdapter _avoidDissonantLeaps = null!;
 
+    // The chord-level cases predate the melodic viewpoint; evaluating through the adapter keeps them verbatim while
+    // covering the rule and its per-voice aggregation together.
     [SetUp]
-    public void SetUp() => _avoidDissonantLeaps = new AvoidDissonantLeaps(TestCompositionConfigurations.Get());
+    public void SetUp() => _avoidDissonantLeaps = new MelodicCompositionRuleAdapter(new AvoidDissonantLeaps(TestCompositionConfigurations.Get()));
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
@@ -56,6 +58,12 @@ internal sealed class AvoidDissonantLeapsTests
             yield return new TestCaseData(new List<BaroquenChord> { eMinor }, fMajor, true).SetName("Consonant leap is non-dissonant.");
 
             yield return new TestCaseData(new List<BaroquenChord> { eMinor }, fMajorWithLeap, false).SetName("Dissonant leap is dissonant.");
+
+            // The pre-viewpoint rule threw a KeyNotFoundException for these voice-set mismatches; the melodic
+            // projection skips a voice without both notes of the move instead.
+            yield return new TestCaseData(new List<BaroquenChord> { eMinor }, new BaroquenChord([sopranoC4]), true).SetName("A voice absent from the next chord is not evaluated.");
+
+            yield return new TestCaseData(new List<BaroquenChord> { new BaroquenChord([sopranoB3]) }, fMajor, true).SetName("A voice entering without a preceding note is not evaluated.");
         }
     }
 }
