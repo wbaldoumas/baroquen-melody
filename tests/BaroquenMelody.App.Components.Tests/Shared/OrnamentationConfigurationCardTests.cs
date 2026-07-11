@@ -46,7 +46,7 @@ internal sealed class OrnamentationConfigurationCardTests
         var component = RenderCard();
 
         // act
-        component.FindAll("input.mud-switch-input")[0].Change(false);
+        component.EnableSwitch().Change(false);
 
         // assert
         _testContext.StateOf<CompositionOrnamentationConfigurationState>()[_ornamentationType]!.Status.Should().Be(ConfigurationStatus.Disabled);

@@ -76,10 +76,8 @@ internal sealed class OrnamentationConfigurationPanelTests
 
         _testContext.Dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(ornamentationType, alteredStatus, defaultConfiguration.Probability));
 
-        // act: re-render first - the dispatch re-rendered the cards, and clicking through a stale
-        // markup snapshot silently no-ops in bUnit
-        component.Render();
-        component.FindAll("button").First(button => button.TextContent.Contains("Reset", StringComparison.Ordinal)).Click();
+        // act
+        component.ClickButtonByText("Reset");
 
         // assert
         _testContext.StateOf<CompositionOrnamentationConfigurationState>()[ornamentationType]!.Status.Should().Be(defaultConfiguration.Status);

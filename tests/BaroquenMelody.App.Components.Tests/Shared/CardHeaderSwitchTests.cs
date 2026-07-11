@@ -1,4 +1,3 @@
-using AngleSharp.Html.Dom;
 using BaroquenMelody.App.Components.Shared;
 using BaroquenMelody.Library.Configurations.Enums;
 using Bunit;
@@ -44,10 +43,10 @@ internal sealed class CardHeaderSwitchTests
         var component = RenderCardHeaderSwitch(status);
 
         // assert
-        EnableSwitch(component).IsChecked.Should().Be(expectedEnableChecked);
-        LockSwitch(component).IsChecked.Should().Be(expectedLockChecked);
-        EnableSwitch(component).IsDisabled.Should().Be(expectedEnableSwitchDisabled);
-        LockSwitch(component).IsDisabled.Should().BeFalse();
+        component.EnableSwitch().IsChecked.Should().Be(expectedEnableChecked);
+        component.LockSwitch().IsChecked.Should().Be(expectedLockChecked);
+        component.EnableSwitch().IsDisabled.Should().Be(expectedEnableSwitchDisabled);
+        component.LockSwitch().IsDisabled.Should().BeFalse();
     }
 
     [TestCase(ConfigurationStatus.Enabled, false, ConfigurationStatus.Disabled)]
@@ -58,7 +57,7 @@ internal sealed class CardHeaderSwitchTests
         var component = RenderCardHeaderSwitch(initialStatus);
 
         // act
-        EnableSwitch(component).Change(isEnabled);
+        component.EnableSwitch().Change(isEnabled);
 
         // assert
         _reportedStatus.Should().Be(expectedStatus);
@@ -74,15 +73,11 @@ internal sealed class CardHeaderSwitchTests
         var component = RenderCardHeaderSwitch(initialStatus);
 
         // act
-        LockSwitch(component).Change(isLocked);
+        component.LockSwitch().Change(isLocked);
 
         // assert
         _reportedStatus.Should().Be(expectedStatus);
     }
-
-    private static IHtmlInputElement EnableSwitch(IRenderedFragment component) => (IHtmlInputElement)component.FindAll("input.mud-switch-input")[0];
-
-    private static IHtmlInputElement LockSwitch(IRenderedFragment component) => (IHtmlInputElement)component.FindAll("input.mud-switch-input")[1];
 
     private IRenderedComponent<CardHeaderSwitch> RenderCardHeaderSwitch(ConfigurationStatus status) => _testContext.RenderComponent<CardHeaderSwitch>(parameters => parameters
         .Add(component => component.HeaderContent, "<span id=\"test-header-content\">test header</span>")

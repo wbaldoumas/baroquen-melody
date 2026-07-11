@@ -1,4 +1,3 @@
-using AngleSharp.Html.Dom;
 using BaroquenMelody.App.Components.Shared;
 using BaroquenMelody.App.Components.Tests.TestData;
 using BaroquenMelody.Library.Configurations.Enums;
@@ -51,7 +50,7 @@ internal sealed class CompositionRuleConfigurationCardTests
         var component = RenderCard(CompositionRule.AvoidDissonance);
 
         // act
-        EnableSwitch(component).Change(false);
+        component.EnableSwitch().Change(false);
 
         // assert
         RuleStatus(CompositionRule.AvoidDissonance).Should().Be(ConfigurationStatus.Disabled);
@@ -80,7 +79,7 @@ internal sealed class CompositionRuleConfigurationCardTests
         var component = RenderCard(CompositionRule.AvoidDissonance);
 
         // act
-        EnableSwitch(component).Change(false);
+        component.EnableSwitch().Change(false);
 
         // assert
         component.Find("input[type=number]").HasAttribute("disabled").Should().BeTrue();
@@ -120,7 +119,7 @@ internal sealed class CompositionRuleConfigurationCardTests
         // arrange: disable the spacing rule while the ranges are satisfiable
         var component = RenderCard(CompositionRule.EnforceVoiceSpacing);
 
-        EnableSwitch(component).Change(false);
+        component.EnableSwitch().Change(false);
 
         // act: move the top voice out of the satisfiable range and back in
         var originalConfiguration = VoiceSpacingScenarios.MoveTopVoiceOutOfSatisfiableRange(_testContext);
@@ -131,7 +130,7 @@ internal sealed class CompositionRuleConfigurationCardTests
 
         // assert: the manual disable is preserved - the rule must not auto-enable
         RuleStatus(CompositionRule.EnforceVoiceSpacing).Should().Be(ConfigurationStatus.Disabled);
-        EnableSwitch(component).IsChecked.Should().BeFalse();
+        component.EnableSwitch().IsChecked.Should().BeFalse();
     }
 
     [Test]
@@ -143,11 +142,11 @@ internal sealed class CompositionRuleConfigurationCardTests
         var component = RenderCard(CompositionRule.EnforceVoiceSpacing);
 
         // the switch keeps showing the stored status and stays interactive
-        EnableSwitch(component).IsChecked.Should().BeTrue();
-        EnableSwitch(component).IsDisabled.Should().BeFalse();
+        component.EnableSwitch().IsChecked.Should().BeTrue();
+        component.EnableSwitch().IsDisabled.Should().BeFalse();
 
         // act: the disable click lands in the store, and the chip disappears with the rule off
-        EnableSwitch(component).Change(false);
+        component.EnableSwitch().Change(false);
 
         RuleStatus(CompositionRule.EnforceVoiceSpacing).Should().Be(ConfigurationStatus.Disabled);
         component.Markup.Should().NotContain("Auto-disabled");
@@ -156,10 +155,8 @@ internal sealed class CompositionRuleConfigurationCardTests
 
         // assert: restoring satisfiability must not re-arm the rule
         RuleStatus(CompositionRule.EnforceVoiceSpacing).Should().Be(ConfigurationStatus.Disabled);
-        EnableSwitch(component).IsChecked.Should().BeFalse();
+        component.EnableSwitch().IsChecked.Should().BeFalse();
     }
-
-    private static IHtmlInputElement EnableSwitch(IRenderedFragment component) => (IHtmlInputElement)component.FindAll("input.mud-switch-input")[0];
 
     private ConfigurationStatus RuleStatus(CompositionRule rule) => _testContext.StateOf<CompositionRuleConfigurationState>()[rule]!.Status;
 

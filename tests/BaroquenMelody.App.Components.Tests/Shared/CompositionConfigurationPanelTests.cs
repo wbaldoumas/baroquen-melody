@@ -35,10 +35,8 @@ internal sealed class CompositionConfigurationPanelTests
 
         component.FindAll("input[type=number]")[1].Change("90");
 
-        // act: re-render first - the change re-rendered the card, and clicking through a stale
-        // markup snapshot silently no-ops in bUnit
-        component.Render();
-        component.FindAll("button").First(button => button.TextContent.Contains("Reset", StringComparison.Ordinal)).Click();
+        // act
+        component.ClickButtonByText("Reset");
 
         // assert
         _testContext.StateOf<CompositionConfigurationState>().Tempo.Should().Be(120);

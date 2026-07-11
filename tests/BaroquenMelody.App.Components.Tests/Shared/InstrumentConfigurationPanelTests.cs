@@ -62,10 +62,8 @@ internal sealed class InstrumentConfigurationPanelTests
 
         VoiceSpacingScenarios.MoveTopVoiceOutOfSatisfiableRange(_testContext);
 
-        // act: re-render first - the dispatch re-rendered the cards, and clicking through a stale
-        // markup snapshot silently no-ops in bUnit
-        component.Render();
-        component.FindAll("button").First(button => button.TextContent.Contains("Reset", StringComparison.Ordinal)).Click();
+        // act
+        component.ClickButtonByText("Reset");
 
         // assert
         _testContext.StateOf<InstrumentConfigurationState>()[Instrument.One]!.MinNote.Should().Be(Notes.C5);

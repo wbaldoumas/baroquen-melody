@@ -1,4 +1,3 @@
-using AngleSharp.Html.Dom;
 using BaroquenMelody.App.Components.Shared;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Enums;
@@ -41,9 +40,7 @@ internal sealed class InstrumentConfigurationCardTests
         var component = RenderCard(instrument);
 
         // assert
-        var enableSwitch = (IHtmlInputElement)component.FindAll("input.mud-switch-input")[0];
-
-        enableSwitch.IsChecked.Should().Be(expectedIsChecked);
+        component.EnableSwitch().IsChecked.Should().Be(expectedIsChecked);
     }
 
     [Test]
@@ -53,7 +50,7 @@ internal sealed class InstrumentConfigurationCardTests
         var component = RenderCard(Instrument.One);
 
         // act
-        component.FindAll("input.mud-switch-input")[0].Change(false);
+        component.EnableSwitch().Change(false);
 
         // assert
         _testContext.StateOf<InstrumentConfigurationState>()[Instrument.One]!.Status.Should().Be(ConfigurationStatus.Disabled);
@@ -66,7 +63,7 @@ internal sealed class InstrumentConfigurationCardTests
         var component = RenderCard(Instrument.One);
 
         // act
-        component.FindAll("input.mud-switch-input")[1].Change(true);
+        component.LockSwitch().Change(true);
 
         // assert
         _testContext.StateOf<InstrumentConfigurationState>()[Instrument.One]!.Status.Should().Be(ConfigurationStatus.EnabledAndLocked);

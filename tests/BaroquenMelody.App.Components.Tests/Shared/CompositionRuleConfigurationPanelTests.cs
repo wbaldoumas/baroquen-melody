@@ -71,10 +71,8 @@ internal sealed class CompositionRuleConfigurationPanelTests
 
         _testContext.Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule.EnforceVoiceSpacing, ConfigurationStatus.Disabled, strictness));
 
-        // act: re-render first - the dispatch re-rendered the cards, and clicking through a stale
-        // markup snapshot silently no-ops in bUnit
-        component.Render();
-        component.FindAll("button").First(button => button.TextContent.Contains("Reset", StringComparison.Ordinal)).Click();
+        // act
+        component.ClickButtonByText("Reset");
 
         // assert
         _testContext.StateOf<CompositionRuleConfigurationState>()[CompositionRule.EnforceVoiceSpacing]!.Status.Should().Be(ConfigurationStatus.Enabled);
