@@ -1,13 +1,12 @@
 ﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
 <MudCard Class="rounded my-2 mx-2 mud-elevation-4" Elevation="ThemeProvider.Elevation" Outlined="true">
-    <CardHeaderSwitch ConfigurationStatus="@EffectiveStatus"
-                      ValueChanged="HandleIsEnabledChange"
-                      IsReadOnly="IsVoiceSpacingUnsatisfiable">
+    <CardHeaderSwitch ConfigurationStatus="@Status"
+                      ValueChanged="HandleIsEnabledChange">
         <HeaderContent>
             <MudText Typo="Typo.h6" Inline="true">
                 @CompositionRule.ToSpaceSeparatedString() <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.QuestionMark" OnClick="OpenDescriptionPopover"/>
-                @if (IsVoiceSpacingUnsatisfiable)
+                @if (IsVoiceSpacingAutoDisabled)
                 {
                     <MudTooltip Text="The configured instrument ranges keep adjacent upper voices more than an octave apart at all times, so this rule can never be satisfied. It will be skipped during composition until the ranges are brought closer together.">
                         <MudChip T="string" Size="Size.Small" Color="Color.Warning" Icon="@Icons.Material.Outlined.Warning">Auto-disabled</MudChip>
@@ -35,7 +34,7 @@
                                          ValueProvider="() => Strictness"
                                          Min="0"
                                          Max="100"
-                                         IsDisabled="EffectiveStatus.IsFrozen()">
+                                         IsDisabled="Status.IsFrozen()">
                     <PopoverContent>
                         <MudText>The strictness of the rule being applied to the composition.</MudText>
                     </PopoverContent>
@@ -49,7 +48,7 @@
                            ValueChanged="HandleStrictnessChange"
                            Size="Size.Medium"
                            Variant="Variant.Filled"
-                           Color="@(!EffectiveStatus.IsEnabled() ? Color.Dark : Color.Tertiary)"
+                           Color="@(!Status.IsEnabled() ? Color.Dark : Color.Tertiary)"
                            ValueLabel="true"
                            TickMarks="true"
                            Immediate="true"
@@ -58,7 +57,7 @@
                            Step="1"
                            ValueLabelFormat="0'%'"
                            Culture="CultureInfo.CurrentCulture"
-                           Disabled="EffectiveStatus.IsFrozen()"/>
+                           Disabled="Status.IsFrozen()"/>
             </MudItem>
         </MudGrid>
     </MudCardContent>
@@ -73,14 +72,14 @@
     private ConfigurationStatus Status => CompositionRuleConfigurationState.Value[CompositionRule]?.Status ?? ConfigurationStatus.Enabled;
 
     /// <summary>
-    ///     Whether this card configures the voice spacing rule while the configured instrument ranges make it
-    ///     impossible to satisfy. The composer skips the rule dynamically in that case, so the card mirrors that
-    ///     by rendering it as disabled and locked without touching the user's stored configuration.
+    ///     Whether this card configures the voice spacing rule as enabled while the configured instrument ranges
+    ///     make it impossible to satisfy. The composer skips the rule dynamically in that case, so the card shows
+    ///     a warning chip; the switches keep reflecting and editing the user's stored configuration, so a manual
+    ///     disable still lands and is preserved when the ranges become satisfiable again.
     /// </summary>
-    private bool IsVoiceSpacingUnsatisfiable => CompositionRule == CompositionRule.EnforceVoiceSpacing
+    private bool IsVoiceSpacingAutoDisabled => CompositionRule == CompositionRule.EnforceVoiceSpacing
+        && Status.IsEnabled()
         && !VoiceSpacingSatisfiabilityAnalyzer.IsSatisfiable(InstrumentConfigurationState.Value.EnabledConfigurations, CompositionConfigurationState.Value.Scale);
-
-    private ConfigurationStatus EffectiveStatus => IsVoiceSpacingUnsatisfiable ? ConfigurationStatus.DisabledAndLocked : Status;
 
     private void HandleStrictnessChange(int value) => Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule, Status, value));
 
