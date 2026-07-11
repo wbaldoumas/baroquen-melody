@@ -110,6 +110,20 @@ internal sealed class InstrumentVelocityRangeTests
     }
 
     [Test]
+    public void Muted_and_quiet_velocities_render_their_own_icons()
+    {
+        // arrange
+        var component = RenderVelocityRange();
+
+        // act: zero renders the muted icon and anything below fifty the quiet icon
+        _testContext.Dispatcher.Dispatch(new UpdateInstrumentVelocities(Instrument.One, new SevenBitNumber(0), new SevenBitNumber(30)));
+        component.Render();
+
+        // assert
+        component.Markup.Should().ContainAll("0%", "30%");
+    }
+
+    [Test]
     public void Clicking_the_help_icon_opens_the_popover()
     {
         // arrange

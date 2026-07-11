@@ -64,6 +64,21 @@ internal sealed class NumericInputWithPopoverTests
         _testContext.PopoverProvider.Markup.Should().Contain("numeric popover content");
     }
 
+    [Test]
+    public void Closing_the_overlay_closes_the_popover()
+    {
+        // arrange
+        var component = RenderNumericInput(() => 42, _ => { });
+
+        component.Find("button").Click();
+
+        // act
+        _testContext.PopoverProvider.Find("div.mud-overlay").Click();
+
+        // assert
+        _testContext.PopoverProvider.FindAll("div.mud-overlay").Should().BeEmpty();
+    }
+
     private IRenderedComponent<NumericInputWithPopover<int>> RenderNumericInput(Func<int> valueProvider, Action<int> onValueChanged, bool isDisabled = false) => _testContext.RenderComponent<NumericInputWithPopover<int>>(parameters => parameters
         .Add(component => component.PopoverContent, "<span>numeric popover content</span>")
         .Add(component => component.Label, "test label")

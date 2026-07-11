@@ -44,6 +44,21 @@ internal sealed class SelectWithPopoverTests
     }
 
     [Test]
+    public void Closing_the_overlay_closes_the_popover()
+    {
+        // arrange
+        var component = RenderSelect(() => "beta", _ => { });
+
+        component.Find("button").Click();
+
+        // act
+        _testContext.PopoverProvider.Find("div.mud-overlay").Click();
+
+        // assert
+        _testContext.PopoverProvider.FindAll("div.mud-overlay").Should().BeEmpty();
+    }
+
+    [Test]
     public void Selecting_an_item_reports_the_new_value()
     {
         // arrange

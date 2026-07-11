@@ -121,20 +121,21 @@ internal sealed class SavedConfigurationsTests
     public async Task Deleting_a_configuration_asks_for_confirmation_first()
     {
         // arrange
-        SetUpSavedConfigurations("fugue.json");
+        SetUpSavedConfigurations("fugue.json", "sonata.json");
         _mockPersistenceService.DeleteConfigurationAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(true);
 
         var component = _testContext.RenderComponent<SavedConfigurations>();
 
-        // act: the second icon button in the row is delete
+        // act: the second icon button in the first row is delete
         component.FindAll("td button")[1].Click();
 
         _dialogProvider.WaitForAssertion(() => _dialogProvider.Markup.Should().Contain("Delete existing configuration?"));
 
         _dialogProvider.FindAll("button").Single(button => button.TextContent.Trim() == "Delete").Click();
 
-        // assert
-        component.WaitForAssertion(() => component.Markup.Should().Contain("no configurations found"));
+        // assert: the deleted configuration disappears while the other remains
+        component.WaitForAssertion(() => component.Markup.Should().NotContain("fugue"));
+        component.Markup.Should().Contain("sonata");
         await _mockPersistenceService.Received(1).DeleteConfigurationAsync("fugue.json", Arg.Any<CancellationToken>());
     }
 

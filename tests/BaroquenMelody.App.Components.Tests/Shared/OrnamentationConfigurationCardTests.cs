@@ -81,6 +81,21 @@ internal sealed class OrnamentationConfigurationCardTests
         _testContext.JSInterop.Invocations.Should().Contain(invocation => invocation.Identifier == "startMidiPlayer");
     }
 
+    [Test]
+    public void Failure_to_play_the_example_shows_an_error_toast()
+    {
+        // arrange
+        _testContext.JSInterop.SetupVoid("startMidiPlayer", _ => true).SetException(new Microsoft.JSInterop.JSException("no midi driver"));
+
+        var component = RenderCard();
+
+        // act
+        component.FindAll("button")[0].Click();
+
+        // assert
+        _testContext.Services.GetRequiredService<MudBlazor.ISnackbar>().ShownSnackbars.Should().ContainSingle();
+    }
+
     private IRenderedComponent<OrnamentationConfigurationCard> RenderCard() => _testContext.RenderComponent<OrnamentationConfigurationCard>(parameters => parameters
         .Add(component => component.OrnamentationType, _ornamentationType)
     );

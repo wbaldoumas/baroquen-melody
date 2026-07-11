@@ -122,6 +122,22 @@ internal sealed class InstrumentTonalRangeTests
     }
 
     [Test]
+    public void Pitch_select_adornments_play_the_boundary_notes()
+    {
+        // arrange
+        var component = RenderTonalRange();
+
+        // act: each pitch select's adornment plays its boundary note
+        var adornmentButtons = component.FindAll("div.mud-input-adornment button");
+
+        adornmentButtons[0].Click();
+        adornmentButtons[1].Click();
+
+        // assert
+        _testContext.JSInterop.Invocations.Count(invocation => invocation.Identifier == "startMidiPlayer").Should().Be(2);
+    }
+
+    [Test]
     public void Clicking_the_help_icon_opens_the_popover()
     {
         // arrange

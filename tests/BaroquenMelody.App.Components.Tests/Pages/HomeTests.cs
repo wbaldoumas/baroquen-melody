@@ -3,6 +3,7 @@ using BaroquenMelody.App.Components.Tests.TestComponents;
 using BaroquenMelody.Library;
 using BaroquenMelody.Library.Composers;
 using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Services;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
@@ -21,6 +22,8 @@ internal sealed class HomeTests
 {
     private AppComponentsTestContext _testContext = null!;
 
+    private ICompositionConfigurationPersistenceService _mockPersistenceService = null!;
+
     private IRenderedComponent<MudDialogProvider> _dialogProvider = null!;
 
     private ISnackbar Snackbar => _testContext.Services.GetRequiredService<ISnackbar>();
@@ -36,7 +39,15 @@ internal sealed class HomeTests
 
         mockComposerConfigurator.Configure(Arg.Any<CompositionConfiguration>()).Returns(mockComposer);
 
-        _testContext = new AppComponentsTestContext(services => services.AddSingleton(mockComposerConfigurator));
+        _mockPersistenceService = Substitute.For<ICompositionConfigurationPersistenceService>();
+        _mockPersistenceService.DoesConfigurationExist(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(false);
+        _mockPersistenceService.SaveConfigurationAsync(Arg.Any<CompositionConfiguration>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(true);
+
+        _testContext = new AppComponentsTestContext(services =>
+        {
+            services.AddSingleton(mockComposerConfigurator);
+            services.AddSingleton(_mockPersistenceService);
+        });
 
         _testContext.MockMidiSaver.SaveTempAsync(Arg.Any<MidiFileComposition>(), Arg.Any<CancellationToken>()).Returns("temp/path.mid");
         _testContext.MockMidiSaver.SaveAsync(Arg.Any<MidiFileComposition>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(true);
@@ -112,6 +123,26 @@ internal sealed class HomeTests
     }
 
     [Test]
+    public async Task Cancelling_the_save_confirmation_aborts_composing()
+    {
+        // arrange
+        _testContext.Dispatcher.Dispatch(new UpdateBaroquenMelody(new MidiFileComposition(new MidiFile(new TrackChunk())), "existing/path.mid", HasBeenSaved: false));
+
+        var component = _testContext.RenderComponent<Home>();
+
+        ComposeButton(component).Click();
+        _dialogProvider.WaitForAssertion(() => _dialogProvider.Markup.Should().Contain("Previous composition"));
+
+        // act
+        _dialogProvider.FindAll("button").Single(button => button.TextContent.Trim() == "Cancel").Click();
+
+        // assert
+        _dialogProvider.WaitForAssertion(() => _dialogProvider.Markup.Should().NotContain("Previous composition"));
+        _testContext.StateOf<BaroquenMelodyState>().Path.Should().Be("existing/path.mid");
+        await _testContext.MockMidiSaver.DidNotReceive().SaveTempAsync(Arg.Any<MidiFileComposition>(), Arg.Any<CancellationToken>());
+    }
+
+    [Test]
     public async Task Accepting_the_save_confirmation_saves_before_composing()
     {
         // arrange
@@ -141,6 +172,54 @@ internal sealed class HomeTests
 
         // assert
         _dialogProvider.WaitForAssertion(() => _dialogProvider.Markup.Should().Contain("Save Composition Configuration"));
+    }
+
+    [Test]
+    public void Saving_the_configuration_toasts_success()
+    {
+        // arrange
+        OpenSaveConfigurationDialog();
+
+        _dialogProvider.Find("input").Input("My Configuration");
+
+        // act
+        _dialogProvider.FindAll("button").Single(button => button.TextContent.Trim() == "Save").Click();
+
+        // assert
+        _dialogProvider.WaitForAssertion(() => Snackbar.ShownSnackbars
+            .Should().ContainSingle(snackbar => snackbar.Message != null && snackbar.Message.Contains("Saved composition configuration", StringComparison.Ordinal)));
+    }
+
+    [Test]
+    public void Failing_to_save_the_configuration_toasts_an_error()
+    {
+        // arrange
+        _mockPersistenceService.SaveConfigurationAsync(Arg.Any<CompositionConfiguration>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(false);
+
+        OpenSaveConfigurationDialog();
+
+        _dialogProvider.Find("input").Input("My Configuration");
+
+        // act
+        _dialogProvider.FindAll("button").Single(button => button.TextContent.Trim() == "Save").Click();
+
+        // assert
+        _dialogProvider.WaitForAssertion(() => Snackbar.ShownSnackbars
+            .Should().ContainSingle(snackbar => snackbar.Message != null && snackbar.Message.Contains("Failed to save composition configuration", StringComparison.Ordinal)));
+    }
+
+    [Test]
+    public void Cancelling_the_save_configuration_dialog_does_not_toast()
+    {
+        // arrange
+        OpenSaveConfigurationDialog();
+
+        // act
+        _dialogProvider.FindAll("button").Single(button => button.TextContent.Trim() == "Cancel").Click();
+
+        // assert
+        _dialogProvider.WaitForAssertion(() => _dialogProvider.Markup.Should().NotContain("Save Composition Configuration"));
+        Snackbar.ShownSnackbars.Should().BeEmpty();
     }
 
     [Test]
@@ -185,6 +264,15 @@ internal sealed class HomeTests
 
         // assert: a leaked progress subscription from the unmounted page would still toast
         Snackbar.ShownSnackbars.Should().BeEmpty();
+    }
+
+    private void OpenSaveConfigurationDialog()
+    {
+        var component = _testContext.RenderComponent<Home>();
+
+        component.FindAll("button").Single(button => button.TextContent.Contains("Save Configuration", StringComparison.Ordinal)).Click();
+
+        _dialogProvider.WaitForAssertion(() => _dialogProvider.Markup.Should().Contain("Save Composition Configuration"));
     }
 
     private static AngleSharp.Dom.IElement ComposeButton(IRenderedComponent<Home> component) => component

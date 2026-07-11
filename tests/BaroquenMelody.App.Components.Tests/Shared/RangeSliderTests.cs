@@ -129,6 +129,20 @@ internal sealed class RangeSliderTests
     }
 
     [Test]
+    public void Valid_lower_and_upper_values_are_taken_as_is()
+    {
+        // arrange
+        var component = RenderRangeSlider(parameters => parameters.Add(slider => slider.Display, true));
+
+        // act: both updates respect the minimum distance and slideable bounds
+        component.SetParametersAndRender(parameters => parameters.Add(slider => slider.Value, 20));
+        component.SetParametersAndRender(parameters => parameters.Add(slider => slider.UpperValue, 80));
+
+        // assert
+        component.Find(".mud-range-display").TextContent.Should().Be("20 - 80");
+    }
+
+    [Test]
     public void Tick_marks_are_rendered_for_each_step()
     {
         // act

@@ -6,6 +6,7 @@ using Bunit;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Standards;
 using MudBlazor;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace BaroquenMelody.App.Components.Tests.Shared;
@@ -91,6 +92,47 @@ internal sealed class MidiInstrumentAutocompleteSelectorTests
     }
 
     [Test]
+    public void Filters_that_keep_the_current_instrument_leave_it_unchanged()
+    {
+        // arrange
+        var component = RenderSelector();
+
+        component.Find("div.mud-input-adornment button").Click();
+
+        // act: unchecking the last filter type does not exclude the stored piano
+        var checkboxes = _testContext.PopoverProvider.FindAll("input[type=checkbox]");
+
+        checkboxes[^1].Change(false);
+
+        // assert
+        _testContext.StateOf<InstrumentConfigurationState>()[Instrument.One]!.MidiProgram.Should().Be(GeneralMidi2Program.AcousticGrandPiano);
+    }
+
+    [Test]
+    public void Unchecking_every_filter_restores_the_full_catalog()
+    {
+        // arrange
+        var component = RenderSelector();
+        var autocomplete = component.FindComponent<MudAutocomplete<GeneralMidi2Program>>();
+        var fullCatalogCount = autocomplete.Instance.SearchFunc!(string.Empty, CancellationToken.None)!.GetAwaiter().GetResult()!.Count();
+
+        component.Find("div.mud-input-adornment button").Click();
+
+        // act
+        var checkboxCount = _testContext.PopoverProvider.FindAll("input[type=checkbox]").Count;
+
+        for (var checkboxIndex = 0; checkboxIndex < checkboxCount; checkboxIndex++)
+        {
+            _testContext.PopoverProvider.FindAll("input[type=checkbox]")[checkboxIndex].Change(false);
+        }
+
+        // assert
+        var searchResults = autocomplete.Instance.SearchFunc!(string.Empty, CancellationToken.None)!.GetAwaiter().GetResult()!.Count();
+
+        searchResults.Should().Be(fullCatalogCount);
+    }
+
+    [Test]
     public void Disabled_selector_disables_the_autocomplete_input()
     {
         // act
@@ -98,6 +140,19 @@ internal sealed class MidiInstrumentAutocompleteSelectorTests
 
         // assert
         component.Find("input").HasAttribute("disabled").Should().BeTrue();
+    }
+
+    [Test]
+    public void Mobile_devices_render_the_selector_too()
+    {
+        // arrange: mobile devices anchor the filter popover differently
+        _testContext.MockPhysicalDeviceInfo.IsMobile.Returns(true);
+
+        // act
+        var component = RenderSelector();
+
+        // assert
+        component.Find("input").GetAttribute("value").Should().Be("Acoustic Grand Piano");
     }
 
     private IRenderedComponent<MidiInstrumentAutocompleteSelector> RenderSelector(ConfigurationStatus status = ConfigurationStatus.Enabled) => _testContext.RenderComponent<MidiInstrumentAutocompleteSelector>(parameters => parameters

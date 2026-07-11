@@ -128,6 +128,20 @@ internal sealed class CompositionProgressTests
     }
 
     [Test]
+    public void Starting_a_composition_stops_the_midi_player()
+    {
+        // arrange: the component subscribes after its first render
+        var component = _testContext.RenderComponent<CompositionProgress>();
+
+        // act
+        _testContext.Dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Theme));
+
+        // assert
+        component.WaitForAssertion(() => _testContext.JSInterop.Invocations
+            .Should().Contain(invocation => invocation.Identifier == "stopMidiPlayer"));
+    }
+
+    [Test]
     public void Failed_state_shows_an_alert_that_resets_on_close()
     {
         // arrange
@@ -209,6 +223,48 @@ internal sealed class CompositionProgressTests
         // assert: a new composition replaces the old path without saving the old one
         component.WaitForAssertion(() => _testContext.StateOf<BaroquenMelodyState>().Path.Should().Be("temp/path.mid"));
         await _testContext.MockMidiSaver.DidNotReceive().SaveAsync(Arg.Any<MidiFileComposition>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public async Task Cancelling_the_save_confirmation_aborts_composing()
+    {
+        // arrange
+        _testContext.Dispatcher.Dispatch(new UpdateBaroquenMelody(new MidiFileComposition(new MidiFile(new TrackChunk())), "existing/path.mid", HasBeenSaved: false));
+
+        var component = _testContext.RenderComponent<CompositionProgress>();
+
+        component.Find("button.compose-button").Click();
+        _dialogProvider.WaitForAssertion(() => _dialogProvider.Markup.Should().Contain("Previous composition"));
+
+        // act
+        _dialogProvider.FindAll("button").Single(button => button.TextContent.Trim() == "Cancel").Click();
+
+        // assert: the dialog closes and no new composition replaces the existing one
+        _dialogProvider.WaitForAssertion(() => _dialogProvider.Markup.Should().NotContain("Previous composition"));
+        _testContext.StateOf<BaroquenMelodyState>().Path.Should().Be("existing/path.mid");
+        await _testContext.MockMidiSaver.DidNotReceive().SaveTempAsync(Arg.Any<MidiFileComposition>(), Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public async Task Failing_to_save_aborts_composing()
+    {
+        // arrange
+        _testContext.MockMidiSaver.SaveAsync(Arg.Any<MidiFileComposition>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(false);
+        _testContext.Dispatcher.Dispatch(new UpdateBaroquenMelody(new MidiFileComposition(new MidiFile(new TrackChunk())), "existing/path.mid", HasBeenSaved: false));
+
+        var component = _testContext.RenderComponent<CompositionProgress>();
+
+        component.Find("button.compose-button").Click();
+        _dialogProvider.WaitForAssertion(() => _dialogProvider.Markup.Should().Contain("Previous composition"));
+
+        // act
+        _dialogProvider.FindAll("button").Single(button => button.TextContent.Trim() == "Yes").Click();
+
+        // assert: the failed save keeps the old composition and no new one is composed
+        _dialogProvider.WaitForAssertion(() => _dialogProvider.Markup.Should().NotContain("Previous composition"));
+        _testContext.StateOf<BaroquenMelodyState>().Path.Should().Be("existing/path.mid");
+        _testContext.StateOf<BaroquenMelodyState>().HasBeenSaved.Should().BeFalse();
+        await _testContext.MockMidiSaver.DidNotReceive().SaveTempAsync(Arg.Any<MidiFileComposition>(), Arg.Any<CancellationToken>());
     }
 
     [Test]

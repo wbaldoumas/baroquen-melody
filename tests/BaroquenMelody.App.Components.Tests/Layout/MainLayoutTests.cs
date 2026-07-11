@@ -55,4 +55,28 @@ internal sealed class MainLayoutTests
         // assert
         _testContext.MockThemeProvider.Received(1).ToggleDarkMode();
     }
+
+    [Test]
+    public void About_menu_item_opens_the_about_dialog()
+    {
+        // arrange
+        _testContext.MockApplicationInfo.Version.Returns("1.2.3");
+
+        var component = _testContext.RenderComponent<MainLayout>();
+
+        // act: open the more-options menu, then choose about
+        component.FindAll(".mud-appbar button")[2].Click();
+
+        component.WaitForAssertion(() => component
+            .FindAll(".mud-menu-item")
+            .Should().Contain(menuItem => menuItem.TextContent.Contains("About", StringComparison.Ordinal)));
+
+        component
+            .FindAll(".mud-menu-item")
+            .Single(menuItem => menuItem.TextContent.Contains("About", StringComparison.Ordinal))
+            .Click();
+
+        // assert: the layout's own dialog provider hosts the about dialog
+        component.WaitForAssertion(() => component.Markup.Should().Contain("1.2.3"));
+    }
 }
