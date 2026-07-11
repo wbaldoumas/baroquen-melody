@@ -19,9 +19,9 @@ namespace BaroquenMelody.Library.Tests;
 ///         Voice crossing and overlap are now enforced during body composition by the default-enabled
 ///         <c>AvoidVoiceCrossing</c> / <c>AvoidVoiceOverlap</c> rules (see their unit tests), but a full-composition
 ///         "no crossing" invariant is intentionally not asserted here: the flattened MIDI carries no per-voice
-///         identity, and the thematic <c>GenerateInitialChord</c> is not rule-checked, so it can voice a crossing.
-///         A MIDI/composition-level crossing invariant is deferred until the composition exposes its in-memory voices
-///         and the theme's initial voicing is constrained.
+///         identity, and while the thematic <c>GenerateInitialChord</c> now validates its candidates against the
+///         rules, it degrades to an unvalidated voicing when its bounded retry is exhausted. A MIDI/composition-level
+///         crossing invariant is deferred until the composition exposes its in-memory voices.
 ///     </para>
 /// </remarks>
 [TestFixture]
@@ -32,6 +32,7 @@ internal sealed class MusicalInvariantTests
     [TestCase(1)]
     [TestCase(2)]
     [TestCase(3)]
+    [TestCase(4)] // the default four-voice texture is the hardest case: voice spacing constrains two adjacent pairs
     public void ComposedNotes_SatisfyMusicalInvariants(int numberOfInstruments)
     {
         var configuration = TestCompositionConfigurations.Get(numberOfInstruments, 10) with { ShuffleOrnamentationProcessors = false };

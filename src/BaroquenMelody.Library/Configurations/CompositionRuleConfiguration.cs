@@ -13,9 +13,11 @@ namespace BaroquenMelody.Library.Configurations;
 /// <param name="Strictness">How strictly the rule should be enforced.</param>
 public sealed record CompositionRuleConfiguration(CompositionRule Rule, ConfigurationStatus Status = ConfigurationStatus.Enabled, int Strictness = 100)
 {
+    // computed from the status rather than captured at construction time, so with-expressions that
+    // change the status (which clone the record without re-running the constructor) stay consistent.
     [JsonIgnore]
-    public bool IsEnabled { get; } = Status.IsEnabled();
+    public bool IsEnabled => Status.IsEnabled();
 
     [JsonIgnore]
-    public bool IsFrozen { get; } = Status.IsFrozen();
+    public bool IsFrozen => Status.IsFrozen();
 }

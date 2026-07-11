@@ -1,4 +1,5 @@
 ﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@implements IAsyncDisposable
 
 <RandomizeResetButtonGroup OnRandomizeClick="InstrumentConfigurationService.Randomize"
                            OnResetClick="InstrumentConfigurationService.ConfigureDefaults"/>
@@ -23,3 +24,53 @@
 </MudGrid>
 
 <ScrollToTop/>
+
+@code {
+    private IDisposable? _instrumentConfigurationStateSubscription;
+
+    private bool _wasVoiceSpacingSatisfiable;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        // warn on the transition into unsatisfiability only, so an already-unsatisfiable configuration
+        // does not toast on every visit to this panel.
+        _wasVoiceSpacingSatisfiable = IsVoiceSpacingSatisfiable();
+
+        _instrumentConfigurationStateSubscription = InstrumentConfigurationState
+            .ObserveChanges()
+            .Subscribe(_ =>
+            {
+                var isVoiceSpacingSatisfiable = IsVoiceSpacingSatisfiable();
+
+                if (_wasVoiceSpacingSatisfiable && !isVoiceSpacingSatisfiable && IsVoiceSpacingRuleEnabled())
+                {
+                    Snackbar.Add(
+                        $"The selected instrument ranges cannot satisfy the {CompositionRule.EnforceVoiceSpacing.ToSpaceSeparatedString()} rule. It will be skipped during composition.",
+                        Severity.Warning
+                    );
+                }
+
+                _wasVoiceSpacingSatisfiable = isVoiceSpacingSatisfiable;
+            });
+    }
+
+    private bool IsVoiceSpacingSatisfiable() => VoiceSpacingSatisfiabilityAnalyzer.IsSatisfiable(
+        InstrumentConfigurationState.Value.EnabledConfigurations,
+        CompositionConfigurationState.Value.Scale
+    );
+
+    // a rule the user has disabled is not applied at all, so becoming unsatisfiable changes nothing worth a toast.
+    private bool IsVoiceSpacingRuleEnabled() => CompositionRuleConfigurationState.Value[CompositionRule.EnforceVoiceSpacing]?.Status.IsEnabled() is true;
+
+    // FluxorComponent implements IAsyncDisposable, and Blazor only invokes the asynchronous overload when a
+    // component offers both - a synchronous Dispose() here would never run (see CompositionProgress for the
+    // same pattern).
+    public new async ValueTask DisposeAsync()
+    {
+        _instrumentConfigurationStateSubscription?.Dispose();
+
+        await base.DisposeAsync();
+    }
+}

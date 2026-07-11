@@ -6,6 +6,12 @@
         <HeaderContent>
             <MudText Typo="Typo.h6" Inline="true">
                 @CompositionRule.ToSpaceSeparatedString() <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.QuestionMark" OnClick="OpenDescriptionPopover"/>
+                @if (IsVoiceSpacingAutoDisabled)
+                {
+                    <MudTooltip Text="The configured instrument ranges keep adjacent upper voices more than an octave apart at all times, so this rule can never be satisfied. It will be skipped during composition until the ranges are brought closer together.">
+                        <MudChip T="string" Size="Size.Small" Color="Color.Warning" Icon="@Icons.Material.Outlined.Warning">Auto-disabled</MudChip>
+                    </MudTooltip>
+                }
             </MudText>
             <AutoClosePopover IsPopoverOpen="IsPopoverOpen"
                               OnPopoverClosed="@(() => IsPopoverOpen = false)"
@@ -64,6 +70,16 @@
     private int Strictness => CompositionRuleConfigurationState.Value[CompositionRule]?.Strictness ?? 0;
 
     private ConfigurationStatus Status => CompositionRuleConfigurationState.Value[CompositionRule]?.Status ?? ConfigurationStatus.Enabled;
+
+    /// <summary>
+    ///     Whether this card configures the voice spacing rule as enabled while the configured instrument ranges
+    ///     make it impossible to satisfy. The composer skips the rule dynamically in that case, so the card shows
+    ///     a warning chip; the switches keep reflecting and editing the user's stored configuration, so a manual
+    ///     disable still lands and is preserved when the ranges become satisfiable again.
+    /// </summary>
+    private bool IsVoiceSpacingAutoDisabled => CompositionRule == CompositionRule.EnforceVoiceSpacing
+        && Status.IsEnabled()
+        && !VoiceSpacingSatisfiabilityAnalyzer.IsSatisfiable(InstrumentConfigurationState.Value.EnabledConfigurations, CompositionConfigurationState.Value.Scale);
 
     private void HandleStrictnessChange(int value) => Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule, Status, value));
 

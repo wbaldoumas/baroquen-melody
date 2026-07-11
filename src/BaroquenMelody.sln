@@ -35,6 +35,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaroquenMelody.Infrastructu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaroquenMelody.Infrastructure.Tests", "..\tests\BaroquenMelody.Infrastructure.Tests\BaroquenMelody.Infrastructure.Tests.csproj", "{55971851-76DD-411D-B3F5-E44464CD3FDE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaroquenMelody.App.Components.Tests", "..\tests\BaroquenMelody.App.Components.Tests\BaroquenMelody.App.Components.Tests.csproj", "{7A5005EB-4057-430F-93DE-7DAAA4CD31C1}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{D13F9DB7-2CED-4117-90E5-67CD8D0B6182}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{94B697D8-83CD-485C-8D1F-B27AA2C36FD5}"
@@ -85,6 +87,10 @@ Global
 		{55971851-76DD-411D-B3F5-E44464CD3FDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55971851-76DD-411D-B3F5-E44464CD3FDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55971851-76DD-411D-B3F5-E44464CD3FDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A5005EB-4057-430F-93DE-7DAAA4CD31C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A5005EB-4057-430F-93DE-7DAAA4CD31C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A5005EB-4057-430F-93DE-7DAAA4CD31C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A5005EB-4057-430F-93DE-7DAAA4CD31C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

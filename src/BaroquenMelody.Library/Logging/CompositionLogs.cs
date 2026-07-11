@@ -20,4 +20,10 @@ internal static partial class CompositionLogs
 
     [LoggerMessage(EventId = 103, Level = LogLevel.Critical, Message = "Could not find starting note for instrument {instrument}.")]
     public static partial void LogCouldNotFindStartingNote(this ILogger logger, Instrument instrument);
+
+    [LoggerMessage(EventId = 104, Level = LogLevel.Warning, Message = "Could not generate a rule-compliant initial chord after {attempts} attempts. Proceeding with the last candidate.")]
+    public static partial void LogNoRuleCompliantInitialChord(this ILogger logger, int attempts);
+
+    [LoggerMessage(EventId = 105, Level = LogLevel.Warning, Message = "The configured instrument ranges cannot satisfy the voice spacing rule. The rule will be skipped for this composition.")]
+    public static partial void LogVoiceSpacingUnsatisfiable(this ILogger logger);
 }

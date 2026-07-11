@@ -20,6 +20,7 @@ dotnet test src/BaroquenMelody.sln
 # Run a single test project
 dotnet test tests/BaroquenMelody.Library.Tests/
 dotnet test tests/BaroquenMelody.Infrastructure.Tests/
+dotnet test tests/BaroquenMelody.App.Components.Tests/
 
 # Run a single test by name
 dotnet test tests/BaroquenMelody.Library.Tests/ --filter "FullyQualifiedName~ComposerTests"
@@ -83,6 +84,6 @@ Uses **Fluxor** (Redux-like) for state management. States live in `Library/Store
 - **Analyzers**: StyleCop, Meziantou.Analyzer, and .NET analyzers are enforced across all projects. Build will fail on analyzer warnings.
 - **File-scoped namespaces**: Used throughout (`namespace Foo;`).
 - **Primary constructors**: Used extensively for DI injection.
-- **Test framework**: NUnit with FluentAssertions and NSubstitute for mocking.
+- **Test framework**: NUnit with FluentAssertions and NSubstitute for mocking. UI components are tested with bUnit (`tests/BaroquenMelody.App.Components.Tests`).
 - **Internal by default**: Library/Infrastructure types are `internal` with `InternalsVisibleTo` for test and benchmark projects.
 - **`PublishAot`**: Enabled on `Library`, `Infrastructure`, and the console app. Avoid reflection-heavy patterns in these projects.

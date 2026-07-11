@@ -1,7 +1,7 @@
 ﻿@page "/"
 
 @inherits Fluxor.Blazor.Web.Components.FluxorComponent
-@implements IDisposable
+@implements IAsyncDisposable
 
 <PageTitle>Baroquen Melody</PageTitle>
 
@@ -206,18 +206,14 @@
         }
     }
 
-    protected virtual void Dispose(bool disposing)
+    // FluxorComponent implements IAsyncDisposable, and Blazor only invokes the asynchronous overload when a
+    // component offers both - a synchronous Dispose() here would never run (see CompositionProgress for the
+    // same pattern).
+    public new async ValueTask DisposeAsync()
     {
-        if (disposing)
-        {
-            _compositionProgressSubscription?.Dispose();
-        }
-    }
+        _compositionProgressSubscription?.Dispose();
 
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        await base.DisposeAsync();
     }
 
 }

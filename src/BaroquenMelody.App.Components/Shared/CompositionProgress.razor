@@ -316,13 +316,6 @@ else
         Dispatcher.Dispatch(new Compose());
     }
 
-    private async Task Play()
-    {
-        var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-
-        await MidiLauncher.LaunchAsync(BaroquenMelodyState.Value.Path, cancellationTokenSource.Token);
-    }
-
     private async Task<bool> Save()
     {
         var isSaved = await MidiSaver.SaveAsync(
