@@ -1,5 +1,6 @@
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Scoring.Enums;
+using BaroquenMelody.Library.Scoring.Melodic;
 
 namespace BaroquenMelody.Library.Scoring;
 
@@ -17,9 +18,9 @@ internal sealed class ScoringRuleFactory(CompositionConfiguration compositionCon
     {
         IScoringRule scoringRule = configuration.Rule switch
         {
-            ScoringRule.PreferShortestVoiceMovement => new PreferShortestVoiceMovement(compositionConfiguration),
+            ScoringRule.PreferShortestVoiceMovement => new MelodicScoringRuleAdapter(new PreferShortestVoiceMovement(compositionConfiguration)),
             ScoringRule.PreferContraryOuterVoiceMotion => new PreferContraryOuterVoiceMotion(compositionConfiguration),
-            ScoringRule.PreferLeapRecovery => new PreferLeapRecovery(compositionConfiguration),
+            ScoringRule.PreferLeapRecovery => new MelodicScoringRuleAdapter(new PreferLeapRecovery(compositionConfiguration)),
             _ => throw new ArgumentOutOfRangeException(nameof(configuration), configuration.Rule, "The scoring rule is not supported.")
         };
 

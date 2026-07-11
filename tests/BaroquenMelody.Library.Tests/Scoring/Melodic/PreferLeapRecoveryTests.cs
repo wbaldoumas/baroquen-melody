@@ -1,6 +1,6 @@
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
-using BaroquenMelody.Library.Scoring;
+using BaroquenMelody.Library.Scoring.Melodic;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
@@ -8,15 +8,17 @@ using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
-namespace BaroquenMelody.Library.Tests.Scoring;
+namespace BaroquenMelody.Library.Tests.Scoring.Melodic;
 
 [TestFixture]
 internal sealed class PreferLeapRecoveryTests
 {
-    private PreferLeapRecovery _preferLeapRecovery = null!;
+    private MelodicScoringRuleAdapter _preferLeapRecovery = null!;
 
+    // The chord-level cases predate the melodic viewpoint; scoring through the adapter keeps them verbatim while
+    // covering the rule and its per-voice aggregation together.
     [SetUp]
-    public void SetUp() => _preferLeapRecovery = new PreferLeapRecovery(TestCompositionConfigurations.Get(2));
+    public void SetUp() => _preferLeapRecovery = new MelodicScoringRuleAdapter(new PreferLeapRecovery(TestCompositionConfigurations.Get(2)));
 
     [Test]
     [TestCaseSource(nameof(TestCases))]
