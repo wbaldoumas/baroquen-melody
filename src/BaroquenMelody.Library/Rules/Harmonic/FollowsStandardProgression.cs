@@ -1,10 +1,10 @@
-﻿using BaroquenMelody.Infrastructure.Collections.Extensions;
+using BaroquenMelody.Infrastructure.Collections.Extensions;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using Melanchall.DryWetMidi.MusicTheory;
 using System.Collections.Frozen;
 
-namespace BaroquenMelody.Library.Rules;
+namespace BaroquenMelody.Library.Rules.Harmonic;
 
 /// <inheritdoc cref="ICompositionRule"/>
 internal sealed class FollowsStandardProgression : ICompositionRule

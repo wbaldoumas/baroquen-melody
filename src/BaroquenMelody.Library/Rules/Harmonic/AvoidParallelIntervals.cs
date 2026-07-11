@@ -1,10 +1,10 @@
-﻿using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Extensions;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums.Extensions;
 
-namespace BaroquenMelody.Library.Rules;
+namespace BaroquenMelody.Library.Rules.Harmonic;
 
 /// <inheritdoc cref="ICompositionRule"/>
 internal sealed class AvoidParallelIntervals(Interval targetInterval) : ICompositionRule

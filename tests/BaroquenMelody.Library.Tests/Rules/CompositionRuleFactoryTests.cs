@@ -6,6 +6,7 @@ using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Rules;
 using BaroquenMelody.Library.Rules.Enums;
+using BaroquenMelody.Library.Rules.Harmonic;
 using BaroquenMelody.Library.Rules.Melodic;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;

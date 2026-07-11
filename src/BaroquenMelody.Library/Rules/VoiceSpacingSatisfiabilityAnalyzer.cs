@@ -1,5 +1,6 @@
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Rules.Harmonic;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
 namespace BaroquenMelody.Library.Rules;

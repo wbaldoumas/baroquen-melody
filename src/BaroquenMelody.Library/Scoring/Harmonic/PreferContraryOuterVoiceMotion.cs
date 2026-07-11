@@ -3,7 +3,7 @@ using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Enums.Extensions;
 
-namespace BaroquenMelody.Library.Scoring;
+namespace BaroquenMelody.Library.Scoring.Harmonic;
 
 /// <inheritdoc cref="IScoringRule"/>
 /// <remarks>

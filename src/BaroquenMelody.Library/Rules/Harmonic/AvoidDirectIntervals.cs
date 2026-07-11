@@ -1,11 +1,11 @@
-﻿using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Extensions;
 using BaroquenMelody.Library.MusicTheory.Enums.Extensions;
 using Interval = BaroquenMelody.Library.MusicTheory.Enums.Interval;
 
-namespace BaroquenMelody.Library.Rules;
+namespace BaroquenMelody.Library.Rules.Harmonic;
 
 /// <inheritdoc cref="ICompositionRule"/>
 internal sealed class AvoidDirectIntervals(

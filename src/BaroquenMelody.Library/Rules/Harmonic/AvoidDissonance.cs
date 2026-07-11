@@ -1,7 +1,7 @@
-﻿using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Extensions;
 
-namespace BaroquenMelody.Library.Rules;
+namespace BaroquenMelody.Library.Rules.Harmonic;
 
 /// <inheritdoc cref="ICompositionRule"/>
 internal sealed class AvoidDissonance : ICompositionRule

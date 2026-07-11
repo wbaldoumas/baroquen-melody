@@ -1,5 +1,6 @@
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Scoring.Enums;
+using BaroquenMelody.Library.Scoring.Harmonic;
 using BaroquenMelody.Library.Scoring.Melodic;
 
 namespace BaroquenMelody.Library.Scoring;

@@ -1,7 +1,7 @@
-﻿using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.MusicTheory;
 
-namespace BaroquenMelody.Library.Rules;
+namespace BaroquenMelody.Library.Rules.Harmonic;
 
 internal sealed class AvoidRepeatedChords(IChordNumberIdentifier chordNumberIdentifier) : ICompositionRule
 {

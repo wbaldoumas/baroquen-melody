@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Rules.Enums;
+using BaroquenMelody.Library.Rules.Harmonic;
 using BaroquenMelody.Library.Rules.Melodic;
 
 namespace BaroquenMelody.Library.Rules;

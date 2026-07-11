@@ -1,13 +1,13 @@
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
-using BaroquenMelody.Library.Rules;
+using BaroquenMelody.Library.Rules.Harmonic;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
-namespace BaroquenMelody.Library.Tests.Rules;
+namespace BaroquenMelody.Library.Tests.Rules.Harmonic;
 
 [TestFixture]
 internal sealed class AvoidVoiceCrossingTests

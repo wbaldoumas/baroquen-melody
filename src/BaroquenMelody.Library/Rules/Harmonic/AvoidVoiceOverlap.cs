@@ -1,7 +1,7 @@
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 
-namespace BaroquenMelody.Library.Rules;
+namespace BaroquenMelody.Library.Rules.Harmonic;
 
 /// <inheritdoc cref="ICompositionRule"/>
 /// <remarks>

@@ -1,13 +1,13 @@
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
-using BaroquenMelody.Library.Scoring;
+using BaroquenMelody.Library.Scoring.Harmonic;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
-namespace BaroquenMelody.Library.Tests.Scoring;
+namespace BaroquenMelody.Library.Tests.Scoring.Harmonic;
 
 [TestFixture]
 internal sealed class PreferContraryOuterVoiceMotionTests

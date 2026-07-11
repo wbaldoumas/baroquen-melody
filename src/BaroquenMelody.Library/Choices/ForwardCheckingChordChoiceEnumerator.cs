@@ -10,7 +10,7 @@ namespace BaroquenMelody.Library.Choices;
 /// <remarks>
 ///     Forward checking: before enumerating the Cartesian product of per-voice note choices, each sounding voice's
 ///     domain is pruned to the choices that land within the instrument's playable range. Range violations are a hard,
-///     non-bypassable gate (the aggregate rule evaluates <see cref="Rules.EnsureInstrumentRange"/> first, before any
+///     non-bypassable gate (the aggregate rule evaluates <see cref="Rules.Harmonic.EnsureInstrumentRange"/> first, before any
 ///     strictness bypass can draw randomness), so pruned candidates could never have passed nor consumed a random draw
 ///     — the surviving sequence, and therefore the composed music, is identical to enumerating the full repository.
 ///     Voices absent from the current chord (a partially voiced fugal exposition) cannot be range-checked and keep

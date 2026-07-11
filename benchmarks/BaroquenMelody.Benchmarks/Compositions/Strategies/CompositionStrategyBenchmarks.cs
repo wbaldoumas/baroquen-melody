@@ -7,6 +7,7 @@ using BaroquenMelody.Library.Extensions;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Rules;
+using BaroquenMelody.Library.Rules.Harmonic;
 using BaroquenMelody.Library.Rules.Melodic;
 using BaroquenMelody.Library.Strategies;
 using BenchmarkDotNet.Attributes;
