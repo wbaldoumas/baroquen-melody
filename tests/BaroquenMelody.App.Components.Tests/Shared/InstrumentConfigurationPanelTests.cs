@@ -62,8 +62,8 @@ internal sealed class InstrumentConfigurationPanelTests
 
         VoiceSpacingScenarios.MoveTopVoiceOutOfSatisfiableRange(_testContext);
 
-        // act: the second button in the panel's button group is reset
-        component.FindAll("button")[1].Click();
+        // act
+        component.FindAll("button").First(button => button.TextContent.Contains("Reset", StringComparison.Ordinal)).Click();
 
         // assert
         _testContext.StateOf<InstrumentConfigurationState>()[Instrument.One]!.MinNote.Should().Be(Notes.C5);

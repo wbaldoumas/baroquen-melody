@@ -17,7 +17,7 @@ namespace BaroquenMelody.App.Components.Tests;
 /// </summary>
 internal sealed class AppComponentsTestContext : Bunit.TestContext
 {
-    public AppComponentsTestContext(Action<IServiceCollection>? configureServices = null)
+    public AppComponentsTestContext(Action<IServiceCollection>? configureServices = null, bool renderPopoverProvider = true)
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
 
@@ -42,12 +42,14 @@ internal sealed class AppComponentsTestContext : Bunit.TestContext
 
         Services.GetRequiredService<IStore>().InitializeAsync().GetAwaiter().GetResult();
 
-        PopoverProvider = RenderComponent<MudPopoverProvider>();
+        // components that render their own provider (e.g. MainLayout) opt out, since MudBlazor
+        // allows only one popover provider per renderer.
+        PopoverProvider = renderPopoverProvider ? RenderComponent<MudPopoverProvider>() : null!;
     }
 
     /// <summary>
     ///     Hosts popover and tooltip content, which MudBlazor renders under the provider rather than
-    ///     under the component that declares it.
+    ///     under the component that declares it. Unset when the context was created without one.
     /// </summary>
     public IRenderedComponent<MudPopoverProvider> PopoverProvider { get; }
 

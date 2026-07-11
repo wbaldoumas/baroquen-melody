@@ -71,8 +71,8 @@ internal sealed class CompositionRuleConfigurationPanelTests
 
         _testContext.Dispatcher.Dispatch(new UpdateCompositionRuleConfiguration(CompositionRule.EnforceVoiceSpacing, ConfigurationStatus.Disabled, strictness));
 
-        // act: the second button in the panel's button group is reset
-        component.FindAll("button")[1].Click();
+        // act
+        component.FindAll("button").First(button => button.TextContent.Contains("Reset", StringComparison.Ordinal)).Click();
 
         // assert
         _testContext.StateOf<CompositionRuleConfigurationState>()[CompositionRule.EnforceVoiceSpacing]!.Status.Should().Be(ConfigurationStatus.Enabled);

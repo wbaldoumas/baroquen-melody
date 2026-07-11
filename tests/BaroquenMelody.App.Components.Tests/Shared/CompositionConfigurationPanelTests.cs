@@ -35,8 +35,8 @@ internal sealed class CompositionConfigurationPanelTests
 
         component.FindAll("input[type=number]")[1].Change("90");
 
-        // act: the second button in the panel's button group is reset
-        component.FindAll("button")[1].Click();
+        // act
+        component.FindAll("button").First(button => button.TextContent.Contains("Reset", StringComparison.Ordinal)).Click();
 
         // assert
         _testContext.StateOf<CompositionConfigurationState>().Tempo.Should().Be(120);

@@ -1,5 +1,5 @@
 ﻿@inherits Fluxor.Blazor.Web.Components.FluxorComponent
-@implements IDisposable
+@implements IAsyncDisposable
 
 <InstrumentRangePlayer @ref="_instrumentRangePlayer"
                        MidiInstrument="_midiInstrument"
@@ -191,18 +191,14 @@
 
     private void OpenPopover() => IsPopoverOpen = true;
 
-    protected virtual void Dispose(bool disposing)
+    // FluxorComponent implements IAsyncDisposable, and Blazor only invokes the asynchronous overload when a
+    // component offers both - a synchronous Dispose() here would never run (see CompositionProgress for the
+    // same pattern).
+    public new async ValueTask DisposeAsync()
     {
-        if (disposing)
-        {
-            _instrumentConfigurationStateSubscription?.Dispose();
-        }
-    }
+        _instrumentConfigurationStateSubscription?.Dispose();
 
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        await base.DisposeAsync();
     }
 
 }

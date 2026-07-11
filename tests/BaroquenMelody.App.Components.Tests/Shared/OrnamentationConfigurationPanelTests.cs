@@ -1,4 +1,5 @@
 using BaroquenMelody.App.Components.Shared;
+using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Configurations.Services;
 using BaroquenMelody.Library.Store.Actions;
@@ -68,14 +69,15 @@ internal sealed class OrnamentationConfigurationPanelTests
     public void Reset_restores_the_default_ornamentation_configurations()
     {
         // arrange
-        var ornamentationType = _testContext.Services.GetRequiredService<IOrnamentationConfigurationService>().ConfigurableOrnamentations.First();
+        var defaultConfiguration = AggregateOrnamentationConfiguration.Default.Configurations.First();
+        var ornamentationType = defaultConfiguration.OrnamentationType;
         var component = _testContext.RenderComponent<OrnamentationConfigurationPanel>();
-        var defaultConfiguration = _testContext.StateOf<CompositionOrnamentationConfigurationState>()[ornamentationType]!;
+        var alteredStatus = defaultConfiguration.Status == ConfigurationStatus.Disabled ? ConfigurationStatus.Enabled : ConfigurationStatus.Disabled;
 
-        _testContext.Dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(ornamentationType, ConfigurationStatus.Disabled, defaultConfiguration.Probability));
+        _testContext.Dispatcher.Dispatch(new UpdateCompositionOrnamentationConfiguration(ornamentationType, alteredStatus, defaultConfiguration.Probability));
 
-        // act: the second button in the panel's button group is reset
-        component.FindAll("button")[1].Click();
+        // act
+        component.FindAll("button").First(button => button.TextContent.Contains("Reset", StringComparison.Ordinal)).Click();
 
         // assert
         _testContext.StateOf<CompositionOrnamentationConfigurationState>()[ornamentationType]!.Status.Should().Be(defaultConfiguration.Status);
