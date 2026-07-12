@@ -92,9 +92,10 @@ internal sealed class BaroquenMelodyComposerConfigurator(
     }
 
     /// <summary>
-    ///     Resolves the spacing-feasible note numbers used to steer fugal entry placement: when the effective voice
-    ///     spacing rule is enabled, an entry note placed outside its instrument's feasible set could never voice a
-    ///     rule-satisfying chord, dead-ending the fugal theme. Null when the rule does not constrain placement.
+    ///     Resolves the spacing-feasible note numbers used to steer fugal entry placement: the exposition's pinned
+    ///     entry chords are validated without the spacing rule, so placing entries inside the feasible registers is
+    ///     what keeps the theme aligned with the spacing the rest of the composition enforces. Null when the rule
+    ///     does not constrain placement.
     /// </summary>
     private FrozenDictionary<Instrument, FrozenSet<int>>? ResolveSpacingFeasibleNoteNumbers(
         CompositionConfiguration compositionConfiguration,

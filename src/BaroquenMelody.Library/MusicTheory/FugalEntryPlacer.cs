@@ -11,11 +11,12 @@ namespace BaroquenMelody.Library.MusicTheory;
 ///     Placement is always a whole-octave transposition, so the entry's pitch classes - and therefore its identity as
 ///     the subject or answer - are preserved. The octave leaving the fewest principal notes unviable is chosen: a
 ///     principal note is viable when it lies within the target instrument's range and, when the voice spacing rule
-///     constrains the instrument, within its spacing-feasible notes - an unviable principal note guarantees the entry
-///     chord admits no rule-satisfying voicing and dead-ends the fugal attempt. Ties are broken toward the fewest
-///     notes (principal and ornamentation) outside the instrument's range, then the most centered placement, then the
-///     lower placement. When no fully viable placement exists, the least-unviable octave is still chosen and the
-///     notes are left at their true pitch rather than clamped.
+///     constrains the instrument, within its spacing-feasible notes. The exposition validates its pinned entry
+///     chords without the spacing rule, so spacing-infeasible placements are not fatal - steering into the feasible
+///     registers keeps the theme aligned with the spacing the rest of the composition enforces. Ties are broken
+///     toward the fewest notes (principal and ornamentation) outside the instrument's range, then the most centered
+///     placement, then the lower placement. When no fully viable placement exists, the least-unviable octave is
+///     still chosen and the notes are left at their true pitch rather than clamped.
 ///     <para>
 ///         Every entry note is assumed to be diatonic to the configured scale, as the subject and answer supplied by the
 ///         theme composer always are; a non-scale note would be a programming error.
