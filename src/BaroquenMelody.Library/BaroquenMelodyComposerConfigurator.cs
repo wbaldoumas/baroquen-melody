@@ -5,6 +5,7 @@ using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Dynamics;
 using BaroquenMelody.Library.Dynamics.Engine.Builders;
+using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Logging;
 using BaroquenMelody.Library.Midi;
 using BaroquenMelody.Library.Motifs;
@@ -19,6 +20,7 @@ using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Strategies;
 using Fluxor;
 using Microsoft.Extensions.Logging;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library;
 
@@ -48,9 +50,24 @@ internal sealed class BaroquenMelodyComposerConfigurator(
     {
         var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
         var compositionRuleFactory = new CompositionRuleFactory(compositionConfiguration, _weightedRandomBooleanGenerator, chordNumberIdentifier);
-        var compositionRule = compositionRuleFactory.CreateAggregate(ResolveEffectiveRuleConfiguration(compositionConfiguration));
+        var effectiveRuleConfiguration = ResolveEffectiveRuleConfiguration(compositionConfiguration);
+        var compositionRule = compositionRuleFactory.CreateAggregate(effectiveRuleConfiguration);
         var compositionStrategyFactory = new CompositionStrategyFactory(_noteChoiceGenerator, compositionRule, randomProvider, logger);
         var compositionStrategy = compositionStrategyFactory.Create(compositionConfiguration);
+
+        // The fugal entries pin one voice's notes chord by chord; with four voices the spacing rule leaves those
+        // pinned chords near-zero rule-satisfying candidates, which silently degrades every composition to the
+        // fallback theme. The exposition therefore takes the textbook liberty: its pinned entry chords are checked
+        // without the spacing rule (entry placement still steers toward spacing-feasible registers), while the
+        // initial measure, the bridge back to the body, and everything after enforce it in full.
+        var fugalEntryRuleConfiguration = new AggregateCompositionRuleConfiguration(
+            effectiveRuleConfiguration.Configurations
+                .Where(static configuration => configuration.Rule != CompositionRule.EnforceVoiceSpacing)
+                .ToHashSet()
+        );
+
+        var fugalEntryCompositionRule = compositionRuleFactory.CreateAggregate(fugalEntryRuleConfiguration);
+        var fugalEntryCompositionStrategy = new CompositionStrategyFactory(_noteChoiceGenerator, fugalEntryCompositionRule, randomProvider, logger).Create(compositionConfiguration);
         var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, _musicalTimeSpanCalculator, randomProvider, logger);
         var dynamicsEngineBuilder = new DynamicsEngineBuilder(compositionConfiguration, randomProvider);
         var dynamicsApplicator = new DynamicsApplicator(compositionConfiguration, dynamicsEngineBuilder.Build());
@@ -60,19 +77,31 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         var motifBankFactory = new MotifBankFactory(motifExtractor, compositionConfiguration);
         var motifDeveloper = new MotifDeveloper(motifApplicator, _weightedRandomBooleanGenerator, randomProvider, compositionConfiguration);
         var compositionPhraser = new CompositionPhraser(compositionRule, _themeSplitter, _weightedRandomBooleanGenerator, randomProvider, logger, compositionConfiguration, motifBankFactory, motifDeveloper);
-        var fugalEntryPlacer = new FugalEntryPlacer(compositionConfiguration);
+        var fugalEntryPlacer = new FugalEntryPlacer(compositionConfiguration, ResolveSpacingFeasibleNoteNumbers(compositionConfiguration, effectiveRuleConfiguration));
         var fugalAnswerStrategy = new FugalAnswerStrategy(compositionConfiguration);
         var scoringRuleFactory = new ScoringRuleFactory(compositionConfiguration);
         var aggregateScoringRule = scoringRuleFactory.CreateAggregate(compositionConfiguration.AggregateScoringRuleConfiguration ?? AggregateScoringRuleConfiguration.Default);
         var chordSelector = new WeightedChordSelector(aggregateScoringRule, randomProvider);
         var chordComposer = new ChordComposer(compositionStrategy, chordSelector, logger);
-        var themeComposer = new ThemeComposer(compositionStrategy, compositionDecorator, chordComposer, fugalEntryPlacer, fugalAnswerStrategy, chordSelector, dispatcher, logger, compositionConfiguration);
+        var themeComposer = new ThemeComposer(compositionStrategy, fugalEntryCompositionStrategy, compositionDecorator, chordComposer, fugalEntryPlacer, fugalAnswerStrategy, chordSelector, dispatcher, logger, compositionConfiguration);
         var endingComposer = new EndingComposer(compositionStrategy, compositionDecorator, chordNumberIdentifier, chordSelector, dispatcher, logger, compositionConfiguration);
         var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
         var midiGenerator = new MidiGenerator(compositionConfiguration);
 
         return new MidiFileComposer(composer, midiGenerator);
     }
+
+    /// <summary>
+    ///     Resolves the spacing-feasible note numbers used to steer fugal entry placement: when the effective voice
+    ///     spacing rule is enabled, an entry note placed outside its instrument's feasible set could never voice a
+    ///     rule-satisfying chord, dead-ending the fugal theme. Null when the rule does not constrain placement.
+    /// </summary>
+    private FrozenDictionary<Instrument, FrozenSet<int>>? ResolveSpacingFeasibleNoteNumbers(
+        CompositionConfiguration compositionConfiguration,
+        AggregateCompositionRuleConfiguration effectiveRuleConfiguration
+    ) => effectiveRuleConfiguration.Configurations.Any(static configuration => configuration is { Rule: CompositionRule.EnforceVoiceSpacing, IsEnabled: true })
+        ? voiceSpacingSatisfiabilityAnalyzer.GetFeasibleNoteNumbersByInstrument(compositionConfiguration)
+        : null;
 
     /// <summary>
     ///     Disables the voice spacing rule when the configured instrument ranges make it impossible to satisfy, since
