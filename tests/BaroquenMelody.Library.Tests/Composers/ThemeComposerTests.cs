@@ -27,6 +27,8 @@ internal sealed class ThemeComposerTests
 
     private ICompositionStrategy _mockCompositionStrategy = null!;
 
+    private ICompositionStrategy _mockFugalEntryCompositionStrategy = null!;
+
     private ICompositionDecorator _mockCompositionDecorator = null!;
 
     private IChordComposer _mockChordComposer = null!;
@@ -47,6 +49,7 @@ internal sealed class ThemeComposerTests
     public void SetUp()
     {
         _mockCompositionStrategy = Substitute.For<ICompositionStrategy>();
+        _mockFugalEntryCompositionStrategy = Substitute.For<ICompositionStrategy>();
         _mockCompositionDecorator = Substitute.For<ICompositionDecorator>();
         _mockChordComposer = Substitute.For<IChordComposer>();
         _mockFugalEntryPlacer = Substitute.For<IFugalEntryPlacer>();
@@ -56,7 +59,7 @@ internal sealed class ThemeComposerTests
 
         _compositionConfiguration = TestCompositionConfigurations.Get();
 
-        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockFugalEntryPlacer, _mockFugalAnswerStrategy, new WeightedChordSelector(new AggregateScoringRule([]), new ThreadLocalRandomProvider()), _mockDispatcher, _mockLogger, _compositionConfiguration);
+        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockFugalEntryCompositionStrategy, _mockCompositionDecorator, _mockChordComposer, _mockFugalEntryPlacer, _mockFugalAnswerStrategy, new WeightedChordSelector(new AggregateScoringRule([]), new ThreadLocalRandomProvider()), _mockDispatcher, _mockLogger, _compositionConfiguration);
     }
 
     [Test]
@@ -142,6 +145,91 @@ internal sealed class ThemeComposerTests
         // exception propagates only after both bounded retry loops are exhausted
         act.Should().Throw<NoValidChordChoicesAvailableException>();
         _mockChordComposer.Received(2 * MaxThemeCompositionAttempts).Compose(Arg.Any<IReadOnlyList<BaroquenChord>>());
+    }
+
+    [Test]
+    public void Compose_ValidatesPinnedEntryBeatsWithTheFugalEntryStrategy_AndTheFinalPinnedBeatWithTheFullRuleSet()
+    {
+        // arrange - each of the three entries is placed as two pinned beats, so five pinned beats have a
+        // successor pin (within an entry or across the entry boundary) and only the last one composes freely
+        var chord = new BaroquenChord([
+            new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Three, Notes.G2, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Four, Notes.C1, MusicalTimeSpan.Half)
+        ]);
+
+        _mockCompositionStrategy.GenerateInitialChord().Returns(chord);
+        _mockChordComposer.Compose(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns(_ => new BaroquenChord(chord));
+        _mockFugalAnswerStrategy.GenerateAnswer(Arg.Any<IReadOnlyList<BaroquenNote>>()).Returns(static callInfo => callInfo.Arg<IReadOnlyList<BaroquenNote>>());
+
+        _mockFugalEntryPlacer.Place(Arg.Any<IReadOnlyList<BaroquenNote>>(), Arg.Any<Instrument>(), Arg.Any<BaroquenNote?>())
+            .Returns(callInfo => new List<BaroquenNote>
+            {
+                new(callInfo.ArgAt<Instrument>(1), Notes.E3, MusicalTimeSpan.Half),
+                new(callInfo.ArgAt<Instrument>(1), Notes.F3, MusicalTimeSpan.Half)
+            });
+
+        _mockFugalEntryCompositionStrategy.GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(_ => new List<BaroquenChord> { new(chord) });
+
+        _mockFugalEntryCompositionStrategy.HasPossibleChordForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(true);
+
+        _mockCompositionStrategy.GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(_ => new List<BaroquenChord> { new(chord) });
+
+        // act
+        var result = _themeComposer.Compose(CancellationToken.None);
+
+        // assert - the fugal theme composed (four exposition measures, one per voice), the five pinned beats
+        // with a successor pin were validated through the spacing-relaxed entry strategy, and only the final
+        // pinned beat resumed the full-rule look-ahead
+        result.Exposition.Should().HaveCount(4);
+        _mockFugalEntryCompositionStrategy.Received(5).GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>());
+        _mockFugalEntryCompositionStrategy.Received(5).HasPossibleChordForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>());
+        _mockCompositionStrategy.Received(1).GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>());
+    }
+
+    [Test]
+    public void WhenEveryFugalAttemptDeadEnds_TheFallbackThemeIsDecoratedForEveryInstrument()
+    {
+        // arrange - every pinned entry beat finds no rule-valid chord, so every fugal attempt dead-ends
+        // silently (with a debug diagnostic) and the fallback theme is returned
+        _mockLogger.IsEnabled(LogLevel.Debug).Returns(true);
+
+        var chord = new BaroquenChord([
+            new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Three, Notes.G2, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Four, Notes.C1, MusicalTimeSpan.Half)
+        ]);
+
+        _mockCompositionStrategy.GenerateInitialChord().Returns(chord);
+        _mockChordComposer.Compose(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns(_ => new BaroquenChord(chord));
+        _mockFugalAnswerStrategy.GenerateAnswer(Arg.Any<IReadOnlyList<BaroquenNote>>()).Returns(static callInfo => callInfo.Arg<IReadOnlyList<BaroquenNote>>());
+
+        _mockFugalEntryPlacer.Place(Arg.Any<IReadOnlyList<BaroquenNote>>(), Arg.Any<Instrument>(), Arg.Any<BaroquenNote?>())
+            .Returns(callInfo => new List<BaroquenNote>
+            {
+                new(callInfo.ArgAt<Instrument>(1), Notes.E3, MusicalTimeSpan.Half),
+                new(callInfo.ArgAt<Instrument>(1), Notes.F3, MusicalTimeSpan.Half)
+            });
+
+        _mockFugalEntryCompositionStrategy.GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns([]);
+
+        // act
+        var result = _themeComposer.Compose(CancellationToken.None);
+
+        // assert - the fallback theme sounds like the rest of the piece only if every voice is ornamented;
+        // the non-subject voices are only ever decorated on the fallback path, since the fugal attempts all
+        // dead-ended before reaching their entries
+        result.Exposition.Should().NotBeEmpty();
+        _mockCompositionDecorator.Received().Decorate(Arg.Any<Composition>(), Instrument.One);
+        _mockCompositionDecorator.Received().Decorate(Arg.Any<Composition>(), Instrument.Two);
+        _mockCompositionDecorator.Received().Decorate(Arg.Any<Composition>(), Instrument.Three);
+        _mockCompositionDecorator.Received().Decorate(Arg.Any<Composition>(), Instrument.Four);
     }
 
     [Test]

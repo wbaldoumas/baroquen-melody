@@ -75,7 +75,7 @@ internal sealed class ComposerTests
 
         _fugalEntryPlacer = new FugalEntryPlacer(_compositionConfiguration);
         _chordComposer = new ChordComposer(_mockCompositionStrategy, chordSelector, _mockLogger);
-        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _fugalEntryPlacer, new FugalAnswerStrategy(_compositionConfiguration), chordSelector, _mockDispatcher, _mockLogger, _compositionConfiguration);
+        _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _fugalEntryPlacer, new FugalAnswerStrategy(_compositionConfiguration), chordSelector, _mockDispatcher, _mockLogger, _compositionConfiguration);
         _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, chordSelector, _mockDispatcher, _mockLogger, _compositionConfiguration);
         _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, _themeComposer, _endingComposer, _mockDynamicsApplicator, _mockDispatcher, _compositionConfiguration);
     }
@@ -117,6 +117,20 @@ internal sealed class ComposerTests
                     new BaroquenNote(Instrument.Two, MinAltoNote, MusicalTimeSpan.Half)
                 ])
             ]);
+
+        // the fugal entry beats with a successor pin validate their candidates without the free-choice look-ahead
+        _mockCompositionStrategy
+            .GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns([
+                new BaroquenChord([
+                    new BaroquenNote(Instrument.One, MinSopranoNote, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, MinAltoNote, MusicalTimeSpan.Half)
+                ])
+            ]);
+
+        _mockCompositionStrategy
+            .HasPossibleChordForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(true);
 
         // act
         var composition = _composer.Compose(CancellationToken.None);

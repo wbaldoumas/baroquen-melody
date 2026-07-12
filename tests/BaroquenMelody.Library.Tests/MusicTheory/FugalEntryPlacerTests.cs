@@ -9,6 +9,7 @@ using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Tests.MusicTheory;
 
@@ -183,6 +184,83 @@ internal sealed class FugalEntryPlacerTests
 
         // assert
         AssertEquivalent(placed, expected);
+    }
+
+    [Test]
+    public void Place_WithSpacingFeasibleNotes_PrefersTheOctaveWhereEveryPrincipalNoteIsFeasible()
+    {
+        // arrange: into Two (G2-G4); without spacing sets a lone G4 would sit at the centered G3, but when the
+        // voice spacing rule only admits G4 for this voice, the feasible octave must win over the centered one.
+        var spacingFeasibleNoteNumbersByInstrument = new Dictionary<Instrument, FrozenSet<int>>
+        {
+            [Instrument.Two] = new[] { (int)Notes.G4.NoteNumber }.ToFrozenSet()
+        }.ToFrozenDictionary();
+
+        var fugalEntryPlacer = new FugalEntryPlacer(_compositionConfiguration, spacingFeasibleNoteNumbersByInstrument);
+
+        var entry = new List<BaroquenNote>
+        {
+            new(Instrument.One, Notes.G4, MusicalTimeSpan.Half)
+        };
+
+        var expected = new List<BaroquenNote>
+        {
+            new(Instrument.Two, Notes.G4, MusicalTimeSpan.Half)
+        };
+
+        // act
+        var placed = fugalEntryPlacer.Place(entry, Instrument.Two);
+
+        // assert
+        AssertEquivalent(placed, expected);
+    }
+
+    [Test]
+    public void Place_WithSpacingFeasibleNotesForOtherInstrumentsOnly_PlacesAsIfUnconstrained()
+    {
+        // arrange: the feasible sets constrain a different voice, so placement into Two behaves exactly as
+        // without them and the centered G3 wins.
+        var spacingFeasibleNoteNumbersByInstrument = new Dictionary<Instrument, FrozenSet<int>>
+        {
+            [Instrument.One] = new[] { (int)Notes.C5.NoteNumber }.ToFrozenSet()
+        }.ToFrozenDictionary();
+
+        var fugalEntryPlacer = new FugalEntryPlacer(_compositionConfiguration, spacingFeasibleNoteNumbersByInstrument);
+
+        var entry = new List<BaroquenNote>
+        {
+            new(Instrument.One, Notes.G4, MusicalTimeSpan.Half)
+        };
+
+        var expected = new List<BaroquenNote>
+        {
+            new(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+        };
+
+        // act
+        var placed = fugalEntryPlacer.Place(entry, Instrument.Two);
+
+        // assert
+        AssertEquivalent(placed, expected);
+    }
+
+    [Test]
+    public void Place_WithAPrecedingNote_AvoidsOctavesTheVoiceCannotStepTo()
+    {
+        // arrange: into Two (G2-G4); a lone C4 would sit at the more centered C4, but from a preceding G2 the
+        // voice can only move five scale steps per beat, which reaches C3 (three steps) and not C4 (ten steps).
+        var entry = new List<BaroquenNote>
+        {
+            new(Instrument.One, Notes.C4, MusicalTimeSpan.Half)
+        };
+
+        // act
+        var placedWithoutPrecedingNote = _fugalEntryPlacer.Place(entry, Instrument.Two);
+        var placedFromG2 = _fugalEntryPlacer.Place(entry, Instrument.Two, new BaroquenNote(Instrument.Two, Notes.G2, MusicalTimeSpan.Half));
+
+        // assert
+        AssertEquivalent(placedWithoutPrecedingNote, [new BaroquenNote(Instrument.Two, Notes.C4, MusicalTimeSpan.Half)]);
+        AssertEquivalent(placedFromG2, [new BaroquenNote(Instrument.Two, Notes.C3, MusicalTimeSpan.Half)]);
     }
 
     [Test]

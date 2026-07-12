@@ -14,8 +14,16 @@ using Microsoft.Extensions.Logging;
 namespace BaroquenMelody.Library.Composers;
 
 /// <inheritdoc cref="IThemeComposer"/>
+/// <remarks>
+///     The fugal exposition's pinned entry chords are validated with <paramref name="fugalEntryCompositionStrategy"/>,
+///     whose rule set omits voice spacing: pinning each entry note leaves spacing near-zero candidate chords with
+///     four voices, and the exposition privileges its imitative entries over spacing, as fugue expositions
+///     conventionally do. Entry placement still steers toward spacing-feasible registers, and the initial measure,
+///     the final bridge chord, and the rest of the composition enforce the full rule set.
+/// </remarks>
 internal sealed class ThemeComposer(
     ICompositionStrategy compositionStrategy,
+    ICompositionStrategy fugalEntryCompositionStrategy,
     ICompositionDecorator compositionDecorator,
     IChordComposer chordComposer,
     IFugalEntryPlacer fugalEntryPlacer,
@@ -51,8 +59,17 @@ internal sealed class ThemeComposer(
         logger.LogWarningMessage($"Failed to compose fugal theme after {MaxFugueCompositionAttempts} attempts.");
 
         var initialMeasures = ComposeFallbackMeasures(cancellationToken);
+        var fallbackComposition = new Composition(initialMeasures);
 
-        return new BaroquenTheme(initialMeasures, initialMeasures);
+        // The fallback theme skips the fugal entries, but it should still sound like the rest of the piece: without
+        // this pass its measures would be the only undecorated ones, since the theme is prepended to the final
+        // composition as-is.
+        foreach (var instrument in compositionConfiguration.Instruments)
+        {
+            compositionDecorator.Decorate(fallbackComposition, instrument);
+        }
+
+        return new BaroquenTheme(fallbackComposition.Measures, fallbackComposition.Measures);
     }
 
     private void DispatchProgress(int attempt)
@@ -147,33 +164,62 @@ internal sealed class ThemeComposer(
 
         var processedInstruments = new List<Instrument> { fugueSubjectInstrument };
 
-        foreach (var (entryIndex, instrument) in instruments.Where(instrument => instrument != fugueSubjectInstrument).Index())
+        // Fugal entries alternate subject, answer, subject, answer...; the subject voice is the first entry, so the
+        // non-subject entries at even indices state the answer (a fifth up) while odd indices restate the subject.
+        // Every placement is resolved up front so each pinned beat below can see the next pinned note across entry
+        // boundaries.
+        var placedEntries = new List<(Instrument Instrument, List<BaroquenChord> PlacedChords)>();
+
+        foreach (var (index, instrument) in instruments.Where(instrument => instrument != fugueSubjectInstrument).Index())
+        {
+            // Only the first entry knows the note its voice sounds immediately beforehand (the initial measure is
+            // already composed); later entries' preceding notes are free-composed after placement must be resolved,
+            // so their boundary reachability is enforced at compose time by the next-pin threading below instead.
+            var placedNotes = fugalEntryPlacer.Place(
+                index % 2 == 0 ? fugalAnswerStrategy.GenerateAnswer(fugueSubject) : fugueSubject,
+                instrument,
+                index == 0 ? workingChords[^1][instrument] : null
+            );
+
+            placedEntries.Add((instrument, placedNotes.Select(static note => new BaroquenChord([note])).ToList()));
+        }
+
+        foreach (var (entryIndex, placedEntry) in placedEntries.Index())
         {
             cancellationToken.ThrowIfCancellationRequested();
+
+            var instrument = placedEntry.Instrument;
 
             // The strategy's rule context is the single preceding chord (unchanged), but the chord selector gets the
             // last two chords of the running chain so context-sensitive scoring rules (e.g. leap recovery) can fire.
             var precedingChords = workingChords.TakeLast(2).ToList();
             var nextChords = new List<BaroquenChord>();
 
-            // Fugal entries alternate subject, answer, subject, answer...; the subject voice is the first entry, so the
-            // non-subject entries at even indices state the answer (a fifth up) while odd indices restate the subject.
-            var subjectOrAnswer = entryIndex % 2 == 0
-                ? fugalAnswerStrategy.GenerateAnswer(fugueSubject)
-                : fugueSubject;
-
-            var placedEntryChords = fugalEntryPlacer.Place(subjectOrAnswer, instrument)
-                .Select(static note => new BaroquenChord([note]));
-
-            foreach (var placedEntryChord in placedEntryChords)
+            foreach (var (beatIndex, placedEntryChord) in placedEntry.PlacedChords.Index())
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var possibleChords = compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChords[^1]], placedEntryChord);
+                // A candidate admitting no rule-valid continuation that contains the next pinned entry note would
+                // strand the entry on its very next beat, so pinned beats thread the whole line: candidates come
+                // from the rule set alone (free-choice look-ahead only starves a beat whose successor is already
+                // dictated) and must admit the next pin. The final pinned beat has no successor pin, so it resumes
+                // the free look-ahead instead - the body composes freely from it.
+                var nextPinnedChord = ResolveNextPinnedChord(placedEntries, entryIndex, beatIndex);
+                var possibleChords = nextPinnedChord is null
+                    ? compositionStrategy.GetPossibleChordsForPartiallyVoicedChords([precedingChords[^1]], placedEntryChord)
+                    : fugalEntryCompositionStrategy.GetRuleValidChordsForPartiallyVoicedChord([precedingChords[^1]], placedEntryChord)
+                        .Where(possibleChord => fugalEntryCompositionStrategy.HasPossibleChordForPartiallyVoicedChord([possibleChord], nextPinnedChord))
+                        .ToList();
+
                 var nextChord = chordSelector.SelectNextChord(precedingChords, possibleChords);
 
                 if (nextChord is null)
                 {
+                    if (logger.IsEnabled(LogLevel.Debug))
+                    {
+                        logger.LogDebugMessage($"Fugal entry for {instrument} dead-ended at beat {beatIndex}: no rule-valid chord contains the placed entry note {placedEntryChord[instrument].Raw}.");
+                    }
+
                     return [];
                 }
 
@@ -197,6 +243,20 @@ internal sealed class ThemeComposer(
         }
 
         return workingChords;
+    }
+
+    private static BaroquenChord? ResolveNextPinnedChord(List<(Instrument Instrument, List<BaroquenChord> PlacedChords)> placedEntries, int entryIndex, int beatIndex)
+    {
+        var placedChords = placedEntries[entryIndex].PlacedChords;
+
+        if (beatIndex + 1 < placedChords.Count)
+        {
+            return placedChords[beatIndex + 1];
+        }
+
+        return entryIndex + 1 < placedEntries.Count
+            ? placedEntries[entryIndex + 1].PlacedChords.FirstOrDefault()
+            : null;
     }
 
     private BaroquenTheme StripInstrumentsFromFugueSubject(List<BaroquenChord> workingChords, List<Instrument> instruments)
