@@ -263,6 +263,60 @@ internal sealed class CompositionStrategyTests
     }
 
     [Test]
+    public void GetRuleValidChordsForPartiallyVoicedChord_ReturnsRuleValidChordsContainingThePinnedNotes_WithoutLookAhead()
+    {
+        // arrange - three candidates: one keeps instrument One on C4 (matching the pin) and passes the rule,
+        // one matches nothing, and one passes the rule but moves One off the pinned note
+        var (precedingChords, pinnedChord) = ArrangePartiallyVoicedCandidates();
+
+        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(true, false, true);
+
+        // act
+        var ruleValidChords = _compositionStrategy.GetRuleValidChordsForPartiallyVoicedChord(precedingChords, pinnedChord);
+
+        // assert - only the rule-valid candidate containing the pinned note survives, and each candidate was
+        // evaluated exactly once: pinned beats must not run the free-choice look-ahead, which would starve a
+        // beat whose successor is already dictated
+        ruleValidChords.Should().ContainSingle().Which[Instrument.One].Raw.Should().Be(Notes.C4);
+        _mockCompositionRule.Received(3).Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>());
+    }
+
+    [Test]
+    public void HasPossibleChordForPartiallyVoicedChord_WhenARuleValidChordContainsThePinnedNotes_ReturnsTrue()
+    {
+        // arrange
+        var (precedingChords, pinnedChord) = ArrangePartiallyVoicedCandidates();
+
+        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(true);
+
+        // act
+        var hasPossibleChord = _compositionStrategy.HasPossibleChordForPartiallyVoicedChord(precedingChords, pinnedChord);
+
+        // assert - the first candidate already matches, so the enumeration short-circuits after one evaluation
+        hasPossibleChord.Should().BeTrue();
+        _mockCompositionRule.Received(1).Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>());
+    }
+
+    [Test]
+    public void HasPossibleChordForPartiallyVoicedChord_WhenNoRuleValidChordContainsThePinnedNotes_ReturnsFalse()
+    {
+        // arrange - the rule accepts every candidate, but none of them voices instrument One on the pinned E5
+        var (precedingChords, _) = ArrangePartiallyVoicedCandidates();
+
+        var unmatchablePinnedChord = new BaroquenChord([
+            new BaroquenNote(Instrument.One, Notes.E5, MusicalTimeSpan.Half)
+        ]);
+
+        _mockCompositionRule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(true);
+
+        // act
+        var hasPossibleChord = _compositionStrategy.HasPossibleChordForPartiallyVoicedChord(precedingChords, unmatchablePinnedChord);
+
+        // assert
+        hasPossibleChord.Should().BeFalse();
+    }
+
+    [Test]
     public void GenerateInitialChord_RetriesUntilTheCompositionRuleAcceptsACandidate()
     {
         // arrange - the rule rejects the first two candidates and accepts the third; every candidate must be
@@ -355,5 +409,57 @@ internal sealed class CompositionStrategyTests
 
         // assert
         act.Should().Throw<CouldNotFindStartingNoteForInstrumentException>();
+    }
+
+    /// <summary>
+    ///     Arranges the enumerator to yield three candidates from a common preceding chord - an oblique candidate
+    ///     that keeps instrument One on C4, and two candidates that move every voice by five and one scale steps
+    ///     respectively - and returns the preceding chords along with a chord pinning instrument One to C4.
+    /// </summary>
+    private (List<BaroquenChord> PrecedingChords, BaroquenChord PinnedChord) ArrangePartiallyVoicedCandidates()
+    {
+        var precedingChords = new List<BaroquenChord>
+        {
+            new([
+                new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Three, Notes.G2, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Four, Notes.C2, MusicalTimeSpan.Half)
+            ])
+        };
+
+        var chordChoices = new List<ChordChoice>
+        {
+            new([
+                new NoteChoice(Instrument.One, NoteMotion.Oblique, 0),
+                new NoteChoice(Instrument.Two, NoteMotion.Oblique, 0),
+                new NoteChoice(Instrument.Three, NoteMotion.Oblique, 0),
+                new NoteChoice(Instrument.Four, NoteMotion.Oblique, 0)
+            ]),
+            new([
+                new NoteChoice(Instrument.One, NoteMotion.Ascending, 5),
+                new NoteChoice(Instrument.Two, NoteMotion.Descending, 5),
+                new NoteChoice(Instrument.Three, NoteMotion.Ascending, 5),
+                new NoteChoice(Instrument.Four, NoteMotion.Descending, 5)
+            ]),
+            new([
+                new NoteChoice(Instrument.One, NoteMotion.Ascending, 1),
+                new NoteChoice(Instrument.Two, NoteMotion.Descending, 1),
+                new NoteChoice(Instrument.Three, NoteMotion.Ascending, 1),
+                new NoteChoice(Instrument.Four, NoteMotion.Descending, 1)
+            ])
+        };
+
+        var candidates = chordChoices
+            .Select(chordChoice => (ChordChoice: chordChoice, Chord: precedingChords[^1].ApplyChordChoice(_compositionConfiguration.Scale, chordChoice, _compositionConfiguration.DefaultNoteTimeSpan)))
+            .ToList();
+
+        _mockChordChoiceEnumerator.EnumerateCandidates(Arg.Any<BaroquenChord>()).Returns(candidates);
+
+        var pinnedChord = new BaroquenChord([
+            new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)
+        ]);
+
+        return (precedingChords, pinnedChord);
     }
 }

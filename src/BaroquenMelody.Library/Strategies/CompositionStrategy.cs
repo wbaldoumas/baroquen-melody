@@ -39,6 +39,12 @@ internal sealed class CompositionStrategy(
             .ToList();
     }
 
+    public bool HasPossibleChordForPartiallyVoicedChord(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord) =>
+        EnumerateRuleValidChordsForPartiallyVoicedChord(precedingChords, nextChord).Any();
+
+    public IReadOnlyList<BaroquenChord> GetRuleValidChordsForPartiallyVoicedChord(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord) =>
+        EnumerateRuleValidChordsForPartiallyVoicedChord(precedingChords, nextChord).ToList();
+
     public BaroquenChord GenerateInitialChord()
     {
         var attempt = 0;
@@ -77,6 +83,15 @@ internal sealed class CompositionStrategy(
                 yield return candidate;
             }
         }
+    }
+
+    private IEnumerable<BaroquenChord> EnumerateRuleValidChordsForPartiallyVoicedChord(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord)
+    {
+        var nextChordInstruments = nextChord.Notes.Select(static note => note.Instrument).ToList();
+
+        return GetValidChordChoicesAndChords(precedingChords)
+            .Select(static chordChoiceAndChord => chordChoiceAndChord.Chord)
+            .Where(chord => nextChordInstruments.TrueForAll(instrument => chord[instrument].Raw == nextChord[instrument].Raw));
     }
 
     private BaroquenChord GenerateInitialChordCandidate()

@@ -35,4 +35,25 @@ internal interface ICompositionStrategy
     /// <param name="precedingChords">The chords which precede the proposed next chord.</param>
     /// <returns>The possible chords for the given preceding chords.</returns>
     public IEnumerable<BaroquenChord> GetPossibleChords(IReadOnlyList<BaroquenChord> precedingChords);
+
+    /// <summary>
+    ///     Determines whether at least one rule-valid chord matches the given partially voiced
+    ///     <paramref name="nextChord"/>. Unlike <see cref="GetPossibleChordsForPartiallyVoicedChords"/> this applies
+    ///     no subsequent-chord look-ahead, making it a cheap existence check for steering pinned continuations.
+    /// </summary>
+    /// <param name="precedingChords">The chords which precede the proposed next chord.</param>
+    /// <param name="nextChord">The proposed next chord.</param>
+    /// <returns>Whether at least one rule-valid chord matches the partially voiced chord.</returns>
+    public bool HasPossibleChordForPartiallyVoicedChord(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord);
+
+    /// <summary>
+    ///     Gets every rule-valid chord matching the given partially voiced <paramref name="nextChord"/>, without the
+    ///     subsequent-chord look-ahead of <see cref="GetPossibleChordsForPartiallyVoicedChords"/>. Suits pinned
+    ///     continuations whose next chord is already dictated (a fugal entry), where free-choice look-ahead only
+    ///     starves the candidate set.
+    /// </summary>
+    /// <param name="precedingChords">The chords which precede the proposed next chord.</param>
+    /// <param name="nextChord">The proposed next chord.</param>
+    /// <returns>The rule-valid chords matching the partially voiced chord.</returns>
+    public IReadOnlyList<BaroquenChord> GetRuleValidChordsForPartiallyVoicedChord(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord);
 }
