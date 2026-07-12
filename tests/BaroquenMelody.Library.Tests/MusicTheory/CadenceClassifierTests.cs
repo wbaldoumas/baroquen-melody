@@ -86,11 +86,13 @@ internal sealed class CadenceClassifierTests
     public void ClassifyCadence_WhenFinalChordVoicesNoConfiguredInstrument_ReturnsHalf()
     {
         // arrange - a two-instrument configuration whose final chord is voiced only by unconfigured
-        // instruments, so no bass note is available for the Phrygian semitone check
+        // instruments, so no bass note is available for the Phrygian semitone check. The penultimate {A, F}
+        // is exclusively a first-inversion iv (unlike {D, F}, which the identifier would resolve to II first),
+        // keeping the Phrygian condition alive up to the missing-bass check.
         var cadenceClassifier = CreateCadenceClassifier(TestCompositionConfigurations.Get(2, tonic: NoteName.A, mode: Mode.Aeolian));
 
         var penultimateChord = new BaroquenChord([
-            new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
             new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Half)
         ]);
 
