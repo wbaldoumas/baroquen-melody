@@ -4,7 +4,6 @@ using BaroquenMelody.Library.Composers;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
-using BaroquenMelody.Library.Exceptions;
 using BaroquenMelody.Library.Extensions;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
@@ -214,11 +213,11 @@ internal sealed class EndingComposerTests
     }
 
     [Test]
-    public void Compose_WhenNoChordChoicesAreAvailableToBridge_ThrowsNoValidChordChoicesAvailableException()
+    public void Compose_WhenNoChordChoicesAreAvailable_StillComposesABestEffortEnding()
     {
-        // arrange: the recapitulation is never reachable (no partially-voiced chords resolve), so a bridging chord
-        // must be composed - but no chord choices are available, so the selector yields nothing and the ending
-        // composer cannot proceed.
+        // arrange: the recapitulation is never reachable (no partially-voiced chords resolve) and no chord
+        // choices exist anywhere, so both the bridge and the tonic hunt dead-end immediately - the ending
+        // should degrade to a best-effort close instead of aborting the whole composition.
         var composition = CreateTestComposition();
         var theme = CreateTestTheme();
 
@@ -229,10 +228,11 @@ internal sealed class EndingComposerTests
             .Returns([]);
 
         // act
-        var act = () => _endingComposer.Compose(composition, theme, CancellationToken.None);
+        var result = _endingComposer.Compose(composition, theme, CancellationToken.None);
 
-        // assert
-        act.Should().Throw<NoValidChordChoicesAvailableException>();
+        // assert - the composition still closes with a resting chord
+        result.Should().NotBeNull();
+        result.Measures[^1].Beats[^1].Chord.Notes.Should().OnlyContain(static note => note.OrnamentationType == OrnamentationType.Rest);
     }
 
     [Test]
@@ -342,8 +342,91 @@ internal sealed class EndingComposerTests
         // act
         _endingComposer.Compose(composition, theme, CancellationToken.None);
 
-        // assert - eleven budgeted rejections plus the accepting twelfth classification
-        _mockCadenceClassifier.Received(12).ClassifyCadence(Arg.Any<BaroquenChord>(), Arg.Any<BaroquenChord>());
+        // assert - eleven budgeted rejections; once the budget expires the deferred arrival is accepted
+        // without another classification
+        _mockCadenceClassifier.Received(11).ClassifyCadence(Arg.Any<BaroquenChord>(), Arg.Any<BaroquenChord>());
+    }
+
+    [Test]
+    public void Compose_WhenTheAuthenticCadenceBudgetExpires_RewindsToTheFirstDeferredTonicArrival()
+    {
+        // arrange - the first hunt step offers a plain tonic arrival, after which only non-tonic chords appear;
+        // when the budget expires the ending should rewind to that first arrival rather than keep wandering
+        var composition = CreateTestComposition();
+        var theme = CreateTestTheme();
+        var bridgingChords = new List<BaroquenChord> { new([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]) };
+
+        _mockCompositionStrategy.GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(bridgingChords);
+
+        var ascendingChoice = new ChordChoice([new NoteChoice(Instrument.One, NoteMotion.Ascending, 1)]);
+
+        _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns([ascendingChoice]);
+
+        _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>())
+            .Returns(ChordNumber.V, ChordNumber.I, ChordNumber.V);
+
+        _mockCadenceClassifier.ClassifyCadence(Arg.Any<BaroquenChord>(), Arg.Any<BaroquenChord>())
+            .Returns(CadenceType.None);
+
+        BaroquenChord? capturedFinalChord = null;
+
+        _mockCadentialTrillApplicator
+            .When(static applicator => applicator.ApplyTrill(Arg.Any<BaroquenChord>(), Arg.Any<BaroquenChord>()))
+            .Do(callInfo => capturedFinalChord = callInfo.ArgAt<BaroquenChord>(1));
+
+        var expectedFinalNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)
+            .ApplyNoteChoice(_compositionConfiguration.Scale, ascendingChoice.NoteChoices[0], _compositionConfiguration.DefaultNoteTimeSpan);
+
+        // act
+        _endingComposer.Compose(composition, theme, CancellationToken.None);
+
+        // assert - the deferred arrival was classified once and becomes the final chord
+        _mockCadenceClassifier.Received(1).ClassifyCadence(Arg.Any<BaroquenChord>(), Arg.Any<BaroquenChord>());
+        capturedFinalChord.Should().NotBeNull();
+        capturedFinalChord![Instrument.One].Raw.Should().Be(expectedFinalNote.Raw);
+    }
+
+    [Test]
+    public void Compose_WhenTheTonicHuntDeadEnds_RewindsToTheFirstDeferredTonicArrival()
+    {
+        // arrange - the first hunt step offers a plain tonic arrival; the second offers no chord choices at
+        // all, which previously aborted the composition and should now fall back to the deferred arrival
+        var composition = CreateTestComposition();
+        var theme = CreateTestTheme();
+        var bridgingChords = new List<BaroquenChord> { new([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]) };
+
+        _mockCompositionStrategy.GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(bridgingChords);
+
+        var ascendingChoice = new ChordChoice([new NoteChoice(Instrument.One, NoteMotion.Ascending, 1)]);
+
+        _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns([ascendingChoice], []);
+
+        _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>())
+            .Returns(ChordNumber.V, ChordNumber.I);
+
+        _mockCadenceClassifier.ClassifyCadence(Arg.Any<BaroquenChord>(), Arg.Any<BaroquenChord>())
+            .Returns(CadenceType.None);
+
+        BaroquenChord? capturedFinalChord = null;
+
+        _mockCadentialTrillApplicator
+            .When(static applicator => applicator.ApplyTrill(Arg.Any<BaroquenChord>(), Arg.Any<BaroquenChord>()))
+            .Do(callInfo => capturedFinalChord = callInfo.ArgAt<BaroquenChord>(1));
+
+        var expectedFinalNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)
+            .ApplyNoteChoice(_compositionConfiguration.Scale, ascendingChoice.NoteChoices[0], _compositionConfiguration.DefaultNoteTimeSpan);
+
+        // act
+        var result = _endingComposer.Compose(composition, theme, CancellationToken.None);
+
+        // assert
+        result.Should().NotBeNull();
+        capturedFinalChord.Should().NotBeNull();
+        capturedFinalChord![Instrument.One].Raw.Should().Be(expectedFinalNote.Raw);
     }
 
     [Test]
