@@ -18,6 +18,7 @@ namespace BaroquenMelody.Library.Tests;
 [TestFixture]
 internal sealed class CadentialEndingTests
 {
+    // MIDI geometry under the generator's 96-ticks-per-quarter time division.
     private const int TicksPerSixteenthNote = 24;
 
     private const int TicksPerHalfNote = 192;

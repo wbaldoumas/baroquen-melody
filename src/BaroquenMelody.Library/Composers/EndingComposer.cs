@@ -21,6 +21,12 @@ using Microsoft.Extensions.Logging;
 namespace BaroquenMelody.Library.Composers;
 
 /// <inheritdoc cref="IEndingComposer"/>
+/// <remarks>
+///     The ending bridges back to the recapitulation and then closes with a final cadence: the tonic hunt
+///     prefers an authentic (V to I) arrival in its strongest reachable voicing before falling back to any
+///     tonic, and an achieved authentic cadence receives the idiomatic trill on the dominant's leading tone.
+///     Search dead ends degrade to best-effort endings rather than failing the composition.
+/// </remarks>
 internal sealed class EndingComposer(
     ICompositionStrategy compositionStrategy,
     ICompositionDecorator compositionDecorator,
@@ -43,9 +49,9 @@ internal sealed class EndingComposer(
 
     private const int MaxChordsToTonic = 25;
 
-    // While the tonic hunt is still under this many chords, only an authentic (V to I) arrival ends it; past the
-    // budget any tonic arrival is accepted again, so the tonic-final guarantee and the MaxChordsToTonic cap are
-    // unchanged for compositions that never pass through the dominant.
+    // While the tonic hunt is still under this many chords, only an authentic (V to I) arrival ends it. When the
+    // budget expires the hunt rewinds to the first plain tonic arrival it passed over (matching the pre-hunt
+    // first-tonic behavior); if none was seen it keeps hunting for any tonic up to MaxChordsToTonic as before.
     private const int AuthenticCadenceChordBudget = 12;
 
     public Composition Compose(Composition composition, BaroquenTheme theme, CancellationToken cancellationToken)
