@@ -3,6 +3,8 @@ using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Rules.Enums;
+using BaroquenMelody.Library.Rules.Harmonic;
+using BaroquenMelody.Library.Rules.Melodic;
 
 namespace BaroquenMelody.Library.Rules;
 
@@ -28,8 +30,8 @@ internal sealed class CompositionRuleFactory(
         ICompositionRule compositionRule = configuration.Rule switch
         {
             CompositionRule.AvoidDissonance => new AvoidDissonance(),
-            CompositionRule.AvoidDissonantLeaps => new AvoidDissonantLeaps(compositionConfiguration),
-            CompositionRule.HandleAscendingSeventh => new HandleAscendingSeventh(compositionConfiguration),
+            CompositionRule.AvoidDissonantLeaps => new MelodicCompositionRuleAdapter(new AvoidDissonantLeaps(compositionConfiguration)),
+            CompositionRule.HandleAscendingSeventh => new MelodicCompositionRuleAdapter(new HandleAscendingSeventh(compositionConfiguration)),
             CompositionRule.AvoidRepeatedNotes => new AvoidRepetition(),
             CompositionRule.AvoidParallelFourths => new AvoidParallelIntervals(Interval.PerfectFourth),
             CompositionRule.AvoidParallelFifths => new AvoidParallelIntervals(Interval.PerfectFifth),

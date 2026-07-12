@@ -1,8 +1,10 @@
-﻿using BaroquenMelody.Infrastructure.Collections;
+using BaroquenMelody.Infrastructure.Collections;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Rules;
+using BaroquenMelody.Library.Rules.Harmonic;
+using BaroquenMelody.Library.Rules.Melodic;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 
@@ -15,7 +17,7 @@ public class AggregateCompositionRuleBenchmarks
     private static readonly List<ICompositionRule> Rules =
     [
         new AvoidParallelIntervals(Interval.Unison),
-        new HandleAscendingSeventh(BenchmarkData.CompositionConfiguration),
+        new MelodicCompositionRuleAdapter(new HandleAscendingSeventh(BenchmarkData.CompositionConfiguration)),
         new EnsureInstrumentRange(BenchmarkData.CompositionConfiguration),
         new AvoidDirectIntervals(Interval.PerfectFifth, BenchmarkData.CompositionConfiguration),
         new AvoidDirectIntervals(Interval.PerfectFourth, BenchmarkData.CompositionConfiguration),
@@ -24,7 +26,7 @@ public class AggregateCompositionRuleBenchmarks
         new AvoidRepeatedChords(new ChordNumberIdentifier(BenchmarkData.CompositionConfiguration)),
         new FollowsStandardProgression(BenchmarkData.CompositionConfiguration),
         new AvoidDissonance(),
-        new AvoidDissonantLeaps(BenchmarkData.CompositionConfiguration),
+        new MelodicCompositionRuleAdapter(new AvoidDissonantLeaps(BenchmarkData.CompositionConfiguration)),
         new AvoidRepetition(),
         new AvoidParallelIntervals(Interval.PerfectFifth),
         new AvoidParallelIntervals(Interval.PerfectFourth)

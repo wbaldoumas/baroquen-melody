@@ -6,6 +6,8 @@ using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Rules;
 using BaroquenMelody.Library.Rules.Enums;
+using BaroquenMelody.Library.Rules.Harmonic;
+using BaroquenMelody.Library.Rules.Melodic;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
@@ -38,8 +40,8 @@ internal sealed class CompositionRuleFactoryTests
 
     [Test]
     [TestCase(CompositionRule.AvoidDissonance, int.MaxValue, typeof(AvoidDissonance))]
-    [TestCase(CompositionRule.AvoidDissonantLeaps, int.MaxValue, typeof(AvoidDissonantLeaps))]
-    [TestCase(CompositionRule.HandleAscendingSeventh, int.MaxValue, typeof(HandleAscendingSeventh))]
+    [TestCase(CompositionRule.AvoidDissonantLeaps, int.MaxValue, typeof(MelodicCompositionRuleAdapter))]
+    [TestCase(CompositionRule.HandleAscendingSeventh, int.MaxValue, typeof(MelodicCompositionRuleAdapter))]
     [TestCase(CompositionRule.AvoidRepeatedNotes, int.MaxValue, typeof(AvoidRepetition))]
     [TestCase(CompositionRule.AvoidParallelFourths, int.MaxValue, typeof(AvoidParallelIntervals))]
     [TestCase(CompositionRule.AvoidParallelFifths, int.MaxValue, typeof(AvoidParallelIntervals))]
