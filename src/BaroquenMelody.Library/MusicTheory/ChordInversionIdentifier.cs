@@ -1,5 +1,6 @@
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Extensions;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using Melanchall.DryWetMidi.MusicTheory;
 
@@ -25,19 +26,12 @@ internal sealed class ChordInversionIdentifier(
             return ChordInversion.Unknown;
         }
 
-        var instruments = compositionConfiguration.Instruments;
-
-        for (var instrumentIndex = instruments.Count - 1; instrumentIndex >= 0; --instrumentIndex)
+        if (chord.GetLowestVoicedNote(compositionConfiguration.Instruments) is not { } bassNote)
         {
-            if (!chord.ContainsInstrument(instruments[instrumentIndex]))
-            {
-                continue;
-            }
-
-            return ToChordInversion(chord[instruments[instrumentIndex]].NoteName, chordTriad);
+            return ChordInversion.Unknown;
         }
 
-        return ChordInversion.Unknown;
+        return ToChordInversion(bassNote.NoteName, chordTriad);
     }
 
     private static ChordInversion ToChordInversion(NoteName bassNoteName, ChordTriad chordTriad)
