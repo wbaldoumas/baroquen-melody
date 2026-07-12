@@ -172,6 +172,9 @@ internal sealed class ThemeComposer(
 
         foreach (var (index, instrument) in instruments.Where(instrument => instrument != fugueSubjectInstrument).Index())
         {
+            // Only the first entry knows the note its voice sounds immediately beforehand (the initial measure is
+            // already composed); later entries' preceding notes are free-composed after placement must be resolved,
+            // so their boundary reachability is enforced at compose time by the next-pin threading below instead.
             var placedNotes = fugalEntryPlacer.Place(
                 index % 2 == 0 ? fugalAnswerStrategy.GenerateAnswer(fugueSubject) : fugueSubject,
                 instrument,
