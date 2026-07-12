@@ -1,5 +1,7 @@
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
+using BaroquenMelody.Library.Enums;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Rules;
 
@@ -27,4 +29,13 @@ public interface IVoiceSpacingSatisfiabilityAnalyzer
     /// <param name="scale">The scale supplying the playable notes.</param>
     /// <returns>Whether the voice spacing rule is satisfiable.</returns>
     bool IsSatisfiable(IEnumerable<InstrumentConfiguration> instrumentConfigurations, BaroquenScale scale);
+
+    /// <summary>
+    ///     Retrieves, per instrument, the note numbers for which at least one full chord voicing satisfying the
+    ///     voice spacing rule exists. Unconstrained voices (the bass, or every voice when fewer than three are
+    ///     configured) retain their full playable range.
+    /// </summary>
+    /// <param name="compositionConfiguration">The composition configuration to analyze.</param>
+    /// <returns>The spacing-feasible note numbers, keyed by instrument.</returns>
+    FrozenDictionary<Instrument, FrozenSet<int>> GetFeasibleNoteNumbersByInstrument(CompositionConfiguration compositionConfiguration);
 }

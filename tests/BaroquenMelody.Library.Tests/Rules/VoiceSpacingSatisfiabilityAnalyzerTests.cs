@@ -230,6 +230,75 @@ internal sealed class VoiceSpacingSatisfiabilityAnalyzerTests
         isSatisfiable.Should().BeFalse();
     }
 
+    [Test]
+    public void GetFeasibleNoteNumbersByInstrument_WithFewerThanThreeVoices_ReturnsEveryPlayableScaleNote()
+    {
+        // arrange - two voices are never spacing-constrained, so each keeps its full playable scale notes
+        var compositionConfiguration = Configuration(
+            Voice(Instrument.One, Notes.C7, Notes.C8),
+            Voice(Instrument.Two, Notes.C1, Notes.C2)
+        );
+
+        // act
+        var feasibleNoteNumbersByInstrument = _voiceSpacingSatisfiabilityAnalyzer.GetFeasibleNoteNumbersByInstrument(compositionConfiguration);
+
+        // assert
+        feasibleNoteNumbersByInstrument[Instrument.One].Should().BeEquivalentTo([96, 98, 100, 101, 103, 105, 107, 108]);
+        feasibleNoteNumbersByInstrument[Instrument.Two].Should().BeEquivalentTo([24, 26, 28, 29, 31, 33, 35, 36]);
+    }
+
+    [Test]
+    public void GetFeasibleNoteNumbersByInstrument_WithThreeVoices_ReturnsArcConsistentSetsAndLeavesTheBassUnconstrained()
+    {
+        // arrange - voice Two (C3..C4) can only reach voice One (C5..C6) at exactly an octave: C4 against C5;
+        // arc consistency then pins voice One to C5, while the bass pair is unrestricted by the spacing rule
+        var compositionConfiguration = Configuration(
+            Voice(Instrument.One, Notes.C5, Notes.C6),
+            Voice(Instrument.Two, Notes.C3, Notes.C4),
+            Voice(Instrument.Three, Notes.C1, Notes.C2)
+        );
+
+        // act
+        var feasibleNoteNumbersByInstrument = _voiceSpacingSatisfiabilityAnalyzer.GetFeasibleNoteNumbersByInstrument(compositionConfiguration);
+
+        // assert
+        feasibleNoteNumbersByInstrument[Instrument.One].Should().BeEquivalentTo([(int)Notes.C5.NoteNumber]);
+        feasibleNoteNumbersByInstrument[Instrument.Two].Should().BeEquivalentTo([(int)Notes.C4.NoteNumber]);
+        feasibleNoteNumbersByInstrument[Instrument.Three].Should().BeEquivalentTo([24, 26, 28, 29, 31, 33, 35, 36]);
+    }
+
+    [Test]
+    public void GetFeasibleNoteNumbersByInstrument_WhenTheConfigurationIsUnsatisfiable_ReturnsEmptySetsForTheStrandedVoices()
+    {
+        // arrange - voices One and Two can never sit within an octave of each other, so both constrained
+        // voices end up with empty feasible sets while the unconstrained bass keeps its playable notes
+        var compositionConfiguration = Configuration(
+            Voice(Instrument.One, Notes.C6, Notes.C7),
+            Voice(Instrument.Two, Notes.C2, Notes.C3),
+            Voice(Instrument.Three, Notes.C1, Notes.C2)
+        );
+
+        // act
+        var feasibleNoteNumbersByInstrument = _voiceSpacingSatisfiabilityAnalyzer.GetFeasibleNoteNumbersByInstrument(compositionConfiguration);
+
+        // assert
+        feasibleNoteNumbersByInstrument[Instrument.One].Should().BeEmpty();
+        feasibleNoteNumbersByInstrument[Instrument.Two].Should().BeEmpty();
+        feasibleNoteNumbersByInstrument[Instrument.Three].Should().BeEquivalentTo([24, 26, 28, 29, 31, 33, 35, 36]);
+    }
+
+    private static CompositionConfiguration Configuration(params InstrumentConfiguration[] instrumentConfigurations) => new(
+        instrumentConfigurations.ToHashSet(),
+        PhrasingConfiguration.Default,
+        AggregateCompositionRuleConfiguration.Default,
+        AggregateOrnamentationConfiguration.Default,
+        NoteName.C,
+        Mode.Ionian,
+        Meter.FourFour,
+        MusicalTimeSpan.Half,
+        MinimumMeasures: 10
+    );
+
     private static InstrumentConfiguration Voice(Instrument instrument, Note minNote, Note maxNote) => new(
         instrument,
         minNote,
