@@ -25,15 +25,28 @@ internal sealed class EndingComposer(
     ICompositionStrategy compositionStrategy,
     ICompositionDecorator compositionDecorator,
     IChordNumberIdentifier chordNumberIdentifier,
+    ICadenceClassifier cadenceClassifier,
+    ICadentialTrillApplicator cadentialTrillApplicator,
     IChordSelector chordSelector,
     IDispatcher dispatcher,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
 ) : IEndingComposer
 {
+    private const int PerfectAuthenticCadenceRank = 0;
+
+    private const int ImperfectAuthenticCadenceRank = 1;
+
+    private const int PlainTonicArrivalRank = 2;
+
     private const int MaxBridgingChords = 25;
 
     private const int MaxChordsToTonic = 25;
+
+    // While the tonic hunt is still under this many chords, only an authentic (V to I) arrival ends it; past the
+    // budget any tonic arrival is accepted again, so the tonic-final guarantee and the MaxChordsToTonic cap are
+    // unchanged for compositions that never pass through the dominant.
+    private const int AuthenticCadenceChordBudget = 12;
 
     public Composition Compose(Composition composition, BaroquenTheme theme, CancellationToken cancellationToken)
     {
@@ -195,6 +208,8 @@ internal sealed class EndingComposer(
 
         var finalChordOfComposition = composition.Measures[^1].Beats[^1].Chord;
 
+        cadentialTrillApplicator.ApplyTrill(FindPenultimateChord(composition), finalChordOfComposition);
+
         finalChordOfComposition.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
 
         foreach (var note in finalChordOfComposition.Notes)
@@ -212,6 +227,18 @@ internal sealed class EndingComposer(
         }
 
         composition.Measures[^1].Beats.Add(new Beat(restingChord));
+    }
+
+    /// <summary>
+    ///     Finds the chord sounding immediately before the composition's final chord. By the time the final
+    ///     cadence is applied the composition always holds at least two chords across at least two measures
+    ///     (the body plus the appended recapitulation), so the lookup only needs to cross one measure boundary.
+    /// </summary>
+    private static BaroquenChord FindPenultimateChord(Composition composition)
+    {
+        var lastMeasure = composition.Measures[^1];
+
+        return lastMeasure.Beats.Count >= 2 ? lastMeasure.Beats[^2].Chord : composition.Measures[^2].Beats[^1].Chord;
     }
 
     private Composition GetCompositionWithTonicFinalChord(Composition composition, CancellationToken cancellationToken)
@@ -233,8 +260,9 @@ internal sealed class EndingComposer(
             DispatchChordsToTonicProgress(chords.Count);
 
             var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(compositionContext);
+            var requireAuthenticCadence = chords.Count < AuthenticCadenceChordBudget;
 
-            if (TryFindTonicChord(possibleChordChoices, compositionContext, chords, cancellationToken))
+            if (TryFindTonicChord(possibleChordChoices, compositionContext, chords, requireAuthenticCadence, cancellationToken))
             {
                 break;
             }
@@ -266,10 +294,16 @@ internal sealed class EndingComposer(
         IReadOnlyList<ChordChoice> possibleChordChoices,
         FixedSizeList<BaroquenChord> compositionContext,
         List<BaroquenChord> chords,
+        bool requireAuthenticCadence,
         CancellationToken cancellationToken)
     {
-        var foundTonicChord = false;
+        BaroquenChord? bestTonicChord = null;
+        var bestTonicChordRank = int.MaxValue;
+        var worstAcceptableRank = requireAuthenticCadence ? ImperfectAuthenticCadenceRank : PlainTonicArrivalRank;
 
+        // Among the reachable tonic voicings the strongest cadence wins: a perfect authentic cadence over an
+        // imperfect one over a plain arrival (with plain arrivals only eligible once authenticity is no longer
+        // required).
         foreach (var possibleChordChoice in possibleChordChoices)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -281,13 +315,35 @@ internal sealed class EndingComposer(
                 continue;
             }
 
-            chords.Add(potentialTonicChord);
-            foundTonicChord = true;
+            var cadenceRank = cadenceClassifier.ClassifyCadence(compositionContext[^1], potentialTonicChord) switch
+            {
+                CadenceType.PerfectAuthentic => PerfectAuthenticCadenceRank,
+                CadenceType.ImperfectAuthentic => ImperfectAuthenticCadenceRank,
+                _ => PlainTonicArrivalRank
+            };
 
-            break;
+            if (cadenceRank > worstAcceptableRank || cadenceRank >= bestTonicChordRank)
+            {
+                continue;
+            }
+
+            bestTonicChord = potentialTonicChord;
+            bestTonicChordRank = cadenceRank;
+
+            if (bestTonicChordRank == PerfectAuthenticCadenceRank)
+            {
+                break;
+            }
         }
 
-        return foundTonicChord;
+        if (bestTonicChord is null)
+        {
+            return false;
+        }
+
+        chords.Add(bestTonicChord);
+
+        return true;
     }
 
     private void DispatchChordsToTonicProgress(int currentChordCount)
