@@ -287,6 +287,34 @@ internal sealed class VoiceSpacingSatisfiabilityAnalyzerTests
         feasibleNoteNumbersByInstrument[Instrument.Three].Should().BeEquivalentTo([24, 26, 28, 29, 31, 33, 35, 36]);
     }
 
+    [Test]
+    public void GetFeasibleNoteNumbersByInstrument_WithTheDefaultInstrumentConfigurations_LeavesEveryPlayableNoteFeasible()
+    {
+        // arrange - the default ranges are deliberately chosen so the spacing rule never fights their natural
+        // tessitura: adjacent range centers sit within the twelve-semitone cap, so every playable scale note of
+        // every voice can appear in some rule-satisfying voicing; pinned to keep future default changes honest
+        var defaultInstrumentConfigurations = InstrumentConfiguration.DefaultConfigurations.Values
+            .OrderBy(static instrumentConfiguration => instrumentConfiguration.Instrument)
+            .Select(static instrumentConfiguration => instrumentConfiguration with { Status = ConfigurationStatus.Enabled })
+            .ToArray();
+
+        var compositionConfiguration = Configuration(defaultInstrumentConfigurations);
+        var scaleNotes = compositionConfiguration.Scale.GetNotes();
+
+        // act
+        var feasibleNoteNumbersByInstrument = _voiceSpacingSatisfiabilityAnalyzer.GetFeasibleNoteNumbersByInstrument(compositionConfiguration);
+
+        // assert
+        foreach (var instrumentConfiguration in defaultInstrumentConfigurations)
+        {
+            var playableNoteCount = scaleNotes.Count(instrumentConfiguration.IsNoteWithinInstrumentRange);
+
+            feasibleNoteNumbersByInstrument[instrumentConfiguration.Instrument]
+                .Should()
+                .HaveCount(playableNoteCount, $"voice spacing should not constrain the default range of {instrumentConfiguration.Instrument}");
+        }
+    }
+
     private static CompositionConfiguration Configuration(params InstrumentConfiguration[] instrumentConfigurations) => new(
         instrumentConfigurations.ToHashSet(),
         PhrasingConfiguration.Default,
