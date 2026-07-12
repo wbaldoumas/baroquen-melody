@@ -133,7 +133,11 @@ internal sealed class EndingComposerTests
     {
         // arrange: same fallback path as above, but the selector scores candidates with the default scoring rules,
         // exercising the materialize-and-score path through EndingComposer.GetNextChord.
-        var scoringRuleFactory = new ScoringRuleFactory(_compositionConfiguration);
+        var realChordNumberIdentifier = new ChordNumberIdentifier(_compositionConfiguration);
+        var scoringRuleFactory = new ScoringRuleFactory(
+            _compositionConfiguration,
+            realChordNumberIdentifier,
+            new ChordInversionIdentifier(realChordNumberIdentifier, _compositionConfiguration));
 
         var endingComposer = new EndingComposer(
             _mockCompositionStrategy,

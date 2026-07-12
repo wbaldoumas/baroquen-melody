@@ -49,6 +49,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
     public IMidiFileComposer Configure(CompositionConfiguration compositionConfiguration)
     {
         var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
+        var chordInversionIdentifier = new ChordInversionIdentifier(chordNumberIdentifier, compositionConfiguration);
         var compositionRuleFactory = new CompositionRuleFactory(compositionConfiguration, _weightedRandomBooleanGenerator, chordNumberIdentifier);
         var effectiveRuleConfiguration = ResolveEffectiveRuleConfiguration(compositionConfiguration);
         var compositionRule = compositionRuleFactory.CreateAggregate(effectiveRuleConfiguration);
@@ -79,7 +80,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         var compositionPhraser = new CompositionPhraser(compositionRule, _themeSplitter, _weightedRandomBooleanGenerator, randomProvider, logger, compositionConfiguration, motifBankFactory, motifDeveloper);
         var fugalEntryPlacer = new FugalEntryPlacer(compositionConfiguration, ResolveSpacingFeasibleNoteNumbers(compositionConfiguration, effectiveRuleConfiguration));
         var fugalAnswerStrategy = new FugalAnswerStrategy(compositionConfiguration);
-        var scoringRuleFactory = new ScoringRuleFactory(compositionConfiguration);
+        var scoringRuleFactory = new ScoringRuleFactory(compositionConfiguration, chordNumberIdentifier, chordInversionIdentifier);
         var aggregateScoringRule = scoringRuleFactory.CreateAggregate(compositionConfiguration.AggregateScoringRuleConfiguration ?? AggregateScoringRuleConfiguration.Default);
         var chordSelector = new WeightedChordSelector(aggregateScoringRule, randomProvider);
         var chordComposer = new ChordComposer(compositionStrategy, chordSelector, logger);

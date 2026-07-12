@@ -73,8 +73,7 @@ public class WeightedChordSelectorBenchmarks
     );
 
     private static readonly WeightedChordSelector DefaultScoringChordSelector = new(
-        new ScoringRuleFactory(BenchmarkData.CompositionConfiguration).CreateAggregate(AggregateScoringRuleConfiguration
-            .Default),
+        CreateDefaultAggregateScoringRule(),
         RandomProvider
     );
 
@@ -92,4 +91,15 @@ public class WeightedChordSelectorBenchmarks
     [Benchmark]
     public int EnumerateValidChordChoicesAndChords() =>
         CompositionStrategy.GetValidChordChoicesAndChords(PrecedingChords).Count();
+
+    private static IScoringRule CreateDefaultAggregateScoringRule()
+    {
+        var chordNumberIdentifier = new ChordNumberIdentifier(BenchmarkData.CompositionConfiguration);
+
+        return new ScoringRuleFactory(
+                BenchmarkData.CompositionConfiguration,
+                chordNumberIdentifier,
+                new ChordInversionIdentifier(chordNumberIdentifier, BenchmarkData.CompositionConfiguration))
+            .CreateAggregate(AggregateScoringRuleConfiguration.Default);
+    }
 }

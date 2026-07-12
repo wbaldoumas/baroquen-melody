@@ -15,5 +15,17 @@ public enum ScoringRule : byte
     /// <summary>
     ///     Prefer that melodic leaps recover with a stepwise move in the opposite direction.
     /// </summary>
-    PreferLeapRecovery
+    PreferLeapRecovery,
+
+    /// <summary>
+    ///     Prefer root position and first inversion chords, since second-inversion (six-four) sonorities are
+    ///     stylistically restricted.
+    /// </summary>
+    PreferStableChordInversions,
+
+    /// <summary>
+    ///     Prefer continuing a root-motion pattern established by the preceding chords into a short harmonic
+    ///     sequence, releasing the pattern before it runs away.
+    /// </summary>
+    PreferHarmonicSequences
 }
