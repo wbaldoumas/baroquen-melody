@@ -15,6 +15,7 @@ using BaroquenMelody.Library.Ornamentation.Engine;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Phrasing;
+using BaroquenMelody.Library.Rhythm;
 using BaroquenMelody.Library.Rules;
 using BaroquenMelody.Library.Rules.Enums;
 using BaroquenMelody.Library.Scoring;
@@ -93,7 +94,8 @@ internal sealed class BaroquenMelodyComposerConfigurator(
             _musicalTimeSpanCalculator,
             compositionConfiguration);
         var endingComposer = new EndingComposer(compositionStrategy, compositionDecorator, chordNumberIdentifier, cadenceClassifier, cadentialTrillApplicator, chordSelector, dispatcher, logger, compositionConfiguration);
-        var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
+        var harmonicRhythmScheduler = new HarmonicRhythmScheduler(compositionConfiguration);
+        var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, harmonicRhythmScheduler, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
         var midiGenerator = new MidiGenerator(compositionConfiguration);
 
         return new MidiFileComposer(composer, midiGenerator);

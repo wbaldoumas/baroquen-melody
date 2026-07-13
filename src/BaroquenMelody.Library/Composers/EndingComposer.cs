@@ -60,6 +60,8 @@ internal sealed class EndingComposer(
 
         var bridgingComposition = GetBridgingComposition(composition, theme, cancellationToken);
 
+        ReleaseHeldFinalBeat(composition);
+
         composition.Measures[^1].Beats[^1] = bridgingComposition.Measures[0].Beats[0];
 
         var continuationChords = bridgingComposition.Measures
@@ -75,6 +77,27 @@ internal sealed class EndingComposer(
         ApplyFinalCadence(composition, cancellationToken);
 
         return composition;
+    }
+
+    /// <summary>
+    ///     When the composition's final beat is a held (mid-sustain) continuation, the bridge splice replaces it
+    ///     with a fresh sounding chord, so its sustain principals on the previous beat must shrink back to a
+    ///     single beat - otherwise they would ring across a beat that now sounds new harmony and desynchronize
+    ///     the rendered timeline.
+    /// </summary>
+    private void ReleaseHeldFinalBeat(Composition composition)
+    {
+        var lastMeasure = composition.Measures[^1];
+
+        if (lastMeasure.Beats.Count < 2 || lastMeasure.Beats[^1].Chord.Notes.TrueForAll(static note => note.OrnamentationType != OrnamentationType.MidSustain))
+        {
+            return;
+        }
+
+        foreach (var note in lastMeasure.Beats[^2].Chord.Notes.Where(static note => note.OrnamentationType == OrnamentationType.Sustain))
+        {
+            note.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
+        }
     }
 
     private Composition GetBridgingComposition(Composition composition, BaroquenTheme theme, CancellationToken cancellationToken)
@@ -107,9 +130,13 @@ internal sealed class EndingComposer(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        // Held (mid-sustain) continuations are silent duplicates of the preceding harmony; the body keeps them
+        // out of the harmonic context, so the bridge does the same and judges only sounding chords.
         var compositionContext = new FixedSizeList<BaroquenChord>(
             compositionConfiguration.CompositionContextSize,
-            composition.Measures.SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord))
+            composition.Measures
+                .SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord))
+                .Where(static chord => chord.Notes.Exists(static note => note.OrnamentationType != OrnamentationType.MidSustain))
         );
 
         var chords = new List<BaroquenChord>();

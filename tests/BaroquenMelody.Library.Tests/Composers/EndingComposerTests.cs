@@ -459,6 +459,43 @@ internal sealed class EndingComposerTests
         _mockCadenceClassifier.Received(1).ClassifyCadence(Arg.Any<BaroquenChord>(), Arg.Any<BaroquenChord>());
     }
 
+    [Test]
+    public void Compose_WhenTheFinalBeatIsHeld_ReleasesTheSustainPrincipalBeforeTheBridgeSplice()
+    {
+        // arrange - the composition ends on a held beat: a sustain principal spanning two beats followed by its
+        // silent mid-sustain continuation, which the bridge splice replaces with a fresh sounding chord
+        var principalNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Whole) { OrnamentationType = OrnamentationType.Sustain };
+        var heldNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half) { OrnamentationType = OrnamentationType.MidSustain };
+
+        var composition = new Composition([
+            new Measure(
+                [
+                    new Beat(new BaroquenChord([principalNote])),
+                    new Beat(new BaroquenChord([heldNote]))
+                ],
+                Meter.FourFour)
+        ]);
+
+        var theme = CreateTestTheme();
+        var bridgingChords = new List<BaroquenChord> { new([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]) };
+
+        _mockCompositionStrategy.GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(bridgingChords);
+
+        _mockCompositionStrategy.GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns([new ChordChoice([new NoteChoice(Instrument.One, NoteMotion.Oblique, 0)])]);
+
+        _mockChordNumberIdentifier.IdentifyChordNumber(Arg.Any<BaroquenChord>())
+            .Returns(ChordNumber.V, ChordNumber.V, ChordNumber.V, ChordNumber.I);
+
+        // act
+        _endingComposer.Compose(composition, theme, CancellationToken.None);
+
+        // assert - the former principal no longer sustains across the replaced beat
+        principalNote.OrnamentationType.Should().Be(OrnamentationType.None);
+        principalNote.MusicalTimeSpan.Should().Be(_compositionConfiguration.DefaultNoteTimeSpan);
+    }
+
     private static Composition CreateTestComposition()
     {
         var measure = new Measure([new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]))], Meter.FourFour);
