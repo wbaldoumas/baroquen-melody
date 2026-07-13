@@ -19,7 +19,9 @@ public sealed record AggregateScoringRuleConfiguration(ISet<ScoringRuleConfigura
         {
             new(ScoringRule.PreferShortestVoiceMovement, ConfigurationStatus.Enabled, Weight: 2), // lightest: smooths lines without freezing voice motion
             new(ScoringRule.PreferContraryOuterVoiceMotion, ConfigurationStatus.Enabled, Weight: 4), // stronger: outer-voice independence beats raw smoothness
-            new(ScoringRule.PreferLeapRecovery, ConfigurationStatus.Enabled, Weight: 4) // stronger: leaps still resolve, even if recovery moves more
+            new(ScoringRule.PreferLeapRecovery, ConfigurationStatus.Enabled, Weight: 4), // stronger: leaps still resolve, even if recovery moves more
+            new(ScoringRule.PreferStableChordInversions, ConfigurationStatus.Enabled, Weight: 4), // stronger: six-four sonorities are reserved, not routine
+            new(ScoringRule.PreferHarmonicSequences, ConfigurationStatus.Enabled, Weight: 2) // lightest: a sequential nudge the other preferences can override
         }
     );
 }

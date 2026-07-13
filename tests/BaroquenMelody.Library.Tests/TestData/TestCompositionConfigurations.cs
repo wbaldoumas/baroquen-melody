@@ -12,14 +12,16 @@ internal static class TestCompositionConfigurations
 {
     public static CompositionConfiguration Get(
         int numberOfInstruments = 4,
-        int compositionLength = 100
+        int compositionLength = 100,
+        NoteName tonic = NoteName.C,
+        Mode mode = Mode.Ionian
     ) => new(
         GenerateInstrumentConfigurations(numberOfInstruments),
         PhrasingConfiguration.Default,
         AggregateCompositionRuleConfiguration.Default,
         AggregateOrnamentationConfiguration.Default,
-        NoteName.C,
-        Mode.Ionian,
+        tonic,
+        mode,
         Meter.FourFour,
         MusicalTimeSpan.Half,
         MinimumMeasures: compositionLength

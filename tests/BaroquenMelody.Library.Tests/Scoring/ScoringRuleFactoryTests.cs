@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Scoring.Enums;
 using BaroquenMelody.Library.Tests.TestData;
@@ -19,7 +20,16 @@ internal sealed class ScoringRuleFactoryTests
     private ScoringRuleFactory _scoringRuleFactory = null!;
 
     [SetUp]
-    public void SetUp() => _scoringRuleFactory = new ScoringRuleFactory(TestCompositionConfigurations.Get(2));
+    public void SetUp()
+    {
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
+        var chordNumberIdentifier = new ChordNumberIdentifier(compositionConfiguration);
+
+        _scoringRuleFactory = new ScoringRuleFactory(
+            compositionConfiguration,
+            chordNumberIdentifier,
+            new ChordInversionIdentifier(chordNumberIdentifier, compositionConfiguration));
+    }
 
     [Test]
     public void Create_handles_all_scoring_rules()

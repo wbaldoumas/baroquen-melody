@@ -21,19 +21,38 @@ using Microsoft.Extensions.Logging;
 namespace BaroquenMelody.Library.Composers;
 
 /// <inheritdoc cref="IEndingComposer"/>
+/// <remarks>
+///     The ending bridges back to the recapitulation and then closes with a final cadence: the tonic hunt
+///     prefers an authentic (V to I) arrival in its strongest reachable voicing before falling back to any
+///     tonic, and an achieved authentic cadence receives the idiomatic trill on the dominant's leading tone.
+///     Search dead ends degrade to best-effort endings rather than failing the composition.
+/// </remarks>
 internal sealed class EndingComposer(
     ICompositionStrategy compositionStrategy,
     ICompositionDecorator compositionDecorator,
     IChordNumberIdentifier chordNumberIdentifier,
+    ICadenceClassifier cadenceClassifier,
+    ICadentialTrillApplicator cadentialTrillApplicator,
     IChordSelector chordSelector,
     IDispatcher dispatcher,
     ILogger logger,
     CompositionConfiguration compositionConfiguration
 ) : IEndingComposer
 {
+    private const int PerfectAuthenticCadenceRank = 0;
+
+    private const int ImperfectAuthenticCadenceRank = 1;
+
+    private const int PlainTonicArrivalRank = 2;
+
     private const int MaxBridgingChords = 25;
 
     private const int MaxChordsToTonic = 25;
+
+    // While the tonic hunt is still under this many chords, only an authentic (V to I) arrival ends it. When the
+    // budget expires the hunt rewinds to the first plain tonic arrival it passed over (matching the pre-hunt
+    // first-tonic behavior); if none was seen it keeps hunting for any tonic up to MaxChordsToTonic as before.
+    private const int AuthenticCadenceChordBudget = 12;
 
     public Composition Compose(Composition composition, BaroquenTheme theme, CancellationToken cancellationToken)
     {
@@ -108,7 +127,21 @@ internal sealed class EndingComposer(
                 break;
             }
 
-            var nextChord = GetBridgingChord(compositionContext, firstChordOfRecapitulation, cancellationToken);
+            BaroquenChord nextChord;
+
+            try
+            {
+                nextChord = GetBridgingChord(compositionContext, firstChordOfRecapitulation, cancellationToken);
+            }
+            catch (NoValidChordChoicesAvailableException)
+            {
+                // A dead end here would otherwise abort the whole composition at its final step. The bridge is
+                // already best-effort (it gives up after MaxBridgingChords and splices anyway), so degrade the
+                // same way: stop bridging and proceed with the chords composed so far.
+                logger.LogWarningMessage("Composition dead-ended while bridging to the recapitulation. Proceeding with a best-effort bridge.");
+
+                break;
+            }
 
             compositionContext.Add(nextChord);
             chords.Add(nextChord);
@@ -195,6 +228,8 @@ internal sealed class EndingComposer(
 
         var finalChordOfComposition = composition.Measures[^1].Beats[^1].Chord;
 
+        cadentialTrillApplicator.ApplyTrill(FindPenultimateChord(composition), finalChordOfComposition);
+
         finalChordOfComposition.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
 
         foreach (var note in finalChordOfComposition.Notes)
@@ -214,6 +249,18 @@ internal sealed class EndingComposer(
         composition.Measures[^1].Beats.Add(new Beat(restingChord));
     }
 
+    /// <summary>
+    ///     Finds the chord sounding immediately before the composition's final chord. By the time the final
+    ///     cadence is applied the composition always holds at least two chords across at least two measures
+    ///     (the body plus the appended recapitulation), so the lookup only needs to cross one measure boundary.
+    /// </summary>
+    private static BaroquenChord FindPenultimateChord(Composition composition)
+    {
+        var lastMeasure = composition.Measures[^1];
+
+        return lastMeasure.Beats.Count >= 2 ? lastMeasure.Beats[^2].Chord : composition.Measures[^2].Beats[^1].Chord;
+    }
+
     private Composition GetCompositionWithTonicFinalChord(Composition composition, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -226,20 +273,54 @@ internal sealed class EndingComposer(
         var lastChordOfComposition = compositionContext[^1];
         var chords = new List<BaroquenChord> { lastChordOfComposition };
 
+        // The first plain tonic arrival passed over while an authentic cadence is still required: if the budget
+        // expires or the hunt dead-ends, the ending rewinds to it, matching the pre-hunt behavior of taking the
+        // first reachable tonic.
+        BaroquenChord? deferredTonicChord = null;
+        var deferredTonicChordIndex = 0;
+
         while (true)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             DispatchChordsToTonicProgress(chords.Count);
 
-            var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(compositionContext);
+            var requireAuthenticCadence = chords.Count < AuthenticCadenceChordBudget;
 
-            if (TryFindTonicChord(possibleChordChoices, compositionContext, chords, cancellationToken))
+            if (!requireAuthenticCadence && AcceptDeferredTonicChord(chords, deferredTonicChord, deferredTonicChordIndex))
             {
                 break;
             }
 
-            var nextChord = GetNextChord(possibleChordChoices, compositionContext);
+            var possibleChordChoices = compositionStrategy.GetPossibleChordChoices(compositionContext);
+
+            if (TryFindTonicChord(possibleChordChoices, compositionContext, chords, requireAuthenticCadence, out var skippedTonicChord, cancellationToken))
+            {
+                break;
+            }
+
+            if (deferredTonicChord is null && skippedTonicChord is not null)
+            {
+                deferredTonicChord = skippedTonicChord;
+                deferredTonicChordIndex = chords.Count;
+            }
+
+            BaroquenChord nextChord;
+
+            try
+            {
+                nextChord = GetNextChord(possibleChordChoices, compositionContext);
+            }
+            catch (NoValidChordChoicesAvailableException)
+            {
+                // A dead end mid-hunt should not abort the whole composition: rewind to the deferred tonic
+                // arrival when one exists, and otherwise end without a tonic exactly like the exhausted-cap path.
+                logger.LogWarningMessage("Composition dead-ended while seeking the final tonic chord. Using the strongest ending reachable so far.");
+
+                _ = AcceptDeferredTonicChord(chords, deferredTonicChord, deferredTonicChordIndex);
+
+                break;
+            }
 
             chords.Add(nextChord);
             compositionContext.Add(nextChord);
@@ -266,10 +347,19 @@ internal sealed class EndingComposer(
         IReadOnlyList<ChordChoice> possibleChordChoices,
         FixedSizeList<BaroquenChord> compositionContext,
         List<BaroquenChord> chords,
+        bool requireAuthenticCadence,
+        out BaroquenChord? skippedTonicChord,
         CancellationToken cancellationToken)
     {
-        var foundTonicChord = false;
+        BaroquenChord? bestTonicChord = null;
+        var bestTonicChordRank = int.MaxValue;
+        var worstAcceptableRank = requireAuthenticCadence ? ImperfectAuthenticCadenceRank : PlainTonicArrivalRank;
 
+        skippedTonicChord = null;
+
+        // Among the reachable tonic voicings the strongest cadence wins: a perfect authentic cadence over an
+        // imperfect one over a plain arrival (with plain arrivals only eligible once authenticity is no longer
+        // required, though the first one passed over is reported so the caller can fall back to it).
         foreach (var possibleChordChoice in possibleChordChoices)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -281,13 +371,55 @@ internal sealed class EndingComposer(
                 continue;
             }
 
-            chords.Add(potentialTonicChord);
-            foundTonicChord = true;
+            var cadenceRank = cadenceClassifier.ClassifyCadence(compositionContext[^1], potentialTonicChord) switch
+            {
+                CadenceType.PerfectAuthentic => PerfectAuthenticCadenceRank,
+                CadenceType.ImperfectAuthentic => ImperfectAuthenticCadenceRank,
+                _ => PlainTonicArrivalRank
+            };
 
-            break;
+            if (cadenceRank > worstAcceptableRank)
+            {
+                skippedTonicChord ??= potentialTonicChord;
+
+                continue;
+            }
+
+            if (cadenceRank >= bestTonicChordRank)
+            {
+                continue;
+            }
+
+            bestTonicChord = potentialTonicChord;
+            bestTonicChordRank = cadenceRank;
+
+            if (bestTonicChordRank == PerfectAuthenticCadenceRank)
+            {
+                break;
+            }
         }
 
-        return foundTonicChord;
+        if (bestTonicChord is null)
+        {
+            return false;
+        }
+
+        chords.Add(bestTonicChord);
+
+        return true;
+    }
+
+    private static bool AcceptDeferredTonicChord(List<BaroquenChord> chords, BaroquenChord? deferredTonicChord, int deferredTonicChordIndex)
+    {
+        if (deferredTonicChord is null)
+        {
+            return false;
+        }
+
+        chords.RemoveRange(deferredTonicChordIndex, chords.Count - deferredTonicChordIndex);
+        chords.Add(deferredTonicChord);
+
+        return true;
     }
 
     private void DispatchChordsToTonicProgress(int currentChordCount)
