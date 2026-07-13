@@ -189,6 +189,66 @@ internal sealed class CompositionConfigurationSerializationTests
     }
 
     [Test]
+    public void Serialization_preserves_the_harmonic_rhythm_configuration()
+    {
+        // arrange
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100,
+            HarmonicRhythmConfiguration: new HarmonicRhythmConfiguration(Enabled: false)
+        );
+
+        // act
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var deserializedConfiguration = JsonSerializer.Deserialize(serializedConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.HarmonicRhythmConfiguration.Should().NotBeNull();
+        deserializedConfiguration.HarmonicRhythmConfiguration!.Enabled.Should().BeFalse();
+    }
+
+    [Test]
+    public void Deserialization_of_a_legacy_configuration_without_harmonic_rhythm_yields_a_null_harmonic_rhythm_configuration()
+    {
+        // arrange: a configuration saved before variable harmonic rhythm existed has no such property at all.
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100
+        );
+
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var legacyConfigurationJson = JsonNode.Parse(serializedConfiguration)!.AsObject();
+
+        legacyConfigurationJson.Remove(nameof(CompositionConfiguration.HarmonicRhythmConfiguration));
+
+        // act
+        var deserializedConfiguration = JsonSerializer.Deserialize(legacyConfigurationJson.ToJsonString(), CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.HarmonicRhythmConfiguration.Should().BeNull();
+    }
+
+    [Test]
     public void Deserialization_of_a_legacy_configuration_without_motif_development_yields_a_null_motif_development_configuration()
     {
         // arrange: a configuration saved before motivic development existed has no such property at all.
