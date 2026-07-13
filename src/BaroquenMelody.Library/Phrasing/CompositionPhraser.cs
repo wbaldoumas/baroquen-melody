@@ -4,6 +4,7 @@ using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Motifs;
+using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Rules;
 using Melanchall.DryWetMidi.Interaction;
@@ -20,7 +21,8 @@ internal sealed class CompositionPhraser(
     ILogger logger,
     CompositionConfiguration compositionConfiguration,
     IMotifBankFactory motifBankFactory,
-    IMotifDeveloper motifDeveloper
+    IMotifDeveloper motifDeveloper,
+    ICadentialTrillApplicator cadentialTrillApplicator
 ) : ICompositionPhraser
 {
     private readonly List<RepeatedPhrase> _phrasesToRepeat = [];
@@ -130,11 +132,30 @@ internal sealed class CompositionPhraser(
 
             _phrasesToRepeat.Add(repeatedPhrase);
 
-            ResetPhraseEndOrnamentation(measures[^1], compositionConfiguration.DefaultNoteTimeSpan);
+            FinalizeLivePhraseSeam(measures[^1]);
 
             measures.AddRange(lastMeasures.Select(static measure => new Measure(measure)));
 
             return;
+        }
+    }
+
+    /// <summary>
+    ///     Finalizes the seam measure of the live composition before a restatement is appended: ornamentation on the
+    ///     seam's final beat is reset so the phrase can breathe, and when the seam's last two chords form an authentic
+    ///     cadence, the leading-tone voice receives the idiomatic cadential trill. Stored theme phrases only get the
+    ///     plain reset when they are banked in <see cref="AddTheme"/>, since their seams are not part of the live
+    ///     composition. A seam ending in a held beat can never trill: the held copy duplicates the preceding harmony,
+    ///     which the cadence classifier never treats as a cadence.
+    /// </summary>
+    /// <param name="measure">The final measure of the live composition, whose end is the phrase seam.</param>
+    private void FinalizeLivePhraseSeam(Measure measure)
+    {
+        ResetPhraseEndOrnamentation(measure, compositionConfiguration.DefaultNoteTimeSpan);
+
+        if (measure.Beats.Count >= 2)
+        {
+            cadentialTrillApplicator.ApplyTrill(measure.Beats[^2].Chord, measure.Beats[^1].Chord);
         }
     }
 
@@ -160,7 +181,7 @@ internal sealed class CompositionPhraser(
             return false;
         }
 
-        ResetPhraseEndOrnamentation(measures[^1], compositionConfiguration.DefaultNoteTimeSpan);
+        FinalizeLivePhraseSeam(measures[^1]);
 
         measures.AddRange(BuildRestatement(measures, repeatedPhrase.Phrase));
         repeatedPhrase.RepetitionCount++;
