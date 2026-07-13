@@ -145,8 +145,9 @@ internal sealed class CompositionPhraser(
     ///     seam's final beat is reset so the phrase can breathe, and when the seam's last two chords form an authentic
     ///     cadence, the leading-tone voice receives the idiomatic cadential trill. Stored theme phrases only get the
     ///     plain reset when they are banked in <see cref="AddTheme"/>, since their seams are not part of the live
-    ///     composition. A seam ending in a held beat can never trill: the held copy duplicates the preceding harmony,
-    ///     which the cadence classifier never treats as a cadence.
+    ///     composition. The harmonic rhythm schedule composes seam measures fresh on every beat, so the seam's final
+    ///     two chords carry real harmonic motion; if a seam ever does end in a held duplicate, the cadence classifier
+    ///     never treats the same harmony twice as a cadence, so no trill lands on it.
     /// </summary>
     /// <param name="measure">The final measure of the live composition, whose end is the phrase seam.</param>
     private void FinalizeLivePhraseSeam(Measure measure)

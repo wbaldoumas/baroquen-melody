@@ -4,7 +4,6 @@ using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Dynamics;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Ornamentation;
-using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Phrasing;
 using BaroquenMelody.Library.Rhythm;
 using BaroquenMelody.Library.Store.Actions;
@@ -70,9 +69,17 @@ internal sealed class Composer(
 
             while (beats.Count < compositionConfiguration.BeatsPerMeasure)
             {
+                // A held beat is a plain duplicate of the preceding chord: it enters the harmonic context so the
+                // repetition rules force the next composed beat onto a new harmony, and it flows through the
+                // ornamentation and sustain passes like any repeated chord - each voice is independently
+                // ornamented, tied into a two-beat sustain, or re-articulated over the held harmony. Duplicating
+                // an already rule-valid chord introduces no new vertical sonorities.
                 if (beats.Count > 0 && harmonicRhythmScheduler.ShouldHoldBeat(compositionBody.Count, beats.Count))
                 {
-                    beats.Add(CreateHeldBeat(beats[^1].Chord));
+                    var heldChord = new BaroquenChord(beats[^1].Chord);
+
+                    compositionContext.Add(heldChord);
+                    beats.Add(new Beat(heldChord));
 
                     continue;
                 }
@@ -89,32 +96,6 @@ internal sealed class Composer(
         }
 
         return new Composition(compositionBody);
-    }
-
-    /// <summary>
-    ///     Builds a beat that holds the preceding beat's harmony: the preceding chord's notes become sustain
-    ///     principals spanning both beats, and the held copy's notes become the silent mid-sustain continuations
-    ///     the renderer covers with the principal - mirroring exactly what the sustain pass produces for repeated
-    ///     notes. Held beats duplicate an already rule-valid chord, so no new vertical sonorities are introduced,
-    ///     and they are deliberately kept out of the harmonic context so the repetition rules judge the true
-    ///     sounding transition from the held harmony to the next composed chord.
-    /// </summary>
-    private Beat CreateHeldBeat(BaroquenChord precedingChord)
-    {
-        var heldChord = new BaroquenChord(precedingChord);
-
-        foreach (var note in heldChord.Notes)
-        {
-            note.OrnamentationType = OrnamentationType.MidSustain;
-        }
-
-        foreach (var note in precedingChord.Notes)
-        {
-            note.MusicalTimeSpan = compositionConfiguration.DefaultNoteTimeSpan + compositionConfiguration.DefaultNoteTimeSpan;
-            note.OrnamentationType = OrnamentationType.Sustain;
-        }
-
-        return new Beat(heldChord);
     }
 
     private void DispatchProgress(int currentMeasureCount)

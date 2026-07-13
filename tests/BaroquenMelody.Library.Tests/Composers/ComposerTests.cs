@@ -32,6 +32,10 @@ internal sealed class ComposerTests
 
     private static readonly Note MinAltoNote = Notes.C3;
 
+    private static readonly Note[] SopranoWalk = [Notes.C4, Notes.D4, Notes.E4, Notes.F4, Notes.G4, Notes.A4, Notes.B4, Notes.C5, Notes.D5, Notes.E5, Notes.F5];
+
+    private static readonly Note[] AltoWalk = [Notes.G2, Notes.A2, Notes.B2, Notes.C3, Notes.D3, Notes.E3, Notes.F3, Notes.G3, Notes.A3, Notes.B3, Notes.C4];
+
     private ICompositionStrategy _mockCompositionStrategy = null!;
 
     private ICompositionDecorator _mockCompositionDecorator = null!;
@@ -105,11 +109,11 @@ internal sealed class ComposerTests
         // With the default harmonic rhythm, half the body measures (phrase-interior at the default minimum
         // phrase length of two) hold their two weak beats and compose only two chords; the +3 is the theme's
         // initial measure (four beats minus the strategy-generated initial chord).
-        var accelerationMeasureCount = _compositionConfiguration.MinimumMeasures / _compositionConfiguration.PhrasingConfiguration.MinPhraseLength;
-        var interiorMeasureCount = _compositionConfiguration.MinimumMeasures - accelerationMeasureCount;
+        var seamMeasureCount = _compositionConfiguration.MinimumMeasures / _compositionConfiguration.PhrasingConfiguration.MinPhraseLength;
+        var interiorMeasureCount = _compositionConfiguration.MinimumMeasures - seamMeasureCount;
 
         _mockCompositionStrategy
-            .Received(accelerationMeasureCount * 4 + interiorMeasureCount * 2 + 3)
+            .Received(seamMeasureCount * 4 + interiorMeasureCount * 2 + 3)
             .GetPossibleChords(Arg.Any<IReadOnlyList<BaroquenChord>>());
 
         _mockCompositionStrategy
@@ -120,52 +124,34 @@ internal sealed class ComposerTests
     }
 
     [Test]
-    public void WhenHarmonicRhythmIsEnabled_HeldBeatsSustainThePrecedingChord()
+    public void WhenHarmonicRhythmIsEnabled_HeldBeatsDuplicateThePrecedingChord()
     {
         // arrange
-        ArrangeComposableStrategy();
+        ArrangeWalkingComposableStrategy();
 
         // act
         var composition = _composer.Compose(CancellationToken.None);
 
-        // assert - held beats are silent mid-sustain copies of the preceding chord, whose notes sustain
-        // across both beats
-        var heldBeatCount = 0;
+        // assert - held beats are plain duplicates of the preceding chord on the weak beats, left unstamped so
+        // the downstream ornamentation and sustain passes can animate or tie them
+        var heldBeats = FindHeldBeats(composition, _compositionConfiguration.MinimumMeasures);
 
-        foreach (var measure in composition.Measures)
-        {
-            for (var beatIndex = 1; beatIndex < measure.Beats.Count; beatIndex++)
-            {
-                var chord = measure.Beats[beatIndex].Chord;
+        heldBeats.Should().HaveCountGreaterThan(80, because: "half the body measures hold both of their weak beats");
+        heldBeats.Should().OnlyContain(static heldBeat => heldBeat.BeatIndex % 2 == 1, because: "holds land only on the weak beats");
 
-                if (!chord.Notes.TrueForAll(static note => note.OrnamentationType == OrnamentationType.MidSustain))
-                {
-                    continue;
-                }
-
-                heldBeatCount++;
-
-                var precedingChord = measure.Beats[beatIndex - 1].Chord;
-
-                foreach (var note in chord.Notes)
-                {
-                    var precedingNote = precedingChord[note.Instrument];
-
-                    precedingNote.Raw.Should().Be(note.Raw);
-                    precedingNote.OrnamentationType.Should().Be(OrnamentationType.Sustain);
-                    precedingNote.MusicalTimeSpan.Should().Be(_compositionConfiguration.DefaultNoteTimeSpan + _compositionConfiguration.DefaultNoteTimeSpan);
-                }
-            }
-        }
-
-        heldBeatCount.Should().BeGreaterThan(0);
+        composition.Measures
+            .SelectMany(static measure => measure.Beats)
+            .SelectMany(static beat => beat.Chord.Notes)
+            .Should().OnlyContain(
+                static note => note.OrnamentationType != OrnamentationType.Sustain && note.OrnamentationType != OrnamentationType.MidSustain,
+                because: "the composer must not pre-stamp sustains onto held beats");
     }
 
     [Test]
     public void WhenHarmonicRhythmIsDisabled_EveryBeatIsFreshlyComposed()
     {
         // arrange
-        ArrangeComposableStrategy();
+        ArrangeWalkingComposableStrategy();
 
         var configurationWithoutHolds = _compositionConfiguration with
         {
@@ -177,11 +163,9 @@ internal sealed class ComposerTests
         // act
         var composition = composer.Compose(CancellationToken.None);
 
-        // assert - no beat carries scheduler-injected sustains
-        composition.Measures
-            .SelectMany(static measure => measure.Beats)
-            .SelectMany(static beat => beat.Chord.Notes)
-            .Should().OnlyContain(static note => note.OrnamentationType != OrnamentationType.Sustain && note.OrnamentationType != OrnamentationType.MidSustain);
+        // assert - the walking strategy never repeats a candidate, so any adjacent duplicate beats could only
+        // come from the scheduler
+        FindHeldBeats(composition, configurationWithoutHolds.MinimumMeasures).Should().BeEmpty();
     }
 
     private void ArrangeComposableStrategy()
@@ -215,6 +199,74 @@ internal sealed class ComposerTests
             .HasPossibleChordForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
             .Returns(true);
     }
+
+    /// <summary>
+    ///     Arranges the strategy so every candidate chord walks one step further along a diatonic line: consecutive
+    ///     candidates always differ from their predecessors, so the only pitch-identical adjacent beats a composition
+    ///     can contain are the scheduler's held duplicates.
+    /// </summary>
+    private void ArrangeWalkingComposableStrategy()
+    {
+        var callIndex = 0;
+
+        _mockCompositionStrategy.GenerateInitialChord().Returns(_ => CreateWalkingChord(callIndex++));
+
+        _mockCompositionStrategy
+            .GetPossibleChordChoices(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns([
+                new ChordChoice([
+                    new NoteChoice(Instrument.One, NoteMotion.Oblique, 0),
+                    new NoteChoice(Instrument.Two, NoteMotion.Oblique, 0)
+                ])
+            ]);
+
+        _mockCompositionStrategy
+            .GetPossibleChords(Arg.Any<IReadOnlyList<BaroquenChord>>())
+            .Returns(_ => [CreateWalkingChord(callIndex++)]);
+
+        _mockCompositionStrategy
+            .GetPossibleChordsForPartiallyVoicedChords(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(_ => [CreateWalkingChord(callIndex++)]);
+
+        _mockCompositionStrategy
+            .GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(_ => [CreateWalkingChord(callIndex++)]);
+
+        _mockCompositionStrategy
+            .HasPossibleChordForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(true);
+    }
+
+    /// <summary>
+    ///     Finds beats whose chord duplicates the preceding beat's pitches, scanning only the first
+    ///     <paramref name="measureLimit"/> measures (the exposition and body) since the ending composer's splice
+    ///     and cadence hunt can legitimately restate a chord.
+    /// </summary>
+    private static List<(int MeasureIndex, int BeatIndex)> FindHeldBeats(Composition composition, int measureLimit)
+    {
+        var heldBeats = new List<(int MeasureIndex, int BeatIndex)>();
+
+        foreach (var (measureIndex, measure) in composition.Measures.Take(measureLimit).Index())
+        {
+            for (var beatIndex = 1; beatIndex < measure.Beats.Count; beatIndex++)
+            {
+                var chord = measure.Beats[beatIndex].Chord;
+                var precedingChord = measure.Beats[beatIndex - 1].Chord;
+
+                if (chord.Notes.TrueForAll(note => precedingChord.ContainsInstrument(note.Instrument) && precedingChord[note.Instrument].Raw == note.Raw))
+                {
+                    heldBeats.Add((measureIndex, beatIndex));
+                }
+            }
+        }
+
+        return heldBeats;
+    }
+
+    private static BaroquenChord CreateWalkingChord(int index) => new([
+        new BaroquenNote(Instrument.One, SopranoWalk[index % SopranoWalk.Length], MusicalTimeSpan.Half),
+        new BaroquenNote(Instrument.Two, AltoWalk[index % AltoWalk.Length], MusicalTimeSpan.Half)
+    ]);
 
     private static BaroquenChord CreateFreshChord() => new([
         new BaroquenNote(Instrument.One, MinSopranoNote, MusicalTimeSpan.Half),

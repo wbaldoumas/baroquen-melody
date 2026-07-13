@@ -5,9 +5,10 @@ namespace BaroquenMelody.Library.Rhythm;
 /// <inheritdoc cref="IHarmonicRhythmScheduler"/>
 /// <remarks>
 ///     Deterministic by design (no randomness): phrase-interior measures hold each harmony across two beats,
-///     so harmonies change only on the strong and medium beats, while the measure before each phrase seam
-///     returns to per-beat harmonic motion, accelerating into the cadence. Phrase seams follow
-///     <see cref="PhrasingConfiguration.MinPhraseLength"/>, matching where the phraser attempts repetitions.
+///     so harmonies change only on the strong and medium beats, while phrase-seam measures return to per-beat
+///     harmonic motion. Seam measures follow <see cref="PhrasingConfiguration.MinPhraseLength"/> and are the
+///     measures the phraser finalizes when it attempts repetitions, so composing them fresh both accelerates
+///     the harmonic rhythm into the seam and lets the seam's final two chords form a real cadence.
 /// </remarks>
 internal sealed class HarmonicRhythmScheduler(CompositionConfiguration compositionConfiguration) : IHarmonicRhythmScheduler
 {
@@ -21,8 +22,8 @@ internal sealed class HarmonicRhythmScheduler(CompositionConfiguration compositi
             return false;
         }
 
-        var isAccelerationMeasure = (measureIndex + 1) % compositionConfiguration.PhrasingConfiguration.MinPhraseLength == 0;
+        var isSeamMeasure = measureIndex % compositionConfiguration.PhrasingConfiguration.MinPhraseLength == 0;
 
-        return !isAccelerationMeasure && beatIndex % 2 == 1;
+        return !isSeamMeasure && beatIndex % 2 == 1;
     }
 }
