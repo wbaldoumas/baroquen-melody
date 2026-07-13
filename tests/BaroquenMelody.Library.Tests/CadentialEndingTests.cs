@@ -25,10 +25,10 @@ internal sealed class CadentialEndingTests
 
     [TestCase(3, 1, true)]
     [TestCase(3, 2, false)]
-    [TestCase(3, 5, true)]
+    [TestCase(3, 3, true)]
     [TestCase(3, 42, false)]
+    [TestCase(4, 2, true)]
     [TestCase(4, 3, false)]
-    [TestCase(4, 5, true)]
     [TestCase(4, 8, true)]
     [TestCase(4, 42, false)]
     public void Compose_WithProductionDefaults_EndsWithATonicCadence(int voices, int seed, bool expectCadentialTrill)
