@@ -32,6 +32,7 @@ namespace BaroquenMelody.Library.Configurations;
 /// <param name="MotifDevelopmentConfiguration"> The configuration of how recurring themes/phrases are developed rather than repeated verbatim. When <see langword="null"/> (including configurations saved before motivic development existed), <see cref="Configurations.MotifDevelopmentConfiguration.Default"/> is used. </param>
 /// <param name="HarmonicRhythmConfiguration"> The configuration of how the harmonic rhythm of the composition body varies. When <see langword="null"/> (including configurations saved before variable harmonic rhythm existed), <see cref="Configurations.HarmonicRhythmConfiguration.Default"/> is used. </param>
 /// <param name="SuspensionConfiguration"> The configuration of prepared suspensions at strong-beat harmonic changes. When <see langword="null"/> (including configurations saved before suspensions existed), <see cref="Configurations.SuspensionConfiguration.Default"/> is used. </param>
+/// <param name="TonicizationConfiguration"> The configuration of tonicization (raised thirds turning minor triads into true dominants of the chords they approach). When <see langword="null"/> (including configurations saved before tonicization existed), <see cref="Configurations.TonicizationConfiguration.Default"/> is used. </param>
 public sealed record CompositionConfiguration(
     ISet<InstrumentConfiguration> InstrumentConfigurations,
     PhrasingConfiguration PhrasingConfiguration,
@@ -50,7 +51,8 @@ public sealed record CompositionConfiguration(
     AggregateScoringRuleConfiguration? AggregateScoringRuleConfiguration = null,
     MotifDevelopmentConfiguration? MotifDevelopmentConfiguration = null,
     HarmonicRhythmConfiguration? HarmonicRhythmConfiguration = null,
-    SuspensionConfiguration? SuspensionConfiguration = null)
+    SuspensionConfiguration? SuspensionConfiguration = null,
+    TonicizationConfiguration? TonicizationConfiguration = null)
 {
     public const int MaxScaleStepChange = 5;
 
