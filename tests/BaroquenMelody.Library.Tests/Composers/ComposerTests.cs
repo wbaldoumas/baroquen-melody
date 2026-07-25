@@ -135,12 +135,33 @@ internal sealed class ComposerTests
         // act
         _composer.Compose(CancellationToken.None);
 
-        // assert - suspensions must see plain default-span material, so they run before sustain merging
+        // assert - the body's suspensions must see plain default-span material, so they run before
+        // sustain merging; the exposition's pass runs at completion, after the body is fully articulated
         Received.InOrder(() =>
         {
             _mockSuspensionApplicator.ApplySuspensions(Arg.Any<Composition>());
             _mockCompositionDecorator.ApplySustain(Arg.Any<Composition>());
+            _mockSuspensionApplicator.ApplySuspensions(Arg.Any<Composition>());
         });
+    }
+
+    [Test]
+    public void WhenComposeIsInvoked_TheThemeExpositionReceivesItsOwnSuspensionPassAtCompletion()
+    {
+        // arrange
+        ArrangeComposableStrategy();
+
+        var suspensionPassCompositions = new List<Composition>();
+
+        _mockSuspensionApplicator.ApplySuspensions(Arg.Do<Composition>(suspensionPassCompositions.Add));
+
+        // act
+        _composer.Compose(CancellationToken.None);
+
+        // assert - the exposition is prepended after the body pipeline, so it takes its own pass at
+        // completion, with the first body measure riding along untouched as the walk boundary
+        suspensionPassCompositions.Should().HaveCount(2);
+        suspensionPassCompositions[1].Measures[^1].Should().BeSameAs(suspensionPassCompositions[0].Measures[0]);
     }
 
     [Test]

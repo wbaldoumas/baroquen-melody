@@ -49,6 +49,31 @@ internal sealed class SuspensionCompositionTests
     }
 
     [Test]
+    public void Compose_WithSuspensionsEnabled_ArticulatesTheThemeExpositionsOpeningBarlines()
+    {
+        // arrange
+        var configuration = TestCompositionConfigurations.Get(3, 10) with { ShuffleOrnamentationProcessors = false };
+
+        // act & assert - the theme exposition is prepended after the body pipeline runs, so a figure
+        // resolving inside the opening two measures can only come from the exposition's own suspension
+        // pass: the earliest body figure sits past the exposition, at least 1248 ticks in
+        Enumerable.Range(1, 12)
+            .Any(seed =>
+            {
+                var notes = SeededComposition.Notes(SeededComposition.Compose(configuration, seed));
+
+                return notes
+                    .Where(static note => note.Length >= PreparationTickLength)
+                    .Any(preparation => notes.Any(resolution =>
+                        resolution.Time == preparation.Time + preparation.Length &&
+                        resolution.Length == ResolutionTickLength &&
+                        preparation.NoteNumber - resolution.NoteNumber is 1 or 2 &&
+                        resolution.Time <= 960));
+            })
+            .Should().BeTrue("some seeded composition must render a suspension inside the theme exposition");
+    }
+
+    [Test]
     public void Compose_WithSuspensionsEnabled_RendersTiedPreparationsWithDelayedStepwiseResolutions()
     {
         // arrange

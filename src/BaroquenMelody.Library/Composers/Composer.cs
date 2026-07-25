@@ -185,6 +185,13 @@ internal sealed class Composer(
 
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Complete));
 
+        // The exposition joins the composition only here, so it takes its own suspension pass now.
+        // Suspensions are a pure time-shift, which keeps every voice's fugal entry pitch-for-pitch
+        // intact. The first body measure rides along solely as the walk's boundary: the applicator's
+        // final-measure rule leaves it untouched, so the exposition's interior barlines resolve while
+        // the seam into the already-articulated body stays pure and no site is ever drawn twice.
+        suspensionApplicator.ApplySuspensions(new Composition([.. theme.Exposition, composition.Measures[0]]));
+
         return new Composition([.. theme.Exposition, .. composition.Measures]);
     }
 

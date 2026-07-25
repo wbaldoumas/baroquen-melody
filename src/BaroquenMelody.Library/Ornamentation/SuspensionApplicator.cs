@@ -15,10 +15,11 @@ namespace BaroquenMelody.Library.Ornamentation;
 ///     harmonic, and an applied suspension replaces whatever surface ornamentation the two notes carried:
 ///     structural dissonance treatment outranks optional decoration, the same precedence the cadential trill
 ///     takes at cadences. Only a deliberately placed trill and notes already inside a suspension figure are
-///     left alone. Runs after the ending is composed
-///     and before the sustain pass, where a same-pitch predecessor may absorb the preparation into a longer
-///     tie, which only extends the figure backwards. The composition's final measure is left untouched so the
-///     crafted cadence rings pure.
+///     left alone. The body takes its pass after the ending is composed and before the sustain pass, where a
+///     same-pitch predecessor may absorb the preparation into a longer tie, which only extends the figure
+///     backwards; the theme exposition, prepended at completion, takes its own pass then. The walked
+///     composition's final measure is left untouched, which keeps the crafted cadence ringing pure and, in
+///     the exposition pass, keeps the boundary measure borrowed from the body unchanged.
 /// </remarks>
 internal sealed class SuspensionApplicator(
     IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
