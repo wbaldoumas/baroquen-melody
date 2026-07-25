@@ -258,6 +258,55 @@ internal sealed class SuspensionApplicatorTests
     }
 
     [Test]
+    public void ApplySuspensions_WithAThreeBeatInteriorMeasure_NeverRestampsTheAliasedResolution()
+    {
+        // arrange - the ending composer can leave a three-beat leftover measure mid-composition, where the
+        // cross-barline pair's preparation IS the mid-measure pair's just-stamped resolution. Both pairs are
+        // harmonically eligible here: F4 -> E4 within the measure, and E4 -> D4 across the barline.
+        var composition = BuildComposition(
+            BuildMeasure([Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3)]),
+            BuildMeasure([Chord(Notes.A4, Notes.F3), Chord(Notes.F4, Notes.F3), Chord(Notes.E4, Notes.C3)]),
+            BuildMeasure([Chord(Notes.D4, Notes.B2), Chord(Notes.G4, Notes.E3), Chord(Notes.G4, Notes.E3), Chord(Notes.G4, Notes.E3)]),
+            BuildMeasure([Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3)]));
+
+        var aliasedNote = composition.Measures[1].Beats[2].Chord[Instrument.One];
+
+        // act
+        CreateApplicator().ApplySuspensions(composition);
+
+        // assert - the aliased note stays a resolution; the cross-barline pair is skipped, so the next
+        // downbeat is untouched and the three-beat measure still spans exactly three beats for the voice
+        composition.Measures[1].Beats[1].Chord[Instrument.One].OrnamentationType.Should().Be(OrnamentationType.Suspension);
+        aliasedNote.OrnamentationType.Should().Be(OrnamentationType.SuspensionResolution);
+        aliasedNote.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
+        composition.Measures[2].Beats[0].Chord[Instrument.One].OrnamentationType.Should().Be(OrnamentationType.None);
+    }
+
+    [Test]
+    public void ApplySuspensions_WithASingleBeatInteriorMeasure_NeverRestampsTheAliasedResolution()
+    {
+        // arrange - a single-beat interior measure's only note can be stamped as a resolution by the previous
+        // measure's cross-barline pair and is then re-examined as the preparation of its own cross-barline
+        // pair: F4 resolves to E4 on the single beat, which would itself be eligible to suspend into D4.
+        var composition = BuildComposition(
+            BuildMeasure([Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.F4, Notes.F3)]),
+            BuildMeasure([Chord(Notes.E4, Notes.C3)]),
+            BuildMeasure([Chord(Notes.D4, Notes.B2), Chord(Notes.G4, Notes.E3), Chord(Notes.G4, Notes.E3), Chord(Notes.G4, Notes.E3)]),
+            BuildMeasure([Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3)]));
+
+        var aliasedNote = composition.Measures[1].Beats[0].Chord[Instrument.One];
+
+        // act
+        CreateApplicator().ApplySuspensions(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].OrnamentationType.Should().Be(OrnamentationType.Suspension);
+        aliasedNote.OrnamentationType.Should().Be(OrnamentationType.SuspensionResolution);
+        aliasedNote.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter);
+        composition.Measures[2].Beats[0].Chord[Instrument.One].OrnamentationType.Should().Be(OrnamentationType.None);
+    }
+
+    [Test]
     public void ApplySuspensions_WithAShortTrailingMeasure_SkipsItSafely()
     {
         // arrange - the ending composer can emit a short final measure from leftover beats

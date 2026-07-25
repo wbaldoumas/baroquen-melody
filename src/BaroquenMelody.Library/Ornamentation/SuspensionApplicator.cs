@@ -71,8 +71,10 @@ internal sealed class SuspensionApplicator(
             var resolution = resolutionBeat.Chord[instrument];
 
             // A deliberately placed trill (the cadential figure) is the one ornament a suspension must not
-            // displace.
-            if (preparation.OrnamentationType == OrnamentationType.Trill || resolution.OrnamentationType == OrnamentationType.Trill)
+            // displace, and a note already participating in a suspension figure must never be restamped: in
+            // the short leftover measures the ending composer can leave mid-composition, the cross-barline
+            // pair's preparation aliases a beat the mid-measure pair may have just resolved.
+            if (IsProtected(preparation) || IsProtected(resolution))
             {
                 continue;
             }
@@ -108,4 +110,9 @@ internal sealed class SuspensionApplicator(
             resolution.OrnamentationType = OrnamentationType.SuspensionResolution;
         }
     }
+
+    private static bool IsProtected(BaroquenNote note) => note.OrnamentationType
+        is OrnamentationType.Trill
+        or OrnamentationType.Suspension
+        or OrnamentationType.SuspensionResolution;
 }
