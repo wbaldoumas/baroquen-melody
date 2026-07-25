@@ -5,6 +5,7 @@ using BaroquenMelody.Library.Dynamics;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Phrasing;
+using BaroquenMelody.Library.Rhythm;
 using BaroquenMelody.Library.Store.Actions;
 using Fluxor;
 
@@ -14,6 +15,7 @@ internal sealed class Composer(
     ICompositionDecorator compositionDecorator,
     ICompositionPhraser compositionPhraser,
     IChordComposer chordComposer,
+    IHarmonicRhythmScheduler harmonicRhythmScheduler,
     IThemeComposer themeComposer,
     IEndingComposer endingComposer,
     IDynamicsApplicator dynamicsApplicator,
@@ -63,13 +65,25 @@ internal sealed class Composer(
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var initialChord = chordComposer.Compose(compositionContext);
-            var beats = new List<Beat>(compositionConfiguration.BeatsPerMeasure) { new(initialChord) };
-
-            compositionContext.Add(initialChord);
+            var beats = new List<Beat>(compositionConfiguration.BeatsPerMeasure);
 
             while (beats.Count < compositionConfiguration.BeatsPerMeasure)
             {
+                // A held beat is a plain duplicate of the preceding chord: it enters the harmonic context so the
+                // repetition rules force the next composed beat onto a new harmony, and it flows through the
+                // ornamentation and sustain passes like any repeated chord - each voice is independently
+                // ornamented, tied into a two-beat sustain, or re-articulated over the held harmony. Duplicating
+                // an already rule-valid chord introduces no new vertical sonorities.
+                if (beats.Count > 0 && harmonicRhythmScheduler.ShouldHoldBeat(compositionBody.Count, beats.Count))
+                {
+                    var heldChord = new BaroquenChord(beats[^1].Chord);
+
+                    compositionContext.Add(heldChord);
+                    beats.Add(new Beat(heldChord));
+
+                    continue;
+                }
+
                 var nextChord = chordComposer.Compose(compositionContext);
 
                 compositionContext.Add(nextChord);

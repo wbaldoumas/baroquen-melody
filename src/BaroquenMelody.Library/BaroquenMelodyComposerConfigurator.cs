@@ -15,6 +15,7 @@ using BaroquenMelody.Library.Ornamentation.Engine;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Phrasing;
+using BaroquenMelody.Library.Rhythm;
 using BaroquenMelody.Library.Rules;
 using BaroquenMelody.Library.Rules.Enums;
 using BaroquenMelody.Library.Scoring;
@@ -78,7 +79,13 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         var motifApplicator = new MotifApplicator(compositionConfiguration);
         var motifBankFactory = new MotifBankFactory(motifExtractor, compositionConfiguration);
         var motifDeveloper = new MotifDeveloper(motifApplicator, _weightedRandomBooleanGenerator, randomProvider, compositionConfiguration);
-        var compositionPhraser = new CompositionPhraser(compositionRule, _themeSplitter, _weightedRandomBooleanGenerator, randomProvider, logger, compositionConfiguration, motifBankFactory, motifDeveloper);
+        var cadenceClassifier = new CadenceClassifier(chordNumberIdentifier, chordInversionIdentifier, compositionConfiguration);
+        var cadentialTrillApplicator = new CadentialTrillApplicator(
+            cadenceClassifier,
+            new OrnamentationProcessorConfigurationFactory(chordNumberIdentifier, _weightedRandomBooleanGenerator, compositionConfiguration, logger),
+            _musicalTimeSpanCalculator,
+            compositionConfiguration);
+        var compositionPhraser = new CompositionPhraser(compositionRule, _themeSplitter, _weightedRandomBooleanGenerator, randomProvider, logger, compositionConfiguration, motifBankFactory, motifDeveloper, cadentialTrillApplicator);
         var fugalEntryPlacer = new FugalEntryPlacer(compositionConfiguration, ResolveSpacingFeasibleNoteNumbers(compositionConfiguration, effectiveRuleConfiguration));
         var fugalAnswerStrategy = new FugalAnswerStrategy(compositionConfiguration);
         var scoringRuleFactory = new ScoringRuleFactory(compositionConfiguration, chordNumberIdentifier, chordInversionIdentifier);
@@ -86,14 +93,9 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         var chordSelector = new WeightedChordSelector(aggregateScoringRule, randomProvider);
         var chordComposer = new ChordComposer(compositionStrategy, chordSelector, logger);
         var themeComposer = new ThemeComposer(compositionStrategy, fugalEntryCompositionStrategy, compositionDecorator, chordComposer, fugalEntryPlacer, fugalAnswerStrategy, chordSelector, dispatcher, logger, compositionConfiguration);
-        var cadenceClassifier = new CadenceClassifier(chordNumberIdentifier, chordInversionIdentifier, compositionConfiguration);
-        var cadentialTrillApplicator = new CadentialTrillApplicator(
-            cadenceClassifier,
-            new OrnamentationProcessorConfigurationFactory(chordNumberIdentifier, _weightedRandomBooleanGenerator, compositionConfiguration, logger),
-            _musicalTimeSpanCalculator,
-            compositionConfiguration);
         var endingComposer = new EndingComposer(compositionStrategy, compositionDecorator, chordNumberIdentifier, cadenceClassifier, cadentialTrillApplicator, chordSelector, dispatcher, logger, compositionConfiguration);
-        var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
+        var harmonicRhythmScheduler = new HarmonicRhythmScheduler(compositionConfiguration);
+        var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, harmonicRhythmScheduler, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
         var midiGenerator = new MidiGenerator(compositionConfiguration);
 
         return new MidiFileComposer(composer, midiGenerator);

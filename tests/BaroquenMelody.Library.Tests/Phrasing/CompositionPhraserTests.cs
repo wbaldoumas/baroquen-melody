@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Motifs;
+using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Phrasing;
 using BaroquenMelody.Library.Rules;
 using BaroquenMelody.Library.Tests.TestData;
@@ -31,9 +32,12 @@ internal sealed class CompositionPhraserTests
 
     private IMotifDeveloper _mockMotifDeveloper = null!;
 
+    private ICadentialTrillApplicator _mockCadentialTrillApplicator = null!;
+
     [SetUp]
     public void SetUp()
     {
+        _mockCadentialTrillApplicator = Substitute.For<ICadentialTrillApplicator>();
         _mockCompositionRule = Substitute.For<ICompositionRule>();
         _mockThemeSplitter = Substitute.For<IThemeSplitter>();
         _mockLogger = Substitute.For<ILogger>();
@@ -193,6 +197,82 @@ internal sealed class CompositionPhraserTests
     }
 
     [Test]
+    public void AttemptPhraseRepetition_WhenAnExistingPhraseIsRepeated_AppliesTheCadentialTrillToTheLiveSeam()
+    {
+        // arrange
+        var phraser = CreatePhraser(new PhrasingConfiguration([4], 2, 1));
+        var measures = CreateMeasures(8);
+
+        _mockThemeSplitter.SplitThemeIntoPhrases(Arg.Any<BaroquenTheme>()).Returns([
+            new RepeatedPhrase { Phrase = measures.Take(4).ToList() }
+        ]);
+
+        phraser.AddTheme(new BaroquenTheme { Recapitulation = measures.Take(4).ToList() });
+
+        SetRuleEvaluationOutcome(_mockCompositionRule, true);
+
+        var seamMeasure = measures[^1];
+        var expectedPenultimateChord = seamMeasure.Beats[^2].Chord;
+        var expectedFinalChord = seamMeasure.Beats[^1].Chord;
+
+        // act
+        phraser.AttemptPhraseRepetition(measures);
+
+        // assert
+        measures.Should().HaveCount(12, because: "the phrase repetition whose seam is being trilled should have happened");
+
+        _mockCadentialTrillApplicator
+            .Received(1)
+            .ApplyTrill(
+                Arg.Is<BaroquenChord>(chord => ReferenceEquals(chord, expectedPenultimateChord)),
+                Arg.Is<BaroquenChord>(chord => ReferenceEquals(chord, expectedFinalChord)));
+    }
+
+    [Test]
+    public void AttemptPhraseRepetition_WhenANewPhraseIsCreatedAndRepeated_AppliesTheCadentialTrillToTheLiveSeam()
+    {
+        // arrange
+        var phraser = CreatePhraser(new PhrasingConfiguration([2], 2, 0));
+        var measures = CreateMeasures(4);
+
+        SetRuleEvaluationOutcome(_mockCompositionRule, true);
+
+        var seamMeasure = measures[^1];
+        var expectedPenultimateChord = seamMeasure.Beats[^2].Chord;
+        var expectedFinalChord = seamMeasure.Beats[^1].Chord;
+
+        // act
+        phraser.AttemptPhraseRepetition(measures);
+
+        // assert
+        measures.Should().HaveCount(6, because: "the phrase repetition whose seam is being trilled should have happened");
+
+        _mockCadentialTrillApplicator
+            .Received(1)
+            .ApplyTrill(
+                Arg.Is<BaroquenChord>(chord => ReferenceEquals(chord, expectedPenultimateChord)),
+                Arg.Is<BaroquenChord>(chord => ReferenceEquals(chord, expectedFinalChord)));
+    }
+
+    [Test]
+    public void AttemptPhraseRepetition_WhenTheSeamMeasureHasASingleBeat_DoesNotApplyTheCadentialTrill()
+    {
+        // arrange
+        var phraser = CreatePhraser(new PhrasingConfiguration([2], 2, 0));
+        var measures = CreateMeasures(4, beatsPerMeasure: 1);
+
+        SetRuleEvaluationOutcome(_mockCompositionRule, true);
+
+        // act
+        phraser.AttemptPhraseRepetition(measures);
+
+        // assert
+        measures.Should().HaveCount(6, because: "the repetition should still happen; only the trill needs two seam beats");
+
+        _mockCadentialTrillApplicator.DidNotReceive().ApplyTrill(Arg.Any<BaroquenChord>(), Arg.Any<BaroquenChord>());
+    }
+
+    [Test]
     public void AddTheme_invokes_ThemeSplitter()
     {
         // arrange
@@ -305,6 +385,6 @@ internal sealed class CompositionPhraserTests
     {
         var compositionConfiguration = TestCompositionConfigurations.Get(2) with { PhrasingConfiguration = phrasingConfiguration };
 
-        return new CompositionPhraser(_mockCompositionRule, _mockThemeSplitter, _weightedRandomBooleanGenerator, new ThreadLocalRandomProvider(), _mockLogger, compositionConfiguration, _mockMotifBankFactory, _mockMotifDeveloper);
+        return new CompositionPhraser(_mockCompositionRule, _mockThemeSplitter, _weightedRandomBooleanGenerator, new ThreadLocalRandomProvider(), _mockLogger, compositionConfiguration, _mockMotifBankFactory, _mockMotifDeveloper, _mockCadentialTrillApplicator);
     }
 }
