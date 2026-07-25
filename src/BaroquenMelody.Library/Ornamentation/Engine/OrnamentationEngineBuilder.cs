@@ -90,6 +90,11 @@ internal sealed class OrnamentationEngineBuilder
                 and not OrnamentationType.Sustain
                 and not OrnamentationType.MidSustain
                 and not OrnamentationType.Rest
+
+                // Suspension stamps are applied only after every decoration pass has run, so the cleaning
+                // engine can never encounter them.
+                and not OrnamentationType.Suspension
+                and not OrnamentationType.SuspensionResolution
             )
             .ToList();
 

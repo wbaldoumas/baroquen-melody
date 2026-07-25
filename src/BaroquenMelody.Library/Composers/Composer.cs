@@ -16,6 +16,7 @@ internal sealed class Composer(
     ICompositionPhraser compositionPhraser,
     IChordComposer chordComposer,
     IHarmonicRhythmScheduler harmonicRhythmScheduler,
+    ISuspensionApplicator suspensionApplicator,
     IThemeComposer themeComposer,
     IEndingComposer endingComposer,
     IDynamicsApplicator dynamicsApplicator,
@@ -32,7 +33,8 @@ internal sealed class Composer(
         var compositionWithOrnamentation = AddOrnamentation(compositionBody, cancellationToken);
         var compositionWithPhrasing = ApplyPhrasing(compositionWithOrnamentation, theme, cancellationToken);
         var compositionWithEnding = ComposeEnding(compositionWithPhrasing, theme, cancellationToken);
-        var compositionWithSustain = ApplySustain(compositionWithEnding, cancellationToken);
+        var compositionWithSuspensions = ApplySuspensions(compositionWithEnding, cancellationToken);
+        var compositionWithSustain = ApplySustain(compositionWithSuspensions, cancellationToken);
         var completeComposition = CompleteComposition(theme, compositionWithSustain, cancellationToken);
         var compositionWithDynamics = ApplyDynamics(completeComposition);
 
@@ -155,6 +157,17 @@ internal sealed class Composer(
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Ending));
 
         return endingComposer.Compose(composition, theme, cancellationToken);
+    }
+
+    // Suspensions run after the ending is composed, so every eligible pair is still plain default-span
+    // material, and before the sustain pass, which may absorb a preparation into a longer backward tie.
+    private Composition ApplySuspensions(Composition composition, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        suspensionApplicator.ApplySuspensions(composition);
+
+        return composition;
     }
 
     private Composition ApplySustain(Composition composition, CancellationToken cancellationToken)

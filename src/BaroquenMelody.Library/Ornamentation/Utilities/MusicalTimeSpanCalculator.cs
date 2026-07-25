@@ -158,6 +158,11 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.MidSustain => Zero,
         OrnamentationType.Rest => Zero,
 
+        // Suspension figures are realized by the suspension applicator, which derives its spans from the
+        // configured default note time span rather than this meter table.
+        OrnamentationType.Suspension => Zero,
+        OrnamentationType.SuspensionResolution => Zero,
+
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, $"Invalid {nameof(OrnamentationType)}")
     };
 

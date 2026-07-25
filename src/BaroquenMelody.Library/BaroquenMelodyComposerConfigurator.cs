@@ -95,7 +95,8 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         var themeComposer = new ThemeComposer(compositionStrategy, fugalEntryCompositionStrategy, compositionDecorator, chordComposer, fugalEntryPlacer, fugalAnswerStrategy, chordSelector, dispatcher, logger, compositionConfiguration);
         var endingComposer = new EndingComposer(compositionStrategy, compositionDecorator, chordNumberIdentifier, cadenceClassifier, cadentialTrillApplicator, chordSelector, dispatcher, logger, compositionConfiguration);
         var harmonicRhythmScheduler = new HarmonicRhythmScheduler(compositionConfiguration);
-        var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, harmonicRhythmScheduler, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
+        var suspensionApplicator = new SuspensionApplicator(_weightedRandomBooleanGenerator, compositionConfiguration);
+        var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, harmonicRhythmScheduler, suspensionApplicator, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
         var midiGenerator = new MidiGenerator(compositionConfiguration);
 
         return new MidiFileComposer(composer, midiGenerator);
