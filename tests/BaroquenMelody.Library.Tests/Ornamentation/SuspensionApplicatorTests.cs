@@ -243,18 +243,37 @@ internal sealed class SuspensionApplicatorTests
     [Test]
     public void ApplySuspensions_WhenAVoiceIsMissingFromEitherChord_SkipsThatVoiceSafely()
     {
-        // arrange - Instrument.Two is absent from the resolution chord; Instrument.One is not a step down
+        // arrange - Instrument.Two is absent from the resolution chord of the first pair AND absent from the
+        // preparation chord of the second measure's pair, so both missing-voice directions are exercised
         var composition = BuildComposition(
             BuildMeasure([Chord(Notes.A4, Notes.F3), Chord(Notes.F4, Notes.D3), new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half)])), Chord(Notes.G4, Notes.E3)]),
+            BuildMeasure([Chord(Notes.A4, Notes.F3), new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Half)])), Chord(Notes.E4, Notes.C3), Chord(Notes.G4, Notes.E3)]),
             BuildMeasure([Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3)]));
 
         // act
         var act = () => CreateApplicator().ApplySuspensions(composition);
 
-        // assert - Instrument.One still suspends; Instrument.Two is skipped without throwing
+        // assert - Instrument.One still suspends in both measures; Instrument.Two is skipped without throwing
         act.Should().NotThrow();
         composition.Measures[0].Beats[1].Chord[Instrument.One].OrnamentationType.Should().Be(OrnamentationType.Suspension);
         composition.Measures[0].Beats[1].Chord[Instrument.Two].OrnamentationType.Should().Be(OrnamentationType.None);
+        composition.Measures[1].Beats[1].Chord[Instrument.One].OrnamentationType.Should().Be(OrnamentationType.Suspension);
+    }
+
+    [Test]
+    public void ApplySuspensions_WhenThePreparationIsNotAScaleNote_DoesNotSuspend()
+    {
+        // arrange - a chromatic preparation has no scale index, so the figure cannot be classified
+        var composition = BuildComposition(
+            BuildMeasure([Chord(Notes.A4, Notes.D3), Chord(Notes.FSharp4, Notes.D3), Chord(Notes.E4, Notes.D3), Chord(Notes.G4, Notes.D3)]),
+            BuildMeasure([Chord(Notes.A4, Notes.D3), Chord(Notes.A4, Notes.D3), Chord(Notes.A4, Notes.D3), Chord(Notes.A4, Notes.D3)]));
+
+        // act
+        CreateApplicator().ApplySuspensions(composition);
+
+        // assert
+        AllNotes(composition).Should().OnlyContain(static note => note.OrnamentationType == OrnamentationType.None);
+        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
     }
 
     [Test]

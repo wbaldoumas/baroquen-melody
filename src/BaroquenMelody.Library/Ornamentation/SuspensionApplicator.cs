@@ -46,15 +46,11 @@ internal sealed class SuspensionApplicator(
             }
 
             // ...and the next downbeat (slot 0, prepared by the final beat of this measure), unless the next
-            // measure is the composition's final one.
+            // measure is the composition's final one. Measures are never empty anywhere in the pipeline, so
+            // the edge beats can be addressed directly.
             if (measureIndex < composition.Measures.Count - 2)
             {
-                var nextMeasure = composition.Measures[measureIndex + 1];
-
-                if (measure.Beats.Count > 0 && nextMeasure.Beats.Count > 0)
-                {
-                    TryApplySuspensions(measure.Beats[^1], nextMeasure.Beats[0]);
-                }
+                TryApplySuspensions(measure.Beats[^1], composition.Measures[measureIndex + 1].Beats[0]);
             }
         }
     }
