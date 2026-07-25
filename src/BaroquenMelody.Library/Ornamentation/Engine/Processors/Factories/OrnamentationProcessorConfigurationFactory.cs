@@ -700,7 +700,9 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             wantsToOrnament,
                             _hasNoOrnamentation,
                             new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Appoggiatura)),
-                            new IsIntervalWithinInstrumentRange(compositionConfiguration, 1)
+                            new IsIntervalWithinInstrumentRange(compositionConfiguration, 1),
+                            new LeaningToneIsDissonant(compositionConfiguration),
+                            new LeaningToneIsNotRestruck(compositionConfiguration)
                         ],
                         OutputPolicies: [logOrnamentation],
                         Translations: [1, 0],
