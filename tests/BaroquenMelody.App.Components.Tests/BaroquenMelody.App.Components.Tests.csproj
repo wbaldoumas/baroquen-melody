@@ -16,6 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- GHSA-pgww-w46g-26qg (moderate) flags the AngleSharp 1.2.0 that bunit pins transitively; patched
+         versions start at 1.5.0. bunit 1.x binds AngleSharp 1.2.0's binary surface (a direct 1.5.x
+         reference fails at runtime with MissingMethodException), and bunit 2.7.2 still ships AngleSharp
+         1.4.0, which the advisory also covers. AngleSharp here only parses markup authored in this repo's
+         bUnit tests, so the advisory is suppressed until a bunit upgrade resolves it upstream. -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-pgww-w46g-26qg" />
     <PackageReference Include="bunit" Version="1.40.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
