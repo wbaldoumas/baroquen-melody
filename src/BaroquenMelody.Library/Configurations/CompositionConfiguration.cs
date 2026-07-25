@@ -31,6 +31,7 @@ namespace BaroquenMelody.Library.Configurations;
 /// <param name="AggregateScoringRuleConfiguration"> The configuration of the scoring rules used to rank rule-passing candidate chords. When <see langword="null"/> (including configurations saved before scoring existed), <see cref="Configurations.AggregateScoringRuleConfiguration.Default"/> is used. </param>
 /// <param name="MotifDevelopmentConfiguration"> The configuration of how recurring themes/phrases are developed rather than repeated verbatim. When <see langword="null"/> (including configurations saved before motivic development existed), <see cref="Configurations.MotifDevelopmentConfiguration.Default"/> is used. </param>
 /// <param name="HarmonicRhythmConfiguration"> The configuration of how the harmonic rhythm of the composition body varies. When <see langword="null"/> (including configurations saved before variable harmonic rhythm existed), <see cref="Configurations.HarmonicRhythmConfiguration.Default"/> is used. </param>
+/// <param name="SuspensionConfiguration"> The configuration of prepared suspensions at strong-beat harmonic changes. When <see langword="null"/> (including configurations saved before suspensions existed), <see cref="Configurations.SuspensionConfiguration.Default"/> is used. </param>
 public sealed record CompositionConfiguration(
     ISet<InstrumentConfiguration> InstrumentConfigurations,
     PhrasingConfiguration PhrasingConfiguration,
@@ -48,7 +49,8 @@ public sealed record CompositionConfiguration(
     int MaxLookAheadDepth = 1,
     AggregateScoringRuleConfiguration? AggregateScoringRuleConfiguration = null,
     MotifDevelopmentConfiguration? MotifDevelopmentConfiguration = null,
-    HarmonicRhythmConfiguration? HarmonicRhythmConfiguration = null)
+    HarmonicRhythmConfiguration? HarmonicRhythmConfiguration = null,
+    SuspensionConfiguration? SuspensionConfiguration = null)
 {
     public const int MaxScaleStepChange = 5;
 
