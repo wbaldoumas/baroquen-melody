@@ -41,7 +41,12 @@ internal sealed class OrnamentationProcessorConfigurationFactoryTests
             OrnamentationType.None,
             OrnamentationType.Sustain,
             OrnamentationType.MidSustain,
-            OrnamentationType.Rest
+            OrnamentationType.Rest,
+
+            // suspension stamps are applied by the suspension applicator, not the configurable ornamentation
+            // engine, so the factory has no processor to create for them
+            OrnamentationType.Suspension,
+            OrnamentationType.SuspensionResolution
         }.ToFrozenSet();
 
         var ornamentationTypes = EnumUtils<OrnamentationType>.AsEnumerable()
@@ -67,7 +72,12 @@ internal sealed class OrnamentationProcessorConfigurationFactoryTests
             OrnamentationType.None,
             OrnamentationType.Sustain,
             OrnamentationType.MidSustain,
-            OrnamentationType.Rest
+            OrnamentationType.Rest,
+
+            // suspension stamps are applied by the suspension applicator, not the configurable ornamentation
+            // engine, so the factory has no processor to create for them
+            OrnamentationType.Suspension,
+            OrnamentationType.SuspensionResolution
         }.ToFrozenSet();
 
         var ornamentationTypes = EnumUtils<OrnamentationType>.AsEnumerable()

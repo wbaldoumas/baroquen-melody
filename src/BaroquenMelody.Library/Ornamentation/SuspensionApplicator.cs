@@ -11,10 +11,13 @@ namespace BaroquenMelody.Library.Ornamentation;
 ///     re-articulates its accented dissonance on the beat, while a suspension ties the preparation - the
 ///     voice's own previous chord tone, consonant by construction - across the harmonic change and delays the
 ///     resolution it was already going to sound. No new pitches are introduced; the figure is a time-shift at
-///     the barline, so instrument ranges and the diatonic invariant are untouched. Runs after the ending is
-///     composed and before the sustain pass: every candidate note is still plain default-span material, and a
-///     same-pitch predecessor may later absorb the preparation into a longer tie, which only extends the
-///     figure backwards. The composition's final measure is left untouched so the crafted cadence rings pure.
+///     the barline, so instrument ranges and the diatonic invariant are untouched. Eligibility is purely
+///     harmonic, and an applied suspension replaces whatever surface ornamentation the two notes carried:
+///     structural dissonance treatment outranks optional decoration, the same precedence the cadential trill
+///     takes at cadences. Only a deliberately placed trill is left alone. Runs after the ending is composed
+///     and before the sustain pass, where a same-pitch predecessor may absorb the preparation into a longer
+///     tie, which only extends the figure backwards. The composition's final measure is left untouched so the
+///     crafted cadence rings pure.
 /// </remarks>
 internal sealed class SuspensionApplicator(
     IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
@@ -67,7 +70,9 @@ internal sealed class SuspensionApplicator(
             var preparation = preparationBeat.Chord[instrument];
             var resolution = resolutionBeat.Chord[instrument];
 
-            if (preparation.HasOrnamentations || resolution.HasOrnamentations)
+            // A deliberately placed trill (the cadential figure) is the one ornament a suspension must not
+            // displace.
+            if (preparation.OrnamentationType == OrnamentationType.Trill || resolution.OrnamentationType == OrnamentationType.Trill)
             {
                 continue;
             }
@@ -94,9 +99,11 @@ internal sealed class SuspensionApplicator(
 
             var halfBeat = compositionConfiguration.DefaultNoteTimeSpan / 2;
 
+            preparation.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
             preparation.MusicalTimeSpan = compositionConfiguration.DefaultNoteTimeSpan + halfBeat;
             preparation.OrnamentationType = OrnamentationType.Suspension;
 
+            resolution.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
             resolution.MusicalTimeSpan = halfBeat;
             resolution.OrnamentationType = OrnamentationType.SuspensionResolution;
         }

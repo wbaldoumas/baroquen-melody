@@ -12,5 +12,5 @@ namespace BaroquenMelody.Library.Configurations;
 [ExcludeFromCodeCoverage(Justification = "Configuration")]
 public sealed record SuspensionConfiguration(bool Enabled, int Probability)
 {
-    public static SuspensionConfiguration Default { get; } = new(Enabled: true, Probability: 75);
+    public static SuspensionConfiguration Default { get; } = new(Enabled: true, Probability: 40);
 }

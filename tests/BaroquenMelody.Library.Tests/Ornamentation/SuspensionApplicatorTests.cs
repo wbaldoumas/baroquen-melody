@@ -144,20 +144,47 @@ internal sealed class SuspensionApplicatorTests
     }
 
     [Test]
-    public void ApplySuspensions_WhenEitherNoteIsAlreadyOrnamented_DoesNotSuspend()
+    public void ApplySuspensions_WhenEitherNoteIsOrnamented_ReplacesTheOrnamentWithTheSuspension()
     {
-        // arrange - the preparation carries a passing tone, so the pair must be left alone
+        // arrange - the preparation carries a passing tone; the structural suspension takes precedence over
+        // the surface ornament, exactly as the cadential trill does at cadences
         var composition = BuildComposition(
             BuildMeasure([Chord(Notes.A4, Notes.F3), Chord(Notes.F4, Notes.D3), Chord(Notes.E4, Notes.C3), Chord(Notes.G4, Notes.E3)]),
             BuildMeasure([Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3)]));
 
-        composition.Measures[0].Beats[1].Chord[Instrument.One].OrnamentationType = OrnamentationType.PassingTone;
+        var preparation = composition.Measures[0].Beats[1].Chord[Instrument.One];
+
+        preparation.OrnamentationType = OrnamentationType.PassingTone;
+        preparation.Ornamentations.Add(new BaroquenNote(Instrument.One, Notes.G4, MusicalTimeSpan.Quarter));
+
+        // act
+        CreateApplicator().ApplySuspensions(composition);
+
+        // assert - the passing tone is gone and the full figure is in place
+        preparation.OrnamentationType.Should().Be(OrnamentationType.Suspension);
+        preparation.Ornamentations.Should().BeEmpty();
+        preparation.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Half + MusicalTimeSpan.Quarter);
+        composition.Measures[0].Beats[2].Chord[Instrument.One].OrnamentationType.Should().Be(OrnamentationType.SuspensionResolution);
+    }
+
+    [Test]
+    public void ApplySuspensions_WhenEitherNoteCarriesATrill_LeavesTheTrillAlone()
+    {
+        // arrange - a deliberately placed cadential trill must never be displaced by a suspension
+        var composition = BuildComposition(
+            BuildMeasure([Chord(Notes.A4, Notes.F3), Chord(Notes.F4, Notes.D3), Chord(Notes.E4, Notes.C3), Chord(Notes.G4, Notes.E3)]),
+            BuildMeasure([Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3), Chord(Notes.A4, Notes.F3)]));
+
+        var resolution = composition.Measures[0].Beats[2].Chord[Instrument.One];
+
+        resolution.OrnamentationType = OrnamentationType.Trill;
 
         // act
         CreateApplicator().ApplySuspensions(composition);
 
         // assert
-        composition.Measures[0].Beats[2].Chord[Instrument.One].OrnamentationType.Should().Be(OrnamentationType.None);
+        composition.Measures[0].Beats[1].Chord[Instrument.One].OrnamentationType.Should().Be(OrnamentationType.None);
+        resolution.OrnamentationType.Should().Be(OrnamentationType.Trill);
     }
 
     [Test]
