@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Dynamics;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Phrasing;
 using BaroquenMelody.Library.Rhythm;
@@ -17,6 +18,7 @@ internal sealed class Composer(
     IChordComposer chordComposer,
     IHarmonicRhythmScheduler harmonicRhythmScheduler,
     ISuspensionApplicator suspensionApplicator,
+    ITonicizationApplicator tonicizationApplicator,
     IThemeComposer themeComposer,
     IEndingComposer endingComposer,
     IDynamicsApplicator dynamicsApplicator,
@@ -34,7 +36,8 @@ internal sealed class Composer(
         var compositionWithPhrasing = ApplyPhrasing(compositionWithOrnamentation, theme, cancellationToken);
         var compositionWithEnding = ComposeEnding(compositionWithPhrasing, theme, cancellationToken);
         var compositionWithSuspensions = ApplySuspensions(compositionWithEnding, cancellationToken);
-        var compositionWithSustain = ApplySustain(compositionWithSuspensions, cancellationToken);
+        var compositionWithTonicization = ApplyTonicization(compositionWithSuspensions, cancellationToken);
+        var compositionWithSustain = ApplySustain(compositionWithTonicization, cancellationToken);
         var completeComposition = CompleteComposition(theme, compositionWithSustain, cancellationToken);
         var compositionWithDynamics = ApplyDynamics(completeComposition);
 
@@ -170,6 +173,18 @@ internal sealed class Composer(
         return composition;
     }
 
+    // Tonicization runs after the suspension pass, so a raised third can never contradict a stamped
+    // suspension figure, and before the sustain pass, so every obligation check reads actual sounded
+    // notes. Eligibility is judged on diatonic chord numbers; only pitches change, never the walk.
+    private Composition ApplyTonicization(Composition composition, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        tonicizationApplicator.ApplyTonicization(composition);
+
+        return composition;
+    }
+
     private Composition ApplySustain(Composition composition, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -185,12 +200,16 @@ internal sealed class Composer(
 
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Complete));
 
-        // The exposition joins the composition only here, so it takes its own suspension pass now.
-        // Suspensions are a pure time-shift, which keeps every voice's fugal entry pitch-for-pitch
-        // intact. The first body measure rides along solely as the walk's boundary: the applicator's
-        // final-measure rule leaves it untouched, so the exposition's interior barlines resolve while
-        // the seam into the already-articulated body stays pure and no site is ever drawn twice.
-        suspensionApplicator.ApplySuspensions(new Composition([.. theme.Exposition, composition.Measures[0]]));
+        // The exposition joins the composition only here, so it takes its own suspension and
+        // tonicization passes now. Suspensions are a pure time-shift and tonicization only raises
+        // resolved thirds, which keeps every voice's fugal entry recognizable. The first body measure
+        // rides along solely as the walk's boundary: the suspension pass's final-measure rule leaves it
+        // untouched, and the tonicization pass only ever reads it as a resolution target, so the seam
+        // stays coherent and no site is ever drawn twice.
+        var expositionWithBoundary = new Composition([.. theme.Exposition, composition.Measures[0]]);
+
+        suspensionApplicator.ApplySuspensions(expositionWithBoundary);
+        tonicizationApplicator.ApplyTonicization(expositionWithBoundary);
 
         return new Composition([.. theme.Exposition, .. composition.Measures]);
     }

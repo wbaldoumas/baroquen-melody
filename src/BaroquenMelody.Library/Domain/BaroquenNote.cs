@@ -23,7 +23,7 @@ public sealed class BaroquenNote(Instrument instrument, Note raw, MusicalTimeSpa
     /// <summary>
     ///     The raw note that is played.
     /// </summary>
-    public Note Raw { get; } = raw;
+    public Note Raw { get; private set; } = raw;
 
     /// <summary>
     ///     The musical time span of the note. May be modified if the note is ornamented.
@@ -150,4 +150,11 @@ public sealed class BaroquenNote(Instrument instrument, Note raw, MusicalTimeSpa
     /// <param name="otherNote">The second <see cref="BaroquenNote"/> to compare.</param>
     /// <returns>Whether the <see cref="BaroquenNote"/> is less (lower in pitch) than the other <see cref="BaroquenNote"/>.</returns>
     public static bool operator <(BaroquenNote? note, BaroquenNote? otherNote) => note?.Raw.NoteNumber < otherNote?.Raw.NoteNumber;
+
+    /// <summary>
+    ///     Replaces the sounded pitch in place. Chords index their notes by reference, so a licensed
+    ///     chromatic alteration must mutate the existing note rather than substitute a new instance.
+    /// </summary>
+    /// <param name="raw">The altered raw note to sound instead.</param>
+    internal void Alter(Note raw) => Raw = raw;
 }
