@@ -43,7 +43,9 @@ internal static class OrnamentationTypeExtensions
         { OrnamentationType.None, 0 },
         { OrnamentationType.Sustain, 0 },
         { OrnamentationType.MidSustain, 0 },
-        { OrnamentationType.Rest, 0 }
+        { OrnamentationType.Rest, 0 },
+        { OrnamentationType.Suspension, 0 },
+        { OrnamentationType.SuspensionResolution, 0 }
     }.ToFrozenDictionary();
 
     public static int OrnamentationCount(this OrnamentationType ornamentationType) => OrnamentationCountsByType.TryGetValue(ornamentationType, out var ornamentationCount)

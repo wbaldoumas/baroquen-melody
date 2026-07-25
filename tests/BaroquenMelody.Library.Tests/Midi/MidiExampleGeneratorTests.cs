@@ -62,7 +62,12 @@ internal sealed class MidiExampleGeneratorTests
             OrnamentationType.None,
             OrnamentationType.Sustain,
             OrnamentationType.MidSustain,
-            OrnamentationType.Rest
+            OrnamentationType.Rest,
+
+            // suspension stamps are applied by the suspension applicator, not the configurable ornamentation
+            // engine, so they have no example to generate
+            OrnamentationType.Suspension,
+            OrnamentationType.SuspensionResolution
         }.ToFrozenSet();
 
         var ornamentationTypes = EnumUtils<OrnamentationType>.AsEnumerable()

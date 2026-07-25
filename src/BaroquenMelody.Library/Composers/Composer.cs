@@ -16,6 +16,7 @@ internal sealed class Composer(
     ICompositionPhraser compositionPhraser,
     IChordComposer chordComposer,
     IHarmonicRhythmScheduler harmonicRhythmScheduler,
+    ISuspensionApplicator suspensionApplicator,
     IThemeComposer themeComposer,
     IEndingComposer endingComposer,
     IDynamicsApplicator dynamicsApplicator,
@@ -32,7 +33,8 @@ internal sealed class Composer(
         var compositionWithOrnamentation = AddOrnamentation(compositionBody, cancellationToken);
         var compositionWithPhrasing = ApplyPhrasing(compositionWithOrnamentation, theme, cancellationToken);
         var compositionWithEnding = ComposeEnding(compositionWithPhrasing, theme, cancellationToken);
-        var compositionWithSustain = ApplySustain(compositionWithEnding, cancellationToken);
+        var compositionWithSuspensions = ApplySuspensions(compositionWithEnding, cancellationToken);
+        var compositionWithSustain = ApplySustain(compositionWithSuspensions, cancellationToken);
         var completeComposition = CompleteComposition(theme, compositionWithSustain, cancellationToken);
         var compositionWithDynamics = ApplyDynamics(completeComposition);
 
@@ -157,6 +159,17 @@ internal sealed class Composer(
         return endingComposer.Compose(composition, theme, cancellationToken);
     }
 
+    // Suspensions run after the ending is composed, so every eligible pair is still plain default-span
+    // material, and before the sustain pass, which may absorb a preparation into a longer backward tie.
+    private Composition ApplySuspensions(Composition composition, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        suspensionApplicator.ApplySuspensions(composition);
+
+        return composition;
+    }
+
     private Composition ApplySustain(Composition composition, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -171,6 +184,13 @@ internal sealed class Composer(
         cancellationToken.ThrowIfCancellationRequested();
 
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Complete));
+
+        // The exposition joins the composition only here, so it takes its own suspension pass now.
+        // Suspensions are a pure time-shift, which keeps every voice's fugal entry pitch-for-pitch
+        // intact. The first body measure rides along solely as the walk's boundary: the applicator's
+        // final-measure rule leaves it untouched, so the exposition's interior barlines resolve while
+        // the seam into the already-articulated body stays pure and no site is ever drawn twice.
+        suspensionApplicator.ApplySuspensions(new Composition([.. theme.Exposition, composition.Measures[0]]));
 
         return new Composition([.. theme.Exposition, .. composition.Measures]);
     }

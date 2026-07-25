@@ -190,5 +190,17 @@ public enum OrnamentationType : byte
     /// <summary>
     ///     An appoggiatura: an accented dissonance a step above the chord tone on the beat, resolving down to it.
     /// </summary>
-    Appoggiatura
+    Appoggiatura,
+
+    /// <summary>
+    ///     A suspension's tied preparation: a chord tone held across a harmonic change, sounding as an accented
+    ///     dissonance against the new chord until its delayed resolution.
+    /// </summary>
+    Suspension,
+
+    /// <summary>
+    ///     A suspension's delayed resolution: the chord tone a step below the tied preparation, sounding in the
+    ///     remainder of the suspended beat.
+    /// </summary>
+    SuspensionResolution
 }

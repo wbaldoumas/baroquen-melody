@@ -3,6 +3,7 @@ using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.MusicTheory;
+using BaroquenMelody.Library.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Tests.TestData;
@@ -41,7 +42,12 @@ internal sealed class OrnamentationProcessorConfigurationFactoryTests
             OrnamentationType.None,
             OrnamentationType.Sustain,
             OrnamentationType.MidSustain,
-            OrnamentationType.Rest
+            OrnamentationType.Rest,
+
+            // suspension stamps are applied by the suspension applicator, not the configurable ornamentation
+            // engine, so the factory has no processor to create for them
+            OrnamentationType.Suspension,
+            OrnamentationType.SuspensionResolution
         }.ToFrozenSet();
 
         var ornamentationTypes = EnumUtils<OrnamentationType>.AsEnumerable()
@@ -59,6 +65,19 @@ internal sealed class OrnamentationProcessorConfigurationFactoryTests
     }
 
     [Test]
+    public void Create_ForAppoggiatura_GuardsTheLeaningToneWithDissonanceAndFreshApproachPolicies()
+    {
+        // act
+        var configuration = _ornamentationProcessorConfigurationFactory
+            .Create(new OrnamentationConfiguration(OrnamentationType.Appoggiatura, ConfigurationStatus.Enabled, 100))
+            .Single();
+
+        // assert - the leaning tone must genuinely clash and must not re-strike the voice's previous pitch
+        configuration.InputPolicies.Should().ContainSingle(static policy => policy is LeaningToneIsDissonant);
+        configuration.InputPolicies.Should().ContainSingle(static policy => policy is LeaningToneIsNotRestruck);
+    }
+
+    [Test]
     public void Create_ProducesConfigurationsLabeledWithTheRequestedOrnamentationType()
     {
         // arrange
@@ -67,7 +86,12 @@ internal sealed class OrnamentationProcessorConfigurationFactoryTests
             OrnamentationType.None,
             OrnamentationType.Sustain,
             OrnamentationType.MidSustain,
-            OrnamentationType.Rest
+            OrnamentationType.Rest,
+
+            // suspension stamps are applied by the suspension applicator, not the configurable ornamentation
+            // engine, so the factory has no processor to create for them
+            OrnamentationType.Suspension,
+            OrnamentationType.SuspensionResolution
         }.ToFrozenSet();
 
         var ornamentationTypes = EnumUtils<OrnamentationType>.AsEnumerable()
