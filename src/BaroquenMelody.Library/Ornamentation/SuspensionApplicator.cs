@@ -14,7 +14,8 @@ namespace BaroquenMelody.Library.Ornamentation;
 ///     the barline, so instrument ranges and the diatonic invariant are untouched. Eligibility is purely
 ///     harmonic, and an applied suspension replaces whatever surface ornamentation the two notes carried:
 ///     structural dissonance treatment outranks optional decoration, the same precedence the cadential trill
-///     takes at cadences. Only a deliberately placed trill is left alone. Runs after the ending is composed
+///     takes at cadences. Only a deliberately placed trill and notes already inside a suspension figure are
+///     left alone. Runs after the ending is composed
 ///     and before the sustain pass, where a same-pitch predecessor may absorb the preparation into a longer
 ///     tie, which only extends the figure backwards. The composition's final measure is left untouched so the
 ///     crafted cadence rings pure.
