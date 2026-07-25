@@ -139,8 +139,9 @@ internal sealed class SuspensionApplicatorTests
         // act
         CreateApplicator().ApplySuspensions(composition);
 
-        // assert
+        // assert - structurally ineligible sites must not consume probability draws
         AllNotes(composition).Should().OnlyContain(static note => note.OrnamentationType == OrnamentationType.None);
+        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
     }
 
     [Test]
@@ -185,6 +186,23 @@ internal sealed class SuspensionApplicatorTests
         // assert
         composition.Measures[0].Beats[1].Chord[Instrument.One].OrnamentationType.Should().Be(OrnamentationType.None);
         resolution.OrnamentationType.Should().Be(OrnamentationType.Trill);
+    }
+
+    [Test]
+    public void ApplySuspensions_DrawsProbabilityOnlyForEligibleSitesAndWithTheConfiguredWeight()
+    {
+        // arrange - the pinned bass leaves exactly one eligible site (the soprano's 4-3), so exactly one
+        // probability draw may occur, and it must carry the configured probability
+        var composition = BuildComposition(
+            BuildMeasure([Chord(Notes.A4, Notes.D3), Chord(Notes.F4, Notes.D3), Chord(Notes.E4, Notes.D3), Chord(Notes.G4, Notes.D3)]),
+            BuildMeasure([Chord(Notes.A4, Notes.D3), Chord(Notes.A4, Notes.D3), Chord(Notes.A4, Notes.D3), Chord(Notes.A4, Notes.D3)]));
+
+        // act
+        CreateApplicator().ApplySuspensions(composition);
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(SuspensionConfiguration.Default.Probability);
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(Arg.Any<int>());
     }
 
     [Test]
