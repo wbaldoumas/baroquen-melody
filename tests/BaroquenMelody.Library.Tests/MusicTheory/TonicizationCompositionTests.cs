@@ -154,8 +154,11 @@ internal sealed class TonicizationCompositionTests
         var configuration = TestCompositionConfigurations.Get(3, 10, tonic: tonic, mode: mode) with { ShuffleOrnamentationProcessors = false };
 
         // act & assert - some seeded composition must sound a licensed chromatic pitch: a real dominant
-        // where the diatonic walk had none
-        Enumerable.Range(1, 12)
+        // where the diatonic walk had none. Roughly one seed in six fires under this configuration and
+        // seeded walks differ per operating system, so the sweep runs wide enough that a barren range
+        // is vanishingly unlikely anywhere; Any short-circuits at the first firing seed, so the wide
+        // range costs nothing when the feature is healthy
+        Enumerable.Range(1, 24)
             .Any(seed => SeededComposition.Notes(SeededComposition.Compose(configuration, seed))
                 .Any(static note => LicensedPitchClasses.Contains((NoteName)(note.NoteNumber % 12))))
             .Should().BeTrue("some seeded composition must render a raised third");
