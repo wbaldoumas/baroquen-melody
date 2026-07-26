@@ -58,9 +58,14 @@ The `Composer.Compose()` pipeline runs these steps in order:
 3. **Ornamentation** — `CompositionDecorator` applies baroque ornaments (turns, mordents, passing tones, runs, etc.) via a policy engine
 4. **Phrasing** — `CompositionPhraser` inserts thematic repetitions
 5. **Ending** — `EndingComposer` composes a cadential ending
-6. **Sustain** — Repeated notes are extended
-7. **Dynamics** — `DynamicsApplicator` assigns velocity curves
-8. **MIDI Generation** — `MidiGenerator` converts the `Composition` to a `MidiFile` (via Melanchall.DryWetMidi)
+6. **Suspensions** — `SuspensionApplicator` ties preparations across strong-beat harmonic changes and delays their resolutions (a pure time-shift; no new pitches)
+7. **Tonicization** — `TonicizationApplicator` raises the thirds of minor triads approaching a chord a fifth below into true dominants (Aeolian-only licenses in v1), respelling every voice's figures with the raise
+8. **Sustain** — Repeated notes are extended
+9. **Completion** — the theme exposition is prepended, taking its own suspension and tonicization passes over the seam
+10. **Dynamics** — `DynamicsApplicator` assigns velocity curves
+11. **MIDI Generation** — `MidiGenerator` converts the `Composition` to a `MidiFile` (via Melanchall.DryWetMidi)
+
+Passes share one seeded RNG stream and generally draw once per candidate or site regardless of outcome; anything that changes draw counts shifts every later pass's draws.
 
 ### Key Abstractions
 
@@ -87,3 +92,9 @@ Uses **Fluxor** (Redux-like) for state management. States live in `Library/Store
 - **Test framework**: NUnit with FluentAssertions and NSubstitute for mocking. UI components are tested with bUnit (`tests/BaroquenMelody.App.Components.Tests`).
 - **Internal by default**: Library/Infrastructure types are `internal` with `InternalsVisibleTo` for test and benchmark projects.
 - **`PublishAot`**: Enabled on `Library`, `Infrastructure`, and the console app. Avoid reflection-heavy patterns in these projects.
+
+## Determinism in Seeded Tests
+
+- `ShuffleOrnamentationProcessors` defaults to `true` and is deliberately **not** seed-reproducible; seeded or comparative tests must set it to `false`.
+- Seeded walks differ across operating systems: assert seed-sweep existence properties (`Enumerable.Range(1, N).Any(...)`), never per-seed outcome pins; per-seed pins are only safe for properties that hold for every seed.
+- A/B comparisons between two seeded runs must be draw-aligned: disabling a feature outright (`Enabled: false`) removes its RNG draws and shifts every later pass's decisions, so compare against a control that consumes identical draws (e.g. the feature enabled at `Probability: 0`) or compare only divergence-robust properties.
