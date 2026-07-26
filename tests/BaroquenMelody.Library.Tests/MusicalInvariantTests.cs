@@ -1,6 +1,8 @@
+using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using CsCheck;
 using FluentAssertions;
+using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests;
@@ -49,6 +51,30 @@ internal sealed class MusicalInvariantTests
                 notes.Should().OnlyContain(note => scaleNoteNumbers.Contains(note.NoteNumber), "every pitch must be diatonic to the configured scale");
                 notes.Should().OnlyContain(note => note.Velocity >= minVelocity && note.Velocity <= maxVelocity, "velocity must stay within the configured dynamic range");
                 notes.Should().OnlyContain(note => note.NoteNumber >= 0 && note.NoteNumber <= 127, "every note number must be a valid MIDI pitch");
+            },
+            iter: SampleIterations
+        );
+    }
+
+    [TestCase(2)]
+    [TestCase(3)]
+    public void ComposedNotes_InAeolian_ContainOnlyScaleTonesAndLicensedAlterations(int numberOfInstruments)
+    {
+        // In A Aeolian the tonicization pass may raise the thirds of the minor triads - G# from v, C#
+        // from i, F# from iv (which is also the whole-step courtesy neighbor below a raised G#) - and
+        // nothing else: every chromatic pitch in the output must carry one of those licenses.
+        var configuration = TestCompositionConfigurations.Get(numberOfInstruments, 10, tonic: NoteName.A, mode: Mode.Aeolian) with { ShuffleOrnamentationProcessors = false };
+        var scaleNoteNumbers = configuration.Scale.GetNotes().Select(static note => (int)note.NoteNumber).ToHashSet();
+        var licensedPitchClasses = new HashSet<NoteName> { NoteName.GSharp, NoteName.CSharp, NoteName.FSharp };
+
+        Gen.Int.Sample(
+            seed =>
+            {
+                var notes = SeededComposition.Notes(SeededComposition.Compose(configuration, seed));
+
+                notes.Should().OnlyContain(
+                    note => scaleNoteNumbers.Contains(note.NoteNumber) || licensedPitchClasses.Contains((NoteName)(note.NoteNumber % 12)),
+                    "every pitch must be diatonic or a licensed tonicization alteration");
             },
             iter: SampleIterations
         );

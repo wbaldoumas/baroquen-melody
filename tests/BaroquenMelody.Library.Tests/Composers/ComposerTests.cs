@@ -46,6 +46,8 @@ internal sealed class ComposerTests
 
     private ISuspensionApplicator _mockSuspensionApplicator = null!;
 
+    private ITonicizationApplicator _mockTonicizationApplicator = null!;
+
     private ILogger _mockLogger = null!;
 
     private IFugalEntryPlacer _fugalEntryPlacer = null!;
@@ -72,6 +74,7 @@ internal sealed class ComposerTests
         _mockDynamicsApplicator = Substitute.For<IDynamicsApplicator>();
         _mockCompositionPhraser = Substitute.For<ICompositionPhraser>();
         _mockSuspensionApplicator = Substitute.For<ISuspensionApplicator>();
+        _mockTonicizationApplicator = Substitute.For<ITonicizationApplicator>();
         _mockChordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
         _mockLogger = Substitute.For<ILogger>();
         _mockDispatcher = Substitute.For<IDispatcher>();
@@ -86,7 +89,7 @@ internal sealed class ComposerTests
         _chordComposer = new ChordComposer(_mockCompositionStrategy, chordSelector, _mockLogger);
         _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _fugalEntryPlacer, new FugalAnswerStrategy(_compositionConfiguration), chordSelector, _mockDispatcher, _mockLogger, _compositionConfiguration);
         _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, Substitute.For<ICadenceClassifier>(), Substitute.For<ICadentialTrillApplicator>(), chordSelector, _mockDispatcher, _mockLogger, _compositionConfiguration);
-        _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, new HarmonicRhythmScheduler(_compositionConfiguration), _mockSuspensionApplicator, _themeComposer, _endingComposer, _mockDynamicsApplicator, _mockDispatcher, _compositionConfiguration);
+        _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, new HarmonicRhythmScheduler(_compositionConfiguration), _mockSuspensionApplicator, _mockTonicizationApplicator, _themeComposer, _endingComposer, _mockDynamicsApplicator, _mockDispatcher, _compositionConfiguration);
     }
 
     [Test]
@@ -165,6 +168,50 @@ internal sealed class ComposerTests
     }
 
     [Test]
+    public void WhenComposeIsInvoked_TonicizationRunsBetweenTheSuspensionAndSustainPasses()
+    {
+        // arrange
+        ArrangeComposableStrategy();
+
+        // act
+        _composer.Compose(CancellationToken.None);
+
+        // assert - tonicization must see suspension stamps (a raised third may not contradict a figure)
+        // and must run before sustain merging so obligation checks read actual sounded notes; the
+        // exposition takes its own pass at completion
+        Received.InOrder(() =>
+        {
+            _mockSuspensionApplicator.ApplySuspensions(Arg.Any<Composition>());
+            _mockTonicizationApplicator.ApplyTonicization(Arg.Any<Composition>());
+            _mockCompositionDecorator.ApplySustain(Arg.Any<Composition>());
+            _mockSuspensionApplicator.ApplySuspensions(Arg.Any<Composition>());
+            _mockTonicizationApplicator.ApplyTonicization(Arg.Any<Composition>());
+        });
+    }
+
+    [Test]
+    public void WhenComposeIsInvoked_TheThemeExpositionReceivesItsOwnTonicizationPassAtCompletion()
+    {
+        // arrange
+        ArrangeComposableStrategy();
+
+        var tonicizationPassCompositions = new List<Composition>();
+        var suspensionPassCompositions = new List<Composition>();
+
+        _mockTonicizationApplicator.ApplyTonicization(Arg.Do<Composition>(tonicizationPassCompositions.Add));
+        _mockSuspensionApplicator.ApplySuspensions(Arg.Do<Composition>(suspensionPassCompositions.Add));
+
+        // act
+        _composer.Compose(CancellationToken.None);
+
+        // assert - the exposition tonicization pass walks the very same exposition-with-boundary
+        // composition its suspension pass took, with the first body measure as the shared boundary
+        tonicizationPassCompositions.Should().HaveCount(2);
+        tonicizationPassCompositions[1].Should().BeSameAs(suspensionPassCompositions[1]);
+        tonicizationPassCompositions[1].Measures[^1].Should().BeSameAs(tonicizationPassCompositions[0].Measures[0]);
+    }
+
+    [Test]
     public void WhenHarmonicRhythmIsEnabled_HeldBeatsDuplicateThePrecedingChord()
     {
         // arrange
@@ -199,7 +246,7 @@ internal sealed class ComposerTests
             HarmonicRhythmConfiguration = new HarmonicRhythmConfiguration(Enabled: false)
         };
 
-        var composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, new HarmonicRhythmScheduler(configurationWithoutHolds), _mockSuspensionApplicator, _themeComposer, _endingComposer, _mockDynamicsApplicator, _mockDispatcher, configurationWithoutHolds);
+        var composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, new HarmonicRhythmScheduler(configurationWithoutHolds), _mockSuspensionApplicator, _mockTonicizationApplicator, _themeComposer, _endingComposer, _mockDynamicsApplicator, _mockDispatcher, configurationWithoutHolds);
 
         // act
         var composition = composer.Compose(CancellationToken.None);
