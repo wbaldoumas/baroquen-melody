@@ -37,8 +37,12 @@ internal sealed class MusicalInvariantTests
     [TestCase(4)] // the default four-voice texture is the hardest case: voice spacing constrains two adjacent pairs
     public void ComposedNotes_SatisfyMusicalInvariants(int numberOfInstruments)
     {
+        // The default configuration composes in C Ionian, where the tonicization pass may raise the
+        // thirds of the minor triads - F# from ii, G# from iii, C# from vi - so a chromatic pitch
+        // carrying one of those licenses is as invariant-clean as a scale tone.
         var configuration = TestCompositionConfigurations.Get(numberOfInstruments, 10) with { ShuffleOrnamentationProcessors = false };
         var scaleNoteNumbers = configuration.Scale.GetNotes().Select(static note => (int)note.NoteNumber).ToHashSet();
+        var licensedPitchClasses = new HashSet<NoteName> { NoteName.FSharp, NoteName.GSharp, NoteName.CSharp };
         var minVelocity = configuration.InstrumentConfigurations.Min(static instrument => (int)instrument.MinVelocity);
         var maxVelocity = configuration.InstrumentConfigurations.Max(static instrument => (int)instrument.MaxVelocity);
 
@@ -48,7 +52,9 @@ internal sealed class MusicalInvariantTests
                 var notes = SeededComposition.Notes(SeededComposition.Compose(configuration, seed));
 
                 notes.Should().NotBeEmpty("every composition must produce notes");
-                notes.Should().OnlyContain(note => scaleNoteNumbers.Contains(note.NoteNumber), "every pitch must be diatonic to the configured scale");
+                notes.Should().OnlyContain(
+                    note => scaleNoteNumbers.Contains(note.NoteNumber) || licensedPitchClasses.Contains((NoteName)(note.NoteNumber % 12)),
+                    "every pitch must be diatonic to the configured scale or a licensed tonicization alteration");
                 notes.Should().OnlyContain(note => note.Velocity >= minVelocity && note.Velocity <= maxVelocity, "velocity must stay within the configured dynamic range");
                 notes.Should().OnlyContain(note => note.NoteNumber >= 0 && note.NoteNumber <= 127, "every note number must be a valid MIDI pitch");
             },
@@ -56,14 +62,18 @@ internal sealed class MusicalInvariantTests
         );
     }
 
-    [TestCase(2)]
-    [TestCase(3)]
-    public void ComposedNotes_InAeolian_ContainOnlyScaleTonesAndLicensedAlterations(int numberOfInstruments)
+    [TestCase(2, NoteName.A, Mode.Aeolian)]
+    [TestCase(3, NoteName.A, Mode.Aeolian)]
+    [TestCase(2, NoteName.C, Mode.Ionian)]
+    [TestCase(3, NoteName.C, Mode.Ionian)]
+    public void ComposedNotes_InALiftedMode_ContainOnlyScaleTonesAndLicensedAlterations(int numberOfInstruments, NoteName tonic, Mode mode)
     {
-        // In A Aeolian the tonicization pass may raise the thirds of the minor triads - G# from v, C#
-        // from i, F# from iv (which is also the whole-step courtesy neighbor below a raised G#) - and
-        // nothing else: every chromatic pitch in the output must carry one of those licenses.
-        var configuration = TestCompositionConfigurations.Get(numberOfInstruments, 10, tonic: NoteName.A, mode: Mode.Aeolian) with { ShuffleOrnamentationProcessors = false };
+        // The tonicization pass may raise the thirds of the mode's minor triads and nothing else. A
+        // Aeolian (G# from v, C# from i, F# from iv) and its relative C Ionian (F# from ii, G# from
+        // iii, C# from vi) license the same three pitch classes, with F# doubling as the whole-step
+        // courtesy neighbor below a raised G# in both: every chromatic pitch in the output must carry
+        // one of those licenses.
+        var configuration = TestCompositionConfigurations.Get(numberOfInstruments, 10, tonic: tonic, mode: mode) with { ShuffleOrnamentationProcessors = false };
         var scaleNoteNumbers = configuration.Scale.GetNotes().Select(static note => (int)note.NoteNumber).ToHashSet();
         var licensedPitchClasses = new HashSet<NoteName> { NoteName.GSharp, NoteName.CSharp, NoteName.FSharp };
 
@@ -75,6 +85,26 @@ internal sealed class MusicalInvariantTests
                 notes.Should().OnlyContain(
                     note => scaleNoteNumbers.Contains(note.NoteNumber) || licensedPitchClasses.Contains((NoteName)(note.NoteNumber % 12)),
                     "every pitch must be diatonic or a licensed tonicization alteration");
+            },
+            iter: SampleIterations
+        );
+    }
+
+    [TestCase(2)]
+    [TestCase(3)]
+    public void ComposedNotes_InAModeWithoutALiftedGate_StayFullyDiatonic(int numberOfInstruments)
+    {
+        // The tonicization gate lifts mode by mode: in Dorian (and every other still-gated mode) no
+        // chromatic license exists, so the strict all-diatonic invariant must keep holding exactly.
+        var configuration = TestCompositionConfigurations.Get(numberOfInstruments, 10, tonic: NoteName.D, mode: Mode.Dorian) with { ShuffleOrnamentationProcessors = false };
+        var scaleNoteNumbers = configuration.Scale.GetNotes().Select(static note => (int)note.NoteNumber).ToHashSet();
+
+        Gen.Int.Sample(
+            seed =>
+            {
+                var notes = SeededComposition.Notes(SeededComposition.Compose(configuration, seed));
+
+                notes.Should().OnlyContain(note => scaleNoteNumbers.Contains(note.NoteNumber), "every pitch must be diatonic to the configured scale");
             },
             iter: SampleIterations
         );

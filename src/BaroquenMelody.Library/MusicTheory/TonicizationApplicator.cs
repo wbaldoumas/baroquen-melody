@@ -6,6 +6,7 @@ using BaroquenMelody.Library.Ornamentation.Enums;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.MusicTheory;
 using System.Collections.Frozen;
+using System.Runtime.InteropServices;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
 namespace BaroquenMelody.Library.MusicTheory;
@@ -13,9 +14,13 @@ namespace BaroquenMelody.Library.MusicTheory;
 /// <inheritdoc cref="ITonicizationApplicator"/>
 /// <remarks>
 ///     The one chromatic gesture the diatonic walk cannot express: a minor triad standing a perfect fifth
-///     above the chord it approaches raises its third by a semitone, becoming that chord's true dominant -
-///     in Aeolian, v-i gains the raised leading tone of an authentic cadence, and i-iv / iv-VII tonicize
-///     the subdominant and the relative-major's dominant. Eligibility is judged on the diatonic walk
+///     above the chord it approaches raises its third by a semitone, becoming that chord's true dominant.
+///     The licenses derive from the mode itself - every minor triad is a potential dominant of the chord
+///     a fifth below - so in Aeolian v-i gains the raised leading tone of an authentic cadence and
+///     i-iv / iv-VII tonicize the subdominant and the relative-major's dominant, while in Ionian ii-V
+///     becomes the classical V/V and iii-vi / vi-ii tonicize the relative minor and the supertonic. The
+///     mode gate lifts mode by mode (Ionian and Aeolian today): the remaining modes derive license
+///     tables just as cleanly, but their ficta await their own review. Eligibility is judged on the diatonic walk
 ///     (chord numbers, pre-alteration), the raise happens after the walk, and the raised third's voice
 ///     must already step up a whole tone into the target's root - the register-precise leading-tone
 ///     resolution - so the walk is provably unchanged and every alteration resolves by construction.
@@ -26,10 +31,12 @@ namespace BaroquenMelody.Library.MusicTheory;
 ///     voice's figure - the raised voice's own and the other voices' alike - sub-notes sounding the
 ///     third's pitch class raise with the harmony, so no natural third is left to sound against the
 ///     raised one as a false relation. When the diatonic step below the third is a whole step, a
-///     sub-note on that neighbor stepping directly into a raised third raises too, closing the b6-#7
-///     augmented second inside the figure, while the same pitch class a leap away or elsewhere in the
-///     texture keeps its natural - the ascending-raised / descending-natural coexistence minor-mode
-///     practice already licenses. The final measure
+///     sub-note on that neighbor stepping directly into a raised third raises too: that neighbor is
+///     the tonicized key's minor sixth and the raised third its leading tone, so the raise closes
+///     their augmented second inside the figure (only Aeolian's v and Ionian's iii carry the
+///     courtesy), while the same pitch class a leap away or elsewhere in the texture keeps its
+///     natural - the ascending-raised / descending-natural coexistence that minor-key practice
+///     already licenses. The final measure
 ///     never functions as a dominant, only as a target: the crafted closing cadence stays unaltered
 ///     inside, and the exposition pass at completion can never re-draw a site in the boundary measure
 ///     borrowed from the body. Runs after the suspension pass and before the sustain pass, in the body
@@ -42,6 +49,10 @@ internal sealed class TonicizationApplicator(
 ) : ITonicizationApplicator
 {
     private const int WholeStep = 2;
+
+    private const int MinorThirdSemitones = 3;
+
+    private const int MajorThirdSemitones = 4;
 
     private static readonly FrozenDictionary<ChordNumber, ChordNumber> DominantsByTarget = new Dictionary<ChordNumber, ChordNumber>
     {
@@ -57,29 +68,22 @@ internal sealed class TonicizationApplicator(
     private readonly TonicizationConfiguration _tonicizationConfiguration =
         compositionConfiguration.TonicizationConfiguration ?? TonicizationConfiguration.Default;
 
-    // In Aeolian the minor triads are i, iv, and v; their thirds and their targets' roots, resolved once
-    // from the scale's degrees. Other modes gain their own tables when the mode gate lifts.
-    private readonly FrozenDictionary<ChordNumber, NoteName> _thirdsByDominant = new Dictionary<ChordNumber, NoteName>
-    {
-        { ChordNumber.I, compositionConfiguration.Scale.Mediant },
-        { ChordNumber.IV, compositionConfiguration.Scale.Submediant },
-        { ChordNumber.V, compositionConfiguration.Scale.LeadingTone }
-    }.ToFrozenDictionary();
-
-    // The melodic-minor courtesy, resolved per license from the scale's degrees: when the diatonic step
-    // below a dominant's third is a whole step, a figure stepping between that neighbor and the raised
-    // third would sound the b6-#7 augmented second, so the neighbor raises along with it; a half-step
-    // neighbor needs no courtesy. In Aeolian only v's third (the subtonic) carries one.
-    private readonly FrozenDictionary<ChordNumber, NoteName?> _courtesyNoteNamesByDominant = new Dictionary<ChordNumber, NoteName?>
-    {
-        { ChordNumber.I, CourtesyNoteName(compositionConfiguration.Scale.Mediant, compositionConfiguration.Scale.Supertonic) },
-        { ChordNumber.IV, CourtesyNoteName(compositionConfiguration.Scale.Submediant, compositionConfiguration.Scale.Dominant) },
-        { ChordNumber.V, CourtesyNoteName(compositionConfiguration.Scale.LeadingTone, compositionConfiguration.Scale.Submediant) }
-    }.ToFrozenDictionary();
+    // The tonicizable dominants, derived once from the mode's own degree qualities: a triad on a scale
+    // degree is minor when its root-to-third spans three semitones and its third-to-fifth four, and
+    // every minor triad becomes its target's true dominant by raising its third. The derivation also
+    // resolves the courtesy per license: when the diatonic step below a dominant's third is a whole
+    // step, a figure stepping between that neighbor and the raised third would sound the b6-#7
+    // augmented second, so the neighbor raises along with it; a half-step neighbor needs no courtesy.
+    // In Aeolian the minor triads are i, iv, and v (only v's subtonic third carries a courtesy); in
+    // Ionian they are ii, iii, and vi (only iii's).
+    private readonly FrozenDictionary<ChordNumber, TonicizableDominant> _tonicizableDominants =
+        BuildTonicizableDominants(compositionConfiguration.Scale);
 
     public void ApplyTonicization(Composition composition)
     {
-        if (!_tonicizationConfiguration.Enabled || compositionConfiguration.Mode != Mode.Aeolian)
+        // The gate lifts mode by mode: Ionian and Aeolian carry the classical licenses; the remaining
+        // modes derive tables just as cleanly, but their ficta await their own musical review.
+        if (!_tonicizationConfiguration.Enabled || compositionConfiguration.Mode is not Mode.Ionian and not Mode.Aeolian)
         {
             return;
         }
@@ -105,11 +109,6 @@ internal sealed class TonicizationApplicator(
         }
     }
 
-    private static bool IsMinorTriad(ChordNumber chordNumber) => chordNumber
-        is ChordNumber.I
-        or ChordNumber.IV
-        or ChordNumber.V;
-
     private static bool IsInsideSuspensionFigure(BaroquenNote note) => note.OrnamentationType
         is OrnamentationType.Suspension
         or OrnamentationType.SuspensionResolution;
@@ -119,15 +118,18 @@ internal sealed class TonicizationApplicator(
         var dominantNumber = chordNumberIdentifier.IdentifyChordNumber(dominantBeat.Chord);
         var targetNumber = chordNumberIdentifier.IdentifyChordNumber(targetBeat.Chord);
 
-        // An unidentifiable target rejects through the lookup: Unknown is never a key in the table.
+        // An unidentifiable target rejects through the first lookup: Unknown is never a key in the
+        // table. A major or diminished source rejects through the second: only minor triads gain a
+        // raise - the major triads already are dominants, and raising a diminished triad's third alone
+        // would leave its tritone unresolved.
         if (!DominantsByTarget.TryGetValue(targetNumber, out var dominantOfTarget) ||
             dominantNumber != dominantOfTarget ||
-            !IsMinorTriad(dominantNumber))
+            !_tonicizableDominants.TryGetValue(dominantNumber, out var tonicizableDominant))
         {
             return;
         }
 
-        var thirdNoteName = _thirdsByDominant[dominantNumber];
+        var thirdNoteName = tonicizableDominant.ThirdNoteName;
         var participants = dominantBeat.Chord.Notes.Where(note => note.NoteName == thirdNoteName).ToList();
 
         if (participants.Count == 0)
@@ -157,7 +159,7 @@ internal sealed class TonicizationApplicator(
         // range, the same all-or-nothing obligation the doubled thirds carry, or the site is rejected
         // with every figure intact.
         var plannedRaises = new List<BaroquenNote>();
-        var courtesyNoteName = _courtesyNoteNamesByDominant[dominantNumber];
+        var courtesyNoteName = tonicizableDominant.CourtesyNoteName;
 
         foreach (var note in dominantBeat.Chord.Notes)
         {
@@ -241,8 +243,42 @@ internal sealed class TonicizationApplicator(
         return true;
     }
 
+    private static FrozenDictionary<ChordNumber, TonicizableDominant> BuildTonicizableDominants(BaroquenScale scale)
+    {
+        NoteName[] degrees = [scale.Tonic, scale.Supertonic, scale.Mediant, scale.Subdominant, scale.Dominant, scale.Submediant, scale.LeadingTone];
+        ChordNumber[] chordNumbers = [ChordNumber.I, ChordNumber.II, ChordNumber.III, ChordNumber.IV, ChordNumber.V, ChordNumber.VI, ChordNumber.VII];
+
+        var tonicizableDominants = new Dictionary<ChordNumber, TonicizableDominant>();
+
+        for (var degreeIndex = 0; degreeIndex < degrees.Length; degreeIndex++)
+        {
+            var triad = ChordTriad.FromChordNumber(scale, chordNumbers[degreeIndex])!.Value;
+
+            if (SemitonesUp(triad.Root, triad.Third) != MinorThirdSemitones || SemitonesUp(triad.Third, triad.Fifth) != MajorThirdSemitones)
+            {
+                continue;
+            }
+
+            // The diatonic step below a triad's third is the degree between its root and its third.
+            var lowerNeighborNoteName = degrees[(degreeIndex + 1) % degrees.Length];
+
+            tonicizableDominants.Add(chordNumbers[degreeIndex], new TonicizableDominant(triad.Third, CourtesyNoteName(triad.Third, lowerNeighborNoteName)));
+        }
+
+        return tonicizableDominants.ToFrozenDictionary();
+    }
+
     private static NoteName? CourtesyNoteName(NoteName thirdNoteName, NoteName lowerNeighborNoteName) =>
-        ((int)thirdNoteName - (int)lowerNeighborNoteName + 12) % 12 == WholeStep ? lowerNeighborNoteName : null;
+        SemitonesUp(lowerNeighborNoteName, thirdNoteName) == WholeStep ? lowerNeighborNoteName : null;
+
+    private static int SemitonesUp(NoteName lowerNoteName, NoteName upperNoteName) => ((int)upperNoteName - (int)lowerNoteName + 12) % 12;
 
     private static Note RaisedNote(Note note) => Note.Get((SevenBitNumber)(note.NoteNumber + 1));
+
+    /// <summary>
+    ///     A minor triad's identity as a potential dominant: the third its raise sharpens, and the
+    ///     whole-step lower neighbor obligated to raise beside it, when the mode gives it one.
+    /// </summary>
+    [StructLayout(LayoutKind.Auto)]
+    private readonly record struct TonicizableDominant(NoteName ThirdNoteName, NoteName? CourtesyNoteName);
 }
