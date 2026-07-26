@@ -1,0 +1,198 @@
+using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
+using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Forms;
+using BaroquenMelody.Library.Forms.Enums;
+using BaroquenMelody.Library.Tests.TestData;
+using FluentAssertions;
+using Melanchall.DryWetMidi.Interaction;
+using Melanchall.DryWetMidi.MusicTheory;
+using Melanchall.DryWetMidi.Standards;
+using NSubstitute;
+using NUnit.Framework;
+using Mode = BaroquenMelody.Library.MusicTheory.Enums.Mode;
+using Note = Melanchall.DryWetMidi.MusicTheory.Note;
+
+namespace BaroquenMelody.Library.Tests.Forms;
+
+/// <summary>
+///     Pins the planner's feasibility filter, anchor centering, statement arithmetic, and draw discipline.
+///     Range fixtures mirror the design probe's findings: the app-shaped G3-B4 bass hosts only the
+///     tetrachord in C Ionian but every pattern in A Aeolian, and the test-shaped C2-C3 bass hosts all three.
+/// </summary>
+[TestFixture]
+internal sealed class GroundBassPlannerTests
+{
+    [Test]
+    public void CreatePlan_WithTheTestShapedBassRange_RendersATonicAnchoredPattern()
+    {
+        // arrange
+        var configuration = TestCompositionConfigurations.Get(3, 25);
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.BassInstrument.Should().Be(Instrument.Three, "the ground goes to the lowest configured voice");
+        plan.Pattern.Identifier.Should().Be(GroundBass.DescendingTetrachord);
+        plan.BassNotes.Should().HaveCount(plan.Pattern.ScaleStepOffsets.Count);
+        plan.BassNotes[0].NoteName.Should().Be(NoteName.C, "the anchor is the tonic");
+        plan.BassNotes.Should().OnlyContain(note => note.NoteNumber >= Notes.C2.NoteNumber && note.NoteNumber <= Notes.C3.NoteNumber, "every rendered note must sit inside the bass range");
+        randomProvider.Received(1).Next(3);
+    }
+
+    [Test]
+    public void CreatePlan_WithTheAppShapedBassRangeInIonian_OnlyTheTetrachordIsFeasible()
+    {
+        // arrange: One C5-E6, Two E4-G5, Three G3-B4 (the app's default enabled voices). In C Ionian the
+        // only tonic in the bass range is C4, which has just three scale steps below it in range, so the
+        // wider grounds cannot anchor.
+        var configuration = BuildConfiguration(BuildAppShapedInstruments(), NoteName.C, Mode.Ionian);
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.Pattern.Identifier.Should().Be(GroundBass.DescendingTetrachord);
+        plan.BassNotes.Should().Equal(Notes.C4, Notes.B3, Notes.A3, Notes.G3);
+        randomProvider.Received(1).Next(1);
+    }
+
+    [Test]
+    public void CreatePlan_WithTheAppShapedBassRangeInAeolian_RendersTheRomanescaFromTheHighTonic()
+    {
+        // arrange: in A Aeolian the bass range G3-B4 hosts the tonic A4 with a full octave below it,
+        // so all three bank patterns are feasible; the mocked draw picks the romanesca.
+        var configuration = BuildConfiguration(BuildAppShapedInstruments(), NoteName.A, Mode.Aeolian);
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(1);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.Pattern.Identifier.Should().Be(GroundBass.Romanesca);
+        plan.BassNotes.Should().Equal(Notes.A4, Notes.E4, Notes.F4, Notes.C4, Notes.D4, Notes.A3, Notes.D4, Notes.E4);
+        randomProvider.Received(1).Next(3);
+    }
+
+    [Test]
+    public void CreatePlan_ChoosesTheAnchorNearestTheRangeCenterTieBreakingLow()
+    {
+        // arrange: a G3-F5 bass puts C4 and C5 exactly equidistant from the range center, so the lower
+        // anchor must win the tie.
+        var configuration = BuildConfiguration(BuildTwoVoiceInstruments(Notes.G3, Notes.F5), NoteName.C, Mode.Ionian);
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.Pattern.Identifier.Should().Be(GroundBass.DescendingTetrachord);
+        plan.BassNotes[0].Should().Be(Notes.C4);
+    }
+
+    [Test]
+    public void CreatePlan_WhenNoPatternCanAnchorInTheBassRange_ReturnsNullWithoutDrawing()
+    {
+        // arrange: a B2-B3 bass contains a single tonic (C3) with only one scale step below it in range,
+        // so no bank pattern can anchor.
+        var configuration = BuildConfiguration(BuildTwoVoiceInstruments(Notes.B2, Notes.B3), NoteName.C, Mode.Ionian);
+        var randomProvider = Substitute.For<IRandomProvider>();
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().BeNull();
+        randomProvider.DidNotReceive().Next(Arg.Any<int>());
+    }
+
+    [TestCase(0, 25, 2, 13, TestName = "CreatePlan_TetrachordAtTwentyFiveMeasures_StatesThirteenTimes")]
+    [TestCase(0, 24, 2, 12, TestName = "CreatePlan_TetrachordAtAnExactFit_StatesExactlyEnoughTimes")]
+    [TestCase(0, 1, 2, 2, TestName = "CreatePlan_ATinyComposition_StillStatesTheGroundTwice")]
+    [TestCase(1, 25, 4, 7, TestName = "CreatePlan_RomanescaAtTwentyFiveMeasures_StatesSevenTimes")]
+    public void CreatePlan_ComputesStatementCountFromTheMinimumMeasures(int draw, int minimumMeasures, int expectedMeasuresPerStatement, int expectedStatementCount)
+    {
+        // arrange: the test-shaped C2-C3 bass hosts every bank pattern, so the mocked draw selects freely.
+        var configuration = TestCompositionConfigurations.Get(3, minimumMeasures);
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(draw);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.MeasuresPerStatement.Should().Be(expectedMeasuresPerStatement);
+        plan.StatementCount.Should().Be(expectedStatementCount);
+        (plan.StatementCount * plan.MeasuresPerStatement).Should().BeGreaterThanOrEqualTo(Math.Min(minimumMeasures, 2 * plan.MeasuresPerStatement), "the statements must cover the configured minimum or the two-statement floor");
+    }
+
+    [Test]
+    public void CreatePlan_WithTheSameSeed_IsDeterministic()
+    {
+        // arrange
+        var configuration = TestCompositionConfigurations.Get(3, 25);
+        var firstPlan = new GroundBassPlanner(configuration, new SeededRandomProvider(1234)).CreatePlan();
+        var secondPlan = new GroundBassPlanner(configuration, new SeededRandomProvider(1234)).CreatePlan();
+
+        // assert
+        firstPlan.Should().NotBeNull();
+        secondPlan.Should().NotBeNull();
+        firstPlan!.Pattern.Identifier.Should().Be(secondPlan!.Pattern.Identifier);
+        firstPlan.BassNotes.Should().Equal(secondPlan.BassNotes);
+        firstPlan.StatementCount.Should().Be(secondPlan.StatementCount);
+    }
+
+    private static HashSet<InstrumentConfiguration> BuildAppShapedInstruments() =>
+    [
+        new InstrumentConfiguration(Instrument.One, Notes.C5, Notes.E6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+        new InstrumentConfiguration(Instrument.Two, Notes.E4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+        new InstrumentConfiguration(Instrument.Three, Notes.G3, Notes.B4, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+    ];
+
+    private static HashSet<InstrumentConfiguration> BuildTwoVoiceInstruments(Note bassMinNote, Note bassMaxNote) =>
+    [
+        new InstrumentConfiguration(Instrument.One, Notes.C5, Notes.E6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+        new InstrumentConfiguration(Instrument.Two, bassMinNote, bassMaxNote, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+    ];
+
+    private static CompositionConfiguration BuildConfiguration(HashSet<InstrumentConfiguration> instrumentConfigurations, NoteName tonic, Mode mode) => new(
+        instrumentConfigurations,
+        PhrasingConfiguration.Default,
+        AggregateCompositionRuleConfiguration.Default,
+        AggregateOrnamentationConfiguration.Default,
+        tonic,
+        mode,
+        Meter.FourFour,
+        MusicalTimeSpan.Half,
+        MinimumMeasures: 25
+    );
+}
