@@ -31,10 +31,12 @@ namespace BaroquenMelody.Library.MusicTheory;
 ///     voice's figure - the raised voice's own and the other voices' alike - sub-notes sounding the
 ///     third's pitch class raise with the harmony, so no natural third is left to sound against the
 ///     raised one as a false relation. When the diatonic step below the third is a whole step, a
-///     sub-note on that neighbor stepping directly into a raised third raises too, closing the b6-#7
-///     augmented second inside the figure, while the same pitch class a leap away or elsewhere in the
-///     texture keeps its natural - the ascending-raised / descending-natural coexistence minor-mode
-///     practice already licenses. The final measure
+///     sub-note on that neighbor stepping directly into a raised third raises too: that neighbor is
+///     the tonicized key's minor sixth and the raised third its leading tone, so the raise closes
+///     their augmented second inside the figure (only Aeolian's v and Ionian's iii carry the
+///     courtesy), while the same pitch class a leap away or elsewhere in the texture keeps its
+///     natural - the ascending-raised / descending-natural coexistence that minor-key practice
+///     already licenses. The final measure
 ///     never functions as a dominant, only as a target: the crafted closing cadence stays unaltered
 ///     inside, and the exposition pass at completion can never re-draw a site in the boundary measure
 ///     borrowed from the body. Runs after the suspension pass and before the sustain pass, in the body

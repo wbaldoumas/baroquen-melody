@@ -1,5 +1,6 @@
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Motifs.Enums;
+using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using CsCheck;
 using FluentAssertions;
@@ -59,6 +60,27 @@ internal sealed class MotifDevelopmentCompositionTests
                     "every developed pitch must stay diatonic or carry a tonicization license");
                 notes.Should().OnlyContain(note => note.Velocity >= minVelocity && note.Velocity <= maxVelocity, "velocity must stay within the configured dynamic range");
                 notes.Should().OnlyContain(note => note.NoteNumber >= 0 && note.NoteNumber <= 127, "every note number must be a valid MIDI pitch");
+            },
+            iter: SampleIterations
+        );
+    }
+
+    [Test]
+    public void ComposedNotes_WithDevelopmentEnabledInAModeWithoutALiftedGate_StayFullyDiatonic()
+    {
+        // The default-configuration invariant above had to admit licensed tonicization alterations, so
+        // this case keeps the strict form alive: in Dorian (a mode whose tonicization gate has not
+        // lifted) no chromatic license exists, and developed music must stay entirely diatonic - a
+        // permanent net against chromatic leakage from any code path.
+        var configuration = TestCompositionConfigurations.Get(3, 10, tonic: NoteName.D, mode: Mode.Dorian) with { ShuffleOrnamentationProcessors = false, MotifDevelopmentConfiguration = AlwaysDevelop };
+        var scaleNoteNumbers = configuration.Scale.GetNotes().Select(static note => (int)note.NoteNumber).ToHashSet();
+
+        Gen.Int.Sample(
+            seed =>
+            {
+                var notes = SeededComposition.Notes(SeededComposition.Compose(configuration, seed));
+
+                notes.Should().OnlyContain(note => scaleNoteNumbers.Contains(note.NoteNumber), "every developed pitch must stay diatonic");
             },
             iter: SampleIterations
         );
