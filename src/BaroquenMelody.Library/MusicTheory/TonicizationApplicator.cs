@@ -14,9 +14,13 @@ namespace BaroquenMelody.Library.MusicTheory;
 /// <inheritdoc cref="ITonicizationApplicator"/>
 /// <remarks>
 ///     The one chromatic gesture the diatonic walk cannot express: a minor triad standing a perfect fifth
-///     above the chord it approaches raises its third by a semitone, becoming that chord's true dominant -
-///     in Aeolian, v-i gains the raised leading tone of an authentic cadence, and i-iv / iv-VII tonicize
-///     the subdominant and the relative-major's dominant. Eligibility is judged on the diatonic walk
+///     above the chord it approaches raises its third by a semitone, becoming that chord's true dominant.
+///     The licenses derive from the mode itself - every minor triad is a potential dominant of the chord
+///     a fifth below - so in Aeolian v-i gains the raised leading tone of an authentic cadence and
+///     i-iv / iv-VII tonicize the subdominant and the relative-major's dominant, while in Ionian ii-V
+///     becomes the classical V/V and iii-vi / vi-ii tonicize the relative minor and the supertonic. The
+///     mode gate lifts mode by mode (Ionian and Aeolian today): the remaining modes derive license
+///     tables just as cleanly, but their ficta await their own review. Eligibility is judged on the diatonic walk
 ///     (chord numbers, pre-alteration), the raise happens after the walk, and the raised third's voice
 ///     must already step up a whole tone into the target's root - the register-precise leading-tone
 ///     resolution - so the walk is provably unchanged and every alteration resolves by construction.
@@ -75,7 +79,9 @@ internal sealed class TonicizationApplicator(
 
     public void ApplyTonicization(Composition composition)
     {
-        if (!_tonicizationConfiguration.Enabled || compositionConfiguration.Mode != Mode.Aeolian)
+        // The gate lifts mode by mode: Ionian and Aeolian carry the classical licenses; the remaining
+        // modes derive tables just as cleanly, but their ficta await their own musical review.
+        if (!_tonicizationConfiguration.Enabled || compositionConfiguration.Mode is not Mode.Ionian and not Mode.Aeolian)
         {
             return;
         }

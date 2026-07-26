@@ -59,7 +59,7 @@ The `Composer.Compose()` pipeline runs these steps in order:
 4. **Phrasing** — `CompositionPhraser` inserts thematic repetitions
 5. **Ending** — `EndingComposer` composes a cadential ending
 6. **Suspensions** — `SuspensionApplicator` ties preparations across strong-beat harmonic changes and delays their resolutions (a pure time-shift; no new pitches)
-7. **Tonicization** — `TonicizationApplicator` raises the thirds of minor triads approaching a chord a fifth below into true dominants (Aeolian-only licenses in v1), respelling every voice's figures with the raise
+7. **Tonicization** — `TonicizationApplicator` raises the thirds of minor triads approaching a chord a fifth below into true dominants (licenses derived per mode; the gate is lifted for Ionian and Aeolian), respelling every voice's figures with the raise
 8. **Sustain** — Repeated notes are extended
 9. **Completion** — the theme exposition is prepended, taking its own suspension and tonicization passes over the seam
 10. **Dynamics** — `DynamicsApplicator` assigns velocity curves

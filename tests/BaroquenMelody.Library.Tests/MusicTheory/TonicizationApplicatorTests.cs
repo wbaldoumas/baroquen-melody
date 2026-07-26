@@ -19,7 +19,10 @@ namespace BaroquenMelody.Library.Tests.MusicTheory;
 
 /// <summary>
 ///     The chords below are voiced so the first-match subset classifier reads the intended numeral in
-///     A Aeolian: {G,B} reads as v, {A,C} and {C,E} as i, {D,A} as iv, {G,B,D} as VII, {C,E,G} as III.
+///     A Aeolian: {G,B} reads as v, {A,C} and {C,E} as i, {D,A} as iv, {G,B,D} as VII, {C,E,G} as III,
+///     {B,D} as ii and {E,B} as v. In C Ionian: {F,D} reads as ii, {G,D} as V, {G,B} as iii, {A,E} as
+///     vi, {D,F} and {D,F,A} as ii, and vi needs its full {C,E,A} because any two of its tones read as
+///     an earlier numeral.
 /// </summary>
 [TestFixture]
 internal sealed class TonicizationApplicatorTests
@@ -219,21 +222,140 @@ internal sealed class TonicizationApplicatorTests
         _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
     }
 
-    [Test]
-    public void ApplyTonicization_OutsideAeolian_RaisesNothing()
+    [TestCase(Mode.Dorian)]
+    [TestCase(Mode.Phrygian)]
+    [TestCase(Mode.Lydian)]
+    [TestCase(Mode.Mixolydian)]
+    [TestCase(Mode.Locrian)]
+    public void ApplyTonicization_InAModeWithoutALiftedGate_RaisesNothing(Mode mode)
     {
-        // arrange - the same fifth-above shape in C Ionian; v1's license table is Aeolian-only
+        // arrange - the still-gated modes derive license tables just as cleanly, but each mode's ficta
+        // awaits its own musical review, so the pass stays inert without consuming any randomness
+        var configuration = TestCompositionConfigurations.Get(2, tonic: NoteName.A, mode: mode);
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
+
+        // act
+        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.G4);
+        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenTheSupertonicApproachesTheDominant_RaisesItsThirdIntoVOfV()
+    {
+        // arrange - the Ionian flagship: ii approaching V at the closing cadence becomes the classical
+        // V/V by raising its third F to F#, the raised fourth degree resolving up to the dominant's root
         var configuration = TestCompositionConfigurations.Get(2, tonic: NoteName.C, mode: Mode.Ionian);
         var composition = BuildComposition(
-            BuildMeasure(Chord(Notes.C5, Notes.E3), Chord(Notes.C5, Notes.E3), Chord(Notes.C5, Notes.E3), Chord(Notes.B4, Notes.G3)),
+            BuildMeasure(Chord(Notes.C5, Notes.E3), Chord(Notes.C5, Notes.E3), Chord(Notes.C5, Notes.E3), Chord(Notes.F4, Notes.D3)),
+            BuildMeasure(Chord(Notes.G4, Notes.D3), Chord(Notes.G4, Notes.D3), Chord(Notes.G4, Notes.D3), Chord(Notes.G4, Notes.D3)));
+
+        // act
+        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+
+        // assert - the soprano's F4 becomes F#4; the bass D is ii's root, not its third
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.FSharp4);
+        composition.Measures[0].Beats[^1].Chord[Instrument.Two].Raw.Should().Be(Notes.D3);
+        composition.Measures[1].Beats[0].Chord[Instrument.One].Raw.Should().Be(Notes.G4);
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenTheMediantApproachesTheSubmediant_RaisesItsThirdIntoVOfVi()
+    {
+        // arrange - iii on slot 1 approaching vi on the strong slot 2 tonicizes the relative minor: its
+        // third G raises to G#, the leading tone of the submediant
+        var configuration = TestCompositionConfigurations.Get(2, tonic: NoteName.C, mode: Mode.Ionian);
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.C5, Notes.E3), Chord(Notes.G4, Notes.B2), Chord(Notes.A4, Notes.E3), Chord(Notes.A4, Notes.E3)),
             BuildMeasure(Chord(Notes.C5, Notes.E3), Chord(Notes.C5, Notes.E3), Chord(Notes.C5, Notes.E3), Chord(Notes.C5, Notes.E3)));
 
         // act
         new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
 
         // assert
-        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.B4);
-        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
+        composition.Measures[0].Beats[1].Chord[Instrument.One].Raw.Should().Be(Notes.GSharp4);
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenTheSubmediantApproachesTheSupertonic_RaisesItsThirdIntoVOfIi()
+    {
+        // arrange - vi approaching ii tonicizes the supertonic: its third C raises to C#; the full
+        // {C,E,A} voicing is needed because any two of vi's tones read as an earlier numeral
+        var configuration = TestCompositionConfigurations.Get(3, tonic: NoteName.C, mode: Mode.Ionian);
+        var composition = BuildComposition(
+            BuildMeasure(
+                ThreeVoiceChord(Notes.D5, Notes.F4, Notes.A2),
+                ThreeVoiceChord(Notes.D5, Notes.F4, Notes.A2),
+                ThreeVoiceChord(Notes.D5, Notes.F4, Notes.A2),
+                ThreeVoiceChord(Notes.C5, Notes.E4, Notes.A2)),
+            BuildMeasure(
+                ThreeVoiceChord(Notes.D5, Notes.F4, Notes.A2),
+                ThreeVoiceChord(Notes.D5, Notes.F4, Notes.A2),
+                ThreeVoiceChord(Notes.D5, Notes.F4, Notes.A2),
+                ThreeVoiceChord(Notes.D5, Notes.F4, Notes.A2)));
+
+        // act
+        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+
+        // assert - the soprano's C5 becomes C#5; E and A are vi's fifth and root
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.CSharp5);
+        composition.Measures[0].Beats[^1].Chord[Instrument.Two].Raw.Should().Be(Notes.E4);
+        composition.Measures[0].Beats[^1].Chord[Instrument.Three].Raw.Should().Be(Notes.A2);
+    }
+
+    [Test]
+    public void ApplyTonicization_InIonian_RaisesTheCourtesyToneSteppingIntoTheRaisedThird()
+    {
+        // arrange - iii is the one Ionian dominant whose third G sits a whole step above its diatonic
+        // neighbor F: a figure stepping F-G into the raise takes the courtesy F# exactly as a figure
+        // under Aeolian's raised v does
+        var configuration = TestCompositionConfigurations.Get(2, tonic: NoteName.C, mode: Mode.Ionian);
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.C5, Notes.E3), Chord(Notes.C5, Notes.E3), Chord(Notes.C5, Notes.E3), Chord(Notes.G4, Notes.B2)),
+            BuildMeasure(Chord(Notes.A4, Notes.E3), Chord(Notes.A4, Notes.E3), Chord(Notes.A4, Notes.E3), Chord(Notes.A4, Notes.E3)));
+
+        var participant = composition.Measures[0].Beats[^1].Chord[Instrument.One];
+
+        participant.OrnamentationType = OrnamentationType.Run;
+        participant.Ornamentations.Add(new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Eighth));
+        participant.Ornamentations.Add(new BaroquenNote(Instrument.One, Notes.G4, MusicalTimeSpan.Eighth));
+
+        // act
+        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+
+        // assert
+        participant.Raw.Should().Be(Notes.GSharp4);
+        participant.Ornamentations[0].Raw.Should().Be(Notes.FSharp4);
+        participant.Ornamentations[1].Raw.Should().Be(Notes.GSharp4);
+    }
+
+    [Test]
+    public void ApplyTonicization_InIonian_DoesNotApplyTheCourtesyAcrossAHalfStep()
+    {
+        // arrange - ii's third F sits a half step above its diatonic neighbor E: E against F# is
+        // already a clean whole step, so a figure stepping E-F into the raise keeps its E natural
+        var configuration = TestCompositionConfigurations.Get(2, tonic: NoteName.C, mode: Mode.Ionian);
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.C5, Notes.E3), Chord(Notes.C5, Notes.E3), Chord(Notes.C5, Notes.E3), Chord(Notes.F4, Notes.D3)),
+            BuildMeasure(Chord(Notes.G4, Notes.D3), Chord(Notes.G4, Notes.D3), Chord(Notes.G4, Notes.D3), Chord(Notes.G4, Notes.D3)));
+
+        var participant = composition.Measures[0].Beats[^1].Chord[Instrument.One];
+
+        participant.OrnamentationType = OrnamentationType.Mordent;
+        participant.Ornamentations.Add(new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Eighth));
+        participant.Ornamentations.Add(new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Eighth));
+
+        // act
+        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+
+        // assert
+        participant.Raw.Should().Be(Notes.FSharp4);
+        participant.Ornamentations[0].Raw.Should().Be(Notes.E4);
+        participant.Ornamentations[1].Raw.Should().Be(Notes.FSharp4);
     }
 
     [Test]

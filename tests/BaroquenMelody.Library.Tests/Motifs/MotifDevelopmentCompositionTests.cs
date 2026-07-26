@@ -3,6 +3,7 @@ using BaroquenMelody.Library.Motifs.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using CsCheck;
 using FluentAssertions;
+using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests.Motifs;
@@ -38,8 +39,12 @@ internal sealed class MotifDevelopmentCompositionTests
     [Test]
     public void ComposedNotes_WithDevelopmentEnabled_SatisfyMusicalInvariants()
     {
+        // The default configuration composes in C Ionian, where the tonicization pass may raise the
+        // thirds of the minor triads (F# from ii, G# from iii, C# from vi) anywhere in the piece,
+        // developed phrases included, so those licensed alterations are as invariant-clean as scale tones.
         var configuration = TestCompositionConfigurations.Get(3, 10) with { ShuffleOrnamentationProcessors = false, MotifDevelopmentConfiguration = AlwaysDevelop };
         var scaleNoteNumbers = configuration.Scale.GetNotes().Select(static note => (int)note.NoteNumber).ToHashSet();
+        var licensedPitchClasses = new HashSet<NoteName> { NoteName.FSharp, NoteName.GSharp, NoteName.CSharp };
         var minVelocity = configuration.InstrumentConfigurations.Min(static instrument => (int)instrument.MinVelocity);
         var maxVelocity = configuration.InstrumentConfigurations.Max(static instrument => (int)instrument.MaxVelocity);
 
@@ -49,7 +54,9 @@ internal sealed class MotifDevelopmentCompositionTests
                 var notes = SeededComposition.Notes(SeededComposition.Compose(configuration, seed));
 
                 notes.Should().NotBeEmpty("every composition must produce notes");
-                notes.Should().OnlyContain(note => scaleNoteNumbers.Contains(note.NoteNumber), "every developed pitch must stay diatonic");
+                notes.Should().OnlyContain(
+                    note => scaleNoteNumbers.Contains(note.NoteNumber) || licensedPitchClasses.Contains((NoteName)(note.NoteNumber % 12)),
+                    "every developed pitch must stay diatonic or carry a tonicization license");
                 notes.Should().OnlyContain(note => note.Velocity >= minVelocity && note.Velocity <= maxVelocity, "velocity must stay within the configured dynamic range");
                 notes.Should().OnlyContain(note => note.NoteNumber >= 0 && note.NoteNumber <= 127, "every note number must be a valid MIDI pitch");
             },
