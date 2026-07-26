@@ -150,7 +150,6 @@ internal sealed class TonicizationApplicator(
             {
                 return;
             }
-
         }
 
         // Every voice's figures participate in the raise - sub-notes sounding the third's pitch class in
@@ -213,6 +212,9 @@ internal sealed class TonicizationApplicator(
 
             // A courtesy raise can never enable another: the courtesy pitch class is a whole step below
             // the third, so two courtesy tones are never a whole step apart and the marks cannot cascade.
+            // The principal counts as the first sub-note's predecessor even when a figure renders it
+            // silently (the appoggiatura): the courtesy needs its predecessor a whole step above, and the
+            // appoggiatura's first sub-note always sits above its anchor, so the shortcut cannot misfire.
             var precedingRaises = index == 0 ? principalRaises : raises[index - 1];
             var preceding = index == 0 ? note : ornamentations[index - 1];
 
