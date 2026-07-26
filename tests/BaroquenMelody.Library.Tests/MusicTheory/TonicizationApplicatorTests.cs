@@ -536,24 +536,14 @@ internal sealed class TonicizationApplicatorTests
     }
 
     [Test]
-    public void ApplyTonicization_AtTheScalesFloorNote_RaisesWithoutConsultingAMissingNeighbor()
+    public void ApplyTonicization_BelowTheScaleListsFirstNote_RaisesWithoutConsultingAMissingNeighbor()
     {
-        // arrange - the third is C(-1), MIDI note 0 and the very first entry in the scale's note list:
-        // no lower neighbor exists to consult for the courtesy, and the raise must not ask for one
-        var configuration = new CompositionConfiguration(
-            new HashSet<InstrumentConfiguration>
-            {
-                new(Instrument.One, Notes.C4, Notes.C6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
-                new(Instrument.Two, Notes.CMinus1, Notes.C1, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
-            },
-            PhrasingConfiguration.Default,
-            AggregateCompositionRuleConfiguration.Default,
-            AggregateOrnamentationConfiguration.Default,
-            NoteName.A,
-            Mode.Aeolian,
-            Meter.FourFour,
-            MusicalTimeSpan.Half,
-            MinimumMeasures: 2);
+        // arrange - the third is C(-1), MIDI note 0, which sits below A(-1), the lowest root the scale's
+        // note list is anchored to: the scale has no index for it and no neighbor to offer, and the
+        // raise must not ask for one
+        var configuration = BuildConfiguration(
+            new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+            new InstrumentConfiguration(Instrument.Two, Notes.CMinus1, Notes.C1, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled));
 
         var composition = BuildComposition(
             BuildMeasure(Chord(Notes.E4, Notes.CMinus1), Chord(Notes.E4, Notes.CMinus1), Chord(Notes.E4, Notes.CMinus1), Chord(Notes.E4, Notes.CMinus1)),
@@ -565,6 +555,58 @@ internal sealed class TonicizationApplicatorTests
         // assert - i becomes V/iv even at the very bottom of the pitch space
         composition.Measures[0].Beats[^1].Chord[Instrument.Two].Raw.Should().Be(Notes.CSharpMinus1);
         composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.E4);
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenARaisedFigureWouldLeaveTheInstrumentRange_RaisesNothing()
+    {
+        // arrange - the bass third G3 raises cleanly, but its upper octave pedal sits on the bass's
+        // highest playable note G4, so the raised figure would leave the range: the same all-or-nothing
+        // obligation the doubled thirds carry rejects the whole site
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.B4, Notes.G3)),
+            BuildMeasure(Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3)));
+
+        var participant = composition.Measures[0].Beats[^1].Chord[Instrument.Two];
+
+        participant.OrnamentationType = OrnamentationType.UpperOctavePedal;
+        participant.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.G4, MusicalTimeSpan.Eighth));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        participant.Raw.Should().Be(Notes.G3);
+        participant.Ornamentations[0].Raw.Should().Be(Notes.G4);
+        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenARaisedCourtesyToneWouldLeaveTheInstrumentRange_RaisesNothing()
+    {
+        // arrange - the bass third G3 raises cleanly, but its figure touches the courtesy neighbor F on
+        // the bass's highest playable note F4, so the raised F# would leave the range and the whole
+        // site is rejected
+        var configuration = BuildConfiguration(
+            new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+            new InstrumentConfiguration(Instrument.Two, Notes.G2, Notes.F4, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled));
+
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.B4, Notes.G3)),
+            BuildMeasure(Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3)));
+
+        var participant = composition.Measures[0].Beats[^1].Chord[Instrument.Two];
+
+        participant.OrnamentationType = OrnamentationType.Turn;
+        participant.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.F4, MusicalTimeSpan.Eighth));
+
+        // act
+        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+
+        // assert
+        participant.Raw.Should().Be(Notes.G3);
+        participant.Ornamentations[0].Raw.Should().Be(Notes.F4);
+        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
     }
 
     private static Beat Chord(Note sopranoNote, Note bassNote) => new(new BaroquenChord(
@@ -583,6 +625,17 @@ internal sealed class TonicizationApplicatorTests
     private static Measure BuildMeasure(params Beat[] beats) => new([.. beats], Meter.FourFour);
 
     private static Composition BuildComposition(params Measure[] measures) => new([.. measures]);
+
+    private static CompositionConfiguration BuildConfiguration(params InstrumentConfiguration[] instrumentConfigurations) => new(
+        instrumentConfigurations.ToHashSet(),
+        PhrasingConfiguration.Default,
+        AggregateCompositionRuleConfiguration.Default,
+        AggregateOrnamentationConfiguration.Default,
+        NoteName.A,
+        Mode.Aeolian,
+        Meter.FourFour,
+        MusicalTimeSpan.Half,
+        MinimumMeasures: 2);
 
     private static IEnumerable<BaroquenNote> AllNotes(Composition composition) => composition.Measures
         .SelectMany(static measure => measure.Beats)

@@ -19,9 +19,10 @@ namespace BaroquenMelody.Library.MusicTheory;
 ///     (chord numbers, pre-alteration), the raise happens after the walk, and the raised third's voice
 ///     must already step up a whole tone into the target's root - the register-precise leading-tone
 ///     resolution - so the walk is provably unchanged and every alteration resolves by construction.
-///     Raising is all-or-nothing per site: every doubling of the third raises together or the site is
-///     rejected (a participant inside a suspension figure rejects the site, which also prevents a held
-///     natural third sounding against a raised one). Ornamentation on the raised voice moves with it -
+///     Raising is all-or-nothing per site: every doubling of the third raises together, with every
+///     sub-note the raise will touch surviving in range, or the site is rejected (a participant inside
+///     a suspension figure rejects the site too, which also prevents a held natural third sounding
+///     against a raised one). Ornamentation on the raised voice moves with it -
 ///     sub-notes matching the third's pitch class are raised, and when the diatonic step below the third
 ///     is a whole step, sub-notes on that lower neighbor are raised too, keeping figures like the
 ///     cadential trill free of augmented seconds - while another voice's ornament that sounds a natural
@@ -135,6 +136,21 @@ internal sealed class TonicizationApplicator(
             {
                 return;
             }
+
+            // The raise moves the participant's figures with it, and octave-displaced figures such as
+            // the octave pedals share the third's pitch class in another register, so every sub-note
+            // the raise will touch must also survive it in range - the same all-or-nothing obligation
+            // the doubled thirds carry.
+            var lowerNeighborNoteName = LowerNeighborRequiringCourtesy(participant);
+
+            foreach (var ornamentation in participant.Ornamentations)
+            {
+                if ((ornamentation.NoteName == thirdNoteName || ornamentation.NoteName == lowerNeighborNoteName) &&
+                    !compositionConfiguration.IsNoteInInstrumentRange(participant.Instrument, RaisedNote(ornamentation.Raw)))
+                {
+                    return;
+                }
+            }
         }
 
         if (!weightedRandomBooleanGenerator.IsTrue(_tonicizationConfiguration.Probability))
@@ -203,7 +219,9 @@ internal sealed class TonicizationApplicator(
         var scaleNotes = compositionConfiguration.Scale.GetNotes();
         var thirdScaleIndex = compositionConfiguration.Scale.IndexOf(participant);
 
-        // At the scale's floor note there is no lower neighbor to consult.
+        // DryWetMidi anchors the scale's note list at its lowest root, so pitches below that start
+        // have no index at all, and the head note has nothing beneath it: either way there is no
+        // lower neighbor to consult.
         if (thirdScaleIndex <= 0)
         {
             return null;
