@@ -186,6 +186,24 @@ internal sealed class TonicizationApplicatorTests
     }
 
     [Test]
+    public void ApplyTonicization_WhenTheSourceTriadIsDiminished_RaisesNothing()
+    {
+        // arrange - ii° ({B,D}) approaching v ({E,B}) is a true fifth-above pair whose third D would
+        // resolve cleanly up to E, but raising a diminished triad's third alone leaves the B-F tritone
+        // unresolved, so only minor triads license a raise
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.B4, Notes.D3)),
+            BuildMeasure(Chord(Notes.B4, Notes.E3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.Two].Raw.Should().Be(Notes.D3);
+        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
+    }
+
+    [Test]
     public void ApplyTonicization_WhenThePairIsNotAFifthApart_RaisesNothing()
     {
         // arrange - v resolving deceptively to VI is not a tonicization
