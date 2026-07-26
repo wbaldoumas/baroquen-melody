@@ -320,10 +320,11 @@ internal sealed class TonicizationApplicatorTests
     }
 
     [Test]
-    public void ApplyTonicization_ResetsABystandersOrnamentThatSoundsTheNaturalThird()
+    public void ApplyTonicization_RaisesEveryVoicesFigureThatSoundsTheThird()
     {
-        // arrange - the bass B carries a run that sounds G natural during the raised chord: a false
-        // relation against G#, so the decoration yields; the soprano's own figure moves with the raise
+        // arrange - the bass B carries a run that sounds G natural during the raised chord; the figure
+        // is a participant in the tonicization, not a casualty: its G raises with the harmony in its own
+        // octave and the run survives intact, leaving no natural third to sound as a false relation
         var composition = BuildComposition(
             BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
             BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
@@ -339,9 +340,9 @@ internal sealed class TonicizationApplicatorTests
 
         // assert
         composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.GSharp4);
-        bystander.OrnamentationType.Should().Be(OrnamentationType.None);
-        bystander.Ornamentations.Should().BeEmpty();
-        bystander.MusicalTimeSpan.Should().Be(_compositionConfiguration.DefaultNoteTimeSpan);
+        bystander.OrnamentationType.Should().Be(OrnamentationType.Run);
+        bystander.Ornamentations[0].Raw.Should().Be(Notes.A2);
+        bystander.Ornamentations[1].Raw.Should().Be(Notes.GSharp2);
     }
 
     [Test]
@@ -485,38 +486,59 @@ internal sealed class TonicizationApplicatorTests
     }
 
     [Test]
-    public void ApplyTonicization_ResetsABystandersOrnamentThatSoundsTheNaturalCourtesyTone()
+    public void ApplyTonicization_RaisesTheCourtesyToneSteppingUpIntoARaisedThird()
     {
-        // arrange - the participant's turn raises its lower-neighbor F to F#, so a bystander's figure
-        // sounding F natural in the same beat is a false relation against the courtesy tone
+        // arrange - the bass's run steps F-G straight into the raise: leaving the F natural would sound
+        // the F-G# augmented second inside the figure, so it rises with the third into the classic
+        // ascending-melodic-minor close, and the whole figure survives
         var composition = BuildComposition(
             BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
             BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
 
-        var participant = composition.Measures[0].Beats[^1].Chord[Instrument.One];
+        var bystander = composition.Measures[0].Beats[^1].Chord[Instrument.Two];
 
-        participant.OrnamentationType = OrnamentationType.Turn;
-        participant.Ornamentations.Add(new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Eighth));
+        bystander.OrnamentationType = OrnamentationType.Run;
+        bystander.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Eighth));
+        bystander.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Eighth));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.GSharp4);
+        bystander.OrnamentationType.Should().Be(OrnamentationType.Run);
+        bystander.Ornamentations[0].Raw.Should().Be(Notes.FSharp3);
+        bystander.Ornamentations[1].Raw.Should().Be(Notes.GSharp3);
+    }
+
+    [Test]
+    public void ApplyTonicization_RaisesTheCourtesyToneSteppingDownFromARaisedThird()
+    {
+        // arrange - the augmented second is just as jarring descending: a figure falling G-F from the
+        // raised third takes the courtesy too, G#-F#
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
 
         var bystander = composition.Measures[0].Beats[^1].Chord[Instrument.Two];
 
         bystander.OrnamentationType = OrnamentationType.Run;
+        bystander.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Eighth));
         bystander.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Eighth));
 
         // act
         CreateApplicator().ApplyTonicization(composition);
 
         // assert
-        participant.Ornamentations[0].Raw.Should().Be(Notes.FSharp4);
-        bystander.OrnamentationType.Should().Be(OrnamentationType.None);
-        bystander.Ornamentations.Should().BeEmpty();
+        bystander.Ornamentations[0].Raw.Should().Be(Notes.GSharp3);
+        bystander.Ornamentations[1].Raw.Should().Be(Notes.FSharp3);
     }
 
     [Test]
-    public void ApplyTonicization_LeavesABystandersNaturalWhenTheCourtesyNeverFired()
+    public void ApplyTonicization_LeavesANonAdjacentCourtesyToneNatural()
     {
-        // arrange - the participant has no figure touching its lower neighbor, so no F# ever sounds and
-        // the bystander's F natural is ordinary diatonic business
+        // arrange - the bass's figure sounds F natural but never steps into a raised third, so there is
+        // no augmented second to close and the natural sixth keeps its minor-mode color
         var composition = BuildComposition(
             BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
             BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
@@ -532,29 +554,56 @@ internal sealed class TonicizationApplicatorTests
         // assert
         composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.GSharp4);
         bystander.OrnamentationType.Should().Be(OrnamentationType.Run);
-        bystander.Ornamentations.Should().HaveCount(1);
+        bystander.Ornamentations[0].Raw.Should().Be(Notes.F3);
     }
 
     [Test]
-    public void ApplyTonicization_BelowTheScaleListsFirstNote_RaisesWithoutConsultingAMissingNeighbor()
+    public void ApplyTonicization_WhenTheFigureRepeatsTheCourtesyTone_RaisesOnlyTheStepIntoTheThird()
     {
-        // arrange - the third is C(-1), MIDI note 0, which sits below A(-1), the lowest root the scale's
-        // note list is anchored to: the scale has no index for it and no neighbor to offer, and the
-        // raise must not ask for one
-        var configuration = BuildConfiguration(
-            new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
-            new InstrumentConfiguration(Instrument.Two, Notes.CMinus1, Notes.C1, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled));
-
+        // arrange - only the F that steps directly into the raised third takes the courtesy; the earlier
+        // repetition keeps its natural, leaving the chromatic ascent F-F#-G#
         var composition = BuildComposition(
-            BuildMeasure(Chord(Notes.E4, Notes.CMinus1), Chord(Notes.E4, Notes.CMinus1), Chord(Notes.E4, Notes.CMinus1), Chord(Notes.E4, Notes.CMinus1)),
-            BuildMeasure(Chord(Notes.A4, Notes.DMinus1), Chord(Notes.A4, Notes.DMinus1), Chord(Notes.A4, Notes.DMinus1), Chord(Notes.A4, Notes.DMinus1)));
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
+
+        var bystander = composition.Measures[0].Beats[^1].Chord[Instrument.Two];
+
+        bystander.OrnamentationType = OrnamentationType.Run;
+        bystander.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Eighth));
+        bystander.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Eighth));
+        bystander.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Eighth));
 
         // act
-        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+        CreateApplicator().ApplyTonicization(composition);
 
-        // assert - i becomes V/iv even at the very bottom of the pitch space
-        composition.Measures[0].Beats[^1].Chord[Instrument.Two].Raw.Should().Be(Notes.CSharpMinus1);
-        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.E4);
+        // assert
+        bystander.Ornamentations[0].Raw.Should().Be(Notes.F3);
+        bystander.Ornamentations[1].Raw.Should().Be(Notes.FSharp3);
+        bystander.Ornamentations[2].Raw.Should().Be(Notes.GSharp3);
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenAnyVoicesRaisedFigureWouldLeaveTheInstrumentRange_RaisesNothing()
+    {
+        // arrange - the bass is not a doubled third, but its figure sounds G on the bass's highest
+        // playable note: its raise is as obligatory as any other, so the whole site is rejected and
+        // every figure stays intact
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
+
+        var bystander = composition.Measures[0].Beats[^1].Chord[Instrument.Two];
+
+        bystander.OrnamentationType = OrnamentationType.Run;
+        bystander.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.G4, MusicalTimeSpan.Eighth));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.G4);
+        bystander.Ornamentations[0].Raw.Should().Be(Notes.G4);
+        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
     }
 
     [Test]
@@ -584,13 +633,36 @@ internal sealed class TonicizationApplicatorTests
     [Test]
     public void ApplyTonicization_WhenARaisedCourtesyToneWouldLeaveTheInstrumentRange_RaisesNothing()
     {
-        // arrange - the bass third G3 raises cleanly, but its figure touches the courtesy neighbor F on
-        // the bass's highest playable note F4, so the raised F# would leave the range and the whole
-        // site is rejected
+        // arrange - the bass third G3 raises cleanly, but its figure dips to the courtesy neighbor F3
+        // just below the bass's lowest playable note G3: the raised F#3 would still sit outside the
+        // range, so the whole site is rejected with the figure intact
         var configuration = BuildConfiguration(
             new InstrumentConfiguration(Instrument.One, Notes.C4, Notes.C6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
-            new InstrumentConfiguration(Instrument.Two, Notes.G2, Notes.F4, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled));
+            new InstrumentConfiguration(Instrument.Two, Notes.G3, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled));
 
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.B4, Notes.G3)),
+            BuildMeasure(Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3)));
+
+        var participant = composition.Measures[0].Beats[^1].Chord[Instrument.Two];
+
+        participant.OrnamentationType = OrnamentationType.Turn;
+        participant.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Eighth));
+
+        // act
+        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+
+        // assert
+        participant.Raw.Should().Be(Notes.G3);
+        participant.Ornamentations[0].Raw.Should().Be(Notes.F3);
+        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
+    }
+
+    [Test]
+    public void ApplyTonicization_DoesNotApplyTheCourtesyAcrossALeapFromTheRaisedPrincipal()
+    {
+        // arrange - the bass's figure leaps from the raised G#3 up to F4: an augmented second only
+        // exists between adjacent steps, so the leaped-to F keeps its natural
         var composition = BuildComposition(
             BuildMeasure(Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.B4, Notes.G3)),
             BuildMeasure(Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3)));
@@ -601,12 +673,34 @@ internal sealed class TonicizationApplicatorTests
         participant.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.F4, MusicalTimeSpan.Eighth));
 
         // act
-        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+        CreateApplicator().ApplyTonicization(composition);
 
         // assert
-        participant.Raw.Should().Be(Notes.G3);
+        participant.Raw.Should().Be(Notes.GSharp3);
         participant.Ornamentations[0].Raw.Should().Be(Notes.F4);
-        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
+    }
+
+    [Test]
+    public void ApplyTonicization_DoesNotApplyTheCourtesyAcrossALeapToTheRaisedThird()
+    {
+        // arrange - the soprano's figure sounds F4 and then leaps to a raised G#5 an octave above: no
+        // augmented second exists across the leap, so the F keeps its natural
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.B4, Notes.G3)),
+            BuildMeasure(Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3)));
+
+        var bystander = composition.Measures[0].Beats[^1].Chord[Instrument.One];
+
+        bystander.OrnamentationType = OrnamentationType.Run;
+        bystander.Ornamentations.Add(new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Eighth));
+        bystander.Ornamentations.Add(new BaroquenNote(Instrument.One, Notes.G5, MusicalTimeSpan.Eighth));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        bystander.Ornamentations[0].Raw.Should().Be(Notes.F4);
+        bystander.Ornamentations[1].Raw.Should().Be(Notes.GSharp5);
     }
 
     private static Beat Chord(Note sopranoNote, Note bassNote) => new(new BaroquenChord(

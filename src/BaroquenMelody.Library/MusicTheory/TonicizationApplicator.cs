@@ -22,11 +22,14 @@ namespace BaroquenMelody.Library.MusicTheory;
 ///     Raising is all-or-nothing per site: every doubling of the third raises together, with every
 ///     sub-note the raise will touch surviving in range, or the site is rejected (a participant inside
 ///     a suspension figure rejects the site too, which also prevents a held natural third sounding
-///     against a raised one). Ornamentation on the raised voice moves with it -
-///     sub-notes matching the third's pitch class are raised, and when the diatonic step below the third
-///     is a whole step, sub-notes on that lower neighbor are raised too, keeping figures like the
-///     cadential trill free of augmented seconds - while another voice's ornament that sounds a natural
-///     against any raised pitch class is a false relation and yields its decoration. The final measure
+///     against a raised one). Ornamentation is a participant in the raise, never a casualty: in every
+///     voice's figure - the raised voice's own and the other voices' alike - sub-notes sounding the
+///     third's pitch class raise with the harmony, so no natural third is left to sound against the
+///     raised one as a false relation. When the diatonic step below the third is a whole step, a
+///     sub-note on that neighbor stepping directly into a raised third raises too, closing the b6-#7
+///     augmented second inside the figure, while the same pitch class a leap away or elsewhere in the
+///     texture keeps its natural - the ascending-raised / descending-natural coexistence minor-mode
+///     practice already licenses. The final measure
 ///     never functions as a dominant, only as a target: the crafted closing cadence stays unaltered
 ///     inside, and the exposition pass at completion can never re-draw a site in the boundary measure
 ///     borrowed from the body. Runs after the suspension pass and before the sustain pass, in the body
@@ -61,6 +64,17 @@ internal sealed class TonicizationApplicator(
         { ChordNumber.I, compositionConfiguration.Scale.Mediant },
         { ChordNumber.IV, compositionConfiguration.Scale.Submediant },
         { ChordNumber.V, compositionConfiguration.Scale.LeadingTone }
+    }.ToFrozenDictionary();
+
+    // The melodic-minor courtesy, resolved per license from the scale's degrees: when the diatonic step
+    // below a dominant's third is a whole step, a figure stepping between that neighbor and the raised
+    // third would sound the b6-#7 augmented second, so the neighbor raises along with it; a half-step
+    // neighbor needs no courtesy. In Aeolian only v's third (the subtonic) carries one.
+    private readonly FrozenDictionary<ChordNumber, NoteName?> _courtesyNoteNamesByDominant = new Dictionary<ChordNumber, NoteName?>
+    {
+        { ChordNumber.I, CourtesyNoteName(compositionConfiguration.Scale.Mediant, compositionConfiguration.Scale.Supertonic) },
+        { ChordNumber.IV, CourtesyNoteName(compositionConfiguration.Scale.Submediant, compositionConfiguration.Scale.Dominant) },
+        { ChordNumber.V, CourtesyNoteName(compositionConfiguration.Scale.LeadingTone, compositionConfiguration.Scale.Submediant) }
     }.ToFrozenDictionary();
 
     public void ApplyTonicization(Composition composition)
@@ -137,19 +151,20 @@ internal sealed class TonicizationApplicator(
                 return;
             }
 
-            // The raise moves the participant's figures with it, and octave-displaced figures such as
-            // the octave pedals share the third's pitch class in another register, so every sub-note
-            // the raise will touch must also survive it in range - the same all-or-nothing obligation
-            // the doubled thirds carry.
-            var lowerNeighborNoteName = LowerNeighborRequiringCourtesy(participant);
+        }
 
-            foreach (var ornamentation in participant.Ornamentations)
+        // Every voice's figures participate in the raise - sub-notes sounding the third's pitch class in
+        // any voice, plus the courtesy tones stepping into them - and each planned raise must survive in
+        // range, the same all-or-nothing obligation the doubled thirds carry, or the site is rejected
+        // with every figure intact.
+        var plannedRaises = new List<BaroquenNote>();
+        var courtesyNoteName = _courtesyNoteNamesByDominant[dominantNumber];
+
+        foreach (var note in dominantBeat.Chord.Notes)
+        {
+            if (!TryPlanFigureRaises(note, thirdNoteName, courtesyNoteName, plannedRaises))
             {
-                if ((ornamentation.NoteName == thirdNoteName || ornamentation.NoteName == lowerNeighborNoteName) &&
-                    !compositionConfiguration.IsNoteInInstrumentRange(participant.Instrument, RaisedNote(ornamentation.Raw)))
-                {
-                    return;
-                }
+                return;
             }
         }
 
@@ -158,79 +173,74 @@ internal sealed class TonicizationApplicator(
             return;
         }
 
-        NoteName? raisedNeighborNoteName = null;
-
         foreach (var participant in participants)
         {
-            raisedNeighborNoteName = Raise(participant, thirdNoteName) ?? raisedNeighborNoteName;
+            participant.Alter(RaisedNote(participant.Raw));
         }
 
-        foreach (var bystander in dominantBeat.Chord.Notes.Where(note => note.NoteName != thirdNoteName))
+        foreach (var ornamentation in plannedRaises)
         {
-            // An ornament sounding a natural against a raised pitch class - the third always, the
-            // courtesy neighbor when some participant's figure actually raised it - is a false relation;
-            // the decoration yields to the structural harmony, the same precedence suspensions take.
-            // Notes inside suspension figures are untouchable here by construction: stamping a
-            // suspension empties both notes' ornamentation lists, so they can never match.
-            if (bystander.Ornamentations.Any(ornamentation => ornamentation.NoteName == thirdNoteName || ornamentation.NoteName == raisedNeighborNoteName))
-            {
-                bystander.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
-            }
+            ornamentation.Alter(RaisedNote(ornamentation.Raw));
         }
     }
 
     /// <summary>
-    ///     Raise the participant's principal note and the sub-notes of its figures that move with it,
-    ///     returning the courtesy neighbor's natural pitch class when the figure actually raised it, so
-    ///     the caller can guard other voices against sounding that natural as a false relation.
+    ///     Plan which of the voice's sub-notes the raise carries: every sub-note sounding the third's
+    ///     pitch class, in any octave, and every courtesy-tone sub-note that steps directly into a raised
+    ///     third - temporally adjacent in the figure's sounding order (principal first, then sub-notes)
+    ///     and sitting exactly the whole step below, the geometry that would otherwise sound the
+    ///     augmented second. A courtesy tone a leap away from the raised third keeps its natural: no
+    ///     augmented second exists across a leap. Returns <see langword="false"/> when a planned raise
+    ///     would leave the instrument's range, rejecting the site.
     /// </summary>
-    private NoteName? Raise(BaroquenNote participant, NoteName thirdNoteName)
+    private bool TryPlanFigureRaises(BaroquenNote note, NoteName thirdNoteName, NoteName? courtesyNoteName, List<BaroquenNote> plannedRaises)
     {
-        var lowerNeighborNoteName = LowerNeighborRequiringCourtesy(participant);
-        NoteName? raisedNeighborNoteName = null;
+        var ornamentations = note.Ornamentations;
+        var principalRaises = note.NoteName == thirdNoteName;
+        var raises = new bool[ornamentations.Count];
 
-        foreach (var ornamentation in participant.Ornamentations)
+        for (var index = 0; index < ornamentations.Count; index++)
         {
-            if (ornamentation.NoteName == thirdNoteName)
-            {
-                ornamentation.Alter(RaisedNote(ornamentation.Raw));
-            }
-            else if (lowerNeighborNoteName is not null && ornamentation.NoteName == lowerNeighborNoteName)
-            {
-                ornamentation.Alter(RaisedNote(ornamentation.Raw));
-                raisedNeighborNoteName = lowerNeighborNoteName;
-            }
+            raises[index] = ornamentations[index].NoteName == thirdNoteName;
         }
 
-        participant.Alter(RaisedNote(participant.Raw));
-
-        return raisedNeighborNoteName;
-    }
-
-    /// <summary>
-    ///     When the diatonic step below the raised third is a whole step, leaving it natural would put an
-    ///     augmented second inside the raised voice's own figures (the classic ♭6-♯7 gap), so sub-notes on
-    ///     that neighbor are raised along with the third - the melodic-minor courtesy. When the step below
-    ///     is already a half step, no courtesy is needed. Must run before the participant is altered: a
-    ///     raised note is no longer in the scale and would have no index.
-    /// </summary>
-    private NoteName? LowerNeighborRequiringCourtesy(BaroquenNote participant)
-    {
-        var scaleNotes = compositionConfiguration.Scale.GetNotes();
-        var thirdScaleIndex = compositionConfiguration.Scale.IndexOf(participant);
-
-        // DryWetMidi anchors the scale's note list at its lowest root, so pitches below that start
-        // have no index at all, and the head note has nothing beneath it: either way there is no
-        // lower neighbor to consult.
-        if (thirdScaleIndex <= 0)
+        for (var index = 0; index < ornamentations.Count; index++)
         {
-            return null;
+            if (raises[index] || ornamentations[index].NoteName != courtesyNoteName)
+            {
+                continue;
+            }
+
+            // A courtesy raise can never enable another: the courtesy pitch class is a whole step below
+            // the third, so two courtesy tones are never a whole step apart and the marks cannot cascade.
+            var precedingRaises = index == 0 ? principalRaises : raises[index - 1];
+            var preceding = index == 0 ? note : ornamentations[index - 1];
+
+            raises[index] =
+                (precedingRaises && preceding.NoteNumber - ornamentations[index].NoteNumber == WholeStep) ||
+                (index + 1 < ornamentations.Count && raises[index + 1] && ornamentations[index + 1].NoteNumber - ornamentations[index].NoteNumber == WholeStep);
         }
 
-        var lowerNeighbor = scaleNotes[thirdScaleIndex - 1];
+        for (var index = 0; index < ornamentations.Count; index++)
+        {
+            if (!raises[index])
+            {
+                continue;
+            }
 
-        return participant.NoteNumber - lowerNeighbor.NoteNumber == 2 ? lowerNeighbor.NoteName : null;
+            if (!compositionConfiguration.IsNoteInInstrumentRange(note.Instrument, RaisedNote(ornamentations[index].Raw)))
+            {
+                return false;
+            }
+
+            plannedRaises.Add(ornamentations[index]);
+        }
+
+        return true;
     }
+
+    private static NoteName? CourtesyNoteName(NoteName thirdNoteName, NoteName lowerNeighborNoteName) =>
+        ((int)thirdNoteName - (int)lowerNeighborNoteName + 12) % 12 == WholeStep ? lowerNeighborNoteName : null;
 
     private static Note RaisedNote(Note note) => Note.Get((SevenBitNumber)(note.NoteNumber + 1));
 }
