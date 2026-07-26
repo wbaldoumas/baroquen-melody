@@ -44,7 +44,7 @@ internal sealed class TonicizationCompositionTests
     }
 
     [Test]
-    public void Compose_InAeolian_ChangesPitchesButNeverTheDuration()
+    public void Compose_InAeolian_NeverChangesTheDuration()
     {
         // arrange
         var enabled = TestCompositionConfigurations.Get(3, 10, tonic: NoteName.A, mode: Mode.Aeolian) with { ShuffleOrnamentationProcessors = false };
@@ -56,8 +56,8 @@ internal sealed class TonicizationCompositionTests
             var tonicized = SeededComposition.Notes(SeededComposition.Compose(enabled, seed));
             var plain = SeededComposition.Notes(SeededComposition.Compose(disabled, seed));
 
-            // assert - the pass mutates pitches and may reset a clashing ornament, but every beat keeps
-            // its total time, so the composition's duration is exact
+            // assert - the pass mutates pitches (the existence sweep below proves that it does) and may
+            // reset a clashing ornament, but every beat keeps its total time, so the duration is exact
             var tonicizedFinalTick = tonicized.Max(static note => note.Time + note.Length);
             var plainFinalTick = plain.Max(static note => note.Time + note.Length);
 

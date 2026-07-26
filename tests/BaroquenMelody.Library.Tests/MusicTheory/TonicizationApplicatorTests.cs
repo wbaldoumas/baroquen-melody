@@ -1,5 +1,6 @@
 using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory;
@@ -9,6 +10,7 @@ using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using Melanchall.DryWetMidi.Standards;
 using NSubstitute;
 using NUnit.Framework;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
@@ -219,10 +221,11 @@ internal sealed class TonicizationApplicatorTests
     [Test]
     public void ApplyTonicization_WhenTheRaisedNoteWouldLeaveTheInstrumentRange_RaisesNothing()
     {
-        // arrange - the third sits on the bass's highest playable note (G4), so G#4 is out of range
+        // arrange - the third sits on the bass's highest playable note (G4), so even though it steps up
+        // cleanly into A4, the raised G#4 itself would be out of range
         var composition = BuildComposition(
             BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.B4, Notes.G4)),
-            BuildMeasure(Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3), Chord(Notes.A4, Notes.A3)));
+            BuildMeasure(Chord(Notes.A4, Notes.A4), Chord(Notes.A4, Notes.A4), Chord(Notes.A4, Notes.A4), Chord(Notes.A4, Notes.A4)));
 
         // act
         CreateApplicator().ApplyTonicization(composition);
@@ -392,6 +395,176 @@ internal sealed class TonicizationApplicatorTests
 
         // assert
         _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(TonicizationConfiguration.Default.Probability);
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenTheProbabilityDrawFails_RaisesNothing()
+    {
+        // arrange - a fully eligible site whose single draw comes up false
+        _mockWeightedRandomBooleanGenerator.IsTrue(Arg.Any<int>()).Returns(false);
+
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.G4);
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(TonicizationConfiguration.Default.Probability);
+    }
+
+    [Test]
+    public void ApplyTonicization_InsideTheFinalMeasure_RaisesNothing()
+    {
+        // arrange - the final measure holds an eligible mid-measure pair, but the final measure is never
+        // a dominant: its crafted cadence stays unaltered, and in the exposition pass this same rule
+        // keeps the boundary measure borrowed from the already-tonicized body from being drawn twice
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)),
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[1].Beats[1].Chord[Instrument.One].Raw.Should().Be(Notes.G4);
+        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenAMeasureHasOnlyTwoBeats_StillAppliesTheCrossBarlinePair()
+    {
+        // arrange - the short leftover measures the ending composer can produce have no mid-measure
+        // strong slot, but their final beat still approaches the next downbeat
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.GSharp4);
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenTheTargetChordIsUnidentifiable_RaisesNothing()
+    {
+        // arrange - {A,B} matches no diatonic triad, so the target reads as Unknown and rejects through
+        // the dominant lookup
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
+            BuildMeasure(Chord(Notes.A4, Notes.B2), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.G4);
+        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenTheResolutionArrivesInAnotherOctave_RaisesNothing()
+    {
+        // arrange - the soprano lands on the target's root pitch class but an octave too high: a raised
+        // leading tone must resolve up by half step to the root directly above it, so the site is
+        // rejected on register, not just pitch class
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
+            BuildMeasure(Chord(Notes.A5, Notes.A2), Chord(Notes.A5, Notes.A2), Chord(Notes.A5, Notes.A2), Chord(Notes.A5, Notes.A2)));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.G4);
+        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
+    }
+
+    [Test]
+    public void ApplyTonicization_ResetsABystandersOrnamentThatSoundsTheNaturalCourtesyTone()
+    {
+        // arrange - the participant's turn raises its lower-neighbor F to F#, so a bystander's figure
+        // sounding F natural in the same beat is a false relation against the courtesy tone
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
+
+        var participant = composition.Measures[0].Beats[^1].Chord[Instrument.One];
+
+        participant.OrnamentationType = OrnamentationType.Turn;
+        participant.Ornamentations.Add(new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Eighth));
+
+        var bystander = composition.Measures[0].Beats[^1].Chord[Instrument.Two];
+
+        bystander.OrnamentationType = OrnamentationType.Run;
+        bystander.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Eighth));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        participant.Ornamentations[0].Raw.Should().Be(Notes.FSharp4);
+        bystander.OrnamentationType.Should().Be(OrnamentationType.None);
+        bystander.Ornamentations.Should().BeEmpty();
+    }
+
+    [Test]
+    public void ApplyTonicization_LeavesABystandersNaturalWhenTheCourtesyNeverFired()
+    {
+        // arrange - the participant has no figure touching its lower neighbor, so no F# ever sounds and
+        // the bystander's F natural is ordinary diatonic business
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.G4, Notes.B2)),
+            BuildMeasure(Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3), Chord(Notes.A4, Notes.C3)));
+
+        var bystander = composition.Measures[0].Beats[^1].Chord[Instrument.Two];
+
+        bystander.OrnamentationType = OrnamentationType.Run;
+        bystander.Ornamentations.Add(new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Eighth));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.GSharp4);
+        bystander.OrnamentationType.Should().Be(OrnamentationType.Run);
+        bystander.Ornamentations.Should().HaveCount(1);
+    }
+
+    [Test]
+    public void ApplyTonicization_AtTheScalesFloorNote_RaisesWithoutConsultingAMissingNeighbor()
+    {
+        // arrange - the third is C(-1), MIDI note 0 and the very first entry in the scale's note list:
+        // no lower neighbor exists to consult for the courtesy, and the raise must not ask for one
+        var configuration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.C6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+                new(Instrument.Two, Notes.CMinus1, Notes.C1, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.A,
+            Mode.Aeolian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 2);
+
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.E4, Notes.CMinus1), Chord(Notes.E4, Notes.CMinus1), Chord(Notes.E4, Notes.CMinus1), Chord(Notes.E4, Notes.CMinus1)),
+            BuildMeasure(Chord(Notes.A4, Notes.DMinus1), Chord(Notes.A4, Notes.DMinus1), Chord(Notes.A4, Notes.DMinus1), Chord(Notes.A4, Notes.DMinus1)));
+
+        // act
+        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+
+        // assert - i becomes V/iv even at the very bottom of the pitch space
+        composition.Measures[0].Beats[^1].Chord[Instrument.Two].Raw.Should().Be(Notes.CSharpMinus1);
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.E4);
     }
 
     private static Beat Chord(Note sopranoNote, Note bassNote) => new(new BaroquenChord(
