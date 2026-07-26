@@ -12,5 +12,5 @@ namespace BaroquenMelody.Library.Configurations;
 [ExcludeFromCodeCoverage(Justification = "Configuration")]
 public sealed record TonicizationConfiguration(bool Enabled, int Probability)
 {
-    public static TonicizationConfiguration Default { get; } = new(Enabled: true, Probability: 100);
+    public static TonicizationConfiguration Default { get; } = new(Enabled: true, Probability: 75);
 }
