@@ -33,4 +33,21 @@ internal sealed class NoteChoiceGeneratorTests
             .Should()
             .HaveCount(7);
     }
+
+    [Test]
+    public void GenerateNoteChoices_ReturnsTheCanonicalOrder()
+    {
+        // The returned order defines the chord-choice index space shared by the choice repositories and the
+        // forward-checking enumerator. It must be a pure function of the generator's inputs: a hash-ordered
+        // set here once made seeded compositions differ between processes depending on earlier execution.
+        var noteChoices = new NoteChoiceGenerator(1, 2).GenerateNoteChoices(Instrument.One);
+
+        noteChoices.Should().Equal(
+            new NoteChoice(Instrument.One, NoteMotion.Ascending, 1),
+            new NoteChoice(Instrument.One, NoteMotion.Descending, 1),
+            new NoteChoice(Instrument.One, NoteMotion.Ascending, 2),
+            new NoteChoice(Instrument.One, NoteMotion.Descending, 2),
+            new NoteChoice(Instrument.One, NoteMotion.Oblique, 0)
+        );
+    }
 }
