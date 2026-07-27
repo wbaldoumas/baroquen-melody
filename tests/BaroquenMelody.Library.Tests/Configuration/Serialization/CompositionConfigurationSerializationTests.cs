@@ -371,6 +371,66 @@ internal sealed class CompositionConfigurationSerializationTests
     }
 
     [Test]
+    public void Ground_bass_configuration_round_trips_through_serialization()
+    {
+        // arrange
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100,
+            GroundBassConfiguration: new GroundBassConfiguration(Enabled: true)
+        );
+
+        // act
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var deserializedConfiguration = JsonSerializer.Deserialize(serializedConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.GroundBassConfiguration.Should().NotBeNull();
+        deserializedConfiguration.GroundBassConfiguration!.Enabled.Should().BeTrue();
+    }
+
+    [Test]
+    public void Deserialization_of_a_legacy_configuration_without_ground_bass_yields_a_null_ground_bass_configuration()
+    {
+        // arrange: a configuration saved before the ground bass form existed has no such property at all.
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100
+        );
+
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var legacyConfigurationJson = JsonNode.Parse(serializedConfiguration)!.AsObject();
+
+        legacyConfigurationJson.Remove(nameof(CompositionConfiguration.GroundBassConfiguration));
+
+        // act
+        var deserializedConfiguration = JsonSerializer.Deserialize(legacyConfigurationJson.ToJsonString(), CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.GroundBassConfiguration.Should().BeNull();
+    }
+
+    [Test]
     public void Deserialization_of_a_legacy_configuration_without_motif_development_yields_a_null_motif_development_configuration()
     {
         // arrange: a configuration saved before motivic development existed has no such property at all.
