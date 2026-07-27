@@ -18,8 +18,9 @@ namespace BaroquenMelody.Library.Tests.Forms;
 
 /// <summary>
 ///     Pins the planner's feasibility filter, anchor centering, statement arithmetic, and draw discipline.
-///     Range fixtures mirror the design probe's findings: the app-shaped G3-B4 bass hosts only the
-///     tetrachord in C Ionian but every pattern in A Aeolian, and the test-shaped C2-C3 bass hosts all three.
+///     Range fixtures mirror the design probe's findings: a G3-B4 bass hosts only the tetrachord in C Ionian
+///     but every pattern in A Aeolian, the test-shaped C2-C3 bass hosts all three, and the default ranges are
+///     pinned to host the whole bank so future range changes stay honest about the ground repertoire.
 /// </summary>
 [TestFixture]
 internal sealed class GroundBassPlannerTests
@@ -49,12 +50,12 @@ internal sealed class GroundBassPlannerTests
     }
 
     [Test]
-    public void CreatePlan_WithTheAppShapedBassRangeInIonian_OnlyTheTetrachordIsFeasible()
+    public void CreatePlan_WithABassRangeTooNarrowBelowItsTonic_OnlyTheTetrachordIsFeasible()
     {
-        // arrange: One C5-E6, Two E4-G5, Three G3-B4 (the app's default enabled voices). In C Ionian the
-        // only tonic in the bass range is C4, which has just three scale steps below it in range, so the
-        // wider grounds cannot anchor.
-        var configuration = BuildConfiguration(BuildAppShapedInstruments(), NoteName.C, Mode.Ionian);
+        // arrange: a G3-B4 bass in C Ionian holds a single tonic (C4) with just three scale steps below
+        // it in range, so the octave-descending grounds cannot anchor and only the tetrachord survives
+        // the feasibility filter.
+        var configuration = BuildConfiguration(BuildTenorBassInstruments(), NoteName.C, Mode.Ionian);
         var randomProvider = Substitute.For<IRandomProvider>();
 
         randomProvider.Next(Arg.Any<int>()).Returns(0);
@@ -72,11 +73,11 @@ internal sealed class GroundBassPlannerTests
     }
 
     [Test]
-    public void CreatePlan_WithTheAppShapedBassRangeInAeolian_RendersTheRomanescaFromTheHighTonic()
+    public void CreatePlan_WithATonicAtopTheBassRange_RendersTheRomanescaFromTheHighTonic()
     {
-        // arrange: in A Aeolian the bass range G3-B4 hosts the tonic A4 with a full octave below it,
+        // arrange: in A Aeolian the same G3-B4 bass hosts the tonic A4 with a full octave below it,
         // so all three bank patterns are feasible; the mocked draw picks the romanesca.
-        var configuration = BuildConfiguration(BuildAppShapedInstruments(), NoteName.A, Mode.Aeolian);
+        var configuration = BuildConfiguration(BuildTenorBassInstruments(), NoteName.A, Mode.Aeolian);
         var randomProvider = Substitute.For<IRandomProvider>();
 
         randomProvider.Next(Arg.Any<int>()).Returns(1);
@@ -91,6 +92,56 @@ internal sealed class GroundBassPlannerTests
         plan!.Pattern.Identifier.Should().Be(GroundBass.Romanesca);
         plan.BassNotes.Should().Equal(Notes.A4, Notes.E4, Notes.F4, Notes.C4, Notes.D4, Notes.A3, Notes.D4, Notes.E4);
         randomProvider.Received(1).Next(3);
+    }
+
+    [TestCase(NoteName.C, Mode.Ionian, TestName = "CreatePlan_WithTheDefaultEnabledVoices_HostsEveryBankPatternInIonian")]
+    [TestCase(NoteName.A, Mode.Aeolian, TestName = "CreatePlan_WithTheDefaultEnabledVoices_HostsEveryBankPatternInAeolian")]
+    public void CreatePlan_WithTheDefaultEnabledVoices_HostsEveryBankPattern(NoteName tonic, Mode mode)
+    {
+        // arrange: the default ranges anchor each lower voice's floor a full octave below an in-range
+        // tonic-capable pitch, so the default bass (Three, C3-B4) hosts the whole bank in both lifted
+        // modes. The draw's upper bound equaling the bank size IS the feasibility pin - it keeps future
+        // default-range changes honest about the ground repertoire.
+        var enabledDefaults = InstrumentConfiguration.DefaultConfigurations.Values.Where(static c => c.IsEnabled).ToHashSet();
+        var configuration = BuildConfiguration(enabledDefaults, tonic, mode);
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.BassInstrument.Should().Be(Instrument.Three);
+        randomProvider.Received(1).Next(GroundBassPattern.Bank.Count);
+    }
+
+    [Test]
+    public void CreatePlan_WithEveryDefaultVoiceEnabled_HostsEveryBankPatternInTheBass()
+    {
+        // arrange: with the fourth voice enabled it becomes the ground carrier; its C2-A3 range holds the
+        // C2-C3 tonic octave, so the whole bank anchors on C3 in the default key.
+        var allDefaults = InstrumentConfiguration.DefaultConfigurations.Values
+            .Select(static c => c with { Status = ConfigurationStatus.Enabled })
+            .ToHashSet();
+        var configuration = BuildConfiguration(allDefaults, NoteName.C, Mode.Ionian);
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.BassInstrument.Should().Be(Instrument.Four);
+        plan.BassNotes[0].Should().Be(Notes.C3);
+        randomProvider.Received(1).Next(GroundBassPattern.Bank.Count);
     }
 
     [Test]
@@ -193,7 +244,7 @@ internal sealed class GroundBassPlannerTests
         firstPlan.StatementCount.Should().Be(secondPlan.StatementCount);
     }
 
-    private static HashSet<InstrumentConfiguration> BuildAppShapedInstruments() =>
+    private static HashSet<InstrumentConfiguration> BuildTenorBassInstruments() =>
     [
         new InstrumentConfiguration(Instrument.One, Notes.C5, Notes.E6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
         new InstrumentConfiguration(Instrument.Two, Notes.E4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
