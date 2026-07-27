@@ -1,0 +1,10 @@
+# The test workflow uploads one coverage file per matrix leg. Without this, codecov recomputes the PR
+# statuses after every upload, so the window between the fast legs and the Library leg (~12 minutes)
+# shows an artificial huge coverage drop. Waiting for all three uploads makes statuses compute once,
+# from the complete picture.
+codecov:
+  notify:
+    after_n_builds: 3
+
+comment:
+  after_n_builds: 3
