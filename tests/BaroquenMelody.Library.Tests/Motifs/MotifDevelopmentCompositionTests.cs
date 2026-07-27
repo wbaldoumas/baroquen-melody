@@ -14,6 +14,7 @@ namespace BaroquenMelody.Library.Tests.Motifs;
 ///     musical invariant intact, while actually changing the music relative to verbatim repetition.
 /// </summary>
 [TestFixture]
+[Parallelizable(ParallelScope.All)]
 internal sealed class MotifDevelopmentCompositionTests
 {
     private const int SampleIterations = 5;

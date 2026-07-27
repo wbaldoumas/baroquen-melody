@@ -20,6 +20,7 @@ namespace BaroquenMelody.Library.Tests;
 
 [TestFixture]
 [Parallelizable(ParallelScope.All)]
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 internal sealed class BaroquenMelodyComposerConfiguratorTests
 {
     private ILogger<MidiFileComposition> _mockLogger = null!;

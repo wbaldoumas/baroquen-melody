@@ -6,6 +6,7 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests.Scoring;
 
 [TestFixture]
+[Parallelizable(ParallelScope.All)]
 internal sealed class ScoringIntegrationTests
 {
     private const int Seed = 42;

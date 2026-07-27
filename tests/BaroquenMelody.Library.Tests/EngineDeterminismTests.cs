@@ -10,6 +10,7 @@ namespace BaroquenMelody.Library.Tests;
 ///     must produce byte-identical MIDI. This forces every randomness leak in the composition pipeline closed.
 /// </summary>
 [TestFixture]
+[Parallelizable(ParallelScope.All)]
 internal sealed class EngineDeterminismTests
 {
     private const int SampleIterations = 5;
