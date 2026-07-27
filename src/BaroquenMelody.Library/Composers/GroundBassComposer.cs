@@ -270,6 +270,11 @@ internal sealed class GroundBassComposer(
 
         cadentialTrillApplicator.ApplyTrill(lastStatementChord, finalChord);
 
+        // Search candidates are born plain, but the degraded close duplicates the walk's decorated last
+        // chord, whose copied ornamentation sub-notes would render after the stretched whole note and
+        // desynchronize the voice - the same guard the standard ending takes on its final chord.
+        finalChord.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
+
         foreach (var note in finalChord.Notes)
         {
             note.MusicalTimeSpan = MusicalTimeSpan.Whole;

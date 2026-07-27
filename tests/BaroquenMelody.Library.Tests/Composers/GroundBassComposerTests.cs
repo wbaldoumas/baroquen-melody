@@ -247,15 +247,25 @@ internal sealed class GroundBassComposerTests
     }
 
     [Test]
-    public void Compose_WhenTheCloseHasNoCandidatesAtAll_DuplicatesTheLastChord()
+    public void Compose_WhenTheCloseHasNoCandidatesAtAll_DuplicatesTheLastChordStrippedOfItsOrnamentation()
     {
         // arrange: the walk itself stays healthy, but the closing onset finds no pinned candidate and the
-        // free walk is empty too - the close must degrade to holding the last statement chord.
+        // free walk is empty too - the close must degrade to holding the last statement chord. The
+        // decorator ornaments the walk's chords before the close, so the duplicate must be reset: copied
+        // sub-notes would otherwise render after the stretched whole note and desynchronize the voice.
         var pinnedCalls = 0;
 
         _strategy.GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
             .Returns(call => ++pinnedCalls == 8 ? [] : new List<BaroquenChord> { HarmonizePin(call.ArgAt<BaroquenChord>(1)) });
         _strategy.GetPossibleChords(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns([]);
+        _decorator.When(static decorator => decorator.Decorate(Arg.Any<Composition>(), Instrument.One))
+            .Do(call =>
+            {
+                var upperNote = call.Arg<Composition>().Measures[^1].Beats[^1].Chord[Instrument.One];
+
+                upperNote.OrnamentationType = OrnamentationType.Mordent;
+                upperNote.Ornamentations.Add(new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Quarter));
+            });
 
         // act
         var composition = CreateComposer().Compose(CancellationToken.None);
@@ -263,6 +273,9 @@ internal sealed class GroundBassComposerTests
         // assert
         composition.Measures.Should().HaveCount(5);
         composition.Measures[^1].Beats[0].Chord[Instrument.Two].Raw.Should().Be(Notes.G2, "the degraded close holds the last statement chord instead of arriving on the tonic");
+        composition.Measures[^1].Beats[0].Chord.Notes.Should().OnlyContain(
+            static note => note.OrnamentationType == OrnamentationType.None && note.Ornamentations.Count == 0,
+            "the duplicated close must shed the copied ornamentation before stretching to a whole note");
     }
 
     [Test]
