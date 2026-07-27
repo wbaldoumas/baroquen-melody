@@ -99,6 +99,11 @@ internal sealed class GroundBassComposer(
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Ending));
         ApplyFinalCadence(composition, plan, cancellationToken);
 
+        // The overall progress bar averages the theme, body, and ending progress values, so the ending must
+        // report complete even though the ground's close is a single quick search - without this the bar
+        // freezes at two thirds.
+        dispatcher.Dispatch(new ProgressCompositionEndingProgress(100));
+
         cancellationToken.ThrowIfCancellationRequested();
 
         // The trailing sub-composition shares its measures with the full composition, so the passes mutate

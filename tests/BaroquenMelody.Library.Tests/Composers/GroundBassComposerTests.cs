@@ -361,8 +361,22 @@ internal sealed class GroundBassComposerTests
             _dispatcher.Dispatch(Arg.Is<ProgressCompositionStep>(static step => step.Step == CompositionStep.Body));
             _dispatcher.Dispatch(Arg.Is<ProgressCompositionStep>(static step => step.Step == CompositionStep.Ornamentation));
             _dispatcher.Dispatch(Arg.Is<ProgressCompositionStep>(static step => step.Step == CompositionStep.Ending));
+            _dispatcher.Dispatch(Arg.Is<ProgressCompositionEndingProgress>(static progress => progress.Progress == 100));
             _dispatcher.Dispatch(Arg.Is<ProgressCompositionStep>(static step => step.Step == CompositionStep.Complete));
         });
+    }
+
+    [Test]
+    public void Compose_CompletesEveryProgressChannelTheOverallBarAverages()
+    {
+        // The overall progress bar is the average of the theme, body, and ending progress channels, so
+        // each must report 100 or the bar freezes short of complete - found in the field at 67% when the
+        // ending channel was never dispatched.
+        _ = CreateComposer().Compose(CancellationToken.None);
+
+        _dispatcher.Received(1).Dispatch(Arg.Is<ProgressCompositionThemeProgress>(static progress => progress.Progress == 100));
+        _dispatcher.Received().Dispatch(Arg.Is<ProgressCompositionBodyProgress>(static progress => progress.Progress == 100));
+        _dispatcher.Received(1).Dispatch(Arg.Is<ProgressCompositionEndingProgress>(static progress => progress.Progress == 100));
     }
 
     [Test]
