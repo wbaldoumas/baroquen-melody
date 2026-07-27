@@ -25,6 +25,9 @@ dotnet test tests/BaroquenMelody.App.Components.Tests/
 # Run a single test by name
 dotnet test tests/BaroquenMelody.Library.Tests/ --filter "FullyQualifiedName~ComposerTests"
 
+# Run a test project sequentially (disables NUnit parallelization - for timing comparisons or debugging)
+dotnet test tests/BaroquenMelody.Library.Tests/ -- NUnit.NumberOfTestWorkers=0
+
 # Run benchmarks
 dotnet run --project benchmarks/BaroquenMelody.Benchmarks/ -c Release
 
@@ -69,7 +72,7 @@ Passes share one seeded RNG stream and generally draw once per candidate or site
 
 ### Key Abstractions
 
-- **`CompositionStrategy`** — Uses `IChordChoiceRepository` to enumerate possible next chords, validates them against `ICompositionRule`, and does a look-ahead search to ensure the composition doesn't paint itself into a corner.
+- **`CompositionStrategy`** — Uses `IChordChoiceRepository` to enumerate possible next chords, validates them against `ICompositionRule`, and does a look-ahead search to ensure the composition doesn't paint itself into a corner. The chord-choice index space is defined by `NoteChoiceGenerator`'s canonical order (pinned by a deciding test), which the choice repositories and `ForwardCheckingChordChoiceEnumerator` must share exactly.
 - **`ICompositionRule`** — Interface for rules like `AvoidParallelIntervals`, `AvoidDissonance`, `FollowsStandardProgression`. Combined via `AggregateCompositionRule`.
 - **`ICompositionDecorator`** — Applies ornamentations using an engine built with `Atrea.PolicyEngine`. Each ornamentation type (mordent, turn, passing tone, etc.) has its own processor with input/output policies.
 - **`CompositionConfiguration`** — Central config record holding tonic, mode, meter, tempo, instrument ranges, rule weights, and ornamentation settings.
@@ -98,9 +101,15 @@ Uses **Fluxor** (Redux-like) for state management. States live in `Library/Store
 - All three test assemblies declare `[assembly: Parallelizable(ParallelScope.Fixtures)]`: fixtures run concurrently, but tests within a fixture stay sequential, so per-fixture instance state guarded by `[SetUp]` remains safe. Never share mutable static state across fixtures.
 - Stateless fixtures with expensive full-composition tests may opt into `[Parallelizable(ParallelScope.All)]` at the class level. A fixture with instance fields must also take `[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]` before test-level parallelism, because NUnit otherwise shares one fixture instance across concurrent test cases.
 
+## CI
+
+- `test.yml` runs the three test projects as a parallel job matrix; the status checks are named `test (<ProjectName>)`. Each leg uploads its own coverage file to codecov, which merges uploads per commit.
+- `codecov.yml` sets `after_n_builds: 3`, so codecov statuses and the PR comment appear only after all three legs have uploaded (the Library leg is by far the slowest); partial-coverage numbers are never reported.
+
 ## Determinism in Seeded Tests
 
 - `ShuffleOrnamentationProcessors` defaults to `true` and is deliberately **not** seed-reproducible; seeded or comparative tests must set it to `false`.
 - Composition decisions must never consume hash-layout enumeration order (`FrozenSet`/`FrozenDictionary` iteration over record or class keys): frozen layouts are not process-stable, which once made seeded output depend on what had executed earlier in the process. Canonicalize with an explicit `OrderBy` at the consumption site, or generate the canonical order directly (see `NoteChoiceGenerator`).
+- Pipeline passes iterate voices via `CompositionConfiguration.Instruments` (register order, tie-broken by instrument), never the raw `InstrumentConfigurations` set; rule, scoring, and ornamentation factories order their configurations by their enum before building.
 - Seeded walks differ across operating systems: assert seed-sweep existence properties (`Enumerable.Range(1, N).Any(...)`), never per-seed outcome pins; per-seed pins are only safe for properties that hold for every seed.
 - A/B comparisons between two seeded runs must be draw-aligned: disabling a feature outright (`Enabled: false`) removes its RNG draws and shifts every later pass's decisions, so compare against a control that consumes identical draws (e.g. the feature enabled at `Probability: 0`) or compare only divergence-robust properties.
