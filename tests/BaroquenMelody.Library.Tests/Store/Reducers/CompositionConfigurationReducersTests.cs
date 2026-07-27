@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Enums;
+﻿using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Reducers;
@@ -22,7 +23,7 @@ internal sealed class CompositionConfigurationReducersTests
         var state = new CompositionConfigurationState();
 
         // act
-        state = CompositionConfigurationReducers.ReduceUpdateCompositionConfiguration(state, new UpdateCompositionConfiguration(rootNote, mode, Meter.ThreeFour, 8, 555));
+        state = CompositionConfigurationReducers.ReduceUpdateCompositionConfiguration(state, new UpdateCompositionConfiguration(rootNote, mode, Meter.ThreeFour, 8, 555, CompositionForm.GroundBass));
 
         // assert
         state.Meter.Should().Be(Meter.ThreeFour);
@@ -30,6 +31,7 @@ internal sealed class CompositionConfigurationReducersTests
         state.TonicNote.Should().Be(rootNote);
         state.Mode.Should().Be(mode);
         state.Tempo.Should().Be(555);
+        state.Form.Should().Be(CompositionForm.GroundBass);
     }
 
     [Test]
@@ -48,5 +50,34 @@ internal sealed class CompositionConfigurationReducersTests
         state.TonicNote.Should().Be(configuration.Tonic);
         state.Mode.Should().Be(configuration.Mode);
         state.Tempo.Should().Be(configuration.Tempo);
+        state.Form.Should().Be(CompositionForm.Fugue, "a configuration without a ground bass section is the standard form");
+    }
+
+    [Test]
+    public void ReduceLoadCompositionConfiguration_maps_an_enabled_ground_bass_configuration_to_the_ground_bass_form()
+    {
+        // arrange
+        var configuration = TestCompositionConfigurations.Get() with { GroundBassConfiguration = new GroundBassConfiguration(Enabled: true) };
+        var state = new CompositionConfigurationState();
+
+        // act
+        state = CompositionConfigurationReducers.ReduceLoadCompositionConfiguration(state, new LoadCompositionConfiguration(configuration));
+
+        // assert
+        state.Form.Should().Be(CompositionForm.GroundBass);
+    }
+
+    [Test]
+    public void ReduceLoadCompositionConfiguration_maps_a_disabled_ground_bass_configuration_to_the_fugue_form()
+    {
+        // arrange
+        var configuration = TestCompositionConfigurations.Get() with { GroundBassConfiguration = new GroundBassConfiguration(Enabled: false) };
+        var state = new CompositionConfigurationState { Form = CompositionForm.GroundBass };
+
+        // act
+        state = CompositionConfigurationReducers.ReduceLoadCompositionConfiguration(state, new LoadCompositionConfiguration(configuration));
+
+        // assert
+        state.Form.Should().Be(CompositionForm.Fugue);
     }
 }

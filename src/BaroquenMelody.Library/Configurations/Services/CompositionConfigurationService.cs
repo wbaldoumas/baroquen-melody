@@ -3,13 +3,14 @@ using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Store.Actions;
+using BaroquenMelody.Library.Store.State;
 using Fluxor;
 using Melanchall.DryWetMidi.MusicTheory;
 using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Configurations.Services;
 
-internal sealed class CompositionConfigurationService(IDispatcher dispatcher) : ICompositionConfigurationService
+internal sealed class CompositionConfigurationService(IDispatcher dispatcher, IState<CompositionConfigurationState> compositionConfigurationState) : ICompositionConfigurationService
 {
     private const Meter DefaultMeter = Meter.FourFour;
 
@@ -31,11 +32,15 @@ internal sealed class CompositionConfigurationService(IDispatcher dispatcher) : 
 
     private static readonly FrozenSet<Meter> _configurableMeters = EnumUtils<Meter>.AsEnumerable().ToFrozenSet();
 
+    private static readonly FrozenSet<CompositionForm> _configurableCompositionForms = EnumUtils<CompositionForm>.AsEnumerable().ToFrozenSet();
+
     public IEnumerable<NoteName> ConfigurableRootNotes => _configurableRootNotes;
 
     public IEnumerable<Mode> ConfigurableScaleModes => _configurableScaleModes;
 
     public IEnumerable<Meter> ConfigurableMeters => _configurableMeters;
+
+    public IEnumerable<CompositionForm> ConfigurableCompositionForms => _configurableCompositionForms;
 
     public void Randomize()
     {
@@ -45,7 +50,9 @@ internal sealed class CompositionConfigurationService(IDispatcher dispatcher) : 
         var randomMinimumMeasures = ThreadLocalRandom.Next(MinRandomMinimumMeasures, MaxRandomMinimumMeasures);
         var tempo = ThreadLocalRandom.Next(MinRandomTempo, MaxRandomTempo);
 
-        dispatcher.Dispatch(new UpdateCompositionConfiguration(randomRootNote, randomScaleMode, randomMeter, randomMinimumMeasures, tempo));
+        // The form is a deliberate structural choice, not a musical parameter to roll dice on: randomizing
+        // keeps whatever form the user has selected.
+        dispatcher.Dispatch(new UpdateCompositionConfiguration(randomRootNote, randomScaleMode, randomMeter, randomMinimumMeasures, tempo, compositionConfigurationState.Value.Form));
     }
 
     public void Reset() => dispatcher.Dispatch(new UpdateCompositionConfiguration(DefaultRootNote, DefaultMode, DefaultMeter));

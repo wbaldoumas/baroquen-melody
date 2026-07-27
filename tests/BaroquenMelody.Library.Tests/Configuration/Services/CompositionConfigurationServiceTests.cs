@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Store.Actions;
+using BaroquenMelody.Library.Store.State;
 using FluentAssertions;
 using Fluxor;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -15,14 +16,19 @@ internal sealed class CompositionConfigurationServiceTests
 {
     private IDispatcher _mockDispatcher = null!;
 
+    private IState<CompositionConfigurationState> _mockCompositionConfigurationState = null!;
+
     private CompositionConfigurationService _compositionConfigurationService = null!;
 
     [SetUp]
     public void SetUp()
     {
         _mockDispatcher = Substitute.For<IDispatcher>();
+        _mockCompositionConfigurationState = Substitute.For<IState<CompositionConfigurationState>>();
 
-        _compositionConfigurationService = new CompositionConfigurationService(_mockDispatcher);
+        _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState());
+
+        _compositionConfigurationService = new CompositionConfigurationService(_mockDispatcher, _mockCompositionConfigurationState);
     }
 
     [Test]
@@ -93,6 +99,23 @@ internal sealed class CompositionConfigurationServiceTests
     }
 
     [Test]
+    public void ConfigurableCompositionForms_returns_expected_values()
+    {
+        // arrange
+        var expectedConfigurableCompositionForms = new[]
+        {
+            CompositionForm.Fugue,
+            CompositionForm.GroundBass
+        };
+
+        // act
+        var actualConfigurableCompositionForms = _compositionConfigurationService.ConfigurableCompositionForms;
+
+        // assert
+        actualConfigurableCompositionForms.Should().BeEquivalentTo(expectedConfigurableCompositionForms);
+    }
+
+    [Test]
     public void Randomize_dispatches_expected_update()
     {
         // act
@@ -103,12 +126,25 @@ internal sealed class CompositionConfigurationServiceTests
     }
 
     [Test]
+    public void Randomize_preserves_the_selected_composition_form()
+    {
+        // arrange: the form is a deliberate structural choice, so rolling the dice must not change it.
+        _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState { Form = CompositionForm.GroundBass });
+
+        // act
+        _compositionConfigurationService.Randomize();
+
+        // assert
+        _mockDispatcher.Received(1).Dispatch(Arg.Is<UpdateCompositionConfiguration>(static action => action.Form == CompositionForm.GroundBass));
+    }
+
+    [Test]
     public void Reset_dispatches_expected_update()
     {
         // act
         _compositionConfigurationService.Reset();
 
         // assert
-        _mockDispatcher.Received(1).Dispatch(Arg.Any<UpdateCompositionConfiguration>());
+        _mockDispatcher.Received(1).Dispatch(Arg.Is<UpdateCompositionConfiguration>(static action => action.Form == CompositionForm.Fugue));
     }
 }

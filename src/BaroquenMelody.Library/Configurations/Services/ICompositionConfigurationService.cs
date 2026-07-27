@@ -25,6 +25,11 @@ public interface ICompositionConfigurationService
     IEnumerable<Meter> ConfigurableMeters { get; }
 
     /// <summary>
+    ///     The large-scale forms that can be configured by the user (e.g. "Fugue", "Ground Bass").
+    /// </summary>
+    IEnumerable<CompositionForm> ConfigurableCompositionForms { get; }
+
+    /// <summary>
     ///     Randomize the composition configuration.
     /// </summary>
     void Randomize();

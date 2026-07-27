@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Enums.Extensions;
 using BaroquenMelody.Library.Midi;
 using BaroquenMelody.Library.Store.Actions;
@@ -34,7 +35,8 @@ public sealed class BaroquenMelodyEffects(
             compositionConfigurationState.Value.Meter,
             compositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
             compositionConfigurationState.Value.MinimumMeasures,
-            Tempo: compositionConfigurationState.Value.Tempo
+            Tempo: compositionConfigurationState.Value.Tempo,
+            GroundBassConfiguration: new GroundBassConfiguration(compositionConfigurationState.Value.Form == CompositionForm.GroundBass)
         );
 
         await Task.Run(

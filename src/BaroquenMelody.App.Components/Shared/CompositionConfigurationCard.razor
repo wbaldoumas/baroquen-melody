@@ -8,7 +8,7 @@
     </MudCardHeader>
     <MudCardContent>
         <MudGrid Justify="Justify.Center">
-            <MudItem xs="12" sm="6" md="3">
+            <MudItem xs="12" sm="6" md="2">
                 <SelectWithPopover T="NoteName"
                                    Items="CompositionConfigurationService.ConfigurableRootNotes"
                                    Label="Tonic Note"
@@ -44,7 +44,19 @@
                     </PopoverContent>
                 </SelectWithPopover>
             </MudItem>
-            <MudItem xs="12" sm="6" md="3">
+            <MudItem xs="12" sm="6" md="2">
+                <SelectWithPopover T="CompositionForm"
+                                   Items="CompositionConfigurationService.ConfigurableCompositionForms"
+                                   Label="Form"
+                                   ValueProvider="() => Form"
+                                   ValueChanged="HandleFormChange"
+                                   ConvertToDisplay="form => form.ToSpaceSeparatedString()">
+                    <PopoverContent>
+                        <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Musical_form">form</MudLink> of the composition: a fugue, or variations over a repeating <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Ground_bass">ground bass</MudLink>.</MudText>
+                    </PopoverContent>
+                </SelectWithPopover>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="2">
                 <NumericInputWithPopover T="int"
                                          Label="Minimum Measures"
                                          ValueChanged="HandleCompositionLengthChange"
@@ -79,17 +91,21 @@
 
     private Meter Meter => CompositionConfigurationState.Value.Meter;
 
+    private CompositionForm Form => CompositionConfigurationState.Value.Form;
+
     private int MinimumMeasures => CompositionConfigurationState.Value.MinimumMeasures;
 
     private int Tempo => CompositionConfigurationState.Value.Tempo;
 
-    private void HandleTonicNoteChange(NoteName note) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(note, Mode, Meter, MinimumMeasures, Tempo));
+    private void HandleTonicNoteChange(NoteName note) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(note, Mode, Meter, MinimumMeasures, Tempo, Form));
 
-    private void HandleModeChange(Mode mode) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, mode, Meter, MinimumMeasures, Tempo));
+    private void HandleModeChange(Mode mode) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, mode, Meter, MinimumMeasures, Tempo, Form));
 
-    private void HandleMeterChange(Meter meter) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, meter, MinimumMeasures, Tempo));
+    private void HandleMeterChange(Meter meter) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, meter, MinimumMeasures, Tempo, Form));
 
-    private void HandleCompositionLengthChange(int length) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, length, Tempo));
+    private void HandleFormChange(CompositionForm form) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, form));
 
-    private void HandleTempoChange(int tempo) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, tempo));
+    private void HandleCompositionLengthChange(int length) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, length, Tempo, Form));
+
+    private void HandleTempoChange(int tempo) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, tempo, Form));
 }

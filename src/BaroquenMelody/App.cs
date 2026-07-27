@@ -1,6 +1,7 @@
 ﻿using BaroquenMelody.Infrastructure.State;
 using BaroquenMelody.Library;
 using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Enums.Extensions;
 using BaroquenMelody.Library.Store.State;
 using Fluxor;
@@ -55,7 +56,8 @@ internal sealed class App : IDisposable
             _compositionConfigurationState.Value.Meter,
             _compositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
             _compositionConfigurationState.Value.MinimumMeasures,
-            Tempo: _compositionConfigurationState.Value.Tempo
+            Tempo: _compositionConfigurationState.Value.Tempo,
+            GroundBassConfiguration: new GroundBassConfiguration(_compositionConfigurationState.Value.Form == CompositionForm.GroundBass)
         );
 
         return _configurator.Configure(compositionConfiguration).Compose(CancellationToken.None);

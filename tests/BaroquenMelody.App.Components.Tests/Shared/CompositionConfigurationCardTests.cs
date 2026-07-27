@@ -103,6 +103,43 @@ internal sealed class CompositionConfigurationCardTests
     }
 
     [Test]
+    public void Choosing_the_ground_bass_form_updates_the_store()
+    {
+        // arrange
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+        var select = component.FindComponent<MudSelect<CompositionForm>>();
+
+        // act
+        component.InvokeAsync(() => select.Instance.ValueChanged.InvokeAsync(CompositionForm.GroundBass)).GetAwaiter().GetResult();
+
+        // assert
+        _testContext.StateOf<CompositionConfigurationState>().Form.Should().Be(CompositionForm.GroundBass);
+    }
+
+    [Test]
+    public void Changing_the_tonic_preserves_the_selected_form()
+    {
+        // arrange: every handler must carry the whole state forward, or a tonic change would silently
+        // reset the form to the fugue default.
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+        var formSelect = component.FindComponent<MudSelect<CompositionForm>>();
+
+        component.InvokeAsync(() => formSelect.Instance.ValueChanged.InvokeAsync(CompositionForm.GroundBass)).GetAwaiter().GetResult();
+        component.Render();
+
+        var tonicSelect = component.FindComponent<MudSelect<NoteName>>();
+
+        // act
+        component.InvokeAsync(() => tonicSelect.Instance.ValueChanged.InvokeAsync(NoteName.G)).GetAwaiter().GetResult();
+
+        // assert
+        var state = _testContext.StateOf<CompositionConfigurationState>();
+
+        state.TonicNote.Should().Be(NoteName.G);
+        state.Form.Should().Be(CompositionForm.GroundBass);
+    }
+
+    [Test]
     public void Changing_the_tonic_realigns_instrument_ranges_to_the_new_scale()
     {
         // arrange
