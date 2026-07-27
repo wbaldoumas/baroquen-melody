@@ -9,6 +9,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - BaroquenMelody.Library.Tests
+          - BaroquenMelody.Infrastructure.Tests
+          - BaroquenMelody.App.Components.Tests
     steps:
     - uses: actions/checkout@v7
 
@@ -19,15 +26,7 @@ jobs:
 
     - name: 🧪 run tests
       run: |
-        cd ./tests/BaroquenMelody.Library.Tests/
-        dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-        cp TestResults/*/coverage.opencover.xml .
-
-        cd ../BaroquenMelody.Infrastructure.Tests/
-        dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-        cp TestResults/*/coverage.opencover.xml .
-
-        cd ../BaroquenMelody.App.Components.Tests/
+        cd ./tests/${{ matrix.project }}/
         dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
         cp TestResults/*/coverage.opencover.xml .
 
@@ -35,5 +34,5 @@ jobs:
       uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: /home/runner/work/baroquen-melody/baroquen-melody/tests/BaroquenMelody.Library.Tests/coverage.opencover.xml,/home/runner/work/baroquen-melody/baroquen-melody/tests/BaroquenMelody.Infrastructure.Tests/coverage.opencover.xml,/home/runner/work/baroquen-melody/baroquen-melody/tests/BaroquenMelody.App.Components.Tests/coverage.opencover.xml
+        files: tests/${{ matrix.project }}/coverage.opencover.xml
         fail_ci_if_error: true

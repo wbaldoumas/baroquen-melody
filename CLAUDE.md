@@ -93,8 +93,14 @@ Uses **Fluxor** (Redux-like) for state management. States live in `Library/Store
 - **Internal by default**: Library/Infrastructure types are `internal` with `InternalsVisibleTo` for test and benchmark projects.
 - **`PublishAot`**: Enabled on `Library`, `Infrastructure`, and the console app. Avoid reflection-heavy patterns in these projects.
 
+## Test Parallelization
+
+- All three test assemblies declare `[assembly: Parallelizable(ParallelScope.Fixtures)]`: fixtures run concurrently, but tests within a fixture stay sequential, so per-fixture instance state guarded by `[SetUp]` remains safe. Never share mutable static state across fixtures.
+- Stateless fixtures with expensive full-composition tests may opt into `[Parallelizable(ParallelScope.All)]` at the class level. A fixture with instance fields must also take `[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]` before test-level parallelism, because NUnit otherwise shares one fixture instance across concurrent test cases.
+
 ## Determinism in Seeded Tests
 
 - `ShuffleOrnamentationProcessors` defaults to `true` and is deliberately **not** seed-reproducible; seeded or comparative tests must set it to `false`.
+- Composition decisions must never consume hash-layout enumeration order (`FrozenSet`/`FrozenDictionary` iteration over record or class keys): frozen layouts are not process-stable, which once made seeded output depend on what had executed earlier in the process. Canonicalize with an explicit `OrderBy` at the consumption site, or generate the canonical order directly (see `NoteChoiceGenerator`).
 - Seeded walks differ across operating systems: assert seed-sweep existence properties (`Enumerable.Range(1, N).Any(...)`), never per-seed outcome pins; per-seed pins are only safe for properties that hold for every seed.
 - A/B comparisons between two seeded runs must be draw-aligned: disabling a feature outright (`Enabled: false`) removes its RNG draws and shifts every later pass's decisions, so compare against a control that consumes identical draws (e.g. the feature enabled at `Probability: 0`) or compare only divergence-robust properties.
