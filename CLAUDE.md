@@ -67,6 +67,10 @@ The `Composer.Compose()` pipeline runs these steps in order:
 
 Passes share one seeded RNG stream and generally draw once per candidate or site regardless of outcome; anything that changes draw counts shifts every later pass's draws.
 
+### Composition Forms
+
+`CompositionConfiguration.GroundBassConfiguration` (default disabled; surfaced as the Form select in the UI) makes the configurator swap the fugal `Composer` for `GroundBassComposer` (`Library/Forms/` holds the pattern bank and planner). The ground form: a bass pattern (scale-step offsets from a tonic anchor, rendered into the lowest voice's register) announces itself alone, then repeats under upper voices searched fresh at every ground-note onset with the bass pinned, threading each onset to the next pin exactly as fugal entries thread. Held slots are plain duplicates (the harmonic-rhythm idiom); dead-ended walks retry from fresh draws, with a per-site unpinned liberty on the final attempt; an unplannable bass range falls back to the fugue. The suspension and tonicization passes run over a trailing sub-composition (sharing chord references) so the solo announcement stays exact.
+
 ### Key Abstractions
 
 - **`CompositionStrategy`** — Uses `IChordChoiceRepository` to enumerate possible next chords, validates them against `ICompositionRule`, and does a look-ahead search to ensure the composition doesn't paint itself into a corner.
