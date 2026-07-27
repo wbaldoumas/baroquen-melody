@@ -3,7 +3,7 @@ namespace BaroquenMelody.Library.Forms.Enums;
 /// <summary>
 ///     Identifies a ground bass pattern in the built-in bank.
 /// </summary>
-internal enum GroundBass
+public enum GroundBass
 {
     /// <summary>
     ///     The diatonic descending tetrachord (1-7-6-5), the classic passacaglia and lament frame.

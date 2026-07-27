@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations.Services;
+using BaroquenMelody.Library.Forms;
 using BaroquenMelody.Library.Midi;
 using BaroquenMelody.Library.Midi.Repositories;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors.Providers;
@@ -34,6 +35,7 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IMidiExampleGenerator, MidiExampleGenerator>()
         .AddSingleton<IWeightedRandomBooleanGenerator, WeightedRandomBooleanGenerator>()
         .AddSingleton<IVoiceSpacingSatisfiabilityAnalyzer, VoiceSpacingSatisfiabilityAnalyzer>()
+        .AddSingleton<IGroundBassFeasibilityAnalyzer, GroundBassFeasibilityAnalyzer>()
         .AddSingleton<IRandomProvider, ThreadLocalRandomProvider>()
         .AddSingleton<IMusicalTimeSpanCalculator, MusicalTimeSpanCalculator>()
         .AddSingleton<IOrnamentationProcessorConfigurationFactoryProvider, OrnamentationProcessorConfigurationFactoryProvider>();
