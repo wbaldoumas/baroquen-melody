@@ -294,12 +294,12 @@ internal sealed class GroundBassComposer(
             return null;
         }
 
+        // The statement walk emits only whole measures, so the closing measure's predecessor always holds the
+        // two chords the selector's context-sensitive scoring wants.
         var lastStatementChord = composition.Measures[^1].Beats[^1].Chord;
         var bestRank = candidates.Min(candidate => RankCadence(lastStatementChord, candidate));
         var bestCandidates = candidates.Where(candidate => RankCadence(lastStatementChord, candidate) == bestRank).ToList();
-        var selectorContext = composition.Measures[^1].Beats.Count >= 2
-            ? new List<BaroquenChord> { composition.Measures[^1].Beats[^2].Chord, lastStatementChord }
-            : [lastStatementChord];
+        var selectorContext = new List<BaroquenChord> { composition.Measures[^1].Beats[^2].Chord, lastStatementChord };
 
         return chordSelector.SelectNextChord(selectorContext, bestCandidates) ?? bestCandidates[0];
     }

@@ -82,11 +82,13 @@ internal sealed class GroundBassPlanner(
             : pattern.ScaleStepOffsets.Select(offset => scaleNotes[bestAnchorIndex + offset]).ToList();
     }
 
+    // Bank offsets never exceed the anchor (a pinned pattern invariant), so only the low end of the scale's
+    // note list can run out from under a rendered offset.
     private static bool AnchorFits(GroundBassPattern pattern, List<Note> scaleNotes, int anchorIndex, InstrumentConfiguration bassConfiguration) =>
         pattern.ScaleStepOffsets.All(offset =>
         {
             var renderedIndex = anchorIndex + offset;
 
-            return renderedIndex >= 0 && renderedIndex < scaleNotes.Count && bassConfiguration.IsNoteWithinInstrumentRange(scaleNotes[renderedIndex]);
+            return renderedIndex >= 0 && bassConfiguration.IsNoteWithinInstrumentRange(scaleNotes[renderedIndex]);
         });
 }

@@ -156,6 +156,28 @@ internal sealed class GroundBassPlannerTests
     }
 
     [Test]
+    public void CreatePlan_AtTheBottomOfTheScaleGamut_SkipsAnchorsWhoseOffsetsRunOffTheNoteList()
+    {
+        // arrange: a bass range hugging the lowest playable octave contains the scale list's very first
+        // tonic, whose downward offsets would index before the list starts - the planner must skip it and
+        // anchor on the octave above.
+        var lowestTonic = Note.Get(NoteName.C, -1);
+        var configuration = BuildConfiguration(BuildTwoVoiceInstruments(lowestTonic, Note.Get(NoteName.C, 0)), NoteName.C, Mode.Ionian);
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.BassNotes[0].Should().Be(Note.Get(NoteName.C, 0), "the gamut-bottom tonic cannot host a descending ground");
+    }
+
+    [Test]
     public void CreatePlan_WithTheSameSeed_IsDeterministic()
     {
         // arrange

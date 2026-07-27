@@ -247,6 +247,43 @@ internal sealed class GroundBassComposerTests
     }
 
     [Test]
+    public void Compose_WhenTheCloseHasNoCandidatesAtAll_DuplicatesTheLastChord()
+    {
+        // arrange: the walk itself stays healthy, but the closing onset finds no pinned candidate and the
+        // free walk is empty too - the close must degrade to holding the last statement chord.
+        var pinnedCalls = 0;
+
+        _strategy.GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(call => ++pinnedCalls == 8 ? [] : new List<BaroquenChord> { HarmonizePin(call.ArgAt<BaroquenChord>(1)) });
+        _strategy.GetPossibleChords(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns([]);
+
+        // act
+        var composition = CreateComposer().Compose(CancellationToken.None);
+
+        // assert
+        composition.Measures.Should().HaveCount(5);
+        composition.Measures[^1].Beats[0].Chord[Instrument.Two].Raw.Should().Be(Notes.G2, "the degraded close holds the last statement chord instead of arriving on the tonic");
+    }
+
+    [Test]
+    public void Compose_WhenTheSelectorDeclinesTheClose_TakesTheStrongestCandidateDirectly()
+    {
+        // arrange: the walk's seven onset selections succeed; the eighth selection is the close, which the
+        // selector declines, so the composer takes the strongest-ranked candidate itself.
+        var selectorCalls = 0;
+
+        _selector.SelectNextChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<IEnumerable<BaroquenChord>>())
+            .Returns(call => ++selectorCalls == 8 ? null : call.Arg<IEnumerable<BaroquenChord>>().FirstOrDefault());
+
+        // act
+        var composition = CreateComposer().Compose(CancellationToken.None);
+
+        // assert
+        composition.Measures.Should().HaveCount(5);
+        composition.Measures[^1].Beats[0].Chord[Instrument.Two].Raw.Should().Be(Notes.C3, "the strongest pinned-tonic candidate closes the piece");
+    }
+
+    [Test]
     public void Compose_StretchesTheFinalChordAndAppendsARestingChord()
     {
         // act
