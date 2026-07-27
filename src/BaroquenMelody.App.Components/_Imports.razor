@@ -17,6 +17,8 @@
 @using BaroquenMelody.Library.Configurations.Services
 @using BaroquenMelody.Library.Enums
 @using BaroquenMelody.Library.Enums.Extensions
+@using BaroquenMelody.Library.Forms
+@using BaroquenMelody.Library.Forms.Enums
 @using BaroquenMelody.Library.Midi
 @using BaroquenMelody.Library.Midi.Enums
 @using BaroquenMelody.Library.Midi.Repositories
@@ -52,6 +54,7 @@
 @inject ICompositionConfigurationService CompositionConfigurationService
 @inject IBaroquenMelodyComposerConfigurator ComposerConfigurator
 @inject IVoiceSpacingSatisfiabilityAnalyzer VoiceSpacingSatisfiabilityAnalyzer
+@inject IGroundBassFeasibilityAnalyzer GroundBassFeasibilityAnalyzer
 @inject IThemeProvider ThemeProvider
 @inject IMidiLauncher MidiLauncher
 @inject IMidiSaver MidiSaver

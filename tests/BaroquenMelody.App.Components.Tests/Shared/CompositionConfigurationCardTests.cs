@@ -1,10 +1,13 @@
 using BaroquenMelody.App.Components.Shared;
+using BaroquenMelody.App.Components.Tests.TestComponents;
+using BaroquenMelody.App.Components.Tests.TestData;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Store.State;
 using Bunit;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
+using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using NUnit.Framework;
 
@@ -14,6 +17,8 @@ namespace BaroquenMelody.App.Components.Tests.Shared;
 internal sealed class CompositionConfigurationCardTests
 {
     private AppComponentsTestContext _testContext = null!;
+
+    private ISnackbar Snackbar => _testContext.Services.GetRequiredService<ISnackbar>();
 
     [SetUp]
     public void SetUp() => _testContext = new AppComponentsTestContext();
@@ -137,6 +142,155 @@ internal sealed class CompositionConfigurationCardTests
 
         state.TonicNote.Should().Be(NoteName.G);
         state.Form.Should().Be(CompositionForm.GroundBass);
+    }
+
+    [Test]
+    public void No_feasibility_chip_when_every_ground_fits()
+    {
+        // arrange: the default ranges host the whole bank, so the ground bass form needs no caveat.
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        // act
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        component.Render();
+
+        // assert
+        component.Markup.Should().NotContain("grounds fit");
+    }
+
+    [Test]
+    public void No_feasibility_chip_when_the_fugue_form_is_selected()
+    {
+        // arrange: an empty bank is irrelevant to a fugue, so the chip stays hidden.
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        // act
+        GroundBassScenarios.EmptyTheGroundBank(_testContext);
+        component.Render();
+
+        // assert
+        component.Markup.Should().NotContain("grounds fit");
+    }
+
+    [Test]
+    public void A_reduced_bank_shows_a_persistent_count_chip_without_toasting()
+    {
+        // arrange
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+
+        // act
+        GroundBassScenarios.ReduceTheGroundBankToTheTetrachord(_testContext);
+        component.Render();
+
+        // assert: a shrinking-but-nonempty bank informs quietly - the chip appears, no toast fires.
+        component.Markup.Should().Contain("1 of 3 grounds fits");
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+    }
+
+    [Test]
+    public void An_empty_bank_shows_the_fugue_fallback_warning_chip()
+    {
+        // arrange
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        GroundBassScenarios.EmptyTheGroundBank(_testContext);
+
+        // act
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        component.Render();
+
+        // assert
+        component.Markup.Should().Contain("No grounds fit");
+    }
+
+    [Test]
+    public void Selecting_the_ground_bass_form_over_an_empty_bank_toasts_the_fugue_fallback()
+    {
+        // arrange: the bank empties while the fugue form is selected, which is not yet worth a warning.
+        _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        GroundBassScenarios.EmptyTheGroundBank(_testContext);
+
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+
+        // act: choosing the ground bass form is the transition into the fallback.
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+
+        // assert
+        Snackbar.ShownSnackbars.Should().ContainSingle();
+    }
+
+    [Test]
+    public void Selecting_the_ground_bass_form_over_a_full_bank_does_not_toast()
+    {
+        // arrange
+        _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        // act
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+
+        // assert
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+    }
+
+    [Test]
+    public void Emptying_the_bank_by_key_change_while_in_ground_bass_form_toasts()
+    {
+        // arrange: a B tonic keeps a B2-B3 ground-hosting voice feasible (the tonic B3 tops the range with
+        // a fourth below it), so selecting the ground bass form warns of nothing yet.
+        _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        GroundBassScenarios.ChangeTonic(_testContext, NoteName.B);
+        GroundBassScenarios.EmptyTheGroundBank(_testContext);
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+
+        // act: in C the same range holds a single tonic with one scale step below it - the bank empties.
+        GroundBassScenarios.ChangeTonic(_testContext, NoteName.C);
+
+        // assert
+        Snackbar.ShownSnackbars.Should().ContainSingle();
+    }
+
+    [Test]
+    public void No_toast_when_the_card_mounts_with_an_already_fallen_back_configuration()
+    {
+        // arrange
+        var originalConfiguration = GroundBassScenarios.EmptyTheGroundBank(_testContext);
+
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+
+        // act
+        _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        // assert: no toast on mount, and none when the bank becomes feasible again
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+
+        GroundBassScenarios.RestoreGroundHostingVoice(_testContext, originalConfiguration);
+
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+    }
+
+    [Test]
+    public void Unmounted_card_no_longer_toasts()
+    {
+        // arrange: mount and unmount the card, as a tab switch does
+        var component = _testContext.RenderComponent<ConditionalWrapper>(parameters => parameters
+            .Add(wrapper => wrapper.Show, true)
+            .AddChildContent<CompositionConfigurationCard>()
+        );
+
+        component.SetParametersAndRender(parameters => parameters.Add(wrapper => wrapper.Show, false));
+
+        // act
+        GroundBassScenarios.EmptyTheGroundBank(_testContext);
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+
+        // assert: a leaked state subscription from the unmounted card would still toast
+        Snackbar.ShownSnackbars.Should().BeEmpty();
     }
 
     [Test]

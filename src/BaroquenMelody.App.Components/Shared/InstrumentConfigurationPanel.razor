@@ -30,19 +30,24 @@
 
     private bool _wasVoiceSpacingSatisfiable;
 
+    private bool _wasGroundBassFallingBackToFugue;
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
 
         // warn on the transition into unsatisfiability only, so an already-unsatisfiable configuration
-        // does not toast on every visit to this panel.
+        // does not toast on every visit to this panel. The ground bass check watches the same stream for
+        // range and voice edits; key and form edits toast from the composition configuration card instead.
         _wasVoiceSpacingSatisfiable = IsVoiceSpacingSatisfiable();
+        _wasGroundBassFallingBackToFugue = IsGroundBassFallingBackToFugue();
 
         _instrumentConfigurationStateSubscription = InstrumentConfigurationState
             .ObserveChanges()
             .Subscribe(_ =>
             {
                 var isVoiceSpacingSatisfiable = IsVoiceSpacingSatisfiable();
+                var isGroundBassFallingBackToFugue = IsGroundBassFallingBackToFugue();
 
                 if (_wasVoiceSpacingSatisfiable && !isVoiceSpacingSatisfiable && IsVoiceSpacingRuleEnabled())
                 {
@@ -52,7 +57,13 @@
                     );
                 }
 
+                if (!_wasGroundBassFallingBackToFugue && isGroundBassFallingBackToFugue)
+                {
+                    Snackbar.Add(GroundBassWarnings.FugueFallback, Severity.Warning);
+                }
+
                 _wasVoiceSpacingSatisfiable = isVoiceSpacingSatisfiable;
+                _wasGroundBassFallingBackToFugue = isGroundBassFallingBackToFugue;
             });
     }
 
@@ -63,6 +74,15 @@
 
     // a rule the user has disabled is not applied at all, so becoming unsatisfiable changes nothing worth a toast.
     private bool IsVoiceSpacingRuleEnabled() => CompositionRuleConfigurationState.Value[CompositionRule.EnforceVoiceSpacing]?.Status.IsEnabled() is true;
+
+    // a shrinking-but-nonempty bank stays silent here: the composition card's chip carries that state, and
+    // only the transition into the empty bank (the fugue fallback) warrants interrupting a range edit.
+    private bool IsGroundBassFallingBackToFugue() =>
+        CompositionConfigurationState.Value.Form == CompositionForm.GroundBass
+        && GroundBassFeasibilityAnalyzer.GetFeasibleGroundBasses(
+            InstrumentConfigurationState.Value.EnabledConfigurations,
+            CompositionConfigurationState.Value.Scale
+        ).Count == 0;
 
     // FluxorComponent implements IAsyncDisposable, and Blazor only invokes the asynchronous overload when a
     // component offers both - a synchronous Dispose() here would never run (see CompositionProgress for the

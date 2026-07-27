@@ -135,6 +135,66 @@ internal sealed class InstrumentConfigurationPanelTests
     }
 
     [Test]
+    public void Emptying_the_ground_bank_while_in_ground_bass_form_toasts()
+    {
+        // arrange: the range edit leaves voice spacing satisfiable, so the single toast is the ground warning.
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        _testContext.RenderComponent<InstrumentConfigurationPanel>();
+
+        // act
+        GroundBassScenarios.EmptyTheGroundBank(_testContext);
+
+        // assert
+        Snackbar.ShownSnackbars.Should().ContainSingle();
+    }
+
+    [Test]
+    public void No_ground_toast_for_a_range_edit_that_merely_shrinks_the_bank()
+    {
+        // arrange
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        _testContext.RenderComponent<InstrumentConfigurationPanel>();
+
+        // act: only the tetrachord survives, but the composition still grounds - the card's chip suffices.
+        GroundBassScenarios.ReduceTheGroundBankToTheTetrachord(_testContext);
+
+        // assert
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+    }
+
+    [Test]
+    public void No_ground_toast_when_the_fugue_form_is_selected()
+    {
+        // arrange
+        _testContext.RenderComponent<InstrumentConfigurationPanel>();
+
+        // act: an empty bank is irrelevant to a fugue composition
+        GroundBassScenarios.EmptyTheGroundBank(_testContext);
+
+        // assert
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+    }
+
+    [Test]
+    public void No_ground_toast_when_the_panel_mounts_with_an_already_empty_bank()
+    {
+        // arrange
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+
+        var originalConfiguration = GroundBassScenarios.EmptyTheGroundBank(_testContext);
+
+        // act
+        _testContext.RenderComponent<InstrumentConfigurationPanel>();
+
+        // assert: no toast on mount, and none when the bank becomes feasible again
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+
+        GroundBassScenarios.RestoreGroundHostingVoice(_testContext, originalConfiguration);
+
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+    }
+
+    [Test]
     public void Unmounted_panel_no_longer_toasts()
     {
         // arrange: mount and unmount the panel, as a tab switch does
