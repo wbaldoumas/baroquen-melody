@@ -86,6 +86,7 @@ public sealed class VoiceSpacingSatisfiabilityAnalyzer : IVoiceSpacingSatisfiabi
 
     private static List<InstrumentConfiguration> OrderByRegister(IEnumerable<InstrumentConfiguration> instrumentConfigurations) => instrumentConfigurations
         .OrderByDescending(static instrumentConfiguration => instrumentConfiguration.MinNote)
+        .ThenBy(static instrumentConfiguration => instrumentConfiguration.Instrument)
         .ToList();
 
     private static List<Note> GetPlayableNotes(List<Note> scaleNotes, InstrumentConfiguration instrumentConfiguration) =>

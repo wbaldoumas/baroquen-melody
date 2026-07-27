@@ -33,9 +33,9 @@ internal sealed class MidiGenerator(CompositionConfiguration compositionConfigur
         return midiFile;
     }
 
-    private FrozenDictionary<Instrument, PatternBuilder> InitializePatternBuildersByInstrument() => compositionConfiguration.InstrumentConfigurations.ToDictionary(
-        instrumentConfiguration => instrumentConfiguration.Instrument,
-        instrumentConfiguration => new PatternBuilder().ProgramChange(instrumentConfiguration.MidiProgram)
+    private FrozenDictionary<Instrument, PatternBuilder> InitializePatternBuildersByInstrument() => compositionConfiguration.Instruments.ToDictionary(
+        static instrument => instrument,
+        instrument => new PatternBuilder().ProgramChange(compositionConfiguration.InstrumentConfigurationsByInstrument[instrument].MidiProgram)
     ).ToFrozenDictionary();
 
     private void ProcessMeasure(Measure measure, FrozenDictionary<Instrument, PatternBuilder> patternBuildersByInstrument)

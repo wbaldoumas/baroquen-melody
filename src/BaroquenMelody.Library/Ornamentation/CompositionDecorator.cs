@@ -28,7 +28,7 @@ internal sealed class CompositionDecorator(
     private void Decorate(Composition composition, IPolicyEngine<OrnamentationItem> processor, bool shuffleProcessors = false)
     {
         var compositionContext = new FixedSizeList<Beat>(configuration.CompositionContextSize);
-        var instruments = configuration.InstrumentConfigurations.Select(static instrumentConfiguration => instrumentConfiguration.Instrument);
+        var instruments = configuration.Instruments;
         var beats = composition.Measures.SelectMany(static measure => measure.Beats).ToList();
 
         foreach (var instrument in instruments)

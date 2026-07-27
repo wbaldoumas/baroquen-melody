@@ -20,6 +20,7 @@ internal sealed class CompositionRuleFactory(
     public ICompositionRule CreateAggregate(AggregateCompositionRuleConfiguration aggregateConfiguration) => new AggregateCompositionRule(
         aggregateConfiguration.Configurations
             .Where(configuration => configuration.IsEnabled)
+            .OrderBy(static configuration => configuration.Rule)
             .Select(Create)
             .Prepend(new EnsureInstrumentRange(compositionConfiguration))
             .ToList()

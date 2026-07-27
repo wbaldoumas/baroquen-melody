@@ -13,7 +13,7 @@ internal sealed class OrnamentationProcessorFactory(
 ) : IOrnamentationProcessorFactory
 {
     public IEnumerable<IProcessor<OrnamentationItem>> Create(CompositionConfiguration compositionConfiguration) =>
-        from configuration in compositionConfiguration.AggregateOrnamentationConfiguration.Configurations
+        from configuration in compositionConfiguration.AggregateOrnamentationConfiguration.Configurations.OrderBy(static configuration => configuration.OrnamentationType)
         where configuration.IsEnabled
         from processorConfiguration in configurationFactory.Create(configuration)
         select PolicyEngineBuilder<OrnamentationItem>.Configure()

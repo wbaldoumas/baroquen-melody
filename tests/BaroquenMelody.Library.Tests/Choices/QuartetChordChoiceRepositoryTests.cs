@@ -20,7 +20,7 @@ internal sealed class QuartetChordChoiceRepositoryTests
         _mockNoteChoiceGenerator
             .GenerateNoteChoices(Arg.Is<Instrument>(instrument => instrument == Instrument.One))
             .Returns(
-                new HashSet<NoteChoice>
+                new List<NoteChoice>
                 {
                     new(Instrument.One, NoteMotion.Oblique, 0),
                     new(Instrument.One, NoteMotion.Ascending, 2),
@@ -31,7 +31,7 @@ internal sealed class QuartetChordChoiceRepositoryTests
         _mockNoteChoiceGenerator
             .GenerateNoteChoices(Arg.Is<Instrument>(instrument => instrument == Instrument.Two))
             .Returns(
-                new HashSet<NoteChoice>
+                new List<NoteChoice>
                 {
                     new(Instrument.Two, NoteMotion.Oblique, 0),
                     new(Instrument.Two, NoteMotion.Ascending, 2),
@@ -42,7 +42,7 @@ internal sealed class QuartetChordChoiceRepositoryTests
         _mockNoteChoiceGenerator
             .GenerateNoteChoices(Arg.Is<Instrument>(instrument => instrument == Instrument.Three))
             .Returns(
-                new HashSet<NoteChoice>
+                new List<NoteChoice>
                 {
                     new(Instrument.Three, NoteMotion.Oblique, 0),
                     new(Instrument.Three, NoteMotion.Ascending, 2),
@@ -53,7 +53,7 @@ internal sealed class QuartetChordChoiceRepositoryTests
         _mockNoteChoiceGenerator
             .GenerateNoteChoices(Arg.Is<Instrument>(instrument => instrument == Instrument.Four))
             .Returns(
-                new HashSet<NoteChoice>
+                new List<NoteChoice>
                 {
                     new(Instrument.Four, NoteMotion.Oblique, 0),
                     new(Instrument.Four, NoteMotion.Ascending, 2),

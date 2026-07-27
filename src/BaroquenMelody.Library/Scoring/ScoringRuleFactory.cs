@@ -16,6 +16,7 @@ internal sealed class ScoringRuleFactory(
     public IScoringRule CreateAggregate(AggregateScoringRuleConfiguration aggregateConfiguration) => new AggregateScoringRule(
         aggregateConfiguration.Configurations
             .Where(static configuration => configuration.IsEnabled && configuration.Weight > 0)
+            .OrderBy(static configuration => configuration.Rule)
             .Select(Create)
             .ToList()
     );

@@ -65,12 +65,13 @@ public sealed record CompositionConfiguration(
     );
 
     public LazyCartesianProduct<Instrument, Instrument> InstrumentPairs { get; } = new(
-        InstrumentConfigurations.Select(instrumentConfiguration => instrumentConfiguration.Instrument).ToList(),
-        InstrumentConfigurations.Select(instrumentConfiguration => instrumentConfiguration.Instrument).ToList()
+        InstrumentConfigurations.Select(instrumentConfiguration => instrumentConfiguration.Instrument).Order().ToList(),
+        InstrumentConfigurations.Select(instrumentConfiguration => instrumentConfiguration.Instrument).Order().ToList()
     );
 
     public List<Instrument> Instruments { get; } = InstrumentConfigurations
         .OrderByDescending(static instrumentConfiguration => instrumentConfiguration.MinNote)
+        .ThenBy(static instrumentConfiguration => instrumentConfiguration.Instrument)
         .Select(static instrumentConfiguration => instrumentConfiguration.Instrument)
         .ToList();
 

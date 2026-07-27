@@ -38,7 +38,7 @@ internal sealed class LookAheadDepthTests
         _mockNoteChoiceGenerator = Substitute.For<INoteChoiceGenerator>();
         _mockNoteChoiceGenerator
             .GenerateNoteChoices(Arg.Any<Instrument>())
-            .Returns(callInfo => new HashSet<NoteChoice>
+            .Returns(callInfo => new List<NoteChoice>
             {
                 new(callInfo.Arg<Instrument>(), NoteMotion.Oblique, 0),
                 new(callInfo.Arg<Instrument>(), NoteMotion.Ascending, 1),

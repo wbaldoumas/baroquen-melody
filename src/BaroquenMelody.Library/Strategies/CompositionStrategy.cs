@@ -99,7 +99,8 @@ internal sealed class CompositionStrategy(
         var startingNoteCounts = compositionConfiguration.Scale.I.ToDictionary(noteName => noteName, _ => 0);
         var rawNotes = compositionConfiguration.Scale.GetNotes();
 
-        var notes = compositionConfiguration.InstrumentConfigurations
+        var notes = compositionConfiguration.Instruments
+            .Select(instrument => compositionConfiguration.InstrumentConfigurationsByInstrument[instrument])
             .Select(instrumentConfiguration =>
                 new BaroquenNote(
                     instrumentConfiguration.Instrument,
