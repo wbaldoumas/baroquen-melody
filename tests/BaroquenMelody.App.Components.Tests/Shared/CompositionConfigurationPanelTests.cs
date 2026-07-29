@@ -1,7 +1,11 @@
 using BaroquenMelody.App.Components.Shared;
+using BaroquenMelody.App.Components.Tests.TestData;
+using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Forms;
 using BaroquenMelody.Library.Store.State;
 using Bunit;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace BaroquenMelody.App.Components.Tests.Shared;
@@ -25,6 +29,38 @@ internal sealed class CompositionConfigurationPanelTests
 
         // assert
         component.FindComponents<CompositionConfigurationCard>().Should().ContainSingle();
+    }
+
+    [Test]
+    public void Randomize_with_the_ground_bass_form_rolls_a_pattern_that_fits_through_the_real_service()
+    {
+        // arrange: a G3-B4 ground-hosting voice means feasibility varies by key, so the button's roll
+        // must consult the same analyzer the composer will - this drives the real service through the
+        // real container, not a mock, and ten clicks sample enough keys to make the property meaningful.
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        GroundBassScenarios.ReduceTheGroundBankToTheTetrachord(_testContext);
+
+        var component = _testContext.RenderComponent<CompositionConfigurationPanel>();
+        var groundBassFeasibilityAnalyzer = _testContext.Services.GetRequiredService<IGroundBassFeasibilityAnalyzer>();
+
+        for (var roll = 0; roll < 10; ++roll)
+        {
+            // act
+            component.ClickButtonByText("Randomize");
+
+            // assert
+            var state = _testContext.StateOf<CompositionConfigurationState>();
+
+            state.Form.Should().Be(CompositionForm.GroundBass, "randomizing keeps the selected form");
+
+            if (state.GroundBassPattern is { } pattern)
+            {
+                groundBassFeasibilityAnalyzer.GetFeasibleGroundBasses(
+                    _testContext.StateOf<InstrumentConfigurationState>().EnabledConfigurations,
+                    state.Scale
+                ).Should().Contain(pattern, "the rolled pattern must fit the rolled key {0} {1}", state.TonicNote, state.Mode);
+            }
+        }
     }
 
     [Test]
