@@ -30,10 +30,40 @@ internal sealed class GroundBassFeasibilityAnalyzerTests
     public void SetUp() => _analyzer = new GroundBassFeasibilityAnalyzer();
 
     [Test]
-    public void GroundBassBankSize_ReportsTheBuiltInBank()
+    public void GroundBassBank_ReportsTheBuiltInBankInBankOrder()
     {
-        _analyzer.GroundBassBankSize.Should().Be(GroundBassPattern.Bank.Count);
-        _analyzer.GroundBassBankSize.Should().Be(3, "the UI's 'N of 3 grounds fit' copy leans on the bank size");
+        _analyzer.GroundBassBank.Should().Equal(
+            GroundBass.DescendingTetrachord,
+            GroundBass.Romanesca,
+            GroundBass.CadentialGround
+        );
+        _analyzer.GroundBassBank.Should().HaveCount(GroundBassPattern.Bank.Count, "the UI's pattern dropdown and 'N of 3 grounds fit' copy lean on the bank");
+    }
+
+    [Test]
+    public void HasFeasibleGround_WithTheFreeDraw_RequiresAnyFeasiblePattern()
+    {
+        // arrange: the free draw (null) grounds whenever anything fits; a G3-B4 bass fits the tetrachord,
+        // while a B2-B3 bass fits nothing for a C tonic.
+        var scale = new BaroquenScale(NoteName.C, Mode.Ionian);
+
+        // act + assert
+        _analyzer.HasFeasibleGround(BuildTenorBassInstruments(), scale, pattern: null).Should().BeTrue();
+        _analyzer.HasFeasibleGround(BuildTwoVoiceInstruments(Notes.B2, Notes.B3), scale, pattern: null).Should().BeFalse();
+    }
+
+    [Test]
+    public void HasFeasibleGround_WithAConfiguredPattern_RequiresThatExactPattern()
+    {
+        // arrange: a G3-B4 bass hosts only the tetrachord in C Ionian, so pinning any other pattern
+        // falls back to the fugue even though the bank is not empty.
+        var scale = new BaroquenScale(NoteName.C, Mode.Ionian);
+        var instrumentConfigurations = BuildTenorBassInstruments();
+
+        // act + assert
+        _analyzer.HasFeasibleGround(instrumentConfigurations, scale, GroundBass.DescendingTetrachord).Should().BeTrue();
+        _analyzer.HasFeasibleGround(instrumentConfigurations, scale, GroundBass.Romanesca).Should().BeFalse();
+        _analyzer.HasFeasibleGround(instrumentConfigurations, scale, GroundBass.CadentialGround).Should().BeFalse();
     }
 
     [Test]

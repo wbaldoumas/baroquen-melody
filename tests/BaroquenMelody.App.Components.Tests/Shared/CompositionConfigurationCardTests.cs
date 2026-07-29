@@ -2,6 +2,7 @@ using BaroquenMelody.App.Components.Shared;
 using BaroquenMelody.App.Components.Tests.TestComponents;
 using BaroquenMelody.App.Components.Tests.TestData;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Store.State;
 using Bunit;
@@ -142,6 +143,130 @@ internal sealed class CompositionConfigurationCardTests
 
         state.TonicNote.Should().Be(NoteName.G);
         state.Form.Should().Be(CompositionForm.GroundBass);
+    }
+
+    [Test]
+    public void The_pattern_dropdown_appears_only_under_the_ground_bass_form()
+    {
+        // arrange: the pattern is meaningless to a fugue, so the fugue form hides the dropdown entirely.
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        component.FindComponents<SelectWithPopover<GroundBass?>>().Should().BeEmpty();
+
+        // act
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        component.Render();
+
+        // assert
+        component.FindComponents<SelectWithPopover<GroundBass?>>().Should().ContainSingle();
+    }
+
+    [Test]
+    public void Choosing_a_ground_bass_pattern_updates_the_store()
+    {
+        // arrange
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+        var select = component.FindComponent<MudSelect<GroundBass?>>();
+
+        // act
+        component.InvokeAsync(() => select.Instance.ValueChanged.InvokeAsync(GroundBass.Romanesca)).GetAwaiter().GetResult();
+
+        // assert
+        _testContext.StateOf<CompositionConfigurationState>().GroundBassPattern.Should().Be(GroundBass.Romanesca);
+    }
+
+    [Test]
+    public void Changing_the_tonic_preserves_the_selected_pattern()
+    {
+        // arrange: every handler must carry the whole state forward, or a tonic change would silently
+        // reset the pinned pattern to the free draw.
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        GroundBassScenarios.SelectGroundBassPattern(_testContext, GroundBass.CadentialGround);
+
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+        var tonicSelect = component.FindComponent<MudSelect<NoteName>>();
+
+        // act
+        component.InvokeAsync(() => tonicSelect.Instance.ValueChanged.InvokeAsync(NoteName.G)).GetAwaiter().GetResult();
+
+        // assert
+        var state = _testContext.StateOf<CompositionConfigurationState>();
+
+        state.TonicNote.Should().Be(NoteName.G);
+        state.GroundBassPattern.Should().Be(GroundBass.CadentialGround);
+    }
+
+    [Test]
+    public void The_pattern_dropdown_marks_patterns_that_do_not_fit()
+    {
+        // arrange: a G3-B4 ground-hosting voice fits only the tetrachord for a C tonic, so the dropdown
+        // must say so on the infeasible entries and label the free draw as Random.
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        GroundBassScenarios.ReduceTheGroundBankToTheTetrachord(_testContext);
+
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+        var select = component.FindComponent<SelectWithPopover<GroundBass?>>();
+
+        // act + assert
+        select.Instance.ConvertToDisplay(null).Should().Be("Random");
+        select.Instance.ConvertToDisplay(GroundBass.DescendingTetrachord).Should().Be("Descending Tetrachord");
+        select.Instance.ConvertToDisplay(GroundBass.Romanesca).Should().Be("Romanesca (doesn't fit)");
+        select.Instance.ConvertToDisplay(GroundBass.CadentialGround).Should().Be("Cadential Ground (doesn't fit)");
+    }
+
+    [Test]
+    public void A_pinned_pattern_that_does_not_fit_shows_the_selected_ground_warning_chip()
+    {
+        // arrange
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        GroundBassScenarios.ReduceTheGroundBankToTheTetrachord(_testContext);
+
+        // act
+        GroundBassScenarios.SelectGroundBassPattern(_testContext, GroundBass.Romanesca);
+        component.Render();
+
+        // assert
+        component.Markup.Should().Contain("Selected ground doesn't fit");
+    }
+
+    [Test]
+    public void A_pinned_pattern_that_fits_needs_no_chip_even_when_the_bank_is_reduced()
+    {
+        // arrange: the count chip informs the free draw's variety; a satisfied pinned selection has
+        // nothing to warn about.
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        GroundBassScenarios.ReduceTheGroundBankToTheTetrachord(_testContext);
+
+        // act
+        GroundBassScenarios.SelectGroundBassPattern(_testContext, GroundBass.DescendingTetrachord);
+        component.Render();
+
+        // assert
+        component.Markup.Should().NotContain("grounds fit").And.NotContain("doesn't fit");
+    }
+
+    [Test]
+    public void Pinning_a_pattern_that_does_not_fit_toasts_the_selected_pattern_fallback()
+    {
+        // arrange: the bank still hosts the tetrachord, so only the pinned selection is falling back.
+        _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        GroundBassScenarios.ReduceTheGroundBankToTheTetrachord(_testContext);
+
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+
+        // act
+        GroundBassScenarios.SelectGroundBassPattern(_testContext, GroundBass.Romanesca);
+
+        // assert
+        Snackbar.ShownSnackbars.Should().ContainSingle();
     }
 
     [Test]

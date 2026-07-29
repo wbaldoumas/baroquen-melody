@@ -59,7 +59,7 @@
 
                 if (!_wasGroundBassFallingBackToFugue && isGroundBassFallingBackToFugue)
                 {
-                    Snackbar.Add(GroundBassWarnings.FugueFallback, Severity.Warning);
+                    Snackbar.Add(GroundBassWarnings.ForPattern(CompositionConfigurationState.Value.GroundBassPattern), Severity.Warning);
                 }
 
                 _wasVoiceSpacingSatisfiable = isVoiceSpacingSatisfiable;
@@ -76,13 +76,15 @@
     private bool IsVoiceSpacingRuleEnabled() => CompositionRuleConfigurationState.Value[CompositionRule.EnforceVoiceSpacing]?.Status.IsEnabled() is true;
 
     // a shrinking-but-nonempty bank stays silent here: the composition card's chip carries that state, and
-    // only the transition into the empty bank (the fugue fallback) warrants interrupting a range edit.
+    // only the transition into the fugue fallback (an empty bank, or a configured pattern that no longer
+    // fits) warrants interrupting a range edit.
     private bool IsGroundBassFallingBackToFugue() =>
         CompositionConfigurationState.Value.Form == CompositionForm.GroundBass
-        && GroundBassFeasibilityAnalyzer.GetFeasibleGroundBasses(
+        && !GroundBassFeasibilityAnalyzer.HasFeasibleGround(
             InstrumentConfigurationState.Value.EnabledConfigurations,
-            CompositionConfigurationState.Value.Scale
-        ).Count == 0;
+            CompositionConfigurationState.Value.Scale,
+            CompositionConfigurationState.Value.GroundBassPattern
+        );
 
     // FluxorComponent implements IAsyncDisposable, and Blazor only invokes the asynchronous overload when a
     // component offers both - a synchronous Dispose() here would never run (see CompositionProgress for the

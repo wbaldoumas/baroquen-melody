@@ -2,6 +2,7 @@ using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Enums.Extensions;
 using BaroquenMelody.Library.Forms;
+using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using CsCheck;
 using FluentAssertions;
@@ -59,6 +60,29 @@ internal sealed class GroundBassCompositionTests
             ground.OtherVoiceEntryTimes.Should().OnlyContain(
                 entryTime => entryTime >= statementTicks,
                 $"seed {seed}: no upper voice may enter before the announcement completes");
+        }
+    }
+
+    [Test]
+    public void Compose_WithAConfiguredPattern_StatesExactlyThatPattern()
+    {
+        // arrange: the free draw could state any feasible ground, so this pins the cadential ground and
+        // demands the announcement render it - the plan must honor the configuration through the whole
+        // pipeline, for every seed.
+        var configuration = GetGroundBassConfiguration(3, 10, GroundBass.CadentialGround);
+        var cadentialGround = GroundBassPattern.Bank.Single(static pattern => pattern.Identifier == GroundBass.CadentialGround);
+        var scalePitches = configuration.Scale.GetNotes().Select(static note => (int)note.NoteNumber).ToList();
+
+        for (var seed = 1; seed <= 3; ++seed)
+        {
+            var ground = AnalyzeGround(SeededComposition.Compose(configuration, seed), configuration);
+
+            ground.RenderedPattern.Should().NotBeNull($"seed {seed}: the opening bass pitches must state a bank pattern exactly");
+
+            var anchorIndex = scalePitches.IndexOf(ground.RenderedPattern![0]);
+            var expectedPattern = cadentialGround.ScaleStepOffsets.Select(offset => scalePitches[anchorIndex + offset]).ToList();
+
+            ground.RenderedPattern.Should().Equal(expectedPattern, $"seed {seed}: the configured cadential ground must be the stated pattern");
         }
     }
 
@@ -188,11 +212,11 @@ internal sealed class GroundBassCompositionTests
         }
     }
 
-    private static CompositionConfiguration GetGroundBassConfiguration(int numberOfInstruments, int minimumMeasures) =>
+    private static CompositionConfiguration GetGroundBassConfiguration(int numberOfInstruments, int minimumMeasures, GroundBass? pattern = null) =>
         TestCompositionConfigurations.Get(numberOfInstruments, minimumMeasures) with
         {
             ShuffleOrnamentationProcessors = false,
-            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true)
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, pattern)
         };
 
     private static long SlotTicks(CompositionConfiguration configuration) =>

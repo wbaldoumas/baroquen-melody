@@ -16,7 +16,11 @@ namespace BaroquenMelody.Library.Forms;
 /// </remarks>
 public sealed class GroundBassFeasibilityAnalyzer : IGroundBassFeasibilityAnalyzer
 {
-    public int GroundBassBankSize => GroundBassPattern.Bank.Count;
+    private static readonly IReadOnlyList<GroundBass> _groundBassBank = GroundBassPattern.Bank
+        .Select(static pattern => pattern.Identifier)
+        .ToList();
+
+    public IReadOnlyList<GroundBass> GroundBassBank => _groundBassBank;
 
     public IReadOnlyList<GroundBass> GetFeasibleGroundBasses(CompositionConfiguration compositionConfiguration) => GetFeasibleGroundBasses(
         compositionConfiguration.InstrumentConfigurations,
@@ -27,6 +31,13 @@ public sealed class GroundBassFeasibilityAnalyzer : IGroundBassFeasibilityAnalyz
         GetFeasibleRenderedGrounds(instrumentConfigurations, scale)
             .Select(static feasibleGround => feasibleGround.Pattern.Identifier)
             .ToList();
+
+    public bool HasFeasibleGround(IEnumerable<InstrumentConfiguration> instrumentConfigurations, BaroquenScale scale, GroundBass? pattern)
+    {
+        var feasibleGroundBasses = GetFeasibleGroundBasses(instrumentConfigurations, scale);
+
+        return pattern is null ? feasibleGroundBasses.Count > 0 : feasibleGroundBasses.Contains(pattern.Value);
+    }
 
     /// <summary>
     ///     Retrieves the feasible patterns with their rendered bass notes, in bank order. The planner draws

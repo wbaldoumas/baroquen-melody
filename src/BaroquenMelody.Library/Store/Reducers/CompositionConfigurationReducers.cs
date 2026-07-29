@@ -14,7 +14,8 @@ public static class CompositionConfigurationReducers
         action.Meter,
         action.CompositionLength,
         action.Tempo,
-        action.Form
+        action.Form,
+        action.GroundBassPattern
     );
 
     [ReducerMethod]
@@ -24,6 +25,7 @@ public static class CompositionConfigurationReducers
         action.CompositionConfiguration.Meter,
         action.CompositionConfiguration.MinimumMeasures,
         action.CompositionConfiguration.Tempo,
-        action.CompositionConfiguration.GroundBassConfiguration?.Enabled == true ? CompositionForm.GroundBass : CompositionForm.Fugue
+        action.CompositionConfiguration.GroundBassConfiguration?.Enabled == true ? CompositionForm.GroundBass : CompositionForm.Fugue,
+        action.CompositionConfiguration.GroundBassConfiguration?.Pattern
     );
 }

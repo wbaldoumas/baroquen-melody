@@ -145,6 +145,45 @@ internal sealed class GroundBassPlannerTests
     }
 
     [Test]
+    public void CreatePlan_WithAConfiguredPattern_PlansExactlyThatPattern()
+    {
+        // arrange: the test-shaped C2-C3 bass hosts the whole bank, but the configuration pins the
+        // cadential ground - the draw's upper bound collapses to the pinned singleton, keeping the
+        // one-draw-per-plan contract so the random stream stays aligned across selections.
+        var configuration = BuildConfiguration(BuildTenorBassInstruments(), NoteName.A, Mode.Aeolian, GroundBass.CadentialGround);
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.Pattern.Identifier.Should().Be(GroundBass.CadentialGround);
+        randomProvider.Received(1).Next(1);
+    }
+
+    [Test]
+    public void CreatePlan_WithAConfiguredPatternTheBassCannotHost_ReturnsNullWithoutDrawing()
+    {
+        // arrange: a G3-B4 bass in C Ionian hosts only the tetrachord, so pinning the romanesca must
+        // yield no plan (the fugue fallback) rather than silently substituting a different ground.
+        var configuration = BuildConfiguration(BuildTenorBassInstruments(), NoteName.C, Mode.Ionian, GroundBass.Romanesca);
+        var randomProvider = Substitute.For<IRandomProvider>();
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().BeNull();
+        randomProvider.DidNotReceive().Next(Arg.Any<int>());
+    }
+
+    [Test]
     public void CreatePlan_ChoosesTheAnchorNearestTheRangeCenterTieBreakingLow()
     {
         // arrange: a G3-F5 bass puts C4 and C5 exactly equidistant from the range center, so the lower
@@ -257,7 +296,7 @@ internal sealed class GroundBassPlannerTests
         new InstrumentConfiguration(Instrument.Two, bassMinNote, bassMaxNote, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
     ];
 
-    private static CompositionConfiguration BuildConfiguration(HashSet<InstrumentConfiguration> instrumentConfigurations, NoteName tonic, Mode mode) => new(
+    private static CompositionConfiguration BuildConfiguration(HashSet<InstrumentConfiguration> instrumentConfigurations, NoteName tonic, Mode mode, GroundBass? pattern = null) => new(
         instrumentConfigurations,
         PhrasingConfiguration.Default,
         AggregateCompositionRuleConfiguration.Default,
@@ -266,6 +305,7 @@ internal sealed class GroundBassPlannerTests
         mode,
         Meter.FourFour,
         MusicalTimeSpan.Half,
-        MinimumMeasures: 25
+        MinimumMeasures: 25,
+        GroundBassConfiguration: new GroundBassConfiguration(Enabled: true, pattern)
     );
 }

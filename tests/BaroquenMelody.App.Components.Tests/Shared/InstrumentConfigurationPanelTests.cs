@@ -3,6 +3,7 @@ using BaroquenMelody.App.Components.Tests.TestComponents;
 using BaroquenMelody.App.Components.Tests.TestData;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.Rules.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
@@ -160,6 +161,22 @@ internal sealed class InstrumentConfigurationPanelTests
 
         // assert
         Snackbar.ShownSnackbars.Should().BeEmpty();
+    }
+
+    [Test]
+    public void A_range_edit_that_breaks_the_pinned_pattern_toasts_even_though_the_bank_is_not_empty()
+    {
+        // arrange: the user pinned the romanesca; the shrink leaves the tetrachord feasible, so the bank
+        // is not empty - but the pinned selection is falling back to the fugue, which deserves the toast.
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        GroundBassScenarios.SelectGroundBassPattern(_testContext, GroundBass.Romanesca);
+        _testContext.RenderComponent<InstrumentConfigurationPanel>();
+
+        // act
+        GroundBassScenarios.ReduceTheGroundBankToTheTetrachord(_testContext);
+
+        // assert
+        Snackbar.ShownSnackbars.Should().ContainSingle();
     }
 
     [Test]

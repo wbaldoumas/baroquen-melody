@@ -36,7 +36,7 @@ public sealed class BaroquenMelodyEffects(
             compositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
             compositionConfigurationState.Value.MinimumMeasures,
             Tempo: compositionConfigurationState.Value.Tempo,
-            GroundBassConfiguration: new GroundBassConfiguration(compositionConfigurationState.Value.Form == CompositionForm.GroundBass)
+            GroundBassConfiguration: new GroundBassConfiguration(compositionConfigurationState.Value.Form == CompositionForm.GroundBass, compositionConfigurationState.Value.GroundBassPattern)
         );
 
         await Task.Run(

@@ -56,24 +56,45 @@
                         <MudText>The <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Musical_form">form</MudLink> of the composition: a fugue, or variations over a repeating <MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Ground_bass">ground bass</MudLink>.</MudText>
                     </PopoverContent>
                 </SelectWithPopover>
-                @if (Form == CompositionForm.GroundBass)
-                {
-                    var feasibleGroundBasses = FeasibleGroundBasses;
+            </MudItem>
+            @if (Form == CompositionForm.GroundBass)
+            {
+                var feasibleGroundBasses = FeasibleGroundBasses;
 
-                    if (feasibleGroundBasses.Count == 0)
+                <MudItem xs="12" sm="6" md="2">
+                    <SelectWithPopover T="GroundBass?"
+                                       Items="CompositionConfigurationService.ConfigurableGroundBassPatterns"
+                                       Label="Ground Bass Pattern"
+                                       ValueProvider="() => GroundBassPattern"
+                                       ValueChanged="HandleGroundBassPatternChange"
+                                       ConvertToDisplay="ConvertGroundBassPatternToDisplay">
+                        <PopoverContent>
+                            <MudText>The repeating bass pattern (<MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Ground_bass">ground</MudLink>) stated beneath the composition. Random lets the composer draw among the patterns that fit the lowest voice's range; a pattern marked as not fitting would fall back to the fugue form.</MudText>
+                        </PopoverContent>
+                    </SelectWithPopover>
+                    @if (GroundBassPattern is { } selectedGroundBass)
+                    {
+                        if (!feasibleGroundBasses.Contains(selectedGroundBass))
+                        {
+                            <MudTooltip Text="The selected pattern cannot anchor in the lowest voice's range for the selected key, so the composition will fall back to the fugue form. Extend the lowest voice's range downward, choose another key, or pick a pattern that fits.">
+                                <MudChip T="string" Size="Size.Small" Color="Color.Warning" Icon="@Icons.Material.Outlined.Warning">Selected ground doesn't fit</MudChip>
+                            </MudTooltip>
+                        }
+                    }
+                    else if (feasibleGroundBasses.Count == 0)
                     {
                         <MudTooltip Text="No ground bass pattern can anchor in the lowest voice's range for the selected key, so the composition will fall back to the fugue form. Extend the lowest voice's range downward or choose another key to host a ground.">
                             <MudChip T="string" Size="Size.Small" Color="Color.Warning" Icon="@Icons.Material.Outlined.Warning">No grounds fit</MudChip>
                         </MudTooltip>
                     }
-                    else if (feasibleGroundBasses.Count < GroundBassFeasibilityAnalyzer.GroundBassBankSize)
+                    else if (feasibleGroundBasses.Count < GroundBassFeasibilityAnalyzer.GroundBassBank.Count)
                     {
                         <MudTooltip Text="@BuildReducedGroundBankTooltip(feasibleGroundBasses)">
-                            <MudChip T="string" Size="Size.Small" Color="Color.Info" Icon="@Icons.Material.Outlined.Info">@feasibleGroundBasses.Count of @GroundBassFeasibilityAnalyzer.GroundBassBankSize grounds @(feasibleGroundBasses.Count == 1 ? "fits" : "fit")</MudChip>
+                            <MudChip T="string" Size="Size.Small" Color="Color.Info" Icon="@Icons.Material.Outlined.Info">@feasibleGroundBasses.Count of @GroundBassFeasibilityAnalyzer.GroundBassBank.Count grounds @(feasibleGroundBasses.Count == 1 ? "fits" : "fit")</MudChip>
                         </MudTooltip>
                     }
-                }
-            </MudItem>
+                </MudItem>
+            }
             <MudItem xs="12" sm="6" md="2">
                 <NumericInputWithPopover T="int"
                                          Label="Minimum Measures"
@@ -117,6 +138,8 @@
 
     private CompositionForm Form => CompositionConfigurationState.Value.Form;
 
+    private GroundBass? GroundBassPattern => CompositionConfigurationState.Value.GroundBassPattern;
+
     private int MinimumMeasures => CompositionConfigurationState.Value.MinimumMeasures;
 
     private int Tempo => CompositionConfigurationState.Value.Tempo;
@@ -151,13 +174,23 @@
 
         if (!_wasGroundBassFallingBackToFugue && isGroundBassFallingBackToFugue)
         {
-            Snackbar.Add(GroundBassWarnings.FugueFallback, Severity.Warning);
+            Snackbar.Add(GroundBassWarnings.ForPattern(GroundBassPattern), Severity.Warning);
         }
 
         _wasGroundBassFallingBackToFugue = isGroundBassFallingBackToFugue;
     }
 
-    private bool IsGroundBassFallingBackToFugue() => Form == CompositionForm.GroundBass && FeasibleGroundBasses.Count == 0;
+    private bool IsGroundBassFallingBackToFugue() => Form == CompositionForm.GroundBass && !GroundBassFeasibilityAnalyzer.HasFeasibleGround(
+        InstrumentConfigurationState.Value.EnabledConfigurations,
+        CompositionConfigurationState.Value.Scale,
+        GroundBassPattern
+    );
+
+    private string ConvertGroundBassPatternToDisplay(GroundBass? groundBassPattern) => groundBassPattern is { } groundBass
+        ? FeasibleGroundBasses.Contains(groundBass)
+            ? groundBass.ToSpaceSeparatedString()
+            : $"{groundBass.ToSpaceSeparatedString()} (doesn't fit)"
+        : "Random";
 
     private static string BuildReducedGroundBankTooltip(IReadOnlyList<GroundBass> feasibleGroundBasses) =>
         $"Grounds that fit the lowest voice's range: {string.Join(", ", feasibleGroundBasses.Select(static groundBass => groundBass.ToSpaceSeparatedString()))}. Extend the lowest voice's range downward to host the whole bank.";
@@ -173,15 +206,17 @@
         await base.DisposeAsync();
     }
 
-    private void HandleTonicNoteChange(NoteName note) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(note, Mode, Meter, MinimumMeasures, Tempo, Form));
+    private void HandleTonicNoteChange(NoteName note) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(note, Mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern));
 
-    private void HandleModeChange(Mode mode) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, mode, Meter, MinimumMeasures, Tempo, Form));
+    private void HandleModeChange(Mode mode) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern));
 
-    private void HandleMeterChange(Meter meter) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, meter, MinimumMeasures, Tempo, Form));
+    private void HandleMeterChange(Meter meter) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, meter, MinimumMeasures, Tempo, Form, GroundBassPattern));
 
-    private void HandleFormChange(CompositionForm form) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, form));
+    private void HandleFormChange(CompositionForm form) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, form, GroundBassPattern));
 
-    private void HandleCompositionLengthChange(int length) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, length, Tempo, Form));
+    private void HandleGroundBassPatternChange(GroundBass? groundBassPattern) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, Form, groundBassPattern));
 
-    private void HandleTempoChange(int tempo) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, tempo, Form));
+    private void HandleCompositionLengthChange(int length) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, length, Tempo, Form, GroundBassPattern));
+
+    private void HandleTempoChange(int tempo) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, tempo, Form, GroundBassPattern));
 }

@@ -1,5 +1,6 @@
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -22,11 +23,25 @@ internal static class GroundBassScenarios
     {
         var state = testContext.StateOf<CompositionConfigurationState>();
 
-        testContext.Dispatcher.Dispatch(new UpdateCompositionConfiguration(state.TonicNote, state.Mode, state.Meter, state.MinimumMeasures, state.Tempo, CompositionForm.GroundBass));
+        testContext.Dispatcher.Dispatch(new UpdateCompositionConfiguration(state.TonicNote, state.Mode, state.Meter, state.MinimumMeasures, state.Tempo, CompositionForm.GroundBass, state.GroundBassPattern));
     }
 
     /// <summary>
-    ///     Changes the tonic, carrying the rest of the composition configuration (including the form) forward.
+    ///     Selects a specific ground bass pattern (or the free draw), carrying the rest of the composition
+    ///     configuration forward.
+    /// </summary>
+    /// <param name="testContext">The active test context.</param>
+    /// <param name="pattern">The pattern to pin, or <see langword="null"/> for the composer's free draw.</param>
+    public static void SelectGroundBassPattern(AppComponentsTestContext testContext, GroundBass? pattern)
+    {
+        var state = testContext.StateOf<CompositionConfigurationState>();
+
+        testContext.Dispatcher.Dispatch(new UpdateCompositionConfiguration(state.TonicNote, state.Mode, state.Meter, state.MinimumMeasures, state.Tempo, state.Form, pattern));
+    }
+
+    /// <summary>
+    ///     Changes the tonic, carrying the rest of the composition configuration (including the form and
+    ///     pattern) forward.
     /// </summary>
     /// <param name="testContext">The active test context.</param>
     /// <param name="tonicNote">The new tonic.</param>
@@ -34,7 +49,7 @@ internal static class GroundBassScenarios
     {
         var state = testContext.StateOf<CompositionConfigurationState>();
 
-        testContext.Dispatcher.Dispatch(new UpdateCompositionConfiguration(tonicNote, state.Mode, state.Meter, state.MinimumMeasures, state.Tempo, state.Form));
+        testContext.Dispatcher.Dispatch(new UpdateCompositionConfiguration(tonicNote, state.Mode, state.Meter, state.MinimumMeasures, state.Tempo, state.Form, state.GroundBassPattern));
     }
 
     /// <summary>

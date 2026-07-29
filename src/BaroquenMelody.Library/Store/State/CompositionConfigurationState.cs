@@ -1,5 +1,6 @@
 ﻿using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using Fluxor;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -9,7 +10,7 @@ namespace BaroquenMelody.Library.Store.State;
 
 [FeatureState]
 [ExcludeFromCodeCoverage(Justification = "Simple record without logic")]
-public sealed record CompositionConfigurationState(NoteName TonicNote, Mode Mode, Meter Meter, int MinimumMeasures = 25, int Tempo = 120, CompositionForm Form = CompositionForm.Fugue)
+public sealed record CompositionConfigurationState(NoteName TonicNote, Mode Mode, Meter Meter, int MinimumMeasures = 25, int Tempo = 120, CompositionForm Form = CompositionForm.Fugue, GroundBass? GroundBassPattern = null)
 {
     public BaroquenScale Scale { get; } = new(TonicNote, Mode);
 

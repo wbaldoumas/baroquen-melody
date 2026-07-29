@@ -7,7 +7,9 @@ namespace BaroquenMelody.Library.Forms;
 /// <remarks>
 ///     Feasibility lives in <see cref="GroundBassFeasibilityAnalyzer"/> (the same scan the UI runs to warn
 ///     about shrinking repertoires); the planner draws once among the feasible patterns in bank order, so
-///     plan creation costs exactly one draw whenever any ground fits.
+///     plan creation costs exactly one draw whenever any ground fits. A configured pattern narrows the draw
+///     to itself when it fits (still one draw, keeping the stream aligned across selections); a configured
+///     pattern the range cannot host yields no plan, falling back to the fugue the way an empty bank does.
 /// </remarks>
 internal sealed class GroundBassPlanner(
     CompositionConfiguration compositionConfiguration,
@@ -26,6 +28,13 @@ internal sealed class GroundBassPlanner(
             compositionConfiguration.InstrumentConfigurations,
             compositionConfiguration.Scale
         );
+
+        if (compositionConfiguration.GroundBassConfiguration?.Pattern is { } configuredPattern)
+        {
+            feasibleGrounds = feasibleGrounds
+                .Where(feasibleGround => feasibleGround.Pattern.Identifier == configuredPattern)
+                .ToList();
+        }
 
         if (feasibleGrounds.Count == 0)
         {

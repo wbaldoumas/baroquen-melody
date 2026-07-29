@@ -1,6 +1,9 @@
 ﻿using Atrea.Utilities.Enums;
 using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Forms;
+using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
@@ -10,7 +13,12 @@ using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Configurations.Services;
 
-internal sealed class CompositionConfigurationService(IDispatcher dispatcher, IState<CompositionConfigurationState> compositionConfigurationState) : ICompositionConfigurationService
+internal sealed class CompositionConfigurationService(
+    IDispatcher dispatcher,
+    IState<CompositionConfigurationState> compositionConfigurationState,
+    IState<InstrumentConfigurationState> instrumentConfigurationState,
+    IGroundBassFeasibilityAnalyzer groundBassFeasibilityAnalyzer
+) : ICompositionConfigurationService
 {
     private const Meter DefaultMeter = Meter.FourFour;
 
@@ -42,6 +50,8 @@ internal sealed class CompositionConfigurationService(IDispatcher dispatcher, IS
 
     public IEnumerable<CompositionForm> ConfigurableCompositionForms => _configurableCompositionForms;
 
+    public IEnumerable<GroundBass?> ConfigurableGroundBassPatterns { get; } = [null, .. groundBassFeasibilityAnalyzer.GroundBassBank.Select(static groundBass => (GroundBass?)groundBass)];
+
     public void Randomize()
     {
         var randomRootNote = _configurableRootNotes.MinBy(_ => ThreadLocalRandom.Next());
@@ -51,9 +61,29 @@ internal sealed class CompositionConfigurationService(IDispatcher dispatcher, IS
         var tempo = ThreadLocalRandom.Next(MinRandomTempo, MaxRandomTempo);
 
         // The form is a deliberate structural choice, not a musical parameter to roll dice on: randomizing
-        // keeps whatever form the user has selected.
-        dispatcher.Dispatch(new UpdateCompositionConfiguration(randomRootNote, randomScaleMode, randomMeter, randomMinimumMeasures, tempo, compositionConfigurationState.Value.Form));
+        // keeps whatever form the user has selected. The ground bass pattern IS a musical parameter, so a
+        // ground bass randomization rolls it too - but only among the composer's free draw and the patterns
+        // that actually fit the randomized key, since pinning an infeasible pattern would silently turn the
+        // randomized composition into a fugue.
+        var groundBassPattern = compositionConfigurationState.Value.Form == CompositionForm.GroundBass
+            ? RandomizeGroundBassPattern(randomRootNote, randomScaleMode)
+            : compositionConfigurationState.Value.GroundBassPattern;
+
+        dispatcher.Dispatch(new UpdateCompositionConfiguration(randomRootNote, randomScaleMode, randomMeter, randomMinimumMeasures, tempo, compositionConfigurationState.Value.Form, groundBassPattern));
     }
 
     public void Reset() => dispatcher.Dispatch(new UpdateCompositionConfiguration(DefaultRootNote, DefaultMode, DefaultMeter));
+
+    private GroundBass? RandomizeGroundBassPattern(NoteName rootNote, Mode mode)
+    {
+        List<GroundBass?> candidatePatterns =
+        [
+            null,
+            .. groundBassFeasibilityAnalyzer
+                .GetFeasibleGroundBasses(instrumentConfigurationState.Value.EnabledConfigurations, new BaroquenScale(rootNote, mode))
+                .Select(static groundBass => (GroundBass?)groundBass)
+        ];
+
+        return candidatePatterns[ThreadLocalRandom.Next(candidatePatterns.Count)];
+    }
 }

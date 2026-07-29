@@ -13,9 +13,9 @@ namespace BaroquenMelody.Library.Forms;
 public interface IGroundBassFeasibilityAnalyzer
 {
     /// <summary>
-    ///     Gets the number of patterns in the built-in ground bass bank.
+    ///     Gets the built-in ground bass bank's pattern identifiers, in bank order.
     /// </summary>
-    int GroundBassBankSize { get; }
+    IReadOnlyList<GroundBass> GroundBassBank { get; }
 
     /// <summary>
     ///     Determines which ground bass patterns can anchor inside the lowest voice's range for the given
@@ -34,4 +34,15 @@ public interface IGroundBassFeasibilityAnalyzer
     /// <param name="scale">The scale supplying the tonic anchors and rendered notes.</param>
     /// <returns>The feasible patterns, in bank order.</returns>
     IReadOnlyList<GroundBass> GetFeasibleGroundBasses(IEnumerable<InstrumentConfiguration> instrumentConfigurations, BaroquenScale scale);
+
+    /// <summary>
+    ///     Determines whether a ground bass composition would actually state a ground, mirroring the
+    ///     planner's own decision: a specific configured pattern must itself fit the lowest voice's range,
+    ///     while the composer's free draw (<see langword="null"/>) needs any feasible pattern at all.
+    /// </summary>
+    /// <param name="instrumentConfigurations">The instrument configurations whose lowest voice hosts the ground.</param>
+    /// <param name="scale">The scale supplying the tonic anchors and rendered notes.</param>
+    /// <param name="pattern">The configured pattern, or <see langword="null"/> for the composer's free draw.</param>
+    /// <returns>Whether a ground bass composition would state a ground rather than fall back to the fugue.</returns>
+    bool HasFeasibleGround(IEnumerable<InstrumentConfiguration> instrumentConfigurations, BaroquenScale scale, GroundBass? pattern);
 }
