@@ -311,6 +311,67 @@ internal sealed class CompositionConfigurationSerializationTests
     }
 
     [Test]
+    public void Voice_rhythm_configuration_round_trips_through_serialization()
+    {
+        // arrange
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100,
+            VoiceRhythmConfiguration: new VoiceRhythmConfiguration(Enabled: false)
+        );
+
+        // act
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var deserializedConfiguration = JsonSerializer.Deserialize(serializedConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.VoiceRhythmConfiguration.Should().NotBeNull();
+        deserializedConfiguration.VoiceRhythmConfiguration!.Enabled.Should().BeFalse();
+    }
+
+    [Test]
+    public void Deserialization_of_a_legacy_configuration_without_voice_rhythm_yields_a_null_voice_rhythm_configuration()
+    {
+        // arrange: a configuration saved before voice rhythm existed has no such property at all, and its
+        // consumers coalesce null to the enabled default.
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100
+        );
+
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var legacyConfigurationJson = JsonNode.Parse(serializedConfiguration)!.AsObject();
+
+        legacyConfigurationJson.Remove(nameof(CompositionConfiguration.VoiceRhythmConfiguration));
+
+        // act
+        var deserializedConfiguration = JsonSerializer.Deserialize(legacyConfigurationJson.ToJsonString(), CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.VoiceRhythmConfiguration.Should().BeNull();
+    }
+
+    [Test]
     public void Tonicization_configuration_round_trips_through_serialization()
     {
         // arrange
