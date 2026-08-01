@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Configurations.Serialization.JsonSerializerContexts;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.Motifs.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Scoring.Enums;
@@ -368,6 +369,104 @@ internal sealed class CompositionConfigurationSerializationTests
 
         // assert
         deserializedConfiguration.TonicizationConfiguration.Should().BeNull();
+    }
+
+    [Test]
+    public void Ground_bass_configuration_round_trips_through_serialization()
+    {
+        // arrange
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100,
+            GroundBassConfiguration: new GroundBassConfiguration(Enabled: true, GroundBass.Romanesca)
+        );
+
+        // act
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var deserializedConfiguration = JsonSerializer.Deserialize(serializedConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.GroundBassConfiguration.Should().NotBeNull();
+        deserializedConfiguration.GroundBassConfiguration!.Enabled.Should().BeTrue();
+        deserializedConfiguration.GroundBassConfiguration.Pattern.Should().Be(GroundBass.Romanesca);
+    }
+
+    [Test]
+    public void Deserialization_of_a_ground_bass_configuration_without_a_pattern_yields_a_null_pattern()
+    {
+        // arrange: a configuration saved before pattern selection existed carries only the Enabled flag,
+        // which must deserialize to the composer's free draw rather than fail or pin a pattern.
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100,
+            GroundBassConfiguration: new GroundBassConfiguration(Enabled: true, GroundBass.Romanesca)
+        );
+
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var legacyConfigurationJson = JsonNode.Parse(serializedConfiguration)!.AsObject();
+
+        legacyConfigurationJson[nameof(CompositionConfiguration.GroundBassConfiguration)]!
+            .AsObject()
+            .Remove(nameof(GroundBassConfiguration.Pattern));
+
+        // act
+        var deserializedConfiguration = JsonSerializer.Deserialize(legacyConfigurationJson.ToJsonString(), CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.GroundBassConfiguration.Should().NotBeNull();
+        deserializedConfiguration.GroundBassConfiguration!.Enabled.Should().BeTrue();
+        deserializedConfiguration.GroundBassConfiguration.Pattern.Should().BeNull();
+    }
+
+    [Test]
+    public void Deserialization_of_a_legacy_configuration_without_ground_bass_yields_a_null_ground_bass_configuration()
+    {
+        // arrange: a configuration saved before the ground bass form existed has no such property at all.
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100
+        );
+
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var legacyConfigurationJson = JsonNode.Parse(serializedConfiguration)!.AsObject();
+
+        legacyConfigurationJson.Remove(nameof(CompositionConfiguration.GroundBassConfiguration));
+
+        // act
+        var deserializedConfiguration = JsonSerializer.Deserialize(legacyConfigurationJson.ToJsonString(), CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.GroundBassConfiguration.Should().BeNull();
     }
 
     [Test]

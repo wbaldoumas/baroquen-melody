@@ -1,6 +1,8 @@
 using BaroquenMelody.App.Components.Shared;
+using BaroquenMelody.App.Components.Tests.TestData;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Configurations.Services;
+using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.Store.State;
 using Bunit;
 using FluentAssertions;
@@ -85,6 +87,37 @@ internal sealed class SaveCompositionConfigurationDialogTests
         await _mockPersistenceService.Received(1).SaveConfigurationAsync(Arg.Any<CompositionConfiguration>(), "My Configuration", Arg.Any<CancellationToken>());
 
         _testContext.StateOf<SavedCompositionConfigurationState>().LastLoadedConfigurationName.Should().Be("My Configuration");
+    }
+
+    [Test]
+    public async Task Saving_persists_the_ground_bass_form_and_pinned_pattern()
+    {
+        // arrange: the persisted configuration is what a future load maps back into the store, so it
+        // must carry the form and the pinned pattern - not just the fields the dialog displays.
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        GroundBassScenarios.SelectGroundBassPattern(_testContext, GroundBass.CadentialGround);
+
+        CompositionConfiguration? savedConfiguration = null;
+
+        _mockPersistenceService.SaveConfigurationAsync(
+            Arg.Do<CompositionConfiguration>(configuration => savedConfiguration = configuration),
+            Arg.Any<string>(),
+            Arg.Any<CancellationToken>()
+        ).Returns(true);
+
+        await ShowDialogAsync();
+
+        _dialogProvider.Find("input").Input("My Configuration");
+
+        // act
+        SaveButton().Click();
+
+        // assert
+        _dialogProvider.WaitForAssertion(() => savedConfiguration.Should().NotBeNull());
+
+        savedConfiguration!.GroundBassConfiguration.Should().NotBeNull();
+        savedConfiguration.GroundBassConfiguration!.Enabled.Should().BeTrue();
+        savedConfiguration.GroundBassConfiguration.Pattern.Should().Be(GroundBass.CadentialGround);
     }
 
     [Test]

@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using Melanchall.DryWetMidi.MusicTheory;
 
@@ -23,6 +24,17 @@ public interface ICompositionConfigurationService
     ///     The meters that can be configured by the user (e.g. "4/4", "3/4", etc.).
     /// </summary>
     IEnumerable<Meter> ConfigurableMeters { get; }
+
+    /// <summary>
+    ///     The large-scale forms that can be configured by the user (e.g. "Fugue", "Ground Bass").
+    /// </summary>
+    IEnumerable<CompositionForm> ConfigurableCompositionForms { get; }
+
+    /// <summary>
+    ///     The ground bass patterns that can be configured by the user: <see langword="null"/> for the
+    ///     composer's free draw among the patterns that fit, then the bank's patterns in bank order.
+    /// </summary>
+    IEnumerable<GroundBass?> ConfigurableGroundBassPatterns { get; }
 
     /// <summary>
     ///     Randomize the composition configuration.

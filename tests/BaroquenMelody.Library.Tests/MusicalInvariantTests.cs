@@ -1,3 +1,4 @@
+using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using CsCheck;
@@ -85,6 +86,65 @@ internal sealed class MusicalInvariantTests
                 notes.Should().OnlyContain(
                     note => scaleNoteNumbers.Contains(note.NoteNumber) || licensedPitchClasses.Contains((NoteName)(note.NoteNumber % 12)),
                     "every pitch must be diatonic or a licensed tonicization alteration");
+            },
+            iter: SampleIterations
+        );
+    }
+
+    [TestCase(2)]
+    [TestCase(3)]
+    [TestCase(4)]
+    public void ComposedNotes_InGroundBassForm_SatisfyMusicalInvariants(int numberOfInstruments)
+    {
+        // The ground bass form replaces the whole fugal pipeline with its own composer, so every
+        // invariant the standard form guarantees must hold here too - including the tonicization
+        // licenses, which fire especially often over a ground whose statement seams are all
+        // dominant-to-tonic pairs.
+        var configuration = TestCompositionConfigurations.Get(numberOfInstruments, 10) with
+        {
+            ShuffleOrnamentationProcessors = false,
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true)
+        };
+        var scaleNoteNumbers = configuration.Scale.GetNotes().Select(static note => (int)note.NoteNumber).ToHashSet();
+        var licensedPitchClasses = new HashSet<NoteName> { NoteName.FSharp, NoteName.GSharp, NoteName.CSharp };
+        var minVelocity = configuration.InstrumentConfigurations.Min(static instrument => (int)instrument.MinVelocity);
+        var maxVelocity = configuration.InstrumentConfigurations.Max(static instrument => (int)instrument.MaxVelocity);
+
+        Gen.Int.Sample(
+            seed =>
+            {
+                var notes = SeededComposition.Notes(SeededComposition.Compose(configuration, seed));
+
+                notes.Should().NotBeEmpty("every composition must produce notes");
+                notes.Should().OnlyContain(
+                    note => scaleNoteNumbers.Contains(note.NoteNumber) || licensedPitchClasses.Contains((NoteName)(note.NoteNumber % 12)),
+                    "every pitch must be diatonic to the configured scale or a licensed tonicization alteration");
+                notes.Should().OnlyContain(note => note.Velocity >= minVelocity && note.Velocity <= maxVelocity, "velocity must stay within the configured dynamic range");
+                notes.Should().OnlyContain(note => note.NoteNumber >= 0 && note.NoteNumber <= 127, "every note number must be a valid MIDI pitch");
+            },
+            iter: SampleIterations
+        );
+    }
+
+    [TestCase(2)]
+    [TestCase(3)]
+    public void ComposedNotes_InGroundBassFormInAModeWithoutALiftedGate_StayFullyDiatonic(int numberOfInstruments)
+    {
+        // The strict all-diatonic net must survive the new form exactly as it survives the standard
+        // one: in a still-gated mode no code path may leak a chromatic pitch over the ground.
+        var configuration = TestCompositionConfigurations.Get(numberOfInstruments, 10, tonic: NoteName.D, mode: Mode.Dorian) with
+        {
+            ShuffleOrnamentationProcessors = false,
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true)
+        };
+        var scaleNoteNumbers = configuration.Scale.GetNotes().Select(static note => (int)note.NoteNumber).ToHashSet();
+
+        Gen.Int.Sample(
+            seed =>
+            {
+                var notes = SeededComposition.Notes(SeededComposition.Compose(configuration, seed));
+
+                notes.Should().OnlyContain(note => scaleNoteNumbers.Contains(note.NoteNumber), "every pitch must be diatonic to the configured scale");
             },
             iter: SampleIterations
         );

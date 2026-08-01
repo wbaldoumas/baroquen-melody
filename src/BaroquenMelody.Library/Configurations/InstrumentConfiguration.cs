@@ -58,12 +58,16 @@ public sealed record InstrumentConfiguration(
     ///     The default ranges keep adjacent voices' range centers within the voice spacing rule's twelve-semitone
     ///     cap (the lowest pair, exempt from the rule, sits slightly wider), so the rule never fights the ranges'
     ///     natural tessitura: every playable note of every voice can appear in some rule-satisfying voicing.
+    ///     The lower three voices' floors each sit a full octave below an in-range C, so whichever voice is
+    ///     lowest can carry every ground bass pattern in the default key - the octave-descending grounds need
+    ///     the tonic with a whole scale octave beneath it - and their tessituras land on the classical alto
+    ///     (Two), tenor (Three), and bass (Four) ranges.
     /// </summary>
     public static readonly FrozenDictionary<Instrument, InstrumentConfiguration> DefaultConfigurations = new Dictionary<Instrument, InstrumentConfiguration>
     {
         { Instrument.One, new InstrumentConfiguration(Instrument.One, Notes.C5, Notes.E6, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
-        { Instrument.Two, new InstrumentConfiguration(Instrument.Two, Notes.E4, Notes.G5, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
-        { Instrument.Three, new InstrumentConfiguration(Instrument.Three, Notes.G3, Notes.B4, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
-        { Instrument.Four, new InstrumentConfiguration(Instrument.Four, Notes.E2, Notes.G3, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Disabled) }
+        { Instrument.Two, new InstrumentConfiguration(Instrument.Two, Notes.C4, Notes.G5, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
+        { Instrument.Three, new InstrumentConfiguration(Instrument.Three, Notes.C3, Notes.B4, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled) },
+        { Instrument.Four, new InstrumentConfiguration(Instrument.Four, Notes.C2, Notes.A3, DefaultMinVelocity, DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Disabled) }
     }.ToFrozenDictionary();
 }

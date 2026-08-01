@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Store.Actions;
+﻿using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using Fluxor;
 
@@ -12,7 +13,9 @@ public static class CompositionConfigurationReducers
         action.Mode,
         action.Meter,
         action.CompositionLength,
-        action.Tempo
+        action.Tempo,
+        action.Form,
+        action.GroundBassPattern
     );
 
     [ReducerMethod]
@@ -21,6 +24,8 @@ public static class CompositionConfigurationReducers
         action.CompositionConfiguration.Mode,
         action.CompositionConfiguration.Meter,
         action.CompositionConfiguration.MinimumMeasures,
-        action.CompositionConfiguration.Tempo
+        action.CompositionConfiguration.Tempo,
+        action.CompositionConfiguration.GroundBassConfiguration?.Enabled == true ? CompositionForm.GroundBass : CompositionForm.Fugue,
+        action.CompositionConfiguration.GroundBassConfiguration?.Pattern
     );
 }

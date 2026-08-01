@@ -3,6 +3,7 @@ using BaroquenMelody.App.Components.Tests.TestComponents;
 using BaroquenMelody.App.Components.Tests.TestData;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.Rules.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
@@ -132,6 +133,82 @@ internal sealed class InstrumentConfigurationPanelTests
 
         // assert
         Snackbar.ShownSnackbars.Should().ContainSingle();
+    }
+
+    [Test]
+    public void Emptying_the_ground_bank_while_in_ground_bass_form_toasts()
+    {
+        // arrange: the range edit leaves voice spacing satisfiable, so the single toast is the ground warning.
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        _testContext.RenderComponent<InstrumentConfigurationPanel>();
+
+        // act
+        GroundBassScenarios.EmptyTheGroundBank(_testContext);
+
+        // assert
+        Snackbar.ShownSnackbars.Should().ContainSingle();
+    }
+
+    [Test]
+    public void No_ground_toast_for_a_range_edit_that_merely_shrinks_the_bank()
+    {
+        // arrange
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        _testContext.RenderComponent<InstrumentConfigurationPanel>();
+
+        // act: only the tetrachord survives, but the composition still grounds - the card's chip suffices.
+        GroundBassScenarios.ReduceTheGroundBankToTheTetrachord(_testContext);
+
+        // assert
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+    }
+
+    [Test]
+    public void A_range_edit_that_breaks_the_pinned_pattern_toasts_even_though_the_bank_is_not_empty()
+    {
+        // arrange: the user pinned the romanesca; the shrink leaves the tetrachord feasible, so the bank
+        // is not empty - but the pinned selection is falling back to the fugue, which deserves the toast.
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        GroundBassScenarios.SelectGroundBassPattern(_testContext, GroundBass.Romanesca);
+        _testContext.RenderComponent<InstrumentConfigurationPanel>();
+
+        // act
+        GroundBassScenarios.ReduceTheGroundBankToTheTetrachord(_testContext);
+
+        // assert
+        Snackbar.ShownSnackbars.Should().ContainSingle();
+    }
+
+    [Test]
+    public void No_ground_toast_when_the_fugue_form_is_selected()
+    {
+        // arrange
+        _testContext.RenderComponent<InstrumentConfigurationPanel>();
+
+        // act: an empty bank is irrelevant to a fugue composition
+        GroundBassScenarios.EmptyTheGroundBank(_testContext);
+
+        // assert
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+    }
+
+    [Test]
+    public void No_ground_toast_when_the_panel_mounts_with_an_already_empty_bank()
+    {
+        // arrange
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+
+        var originalConfiguration = GroundBassScenarios.EmptyTheGroundBank(_testContext);
+
+        // act
+        _testContext.RenderComponent<InstrumentConfigurationPanel>();
+
+        // assert: no toast on mount, and none when the bank becomes feasible again
+        Snackbar.ShownSnackbars.Should().BeEmpty();
+
+        GroundBassScenarios.RestoreGroundHostingVoice(_testContext, originalConfiguration);
+
+        Snackbar.ShownSnackbars.Should().BeEmpty();
     }
 
     [Test]

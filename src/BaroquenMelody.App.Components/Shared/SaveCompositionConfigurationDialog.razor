@@ -68,7 +68,8 @@
             CompositionConfigurationState.Value.Meter,
             CompositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
             CompositionConfigurationState.Value.MinimumMeasures,
-            Tempo: CompositionConfigurationState.Value.Tempo
+            Tempo: CompositionConfigurationState.Value.Tempo,
+            GroundBassConfiguration: new GroundBassConfiguration(CompositionConfigurationState.Value.Form == CompositionForm.GroundBass, CompositionConfigurationState.Value.GroundBassPattern)
         );
 
         var isSaved = await CompositionConfigurationPersistenceService.SaveConfigurationAsync(

@@ -6,6 +6,7 @@ using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Dynamics;
 using BaroquenMelody.Library.Dynamics.Engine.Builders;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Forms;
 using BaroquenMelody.Library.Logging;
 using BaroquenMelody.Library.Midi;
 using BaroquenMelody.Library.Motifs;
@@ -100,7 +101,34 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, harmonicRhythmScheduler, suspensionApplicator, tonicizationApplicator, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
         var midiGenerator = new MidiGenerator(compositionConfiguration);
 
-        return new MidiFileComposer(composer, midiGenerator);
+        IComposer effectiveComposer = composer;
+
+        // The ground bass form replaces the whole fugal pipeline with its own composer, keeping the standard
+        // composer as its fallback for bass ranges no ground can anchor in. When the form is disabled the
+        // object graph is exactly the pre-form graph.
+        if ((compositionConfiguration.GroundBassConfiguration ?? GroundBassConfiguration.Default).Enabled)
+        {
+            var groundBassPlanner = new GroundBassPlanner(compositionConfiguration, randomProvider);
+
+            effectiveComposer = new GroundBassComposer(
+                groundBassPlanner,
+                compositionStrategy,
+                compositionRule,
+                chordSelector,
+                compositionDecorator,
+                suspensionApplicator,
+                tonicizationApplicator,
+                cadenceClassifier,
+                chordNumberIdentifier,
+                cadentialTrillApplicator,
+                dynamicsApplicator,
+                composer,
+                dispatcher,
+                logger,
+                compositionConfiguration);
+        }
+
+        return new MidiFileComposer(effectiveComposer, midiGenerator);
     }
 
     /// <summary>
