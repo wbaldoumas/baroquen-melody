@@ -17,6 +17,8 @@ internal sealed class Composer(
     ICompositionPhraser compositionPhraser,
     IChordComposer chordComposer,
     IHarmonicRhythmScheduler harmonicRhythmScheduler,
+    IVoiceRhythmScheduler voiceRhythmScheduler,
+    IVoiceRhythmLedger voiceRhythmLedger,
     ISuspensionApplicator suspensionApplicator,
     ITonicizationApplicator tonicizationApplicator,
     IThemeComposer themeComposer,
@@ -66,6 +68,8 @@ internal sealed class Composer(
 
         var compositionBody = new List<Measure>();
 
+        voiceRhythmLedger.Clear();
+
         while (compositionBody.Count < compositionConfiguration.MinimumMeasures)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -89,11 +93,13 @@ internal sealed class Composer(
                     continue;
                 }
 
-                var nextChord = chordComposer.Compose(compositionContext);
+                var nextChord = ComposeNextChord(compositionContext, compositionBody.Count, beats);
 
                 compositionContext.Add(nextChord);
                 beats.Add(new Beat(nextChord));
             }
+
+            RecordVoiceRhythmRoles(compositionBody.Count, beats);
 
             compositionBody.Add(new Measure(beats, compositionConfiguration.Meter));
 
@@ -101,6 +107,35 @@ internal sealed class Composer(
         }
 
         return new Composition(compositionBody);
+    }
+
+    // A held voice's pin is its own note from the previous beat: honoring it keeps the voice on a common
+    // tone through the mid-measure harmonic change, and the pin can only fire at interior beats, so the
+    // previous beat always exists.
+    private BaroquenChord ComposeNextChord(FixedSizeList<BaroquenChord> compositionContext, int measureIndex, List<Beat> beats) =>
+        beats.Count > 0
+        && voiceRhythmScheduler.TryGetPinnedInstrument(measureIndex, beats.Count, out var pinnedInstrument)
+        && beats[^1].Chord.ContainsInstrument(pinnedInstrument)
+            ? chordComposer.Compose(compositionContext, beats[^1].Chord[pinnedInstrument])
+            : chordComposer.Compose(compositionContext);
+
+    private void RecordVoiceRhythmRoles(int measureIndex, List<Beat> beats)
+    {
+        if (voiceRhythmScheduler.TryGetHeldInstrument(measureIndex, out var heldInstrument))
+        {
+            foreach (var beat in beats.Where(beat => beat.Chord.ContainsInstrument(heldInstrument)))
+            {
+                voiceRhythmLedger.RecordHeldNote(beat.Chord[heldInstrument]);
+            }
+        }
+
+        if (voiceRhythmScheduler.TryGetFloridInstrument(measureIndex, out var floridInstrument))
+        {
+            foreach (var beat in beats.Where(beat => beat.Chord.ContainsInstrument(floridInstrument)))
+            {
+                voiceRhythmLedger.RecordFloridNote(beat.Chord[floridInstrument]);
+            }
+        }
     }
 
     private void DispatchProgress(int currentMeasureCount)

@@ -9,7 +9,8 @@ namespace BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 internal sealed class OrnamentationProcessorFactory(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     IOrnamentationProcessorConfigurationFactory configurationFactory,
-    IOutputPolicy<OrnamentationItem> ornamentationCleaningOutputPolicy
+    IOutputPolicy<OrnamentationItem> ornamentationCleaningOutputPolicy,
+    IVoiceRhythmPolicyTransformer voiceRhythmPolicyTransformer
 ) : IOrnamentationProcessorFactory
 {
     public IEnumerable<IProcessor<OrnamentationItem>> Create(CompositionConfiguration compositionConfiguration) =>
@@ -17,7 +18,7 @@ internal sealed class OrnamentationProcessorFactory(
         where configuration.IsEnabled
         from processorConfiguration in configurationFactory.Create(configuration)
         select PolicyEngineBuilder<OrnamentationItem>.Configure()
-            .WithInputPolicies(processorConfiguration.InputPolicies)
+            .WithInputPolicies(voiceRhythmPolicyTransformer.Transform(configuration, processorConfiguration.InputPolicies))
             .WithProcessors(new OrnamentationProcessor(musicalTimeSpanCalculator, compositionConfiguration, processorConfiguration))
             .WithOutputPolicies([.. processorConfiguration.OutputPolicies, ornamentationCleaningOutputPolicy])
             .Build();
