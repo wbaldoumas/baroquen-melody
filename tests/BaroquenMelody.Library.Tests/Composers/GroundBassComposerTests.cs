@@ -69,7 +69,13 @@ internal sealed class GroundBassComposerTests
     public void SetUp()
     {
         _configuration = TestCompositionConfigurations.Get(2, 4);
-        _plan = new GroundBassPlan(GroundBassPattern.Bank[0], Instrument.Two, GroundNotes, StatementCount: 2, MeasuresPerStatement: 2);
+        _plan = new GroundBassPlan(
+            GroundBassPattern.Bank[0],
+            Instrument.Two,
+            GroundNotes,
+            StatementCount: 2,
+            MeasuresPerStatement: 2,
+            [new TonalSection(NoteName.C, Mode.Ionian, FirstStatement: 0, LastStatement: 1, GroundNotes)]);
         _planner = Substitute.For<IGroundBassPlanner>();
         _strategy = Substitute.For<ICompositionStrategy>();
         _rule = Substitute.For<ICompositionRule>();
