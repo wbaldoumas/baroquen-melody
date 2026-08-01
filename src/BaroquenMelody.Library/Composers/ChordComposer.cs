@@ -28,7 +28,7 @@ internal sealed class ChordComposer(
         throw new NoValidChordChoicesAvailableException();
     }
 
-    // The look-ahead-vetted candidate set is enumerated exactly once and the pin is a filter over it, so a
+    // The look-ahead-vetted candidate set is enumerated exactly once and the pin is a filter over it, so an
     // honored pin can only emit a chord the free path could also have chosen, and an unhonorable pin degrades
     // to the free choice for this beat rather than dead-ending the walk.
     public BaroquenChord Compose(IReadOnlyList<BaroquenChord> precedingChords, BaroquenNote pinnedNote)

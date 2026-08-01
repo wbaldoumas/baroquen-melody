@@ -7,6 +7,7 @@ using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Dynamics;
 using BaroquenMelody.Library.Dynamics.Engine.Builders;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Forms;
 using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.Midi;
 using BaroquenMelody.Library.Motifs;
@@ -170,6 +171,39 @@ internal sealed class VoiceRhythmCompositionTests
     }
 
     [Test]
+    public void Compose_ThroughTheProductionConfigurator_RealizesHeldTieChainsInMostSeeds()
+    {
+        // arrange - the held measure's rendered signature is two consecutive two-beat notes at one pitch
+        // (suppression keeps the run clean, the role-aware sustain gate ties both pairs deterministically).
+        // Composing through the REAL configurator, this decides the one load-bearing wiring fact no other
+        // test reaches: both engine builders and the composer must share the ONE ledger - a fresh-ledger
+        // regression would leave held runs ornamented at standard rates and the signature would all but
+        // vanish, while chance chains without roles need an unforced oblique repeat plus two probability
+        // ties on unornamented notes.
+        const long twoBeatTicks = 384;
+
+        var seedsWithHeldTieChains = 0;
+
+        foreach (var seed in Enumerable.Range(1, 8))
+        {
+            var notes = SeededComposition.Notes(SeededComposition.Compose(CreateConfiguration(voiceRhythmEnabled: true), seed));
+
+            var twoBeatNoteOnsets = notes
+                .Where(static note => note.Length == twoBeatTicks)
+                .Select(static note => (note.NoteNumber, note.Time))
+                .ToHashSet();
+
+            if (twoBeatNoteOnsets.Any(onset => twoBeatNoteOnsets.Contains((onset.NoteNumber, onset.Time + twoBeatTicks))))
+            {
+                seedsWithHeldTieChains++;
+            }
+        }
+
+        // assert
+        seedsWithHeldTieChains.Should().BeGreaterThanOrEqualTo(4, "held-tie chains must appear in most seeds when the production graph shares the ledger");
+    }
+
+    [Test]
     public void Compose_WithAGroundPatternThatCannotFit_FallsBackToTheFugueWithRolesActive()
     {
         // arrange - a seven-semitone bass range cannot host the octave-spanning romanesca, so the planner
@@ -197,7 +231,13 @@ internal sealed class VoiceRhythmCompositionTests
         // act
         var midiFileComposition = SeededComposition.Compose(compositionConfiguration, seed: 1);
 
-        // assert
+        // assert - the planner's decline pins that the fallback actually engaged (a future bank or range
+        // change that lets the romanesca fit would otherwise silently retarget this test at the planned
+        // ground path), and the notes prove the fallback fugue composed under roles
+        new GroundBassPlanner(compositionConfiguration, new SeededRandomProvider(1))
+            .CreatePlan()
+            .Should().BeNull("the romanesca cannot fit a seven-semitone bass range");
+
         SeededComposition.Notes(midiFileComposition).Should().NotBeEmpty("the fallback fugue must compose successfully with roles active");
     }
 
@@ -214,9 +254,12 @@ internal sealed class VoiceRhythmCompositionTests
             .ToList();
 
     /// <summary>
-    ///     The full fugal component graph, hand-wired exactly as the configurator wires it, exposing the
+    ///     The full fugal component graph, hand-wired following the configurator's recipe (modulo the
+    ///     spacing-satisfiability resolution, which the test geometry never triggers), exposing the
     ///     composition object and the ledger that <see cref="BaroquenMelodyComposerConfigurator"/> keeps
-    ///     internal - plus a scheduler override seam for the all-standard degeneration anchor.
+    ///     internal - plus a scheduler override seam for the all-standard degeneration anchor. Both compared
+    ///     graphs in the byte-identity anchor share this wiring, so any drift from the configurator biases
+    ///     neither side.
     /// </summary>
     private sealed record ComposerGraph(Composer Composer, VoiceRhythmLedger Ledger, CompositionConfiguration Configuration)
     {

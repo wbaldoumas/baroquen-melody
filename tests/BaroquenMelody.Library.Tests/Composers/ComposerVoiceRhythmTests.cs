@@ -178,19 +178,26 @@ internal sealed class ComposerVoiceRhythmTests
 
     private BaroquenChord TrackComposedChord()
     {
-        var composedChord = CreateChord();
+        // Every tracked chord carries a distinct top-voice pitch, so the pin-source assertion actually
+        // discriminates WHICH chord the pin came from rather than matching any chord ever emitted.
+        var composedChord = CreateChord(_composedChords.Count);
 
         _composedChords.Add(composedChord);
 
         return composedChord;
     }
 
-    private static Measure CreateMeasure() => new([new Beat(CreateChord())], Meter.FourFour);
+    private static Measure CreateMeasure() => new([new Beat(CreateChord(0))], Meter.FourFour);
 
-    private static BaroquenChord CreateChord() => new(
-    [
-        new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half),
-        new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half),
-        new BaroquenNote(Instrument.Three, Notes.C3, MusicalTimeSpan.Half)
-    ]);
+    private static BaroquenChord CreateChord(int chordIndex)
+    {
+        Melanchall.DryWetMidi.MusicTheory.Note[] topVoicePitches = [Notes.C5, Notes.D5, Notes.E5, Notes.F5, Notes.G5, Notes.A5, Notes.B5];
+
+        return new BaroquenChord(
+        [
+            new BaroquenNote(Instrument.One, topVoicePitches[chordIndex % topVoicePitches.Length], MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Three, Notes.C3, MusicalTimeSpan.Half)
+        ]);
+    }
 }
