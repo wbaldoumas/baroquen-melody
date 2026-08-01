@@ -35,23 +35,39 @@ internal sealed class GroundBassComposerTests
 {
     private static readonly IReadOnlyList<Note> GroundNotes = [Notes.C3, Notes.B2, Notes.A2, Notes.G2];
 
+    private static readonly IReadOnlyList<Note> ForeignGroundNotes = [Notes.A2, Notes.G2, Notes.F2, Notes.E2];
+
     private CompositionConfiguration _configuration = null!;
 
     private GroundBassPlan _plan = null!;
+
+    private GroundBassPlan _modulatingPlan = null!;
 
     private IGroundBassPlanner _planner = null!;
 
     private ICompositionStrategy _strategy = null!;
 
+    private ICompositionStrategy _homeSeamStrategy = null!;
+
+    private ICompositionStrategy _relativeStrategy = null!;
+
+    private ICompositionStrategy _relativeSeamStrategy = null!;
+
     private ICompositionRule _rule = null!;
 
     private IChordSelector _selector = null!;
 
+    private IChordSelector _relativeSelector = null!;
+
     private ICompositionDecorator _decorator = null!;
+
+    private ICompositionDecorator _relativeDecorator = null!;
 
     private ISuspensionApplicator _suspensionApplicator = null!;
 
     private ITonicizationApplicator _tonicizationApplicator = null!;
+
+    private ITonicizationApplicator _relativeTonicizationApplicator = null!;
 
     private ICadenceClassifier _cadenceClassifier = null!;
 
@@ -76,13 +92,30 @@ internal sealed class GroundBassComposerTests
             StatementCount: 2,
             MeasuresPerStatement: 2,
             [new TonalSection(NoteName.C, Mode.Ionian, FirstStatement: 0, LastStatement: 1, GroundNotes)]);
+        _modulatingPlan = new GroundBassPlan(
+            GroundBassPattern.Bank[0],
+            Instrument.Two,
+            GroundNotes,
+            StatementCount: 4,
+            MeasuresPerStatement: 2,
+            [
+                new TonalSection(NoteName.C, Mode.Ionian, FirstStatement: 0, LastStatement: 1, GroundNotes),
+                new TonalSection(NoteName.A, Mode.Aeolian, FirstStatement: 2, LastStatement: 2, ForeignGroundNotes),
+                new TonalSection(NoteName.C, Mode.Ionian, FirstStatement: 3, LastStatement: 3, GroundNotes)
+            ]);
         _planner = Substitute.For<IGroundBassPlanner>();
         _strategy = Substitute.For<ICompositionStrategy>();
+        _homeSeamStrategy = Substitute.For<ICompositionStrategy>();
+        _relativeStrategy = Substitute.For<ICompositionStrategy>();
+        _relativeSeamStrategy = Substitute.For<ICompositionStrategy>();
         _rule = Substitute.For<ICompositionRule>();
         _selector = Substitute.For<IChordSelector>();
+        _relativeSelector = Substitute.For<IChordSelector>();
         _decorator = Substitute.For<ICompositionDecorator>();
+        _relativeDecorator = Substitute.For<ICompositionDecorator>();
         _suspensionApplicator = Substitute.For<ISuspensionApplicator>();
         _tonicizationApplicator = Substitute.For<ITonicizationApplicator>();
+        _relativeTonicizationApplicator = Substitute.For<ITonicizationApplicator>();
         _cadenceClassifier = Substitute.For<ICadenceClassifier>();
         _chordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
         _trillApplicator = Substitute.For<ICadentialTrillApplicator>();
@@ -93,12 +126,21 @@ internal sealed class GroundBassComposerTests
         _planner.CreatePlan().Returns(_plan);
         _rule.Evaluate(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(true);
         _strategy.GenerateInitialChord().Returns(_ => BuildChord(Notes.E4, Notes.E3));
-        _strategy.GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
-            .Returns(call => new List<BaroquenChord> { HarmonizePin(call.ArgAt<BaroquenChord>(1)) });
-        _strategy.HasPossibleChordForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(true);
-        _strategy.GetPossibleChords(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns(_ => new List<BaroquenChord> { BuildChord(Notes.D4, Notes.D3) });
-        _selector.SelectNextChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<IEnumerable<BaroquenChord>>())
-            .Returns(call => call.Arg<IEnumerable<BaroquenChord>>().FirstOrDefault());
+
+        foreach (var strategy in new[] { _strategy, _homeSeamStrategy, _relativeStrategy, _relativeSeamStrategy })
+        {
+            strategy.GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+                .Returns(call => new List<BaroquenChord> { HarmonizePin(call.ArgAt<BaroquenChord>(1)) });
+            strategy.HasPossibleChordForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>()).Returns(true);
+            strategy.GetPossibleChords(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns(_ => new List<BaroquenChord> { BuildChord(Notes.D4, Notes.D3) });
+        }
+
+        foreach (var selector in new[] { _selector, _relativeSelector })
+        {
+            selector.SelectNextChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<IEnumerable<BaroquenChord>>())
+                .Returns(call => call.Arg<IEnumerable<BaroquenChord>>().FirstOrDefault());
+        }
+
         _cadenceClassifier.ClassifyCadence(Arg.Any<BaroquenChord>(), Arg.Any<BaroquenChord>()).Returns(CadenceType.PerfectAuthentic);
     }
 
@@ -416,6 +458,124 @@ internal sealed class GroundBassComposerTests
     }
 
     [Test]
+    public void Compose_WithAModulatingPlan_ComposesEachSectionUnderItsKeyComponents()
+    {
+        // arrange: four statements plan as home, home, relative, home - so the walk crosses a key seam
+        // twice. The seam transitions belong to the ARRIVING key: entering the relative section validates
+        // under the relative seam strategy, returning home validates under the home seam strategy, and the
+        // sections' interiors use their full strategies and selectors.
+        var composition = CreateModulatingComposer().Compose(CancellationToken.None);
+
+        // assert: the bass renders each statement from its section's rendering.
+        var statementChords = composition.Measures.Take(8).SelectMany(static measure => measure.Beats.Select(static beat => beat.Chord)).ToList();
+        var expectedBassLine = GroundNotes.Concat(GroundNotes).Concat(ForeignGroundNotes).Concat(GroundNotes).ToList();
+
+        for (var chordIndex = 0; chordIndex < statementChords.Count; ++chordIndex)
+        {
+            statementChords[chordIndex][Instrument.Two].Raw.Should().Be(expectedBassLine[chordIndex / GroundBassPlan.SlotsPerGroundNote], $"slot {chordIndex} must carry its section's rendering of the ground");
+        }
+
+        // The relative seam strategy owns exactly the one onset entering the relative section (pinned A2)
+        // and the thread-check crossing into it; the home seam strategy owns exactly the return onset
+        // (pinned C3) and its crossing thread-check; the relative full strategy owns the section's interior.
+        _relativeSeamStrategy.Received(1).GetRuleValidChordsForPartiallyVoicedChord(
+            Arg.Any<IReadOnlyList<BaroquenChord>>(),
+            Arg.Is<BaroquenChord>(static pin => pin.Notes.Count == 1 && pin[Instrument.Two].Raw == Notes.A2));
+        _relativeSeamStrategy.Received(1).HasPossibleChordForPartiallyVoicedChord(
+            Arg.Any<IReadOnlyList<BaroquenChord>>(),
+            Arg.Is<BaroquenChord>(static pin => pin.Notes.Count == 1 && pin[Instrument.Two].Raw == Notes.A2));
+        _relativeStrategy.Received(3).GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>());
+        _homeSeamStrategy.Received(1).GetRuleValidChordsForPartiallyVoicedChord(
+            Arg.Any<IReadOnlyList<BaroquenChord>>(),
+            Arg.Is<BaroquenChord>(static pin => pin.Notes.Count == 1 && pin[Instrument.Two].Raw == Notes.C3));
+        _homeSeamStrategy.Received(1).HasPossibleChordForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>());
+        _relativeSelector.Received(4).SelectNextChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<IEnumerable<BaroquenChord>>());
+        _relativeStrategy.DidNotReceive().GenerateInitialChord();
+    }
+
+    [Test]
+    public void Compose_WithAModulatingPlan_DecoratesEachSectionSliceWithItsOwnDecorator()
+    {
+        // arrange
+        var homeDecoratedSlices = new List<Composition>();
+        var relativeDecoratedSlices = new List<Composition>();
+
+        _decorator.When(static decorator => decorator.Decorate(Arg.Any<Composition>(), Instrument.One))
+            .Do(call => homeDecoratedSlices.Add(call.Arg<Composition>()));
+        _relativeDecorator.When(static decorator => decorator.Decorate(Arg.Any<Composition>(), Instrument.One))
+            .Do(call => relativeDecoratedSlices.Add(call.Arg<Composition>()));
+
+        // act
+        var composition = CreateModulatingComposer().Compose(CancellationToken.None);
+
+        // assert: the home decorator sees the lead statement after the solo (measures 2-3) and the return
+        // statement (measures 6-7); the relative decorator sees the relative statement (measures 4-5). The
+        // slices share measure references with the composition, and the bass voice is never decorated.
+        homeDecoratedSlices.Should().HaveCount(2);
+        homeDecoratedSlices[0].Measures.Should().HaveCount(2).And.ContainInOrder(composition.Measures[2], composition.Measures[3]);
+        homeDecoratedSlices[1].Measures.Should().HaveCount(2).And.ContainInOrder(composition.Measures[6], composition.Measures[7]);
+        relativeDecoratedSlices.Should().ContainSingle();
+        relativeDecoratedSlices[0].Measures.Should().HaveCount(2).And.ContainInOrder(composition.Measures[4], composition.Measures[5]);
+        _decorator.DidNotReceive().Decorate(Arg.Any<Composition>(), Instrument.Two);
+        _relativeDecorator.DidNotReceive().Decorate(Arg.Any<Composition>(), Instrument.Two);
+    }
+
+    [Test]
+    public void Compose_WithAModulatingPlan_AppliesEachSectionsTonicizationOverItsSliceInOrder()
+    {
+        // arrange
+        var homeTonicizedSlices = new List<Composition>();
+        var relativeTonicizedSlices = new List<Composition>();
+        Composition? suspensionTarget = null;
+
+        _tonicizationApplicator.When(static applicator => applicator.ApplyTonicization(Arg.Any<Composition>()))
+            .Do(call => homeTonicizedSlices.Add(call.Arg<Composition>()));
+        _relativeTonicizationApplicator.When(static applicator => applicator.ApplyTonicization(Arg.Any<Composition>()))
+            .Do(call =>
+            {
+                if (suspensionTarget is null)
+                {
+                    throw new InvalidOperationException("suspensions must run before any tonicization slice");
+                }
+
+                relativeTonicizedSlices.Add(call.Arg<Composition>());
+            });
+        _suspensionApplicator.When(static applicator => applicator.ApplySuspensions(Arg.Any<Composition>()))
+            .Do(call => suspensionTarget = call.Arg<Composition>());
+
+        // act
+        var composition = CreateModulatingComposer().Compose(CancellationToken.None);
+
+        // assert: suspensions still run once over the whole trailing sub-composition (its diatonic-step
+        // eligibility reads identically in relative keys), while tonicization runs per section slice - the
+        // home lead after the solo, the relative middle, and the home tail carrying the appended close.
+        suspensionTarget.Should().NotBeNull();
+        suspensionTarget!.Measures.Should().HaveCount(7, "the trailing sub-composition spans every statement after the solo plus the close");
+        suspensionTarget.Measures[0].Should().BeSameAs(composition.Measures[2]);
+        homeTonicizedSlices.Should().HaveCount(2);
+        homeTonicizedSlices[0].Measures.Should().HaveCount(2).And.ContainInOrder(composition.Measures[2], composition.Measures[3]);
+        homeTonicizedSlices[1].Measures.Should().HaveCount(3).And.ContainInOrder(composition.Measures[6], composition.Measures[7], composition.Measures[8]);
+        relativeTonicizedSlices.Should().ContainSingle();
+        relativeTonicizedSlices[0].Measures.Should().HaveCount(2).And.ContainInOrder(composition.Measures[4], composition.Measures[5]);
+        _decorator.Received(1).ApplySustain(Arg.Is<Composition>(static fullComposition => fullComposition.Measures.Count == 9));
+    }
+
+    [Test]
+    public void Compose_WithAForeignSectionButNoRelativeComponents_Throws()
+    {
+        // arrange: the configurator always builds relative components when a foreign section can be
+        // planned, so reaching a foreign section without them is a wiring defect that must fail loudly
+        // rather than compose the relative section under the home key's grammar.
+        _planner.CreatePlan().Returns(_modulatingPlan);
+
+        // act
+        var act = () => CreateComposer(relativeComponents: null).Compose(CancellationToken.None);
+
+        // assert
+        act.Should().Throw<InvalidOperationException>().WithMessage("*without relative-key components*");
+    }
+
+    [Test]
     public void Compose_WithACancelledToken_Throws()
     {
         // arrange
@@ -430,14 +590,14 @@ internal sealed class GroundBassComposerTests
         act.Should().Throw<OperationCanceledException>();
     }
 
-    private GroundBassComposer CreateComposer() => new(
+    private GroundBassComposer CreateComposer() => CreateComposer(relativeComponents: null);
+
+    private GroundBassComposer CreateComposer(GroundBassSectionComponents? relativeComponents) => new(
         _planner,
-        _strategy,
+        new GroundBassSectionComponents(_strategy, _homeSeamStrategy, _selector, _decorator, _tonicizationApplicator),
+        relativeComponents,
         _rule,
-        _selector,
-        _decorator,
         _suspensionApplicator,
-        _tonicizationApplicator,
         _cadenceClassifier,
         _chordNumberIdentifier,
         _trillApplicator,
@@ -447,6 +607,13 @@ internal sealed class GroundBassComposerTests
         Substitute.For<ILogger>(),
         _configuration
     );
+
+    private GroundBassComposer CreateModulatingComposer()
+    {
+        _planner.CreatePlan().Returns(_modulatingPlan);
+
+        return CreateComposer(new GroundBassSectionComponents(_relativeStrategy, _relativeSeamStrategy, _relativeSelector, _relativeDecorator, _relativeTonicizationApplicator));
+    }
 
     private static BaroquenChord BuildChord(Note upperNote, Note bassNote) => new(
     [

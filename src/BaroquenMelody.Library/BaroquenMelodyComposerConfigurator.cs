@@ -11,6 +11,7 @@ using BaroquenMelody.Library.Logging;
 using BaroquenMelody.Library.Midi;
 using BaroquenMelody.Library.Motifs;
 using BaroquenMelody.Library.MusicTheory;
+using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Engine;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
@@ -105,19 +106,59 @@ internal sealed class BaroquenMelodyComposerConfigurator(
 
         // The ground bass form replaces the whole fugal pipeline with its own composer, keeping the standard
         // composer as its fallback for bass ranges no ground can anchor in. When the form is disabled the
-        // object graph is exactly the pre-form graph.
+        // object graph is exactly the pre-form graph. The home section's components alias the singletons
+        // above, so a home-only plan composes through exactly the pre-modulation objects.
         if ((compositionConfiguration.GroundBassConfiguration ?? GroundBassConfiguration.Default).Enabled)
         {
             var groundBassPlanner = new GroundBassPlanner(compositionConfiguration, randomProvider);
+            var homeComponents = new GroundBassSectionComponents(compositionStrategy, compositionStrategy, chordSelector, compositionDecorator, tonicizationApplicator);
+            var relativeComponents = default(GroundBassSectionComponents);
+
+            // The planner journeys only in the lifted modes with the toggle on; this gate is deliberately
+            // WIDER than the planner's (which also weighs statement counts, range feasibility, and seam
+            // legality), so relative components exist whenever a foreign section can possibly be planned.
+            if ((compositionConfiguration.GroundBassConfiguration ?? GroundBassConfiguration.Default).Modulate
+                && compositionConfiguration.Mode is Mode.Ionian or Mode.Aeolian)
+            {
+                var seamRuleConfiguration = new AggregateCompositionRuleConfiguration(
+                    effectiveRuleConfiguration.Configurations
+                        .Where(static configuration => configuration.Rule != CompositionRule.FollowStandardChordProgression)
+                        .ToHashSet()
+                );
+
+                var homeSeamRule = compositionRuleFactory.CreateAggregate(seamRuleConfiguration);
+                var homeSeamStrategy = new CompositionStrategyFactory(_noteChoiceGenerator, homeSeamRule, randomProvider, logger).Create(compositionConfiguration);
+
+                homeComponents = homeComponents with { SeamStrategy = homeSeamStrategy };
+
+                // Relative scales share the home scale's pitch set, so the spacing-satisfiability verdict
+                // and the effective rule set carry over unchanged; only Tonic and Mode move. The relative
+                // configuration must be constructed fresh - a `with` clone would keep the home Scale, which
+                // property initializers compute once at construction.
+                var relativeConfiguration = BuildRelativeConfiguration(compositionConfiguration);
+                var relativeChordNumberIdentifier = new ChordNumberIdentifier(relativeConfiguration);
+                var relativeChordInversionIdentifier = new ChordInversionIdentifier(relativeChordNumberIdentifier, relativeConfiguration);
+                var relativeRuleFactory = new CompositionRuleFactory(relativeConfiguration, _weightedRandomBooleanGenerator, relativeChordNumberIdentifier);
+                var relativeRule = relativeRuleFactory.CreateAggregate(effectiveRuleConfiguration);
+                var relativeSeamRule = relativeRuleFactory.CreateAggregate(seamRuleConfiguration);
+                var relativeStrategy = new CompositionStrategyFactory(_noteChoiceGenerator, relativeRule, randomProvider, logger).Create(relativeConfiguration);
+                var relativeSeamStrategy = new CompositionStrategyFactory(_noteChoiceGenerator, relativeSeamRule, randomProvider, logger).Create(relativeConfiguration);
+                var relativeScoringRuleFactory = new ScoringRuleFactory(relativeConfiguration, relativeChordNumberIdentifier, relativeChordInversionIdentifier);
+                var relativeScoringRule = relativeScoringRuleFactory.CreateAggregate(compositionConfiguration.AggregateScoringRuleConfiguration ?? AggregateScoringRuleConfiguration.Default);
+                var relativeChordSelector = new WeightedChordSelector(relativeScoringRule, randomProvider);
+                var relativeOrnamentationEngineBuilder = new OrnamentationEngineBuilder(relativeConfiguration, _musicalTimeSpanCalculator, randomProvider, logger);
+                var relativeDecorator = new CompositionDecorator(relativeOrnamentationEngineBuilder.BuildOrnamentationEngine(), relativeOrnamentationEngineBuilder.BuildSustainedNoteEngine(), relativeConfiguration);
+                var relativeTonicizationApplicator = new TonicizationApplicator(relativeChordNumberIdentifier, _weightedRandomBooleanGenerator, relativeConfiguration);
+
+                relativeComponents = new GroundBassSectionComponents(relativeStrategy, relativeSeamStrategy, relativeChordSelector, relativeDecorator, relativeTonicizationApplicator);
+            }
 
             effectiveComposer = new GroundBassComposer(
                 groundBassPlanner,
-                compositionStrategy,
+                homeComponents,
+                relativeComponents,
                 compositionRule,
-                chordSelector,
-                compositionDecorator,
                 suspensionApplicator,
-                tonicizationApplicator,
                 cadenceClassifier,
                 chordNumberIdentifier,
                 cadentialTrillApplicator,
@@ -129,6 +170,40 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         }
 
         return new MidiFileComposer(effectiveComposer, midiGenerator);
+    }
+
+    /// <summary>
+    ///     Builds the relative key's configuration: the same composition in every respect except its tonal
+    ///     center - the submediant's Aeolian for an Ionian home, the mediant's Ionian for an Aeolian home.
+    ///     Constructed through the full constructor so the property-initialized <see cref="CompositionConfiguration.Scale"/>
+    ///     binds to the relative key (a `with` clone would carry the home scale).
+    /// </summary>
+    private static CompositionConfiguration BuildRelativeConfiguration(CompositionConfiguration compositionConfiguration)
+    {
+        var (relativeTonic, relativeMode) = compositionConfiguration.Mode == Mode.Ionian
+            ? (compositionConfiguration.Scale.Submediant, Mode.Aeolian)
+            : (compositionConfiguration.Scale.Mediant, Mode.Ionian);
+
+        return new CompositionConfiguration(
+            compositionConfiguration.InstrumentConfigurations,
+            compositionConfiguration.PhrasingConfiguration,
+            compositionConfiguration.AggregateCompositionRuleConfiguration,
+            compositionConfiguration.AggregateOrnamentationConfiguration,
+            relativeTonic,
+            relativeMode,
+            compositionConfiguration.Meter,
+            compositionConfiguration.DefaultNoteTimeSpan,
+            compositionConfiguration.MinimumMeasures,
+            compositionConfiguration.CompositionContextSize,
+            compositionConfiguration.Tempo,
+            compositionConfiguration.ShuffleOrnamentationProcessors,
+            compositionConfiguration.MaxLookAheadDepth,
+            compositionConfiguration.AggregateScoringRuleConfiguration,
+            compositionConfiguration.MotifDevelopmentConfiguration,
+            compositionConfiguration.HarmonicRhythmConfiguration,
+            compositionConfiguration.SuspensionConfiguration,
+            compositionConfiguration.TonicizationConfiguration,
+            compositionConfiguration.GroundBassConfiguration);
     }
 
     /// <summary>
