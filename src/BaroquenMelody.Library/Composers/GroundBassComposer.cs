@@ -9,9 +9,7 @@ using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Rules;
-using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Store.Actions;
-using BaroquenMelody.Library.Strategies;
 using Fluxor;
 using Melanchall.DryWetMidi.Interaction;
 using Microsoft.Extensions.Logging;
@@ -28,19 +26,23 @@ namespace BaroquenMelody.Library.Composers;
 ///     that the ornamentation and sustain passes animate. A dead-ended walk retries from fresh draws; the final
 ///     attempt may take a local liberty and compose a starving onset unpinned (a varied ground, historically
 ///     legitimate), and only a bass range that cannot host any ground at all falls back to the standard form.
-///     The suspension and tonicization passes run over a trailing sub-composition that shares chord references
-///     with the full composition (the completion pass's exposition idiom), which keeps the solo announcement
-///     exact: a suspension would otherwise happily syncopate a solo stepwise ground, with no other voice
-///     present to sound the dissonance that justifies it.
+///     When the plan modulates, each statement composes under its tonal section's key-bound components - the
+///     ground renders at the relative tonic's pitch level and the upper voices walk in the relative scale's
+///     grammar - and the one transition crossing a key seam validates under the arriving section's seam
+///     strategy, since progression grammar is intra-key and a section boundary is exactly where it has no
+///     jurisdiction. The suspension pass runs over one trailing sub-composition (its diatonic-step eligibility
+///     reads identically in relative keys, which share a note set), while decoration and tonicization run over
+///     per-section slices sharing chord references, so each section's figures and licenses come from its own
+///     scale; every slice mechanism degenerates to the pre-modulation whole when the plan is home-only. The
+///     trailing and slice shapes both keep the solo announcement exact: a suspension would otherwise happily
+///     syncopate a solo stepwise ground, with no other voice present to sound the dissonance that justifies it.
 /// </remarks>
 internal sealed class GroundBassComposer(
     IGroundBassPlanner groundBassPlanner,
-    ICompositionStrategy compositionStrategy,
+    GroundBassSectionComponents homeComponents,
+    GroundBassSectionComponents? relativeComponents,
     ICompositionRule compositionRule,
-    IChordSelector chordSelector,
-    ICompositionDecorator compositionDecorator,
     ISuspensionApplicator suspensionApplicator,
-    ITonicizationApplicator tonicizationApplicator,
     ICadenceClassifier cadenceClassifier,
     IChordNumberIdentifier chordNumberIdentifier,
     ICadentialTrillApplicator cadentialTrillApplicator,
@@ -109,13 +111,13 @@ internal sealed class GroundBassComposer(
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        // The trailing sub-composition shares its measures with the full composition, so the passes mutate
+        // The trailing sub-composition shares its measures with the full composition, so the pass mutates
         // the real chords while never seeing the solo opening statement.
         var trailingComposition = new Composition(composition.Measures.Skip(plan.MeasuresPerStatement).ToList());
 
         suspensionApplicator.ApplySuspensions(trailingComposition);
-        tonicizationApplicator.ApplyTonicization(trailingComposition);
-        compositionDecorator.ApplySustain(composition);
+        ApplyTonicizationPerSection(composition, plan);
+        homeComponents.Decorator.ApplySustain(composition);
 
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Complete));
         dynamicsApplicator.Apply(composition);
@@ -140,11 +142,13 @@ internal sealed class GroundBassComposer(
 
     private bool TryComposeStatements(GroundBassPlan plan, bool allowUnpinnedSites, out List<BaroquenChord>? statementChords, CancellationToken cancellationToken)
     {
-        var pinnedNotes = new List<Note>(plan.StatementCount * plan.BassNotes.Count);
+        var pinnedNotes = new List<(Note Note, TonalSection Section)>(plan.StatementCount * plan.BassNotes.Count);
 
         for (var statementIndex = 0; statementIndex < plan.StatementCount; ++statementIndex)
         {
-            pinnedNotes.AddRange(plan.BassNotes);
+            var section = plan.SectionForStatement(statementIndex);
+
+            pinnedNotes.AddRange(section.BassNotes.Select(note => (note, section)));
         }
 
         var bootstrapChord = BootstrapInitialChord(plan);
@@ -158,15 +162,28 @@ internal sealed class GroundBassComposer(
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var pinnedChord = CreatePinnedBassChord(plan, pinnedNotes[pinIndex]);
+            var (pinnedNote, section) = pinnedNotes[pinIndex];
+            var pinnedChord = CreatePinnedBassChord(plan, pinnedNote);
 
             // The onset after the last statement pin is the final cadence's tonic, so the walk's last onset
-            // threads into the close just like every other onset threads into its successor.
-            var nextPinnedNote = pinIndex + 1 < pinnedNotes.Count ? pinnedNotes[pinIndex + 1] : plan.BassNotes[0];
+            // threads into the close just like every other onset threads into its successor. The close is
+            // always home (the planner's tail floor), as is the final statement threading into it.
+            var (nextPinnedNote, nextSection) = pinIndex + 1 < pinnedNotes.Count
+                ? pinnedNotes[pinIndex + 1]
+                : (plan.BassNotes[0], plan.Sections[^1]);
             var nextPinnedChord = CreatePinnedBassChord(plan, nextPinnedNote);
 
-            var candidates = compositionStrategy.GetRuleValidChordsForPartiallyVoicedChord([chords[^1]], pinnedChord)
-                .Where(candidate => compositionStrategy.HasPossibleChordForPartiallyVoicedChord([candidate], nextPinnedChord))
+            // A transition whose onsets sit in different keys belongs to the ARRIVING key - its seam
+            // strategy exempts the intra-key progression grammar while every voice-leading rule holds.
+            var searchStrategy = IsKeyChange(pinnedNotes[pinIndex - 1].Section, section)
+                ? ComponentsFor(section).SeamStrategy
+                : ComponentsFor(section).FullStrategy;
+            var threadStrategy = IsKeyChange(section, nextSection)
+                ? ComponentsFor(nextSection).SeamStrategy
+                : ComponentsFor(section).FullStrategy;
+
+            var candidates = searchStrategy.GetRuleValidChordsForPartiallyVoicedChord([chords[^1]], pinnedChord)
+                .Where(candidate => threadStrategy.HasPossibleChordForPartiallyVoicedChord([candidate], nextPinnedChord))
                 .ToList();
 
             IEnumerable<BaroquenChord> candidatePool = candidates;
@@ -182,10 +199,10 @@ internal sealed class GroundBassComposer(
 
                 logger.LogWarningMessage($"No rule-valid chord carries the pinned ground note at onset {pinIndex}. Taking a local liberty and composing the onset unpinned.");
 
-                candidatePool = compositionStrategy.GetPossibleChords([chords[^1]]);
+                candidatePool = searchStrategy.GetPossibleChords([chords[^1]]);
             }
 
-            var nextChord = chordSelector.SelectNextChord(chords.TakeLast(2).ToList(), candidatePool);
+            var nextChord = ComponentsFor(section).ChordSelector.SelectNextChord(chords.TakeLast(2).ToList(), candidatePool);
 
             if (nextChord is null)
             {
@@ -211,10 +228,11 @@ internal sealed class GroundBassComposer(
 
         // The initial voicing generator knows nothing about the ground, so pin the bass onto each candidate
         // and validate the result with an empty preceding-chord context, degrading to the last candidate the
-        // way the generator itself degrades when no candidate satisfies the rules.
+        // way the generator itself degrades when no candidate satisfies the rules. The opening statement is
+        // always home (the planner's lead floor), so the home strategy voices it.
         for (var attempt = 0; attempt < MaxBootstrapAttempts; ++attempt)
         {
-            var candidate = compositionStrategy.GenerateInitialChord();
+            var candidate = homeComponents.FullStrategy.GenerateInitialChord();
             var upperNotes = candidate.Notes.Where(note => note.Instrument != plan.BassInstrument);
 
             pinnedChord = new BaroquenChord([.. upperNotes, new BaroquenNote(plan.BassInstrument, plan.BassNotes[0], compositionConfiguration.DefaultNoteTimeSpan)]);
@@ -249,12 +267,65 @@ internal sealed class GroundBassComposer(
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Ornamentation));
 
         // The ground itself stays plain so the anchor remains recognizable through every variation; only the
-        // voices above it take ornamentation, and only from the moment they enter.
-        var textureComposition = new Composition(composition.Measures.Skip(plan.MeasuresPerStatement).ToList());
-
-        foreach (var instrument in compositionConfiguration.Instruments.Where(instrument => instrument != plan.BassInstrument))
+        // voices above it take ornamentation, and only from the moment they enter. Each section's slice is
+        // decorated by its own key's engine (a home-only plan is a single slice - the pre-modulation whole),
+        // and the slice boundary keeps a seam-approaching figure from reaching across the key change.
+        foreach (var (section, sliceMeasures) in EnumerateSectionSlices(composition, plan, includeBoundaryAndClosingMeasures: false))
         {
-            compositionDecorator.Decorate(textureComposition, instrument);
+            var sliceComposition = new Composition(sliceMeasures);
+
+            foreach (var instrument in compositionConfiguration.Instruments.Where(instrument => instrument != plan.BassInstrument))
+            {
+                ComponentsFor(section).Decorator.Decorate(sliceComposition, instrument);
+            }
+        }
+    }
+
+    private void ApplyTonicizationPerSection(Composition composition, GroundBassPlan plan)
+    {
+        // Each section's licenses come from its own mode - the relative minor's raised leading tones are
+        // what make the journey audible. Every non-final slice carries the next section's first measure as
+        // a read-toward boundary (the exposition pass's idiom), so a slice-final measure keeps its
+        // mid-measure site and the cross-key seam pair is a real site under the DEPARTING key's licenses -
+        // sound because relative keys license identical pitch classes, and musically the classical pivot:
+        // a departing chord raised into a true dominant of the arriving tonic. The boundary measure's own
+        // mid-measure site stays with the slice that owns it (the pass never alters a final measure's
+        // inside), so every site is drawn exactly once. The last slice carries the appended close, whose
+        // final measure the pass already treats as a target only.
+        foreach (var (section, sliceMeasures) in EnumerateSectionSlices(composition, plan, includeBoundaryAndClosingMeasures: true))
+        {
+            ComponentsFor(section).TonicizationApplicator.ApplyTonicization(new Composition(sliceMeasures));
+        }
+    }
+
+    /// <summary>
+    ///     Enumerates each tonal section's measure slice, sharing measure references with the composition so
+    ///     the passes mutate the real chords. The first slice always excludes the solo opening statement (the
+    ///     trailing idiom). With <paramref name="includeBoundaryAndClosingMeasures"/> each non-final slice
+    ///     extends one measure into its successor - a boundary the harmonic pass reads toward without
+    ///     altering its inside - and the last slice extends past the statements to carry the appended close;
+    ///     without it, slices end at their section's edge so no figure reaches across a key change.
+    /// </summary>
+    private static IEnumerable<(TonalSection Section, List<Measure> Measures)> EnumerateSectionSlices(Composition composition, GroundBassPlan plan, bool includeBoundaryAndClosingMeasures)
+    {
+        for (var sectionIndex = 0; sectionIndex < plan.Sections.Count; ++sectionIndex)
+        {
+            var section = plan.Sections[sectionIndex];
+            var isFinalSection = sectionIndex == plan.Sections.Count - 1;
+            var firstMeasure = Math.Max(section.FirstStatement * plan.MeasuresPerStatement, plan.MeasuresPerStatement);
+            var lastMeasureExclusive = (section.LastStatement + 1) * plan.MeasuresPerStatement;
+
+            if (includeBoundaryAndClosingMeasures)
+            {
+                lastMeasureExclusive = isFinalSection ? composition.Measures.Count : lastMeasureExclusive + 1;
+            }
+
+            if (firstMeasure >= lastMeasureExclusive)
+            {
+                continue;
+            }
+
+            yield return (section, composition.Measures.Skip(firstMeasure).Take(lastMeasureExclusive - firstMeasure).ToList());
         }
     }
 
@@ -264,14 +335,14 @@ internal sealed class GroundBassComposer(
 
         var lastStatementChord = composition.Measures[^1].Beats[^1].Chord;
         var pinnedTonicChord = CreatePinnedBassChord(plan, plan.BassNotes[0]);
-        var pinnedCandidates = compositionStrategy.GetRuleValidChordsForPartiallyVoicedChord([lastStatementChord], pinnedTonicChord);
+        var pinnedCandidates = homeComponents.FullStrategy.GetRuleValidChordsForPartiallyVoicedChord([lastStatementChord], pinnedTonicChord);
         IReadOnlyList<BaroquenChord> candidates = pinnedCandidates;
 
         if (candidates.Count == 0)
         {
             logger.LogWarningMessage("No rule-valid closing chord carries the ground's tonic. Closing on the strongest free arrival instead.");
 
-            candidates = compositionStrategy.GetPossibleChords([lastStatementChord]).ToList();
+            candidates = homeComponents.FullStrategy.GetPossibleChords([lastStatementChord]).ToList();
         }
 
         var finalChord = SelectFinalChord(composition, candidates) ?? new BaroquenChord(lastStatementChord);
@@ -314,7 +385,7 @@ internal sealed class GroundBassComposer(
         var bestCandidates = candidates.Where(candidate => RankCadence(lastStatementChord, candidate) == bestRank).ToList();
         var selectorContext = new List<BaroquenChord> { composition.Measures[^1].Beats[^2].Chord, lastStatementChord };
 
-        return chordSelector.SelectNextChord(selectorContext, bestCandidates) ?? bestCandidates[0];
+        return homeComponents.ChordSelector.SelectNextChord(selectorContext, bestCandidates) ?? bestCandidates[0];
     }
 
     // The authentic ranks need the seam's chord pair to classify as V-to-I, but the walk only guarantees the
@@ -329,6 +400,14 @@ internal sealed class GroundBassComposer(
         _ when chordNumberIdentifier.IdentifyChordNumber(finalChord) == ChordNumber.I => TonicChordArrivalRank,
         _ => PlainArrivalRank
     };
+
+    private GroundBassSectionComponents ComponentsFor(TonalSection section) =>
+        section.Tonic == compositionConfiguration.Tonic && section.Mode == compositionConfiguration.Mode
+            ? homeComponents
+            : relativeComponents ?? throw new InvalidOperationException("A foreign tonal section was planned without relative-key components.");
+
+    private static bool IsKeyChange(TonalSection precedingSection, TonalSection section) =>
+        precedingSection.Tonic != section.Tonic || precedingSection.Mode != section.Mode;
 
     private BaroquenChord CreatePinnedBassChord(GroundBassPlan plan, Note pinnedNote) =>
         new([new BaroquenNote(plan.BassInstrument, pinnedNote, compositionConfiguration.DefaultNoteTimeSpan)]);

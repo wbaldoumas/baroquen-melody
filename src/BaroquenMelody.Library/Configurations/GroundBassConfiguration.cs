@@ -14,8 +14,14 @@ namespace BaroquenMelody.Library.Configurations;
 ///     patterns that fit the lowest voice's range. A configured pattern the range cannot host yields no
 ///     plan, falling back to the fugal form the way an empty bank does.
 /// </param>
+/// <param name="Modulate">
+///     Whether the composition may journey to the relative key for a block of middle statements before
+///     returning home. The journey happens in the Ionian and Aeolian modes when at least four statements
+///     are planned and the relative-key rendering both fits the bass range and meets the home ground at
+///     singable seams; when any condition fails the composition simply stays in the home key.
+/// </param>
 [ExcludeFromCodeCoverage(Justification = "Configuration")]
-public sealed record GroundBassConfiguration(bool Enabled, GroundBass? Pattern = null)
+public sealed record GroundBassConfiguration(bool Enabled, GroundBass? Pattern = null, bool Modulate = true)
 {
     public static GroundBassConfiguration Default { get; } = new(Enabled: false);
 }

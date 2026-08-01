@@ -281,6 +281,249 @@ internal sealed class GroundBassPlannerTests
         firstPlan!.Pattern.Identifier.Should().Be(secondPlan!.Pattern.Identifier);
         firstPlan.BassNotes.Should().Equal(secondPlan.BassNotes);
         firstPlan.StatementCount.Should().Be(secondPlan.StatementCount);
+        firstPlan.Sections.Should().HaveCount(secondPlan.Sections.Count);
+    }
+
+    [Test]
+    public void CreatePlan_InTheLiftedModeWithEnoughStatements_PlansARelativeKeyJourney()
+    {
+        // arrange: the test-shaped C2-C3 bass hosts the tetrachord in C Ionian (C3 down to G2) and in the
+        // relative A Aeolian (A2 down to E2), and both seam motions are singable (G2 up a step to A2;
+        // E2 up a consonant minor sixth to C3), so thirteen statements plan as home, relative middle,
+        // home return - about a third foreign, placed centrally, without any additional draw.
+        var configuration = TestCompositionConfigurations.Get(3, 25) with
+        {
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, GroundBass.DescendingTetrachord)
+        };
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.Sections.Should().HaveCount(3);
+        plan.Sections[0].Should().Match<TonalSection>(static section =>
+            section.Tonic == NoteName.C && section.Mode == Mode.Ionian && section.FirstStatement == 0 && section.LastStatement == 3);
+        plan.Sections[1].Should().Match<TonalSection>(static section =>
+            section.Tonic == NoteName.A && section.Mode == Mode.Aeolian && section.FirstStatement == 4 && section.LastStatement == 7);
+        plan.Sections[2].Should().Match<TonalSection>(static section =>
+            section.Tonic == NoteName.C && section.Mode == Mode.Ionian && section.FirstStatement == 8 && section.LastStatement == 12);
+        plan.Sections[0].BassNotes.Should().Equal(plan.BassNotes, "the home sections carry the home rendering");
+        plan.Sections[2].BassNotes.Should().Equal(plan.BassNotes, "the home sections carry the home rendering");
+        plan.Sections[1].BassNotes.Should().Equal(Notes.A2, Notes.G2, Notes.F2, Notes.E2);
+        randomProvider.Received(1).Next(1);
+    }
+
+    [Test]
+    public void CreatePlan_InAeolian_JourneysToTheRelativeMajor()
+    {
+        // arrange: the mirrored direction - an A Aeolian home renders the tetrachord A2 down to E2 and its
+        // relative C Ionian renders it C3 down to G2, with the seams inverted (E2 up a minor sixth out,
+        // G2 up a step back home).
+        var configuration = TestCompositionConfigurations.Get(3, 25, NoteName.A, Mode.Aeolian) with
+        {
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, GroundBass.DescendingTetrachord)
+        };
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.Sections.Should().HaveCount(3);
+        plan.Sections[1].Should().Match<TonalSection>(static section => section.Tonic == NoteName.C && section.Mode == Mode.Ionian);
+        plan.Sections[1].BassNotes.Should().Equal(Notes.C3, Notes.B2, Notes.A2, Notes.G2);
+    }
+
+    [Test]
+    public void CreatePlan_WithModulationDisabled_PlansASingleHomeSection()
+    {
+        // arrange
+        var configuration = TestCompositionConfigurations.Get(3, 25) with
+        {
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, GroundBass.DescendingTetrachord, Modulate: false)
+        };
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.Sections.Should().ContainSingle();
+        plan.Sections[0].Should().Match<TonalSection>(static section =>
+            section.Tonic == NoteName.C && section.Mode == Mode.Ionian && section.FirstStatement == 0 && section.LastStatement == 12);
+        randomProvider.Received(1).Next(1);
+    }
+
+    [Test]
+    public void CreatePlan_InAModeWithoutARelativeLicense_StaysHome()
+    {
+        // arrange: Dorian is outside the lifted modes (the tonicization gate precedent), so even a
+        // journey-sized composition plans a single home section.
+        var configuration = TestCompositionConfigurations.Get(3, 25, NoteName.C, Mode.Dorian) with
+        {
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, GroundBass.DescendingTetrachord)
+        };
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.Sections.Should().ContainSingle();
+    }
+
+    [Test]
+    public void CreatePlan_WithFewerThanFourStatements_StaysHome()
+    {
+        // arrange: a ten-measure cadential ground plans three statements - not enough for the solo
+        // announcement, an accompanied home statement, a foreign block, and a home return.
+        var configuration = TestCompositionConfigurations.Get(3, 10) with
+        {
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, GroundBass.CadentialGround)
+        };
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.StatementCount.Should().Be(3);
+        plan.Sections.Should().ContainSingle();
+    }
+
+    [Test]
+    public void CreatePlan_WhenTheRelativeKeyCannotHostThePattern_StaysHomeWithoutExtraDraws()
+    {
+        // arrange: the romanesca anchors on C3 at home (its octave span bottoming on C2), but the relative
+        // A Aeolian offers only the A2 anchor, whose octave would run to A1 - below the bass floor. The
+        // journey must be declined without disturbing the one-draw contract.
+        var configuration = TestCompositionConfigurations.Get(3, 25) with
+        {
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, GroundBass.Romanesca)
+        };
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.Sections.Should().ContainSingle();
+        randomProvider.Received(1).Next(1);
+    }
+
+    [Test]
+    public void CreatePlan_WhenTheSeamMotionWouldBeADissonantLeap_StaysHome()
+    {
+        // arrange: over the G3-B4 tenor bass an A Aeolian tetrachord anchors on A4 while the relative
+        // C Ionian anchors on C4, so the return seam would leap a major ninth from G3 up to A4 - a pinned
+        // bass motion the melodic net rejects, which the design probe showed starves the seam onset. The
+        // planner must decline the journey rather than plan an uncomposable seam.
+        var configuration = BuildConfiguration(BuildTenorBassInstruments(), NoteName.A, Mode.Aeolian, GroundBass.DescendingTetrachord);
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.BassNotes[0].Should().Be(Notes.A4);
+        plan.Sections.Should().ContainSingle();
+    }
+
+    [TestCase(8, 4, 2, 2, TestName = "CreatePlan_FourStatements_PlacesOneForeignStatementThird")]
+    [TestCase(10, 5, 2, 2, TestName = "CreatePlan_FiveStatements_PlacesOneForeignStatementThird")]
+    [TestCase(12, 6, 2, 3, TestName = "CreatePlan_SixStatements_PlacesTwoForeignStatementsCentrally")]
+    [TestCase(25, 13, 4, 7, TestName = "CreatePlan_ThirteenStatements_PlacesFourForeignStatementsCentrally")]
+    public void CreatePlan_PlacesTheForeignBlockByFormula(int minimumMeasures, int expectedStatementCount, int expectedFirstForeign, int expectedLastForeign)
+    {
+        // arrange: the block is a pure function of the statement count - about a third of the statements,
+        // centered, lead of at least two, tail of at least one - so the plan costs no draw beyond the
+        // pattern draw whatever the composition's length.
+        var configuration = TestCompositionConfigurations.Get(3, minimumMeasures) with
+        {
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, GroundBass.DescendingTetrachord)
+        };
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var planner = new GroundBassPlanner(configuration, randomProvider);
+
+        // act
+        var plan = planner.CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+        plan!.StatementCount.Should().Be(expectedStatementCount);
+        plan.Sections.Should().HaveCount(3);
+        plan.Sections[1].FirstStatement.Should().Be(expectedFirstForeign);
+        plan.Sections[1].LastStatement.Should().Be(expectedLastForeign);
+        plan.Sections[0].LastStatement.Should().Be(expectedFirstForeign - 1);
+        plan.Sections[2].FirstStatement.Should().Be(expectedLastForeign + 1);
+        plan.Sections[2].LastStatement.Should().Be(expectedStatementCount - 1);
+    }
+
+    [Test]
+    public void SectionForStatement_PartitionsEveryStatementIntoExactlyOneSection()
+    {
+        // arrange
+        var configuration = TestCompositionConfigurations.Get(3, 25) with
+        {
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, GroundBass.DescendingTetrachord)
+        };
+        var randomProvider = Substitute.For<IRandomProvider>();
+
+        randomProvider.Next(Arg.Any<int>()).Returns(0);
+
+        var plan = new GroundBassPlanner(configuration, randomProvider).CreatePlan();
+
+        // assert
+        plan.Should().NotBeNull();
+
+        for (var statementIndex = 0; statementIndex < plan!.StatementCount; ++statementIndex)
+        {
+            var owningSections = plan.Sections
+                .Where(section => statementIndex >= section.FirstStatement && statementIndex <= section.LastStatement)
+                .ToList();
+
+            owningSections.Should().ContainSingle($"statement {statementIndex} must belong to exactly one section");
+            plan.SectionForStatement(statementIndex).Should().BeSameAs(owningSections[0]);
+        }
     }
 
     private static HashSet<InstrumentConfiguration> BuildTenorBassInstruments() =>

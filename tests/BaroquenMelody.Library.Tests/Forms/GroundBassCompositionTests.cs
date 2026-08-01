@@ -1,3 +1,4 @@
+using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Enums.Extensions;
@@ -8,7 +9,9 @@ using CsCheck;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
+using Melanchall.DryWetMidi.MusicTheory;
 using NUnit.Framework;
+using Mode = BaroquenMelody.Library.MusicTheory.Enums.Mode;
 
 namespace BaroquenMelody.Library.Tests.Forms;
 
@@ -87,16 +90,105 @@ internal sealed class GroundBassCompositionTests
     }
 
     [Test]
-    public void Compose_WithTheGroundBassForm_RepeatsTheGroundInEveryStatementModuloLicensedRaises()
+    public void Compose_WithTheGroundBassForm_RendersEveryPlannedStatementModuloLicensedRaises()
     {
         // A licensed raise always lands on a ground note's HELD slot (the tonicization pass's dominant
         // sits at an odd slot in both of its pair shapes), so the bass renders the natural onset and then
         // its raised form - the classic chromatic varied-ground bass (e.g. G, G#, A). The walk below
-        // therefore consumes the expected cycle note by note, tolerating a raised insertion right after
-        // its natural.
+        // consumes the PLAN's expected bass line note by note, tolerating a raised insertion right after
+        // its natural. The plan is reproduced exactly by a fresh planner over a fresh seeded provider,
+        // because the pattern draw is the composition stream's first draw - so the expectation covers the
+        // modulating middle statements at the relative key's pitch level, whichever pattern the seed draws.
         var configuration = GetGroundBassConfiguration(3, 25);
 
         for (var seed = 1; seed <= 5; ++seed)
+        {
+            var plan = new GroundBassPlanner(configuration, new SeededRandomProvider(seed)).CreatePlan();
+
+            plan.Should().NotBeNull($"seed {seed}: the test-shaped bass hosts the whole bank");
+
+            var expectedPitches = Enumerable.Range(0, plan!.StatementCount)
+                .SelectMany(statementIndex => plan.SectionForStatement(statementIndex).BassNotes)
+                .Select(static note => (int)note.NoteNumber)
+                .ToList();
+            var ground = AnalyzeGround(SeededComposition.Compose(configuration, seed), configuration);
+
+            ground.RenderedPattern.Should().NotBeNull($"seed {seed}: the opening statement must state a bank pattern exactly");
+            ground.RenderedPattern.Should().Equal(
+                plan.BassNotes.Select(static note => (int)note.NoteNumber),
+                $"seed {seed}: the announcement must state the home rendering the plan chose");
+
+            var expectedIndex = 0;
+
+            for (var pitchIndex = 0; pitchIndex < ground.DedupedBassPitches.Count - 1; ++pitchIndex)
+            {
+                var observedPitch = ground.DedupedBassPitches[pitchIndex];
+
+                if (expectedIndex < expectedPitches.Count && observedPitch == expectedPitches[expectedIndex])
+                {
+                    ++expectedIndex;
+
+                    continue;
+                }
+
+                var isLicensedRaiseOfPreviousNote = expectedIndex > 0 && observedPitch == expectedPitches[expectedIndex - 1] + 1;
+
+                isLicensedRaiseOfPreviousNote.Should().BeTrue($"seed {seed}: position {pitchIndex} (pitch {observedPitch}) must carry the planned ground or trail its natural as a licensed raise");
+            }
+
+            expectedIndex.Should().Be(expectedPitches.Count, $"seed {seed}: every planned statement must render in full at its section's pitch level");
+            (ground.DedupedBassPitches[^1] % 12).Should().Be(expectedPitches[0] % 12, $"seed {seed}: the close must land on the home tonic");
+        }
+    }
+
+    [TestCase(NoteName.C, Mode.Ionian, TestName = "Compose_WithModulationOn_JourneysThroughTheRelativeMinorAndReturns")]
+    [TestCase(NoteName.A, Mode.Aeolian, TestName = "Compose_WithModulationOn_JourneysThroughTheRelativeMajorAndReturns")]
+    public void Compose_WithModulationOn_JourneysThroughTheRelativeKeyAndReturns(NoteName tonic, Mode mode)
+    {
+        // arrange: the pinned tetrachord modulates deterministically over the test-shaped bass (the plan
+        // is draw-independent past the pattern), journeying to the relative key in both directions. The
+        // relative rendering's two distinctive pitches sit outside the home rendering entirely, so their
+        // presence in the bass is the journey made audible - and both directions drive the configurator's
+        // relative-stack construction end to end.
+        var configuration = TestCompositionConfigurations.Get(3, 25, tonic, mode) with
+        {
+            ShuffleOrnamentationProcessors = false,
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, GroundBass.DescendingTetrachord)
+        };
+
+        for (var seed = 1; seed <= 3; ++seed)
+        {
+            var plan = new GroundBassPlanner(configuration, new SeededRandomProvider(seed)).CreatePlan();
+
+            plan.Should().NotBeNull();
+            plan!.Sections.Should().HaveCount(3, $"seed {seed}: the pinned tetrachord must plan the relative journey");
+
+            var homePitches = plan.BassNotes.Select(static note => (int)note.NoteNumber).ToList();
+            var distinctiveForeignPitches = plan.Sections[1].BassNotes
+                .Select(static note => (int)note.NoteNumber)
+                .Where(pitch => !homePitches.Contains(pitch))
+                .ToList();
+            var ground = AnalyzeGround(SeededComposition.Compose(configuration, seed), configuration);
+
+            distinctiveForeignPitches.Should().HaveCount(2, "sanity: the relative tetrachord shares two pitches with home and brings two of its own");
+
+            foreach (var distinctiveForeignPitch in distinctiveForeignPitches)
+            {
+                ground.DedupedBassPitches.Should().Contain(distinctiveForeignPitch, $"seed {seed}: the relative statements must sound pitches the home ground never touches");
+            }
+
+            (ground.DedupedBassPitches[^1] % 12).Should().Be(homePitches[0] % 12, $"seed {seed}: the journey must return home for the close");
+        }
+    }
+
+    [Test]
+    public void Compose_WithModulationOff_StatesTheHomeGroundInEveryStatement()
+    {
+        // The pre-modulation contract, preserved verbatim behind the toggle: every statement renders the
+        // home cycle, whichever pattern the seed draws.
+        var configuration = GetGroundBassConfiguration(3, 25, pattern: null, modulate: false);
+
+        for (var seed = 1; seed <= 3; ++seed)
         {
             var ground = AnalyzeGround(SeededComposition.Compose(configuration, seed), configuration);
 
@@ -121,12 +213,30 @@ internal sealed class GroundBassCompositionTests
 
                 var isLicensedRaiseOfPreviousNote = expectedIndex > 0 && observedPitch == renderedPattern[(expectedIndex - 1) % patternLength] + 1;
 
-                isLicensedRaiseOfPreviousNote.Should().BeTrue($"seed {seed}: position {pitchIndex} (pitch {observedPitch}) must carry the ground or trail its natural as a licensed raise");
+                isLicensedRaiseOfPreviousNote.Should().BeTrue($"seed {seed}: position {pitchIndex} (pitch {observedPitch}) must carry the home ground or trail its natural as a licensed raise");
             }
 
             (expectedIndex % patternLength).Should().Be(0, $"seed {seed}: the bass line must complete whole statements before the final tonic");
             (expectedIndex / patternLength).Should().Be(expectedStatements, $"seed {seed}: every planned statement must render");
             (ground.DedupedBassPitches[^1] % 12).Should().Be(renderedPattern[0] % 12, $"seed {seed}: the close must land on the tonic");
+        }
+    }
+
+    [Test]
+    public void Compose_InAnUnliftedMode_TheModulateToggleIsInert()
+    {
+        // Dorian sits outside the lifted modes, so the toggle must not perturb a single byte: the planner
+        // draws identically, the plan is home-only either way, and no seam machinery ever engages.
+        var baseConfiguration = TestCompositionConfigurations.Get(3, 25, NoteName.C, Mode.Dorian) with { ShuffleOrnamentationProcessors = false };
+        var modulateOnConfiguration = baseConfiguration with { GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, Pattern: null, Modulate: true) };
+        var modulateOffConfiguration = baseConfiguration with { GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, Pattern: null, Modulate: false) };
+
+        for (var seed = 1; seed <= 2; ++seed)
+        {
+            var modulateOnNotes = SeededComposition.Notes(SeededComposition.Compose(modulateOnConfiguration, seed));
+            var modulateOffNotes = SeededComposition.Notes(SeededComposition.Compose(modulateOffConfiguration, seed));
+
+            modulateOnNotes.Should().Equal(modulateOffNotes, $"seed {seed}: an unlifted mode must compose identically whatever the toggle");
         }
     }
 
@@ -212,11 +322,11 @@ internal sealed class GroundBassCompositionTests
         }
     }
 
-    private static CompositionConfiguration GetGroundBassConfiguration(int numberOfInstruments, int minimumMeasures, GroundBass? pattern = null) =>
+    private static CompositionConfiguration GetGroundBassConfiguration(int numberOfInstruments, int minimumMeasures, GroundBass? pattern = null, bool modulate = true) =>
         TestCompositionConfigurations.Get(numberOfInstruments, minimumMeasures) with
         {
             ShuffleOrnamentationProcessors = false,
-            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, pattern)
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, pattern, modulate)
         };
 
     private static long SlotTicks(CompositionConfiguration configuration) =>

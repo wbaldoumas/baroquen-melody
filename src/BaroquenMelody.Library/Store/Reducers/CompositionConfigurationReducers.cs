@@ -15,7 +15,8 @@ public static class CompositionConfigurationReducers
         action.CompositionLength,
         action.Tempo,
         action.Form,
-        action.GroundBassPattern
+        action.GroundBassPattern,
+        action.GroundBassModulate
     );
 
     [ReducerMethod]
@@ -26,6 +27,7 @@ public static class CompositionConfigurationReducers
         action.CompositionConfiguration.MinimumMeasures,
         action.CompositionConfiguration.Tempo,
         action.CompositionConfiguration.GroundBassConfiguration?.Enabled == true ? CompositionForm.GroundBass : CompositionForm.Fugue,
-        action.CompositionConfiguration.GroundBassConfiguration?.Pattern
+        action.CompositionConfiguration.GroundBassConfiguration?.Pattern,
+        action.CompositionConfiguration.GroundBassConfiguration?.Modulate ?? true
     );
 }

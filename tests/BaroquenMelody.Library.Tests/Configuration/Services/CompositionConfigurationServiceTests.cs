@@ -229,16 +229,31 @@ internal sealed class CompositionConfigurationServiceTests
     }
 
     [Test]
+    public void Randomize_preserves_the_modulation_toggle()
+    {
+        // arrange: whether the piece journeys is a structural preference like the form itself, so the dice
+        // must leave a disabled journey disabled - under either form.
+        _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState { Form = CompositionForm.GroundBass, GroundBassModulate = false });
+
+        // act
+        _compositionConfigurationService.Randomize();
+
+        // assert
+        _mockDispatcher.Received(1).Dispatch(Arg.Is<UpdateCompositionConfiguration>(static action => !action.GroundBassModulate));
+    }
+
+    [Test]
     public void Reset_dispatches_expected_update()
     {
-        // arrange: a reset must also clear a pinned pattern back to the composer's free draw.
-        _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState { Form = CompositionForm.GroundBass, GroundBassPattern = GroundBass.CadentialGround });
+        // arrange: a reset must also clear a pinned pattern back to the composer's free draw and restore
+        // the default journey.
+        _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState { Form = CompositionForm.GroundBass, GroundBassPattern = GroundBass.CadentialGround, GroundBassModulate = false });
 
         // act
         _compositionConfigurationService.Reset();
 
         // assert
-        _mockDispatcher.Received(1).Dispatch(Arg.Is<UpdateCompositionConfiguration>(static action => action.Form == CompositionForm.Fugue && action.GroundBassPattern == null));
+        _mockDispatcher.Received(1).Dispatch(Arg.Is<UpdateCompositionConfiguration>(static action => action.Form == CompositionForm.Fugue && action.GroundBassPattern == null && action.GroundBassModulate));
     }
 
     private static Dictionary<Instrument, InstrumentConfiguration> BuildTenorBassConfigurations() => new()
