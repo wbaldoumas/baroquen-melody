@@ -24,7 +24,7 @@ internal sealed class CompositionConfigurationReducersTests
         var state = new CompositionConfigurationState();
 
         // act
-        state = CompositionConfigurationReducers.ReduceUpdateCompositionConfiguration(state, new UpdateCompositionConfiguration(rootNote, mode, Meter.ThreeFour, 8, 555, CompositionForm.GroundBass, GroundBass.Romanesca));
+        state = CompositionConfigurationReducers.ReduceUpdateCompositionConfiguration(state, new UpdateCompositionConfiguration(rootNote, mode, Meter.ThreeFour, 8, 555, CompositionForm.GroundBass, GroundBass.Romanesca, GroundBassModulate: false));
 
         // assert
         state.Meter.Should().Be(Meter.ThreeFour);
@@ -34,6 +34,7 @@ internal sealed class CompositionConfigurationReducersTests
         state.Tempo.Should().Be(555);
         state.Form.Should().Be(CompositionForm.GroundBass);
         state.GroundBassPattern.Should().Be(GroundBass.Romanesca);
+        state.GroundBassModulate.Should().BeFalse("the action's toggle must land in the store");
     }
 
     [Test]
@@ -54,13 +55,14 @@ internal sealed class CompositionConfigurationReducersTests
         state.Tempo.Should().Be(configuration.Tempo);
         state.Form.Should().Be(CompositionForm.Fugue, "a configuration without a ground bass section is the standard form");
         state.GroundBassPattern.Should().BeNull("a configuration without a ground bass section pins no pattern");
+        state.GroundBassModulate.Should().BeTrue("a configuration without a ground bass section keeps the default journey");
     }
 
     [Test]
     public void ReduceLoadCompositionConfiguration_maps_an_enabled_ground_bass_configuration_to_the_ground_bass_form()
     {
         // arrange
-        var configuration = TestCompositionConfigurations.Get() with { GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, GroundBass.CadentialGround) };
+        var configuration = TestCompositionConfigurations.Get() with { GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, GroundBass.CadentialGround, Modulate: false) };
         var state = new CompositionConfigurationState();
 
         // act
@@ -69,6 +71,7 @@ internal sealed class CompositionConfigurationReducersTests
         // assert
         state.Form.Should().Be(CompositionForm.GroundBass);
         state.GroundBassPattern.Should().Be(GroundBass.CadentialGround, "the loaded configuration's pinned pattern must surface in the store");
+        state.GroundBassModulate.Should().BeFalse("the loaded configuration's modulation toggle must surface in the store");
     }
 
     [Test]

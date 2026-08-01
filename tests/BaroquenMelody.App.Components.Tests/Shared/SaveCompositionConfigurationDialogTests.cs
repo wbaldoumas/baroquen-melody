@@ -93,9 +93,11 @@ internal sealed class SaveCompositionConfigurationDialogTests
     public async Task Saving_persists_the_ground_bass_form_and_pinned_pattern()
     {
         // arrange: the persisted configuration is what a future load maps back into the store, so it
-        // must carry the form and the pinned pattern - not just the fields the dialog displays.
+        // must carry the form, the pinned pattern, and the modulation toggle - not just the fields the
+        // dialog displays.
         GroundBassScenarios.SelectGroundBassForm(_testContext);
         GroundBassScenarios.SelectGroundBassPattern(_testContext, GroundBass.CadentialGround);
+        GroundBassScenarios.SetGroundBassModulate(_testContext, modulate: false);
 
         CompositionConfiguration? savedConfiguration = null;
 
@@ -118,6 +120,7 @@ internal sealed class SaveCompositionConfigurationDialogTests
         savedConfiguration!.GroundBassConfiguration.Should().NotBeNull();
         savedConfiguration.GroundBassConfiguration!.Enabled.Should().BeTrue();
         savedConfiguration.GroundBassConfiguration.Pattern.Should().Be(GroundBass.CadentialGround);
+        savedConfiguration.GroundBassConfiguration.Modulate.Should().BeFalse("the user's disabled journey must survive the save");
     }
 
     [Test]

@@ -10,7 +10,7 @@ namespace BaroquenMelody.Library.Store.State;
 
 [FeatureState]
 [ExcludeFromCodeCoverage(Justification = "Simple record without logic")]
-public sealed record CompositionConfigurationState(NoteName TonicNote, Mode Mode, Meter Meter, int MinimumMeasures = 25, int Tempo = 120, CompositionForm Form = CompositionForm.Fugue, GroundBass? GroundBassPattern = null)
+public sealed record CompositionConfigurationState(NoteName TonicNote, Mode Mode, Meter Meter, int MinimumMeasures = 25, int Tempo = 120, CompositionForm Form = CompositionForm.Fugue, GroundBass? GroundBassPattern = null, bool GroundBassModulate = true)
 {
     public BaroquenScale Scale { get; } = new(TonicNote, Mode);
 

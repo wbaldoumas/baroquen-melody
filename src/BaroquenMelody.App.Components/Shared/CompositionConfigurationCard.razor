@@ -94,6 +94,15 @@
                         </MudTooltip>
                     }
                 </MudItem>
+                <MudItem xs="12" sm="6" md="2">
+                    <MudTooltip Text="Whether the composition may journey to the relative key for its middle statements and return home. The journey happens in the Ionian and Aeolian modes when the composition is long enough and the relative rendering fits the lowest voice's range; otherwise the piece simply stays in its home key.">
+                        <MudSwitch T="bool"
+                                   Label="Modulate"
+                                   Value="GroundBassModulate"
+                                   Color="Color.Tertiary"
+                                   ValueChanged="HandleGroundBassModulateChange"/>
+                    </MudTooltip>
+                </MudItem>
             }
             <MudItem xs="12" sm="6" md="2">
                 <NumericInputWithPopover T="int"
@@ -139,6 +148,8 @@
     private CompositionForm Form => CompositionConfigurationState.Value.Form;
 
     private GroundBass? GroundBassPattern => CompositionConfigurationState.Value.GroundBassPattern;
+
+    private bool GroundBassModulate => CompositionConfigurationState.Value.GroundBassModulate;
 
     private int MinimumMeasures => CompositionConfigurationState.Value.MinimumMeasures;
 
@@ -206,17 +217,19 @@
         await base.DisposeAsync();
     }
 
-    private void HandleTonicNoteChange(NoteName note) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(note, Mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern));
+    private void HandleTonicNoteChange(NoteName note) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(note, Mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern, GroundBassModulate));
 
-    private void HandleModeChange(Mode mode) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern));
+    private void HandleModeChange(Mode mode) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern, GroundBassModulate));
 
-    private void HandleMeterChange(Meter meter) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, meter, MinimumMeasures, Tempo, Form, GroundBassPattern));
+    private void HandleMeterChange(Meter meter) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, meter, MinimumMeasures, Tempo, Form, GroundBassPattern, GroundBassModulate));
 
-    private void HandleFormChange(CompositionForm form) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, form, GroundBassPattern));
+    private void HandleFormChange(CompositionForm form) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, form, GroundBassPattern, GroundBassModulate));
 
-    private void HandleGroundBassPatternChange(GroundBass? groundBassPattern) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, Form, groundBassPattern));
+    private void HandleGroundBassPatternChange(GroundBass? groundBassPattern) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, Form, groundBassPattern, GroundBassModulate));
 
-    private void HandleCompositionLengthChange(int length) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, length, Tempo, Form, GroundBassPattern));
+    private void HandleGroundBassModulateChange(bool groundBassModulate) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern, groundBassModulate));
 
-    private void HandleTempoChange(int tempo) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, tempo, Form, GroundBassPattern));
+    private void HandleCompositionLengthChange(int length) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, length, Tempo, Form, GroundBassPattern, GroundBassModulate));
+
+    private void HandleTempoChange(int tempo) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, tempo, Form, GroundBassPattern, GroundBassModulate));
 }

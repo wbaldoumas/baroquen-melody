@@ -23,7 +23,7 @@ internal static class GroundBassScenarios
     {
         var state = testContext.StateOf<CompositionConfigurationState>();
 
-        testContext.Dispatcher.Dispatch(new UpdateCompositionConfiguration(state.TonicNote, state.Mode, state.Meter, state.MinimumMeasures, state.Tempo, CompositionForm.GroundBass, state.GroundBassPattern));
+        testContext.Dispatcher.Dispatch(new UpdateCompositionConfiguration(state.TonicNote, state.Mode, state.Meter, state.MinimumMeasures, state.Tempo, CompositionForm.GroundBass, state.GroundBassPattern, state.GroundBassModulate));
     }
 
     /// <summary>
@@ -36,12 +36,24 @@ internal static class GroundBassScenarios
     {
         var state = testContext.StateOf<CompositionConfigurationState>();
 
-        testContext.Dispatcher.Dispatch(new UpdateCompositionConfiguration(state.TonicNote, state.Mode, state.Meter, state.MinimumMeasures, state.Tempo, state.Form, pattern));
+        testContext.Dispatcher.Dispatch(new UpdateCompositionConfiguration(state.TonicNote, state.Mode, state.Meter, state.MinimumMeasures, state.Tempo, state.Form, pattern, state.GroundBassModulate));
     }
 
     /// <summary>
-    ///     Changes the tonic, carrying the rest of the composition configuration (including the form and
-    ///     pattern) forward.
+    ///     Sets the modulation toggle, carrying the rest of the composition configuration forward.
+    /// </summary>
+    /// <param name="testContext">The active test context.</param>
+    /// <param name="modulate">Whether the ground bass composition may journey to the relative key.</param>
+    public static void SetGroundBassModulate(AppComponentsTestContext testContext, bool modulate)
+    {
+        var state = testContext.StateOf<CompositionConfigurationState>();
+
+        testContext.Dispatcher.Dispatch(new UpdateCompositionConfiguration(state.TonicNote, state.Mode, state.Meter, state.MinimumMeasures, state.Tempo, state.Form, state.GroundBassPattern, modulate));
+    }
+
+    /// <summary>
+    ///     Changes the tonic, carrying the rest of the composition configuration (including the form,
+    ///     pattern, and modulation toggle) forward.
     /// </summary>
     /// <param name="testContext">The active test context.</param>
     /// <param name="tonicNote">The new tonic.</param>
@@ -49,7 +61,7 @@ internal static class GroundBassScenarios
     {
         var state = testContext.StateOf<CompositionConfigurationState>();
 
-        testContext.Dispatcher.Dispatch(new UpdateCompositionConfiguration(tonicNote, state.Mode, state.Meter, state.MinimumMeasures, state.Tempo, state.Form, state.GroundBassPattern));
+        testContext.Dispatcher.Dispatch(new UpdateCompositionConfiguration(tonicNote, state.Mode, state.Meter, state.MinimumMeasures, state.Tempo, state.Form, state.GroundBassPattern, state.GroundBassModulate));
     }
 
     /// <summary>

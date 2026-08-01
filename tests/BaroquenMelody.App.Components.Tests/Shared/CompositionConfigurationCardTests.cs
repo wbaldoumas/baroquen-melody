@@ -199,6 +199,59 @@ internal sealed class CompositionConfigurationCardTests
     }
 
     [Test]
+    public void The_modulate_switch_appears_only_under_the_ground_bass_form()
+    {
+        // arrange: modulation is a ground bass journey, so the fugue form hides the switch entirely.
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        component.FindComponents<MudSwitch<bool>>().Should().BeEmpty();
+
+        // act
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        component.Render();
+
+        // assert
+        component.FindComponents<MudSwitch<bool>>().Should().ContainSingle();
+    }
+
+    [Test]
+    public void Toggling_modulation_updates_the_store()
+    {
+        // arrange
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+        var modulateSwitch = component.FindComponent<MudSwitch<bool>>();
+
+        // act
+        component.InvokeAsync(() => modulateSwitch.Instance.ValueChanged.InvokeAsync(false)).GetAwaiter().GetResult();
+
+        // assert
+        _testContext.StateOf<CompositionConfigurationState>().GroundBassModulate.Should().BeFalse();
+    }
+
+    [Test]
+    public void Changing_the_tonic_preserves_the_modulation_toggle()
+    {
+        // arrange: every handler must carry the whole state forward, or a tonic change would silently
+        // restore the default journey the user turned off.
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        GroundBassScenarios.SetGroundBassModulate(_testContext, modulate: false);
+
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+        var tonicSelect = component.FindComponent<MudSelect<NoteName>>();
+
+        // act
+        component.InvokeAsync(() => tonicSelect.Instance.ValueChanged.InvokeAsync(NoteName.G)).GetAwaiter().GetResult();
+
+        // assert
+        var state = _testContext.StateOf<CompositionConfigurationState>();
+
+        state.TonicNote.Should().Be(NoteName.G);
+        state.GroundBassModulate.Should().BeFalse();
+    }
+
+    [Test]
     public void The_pattern_dropdown_marks_patterns_that_do_not_fit()
     {
         // arrange: a G3-B4 ground-hosting voice fits only the tetrachord for a C tonic, so the dropdown
