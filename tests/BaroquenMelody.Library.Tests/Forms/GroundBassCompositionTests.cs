@@ -141,14 +141,20 @@ internal sealed class GroundBassCompositionTests
         }
     }
 
-    [Test]
-    public void Compose_WithModulationOn_JourneysThroughTheRelativeKeyAndReturns()
+    [TestCase(NoteName.C, Mode.Ionian, TestName = "Compose_WithModulationOn_JourneysThroughTheRelativeMinorAndReturns")]
+    [TestCase(NoteName.A, Mode.Aeolian, TestName = "Compose_WithModulationOn_JourneysThroughTheRelativeMajorAndReturns")]
+    public void Compose_WithModulationOn_JourneysThroughTheRelativeKeyAndReturns(NoteName tonic, Mode mode)
     {
         // arrange: the pinned tetrachord modulates deterministically over the test-shaped bass (the plan
-        // is draw-independent past the pattern), journeying C Ionian -> A Aeolian -> C Ionian. The relative
-        // rendering's F2 and E2 sit outside the home rendering entirely, so their presence in the bass is
-        // the journey made audible.
-        var configuration = GetGroundBassConfiguration(3, 25, GroundBass.DescendingTetrachord);
+        // is draw-independent past the pattern), journeying to the relative key in both directions. The
+        // relative rendering's two distinctive pitches sit outside the home rendering entirely, so their
+        // presence in the bass is the journey made audible - and both directions drive the configurator's
+        // relative-stack construction end to end.
+        var configuration = TestCompositionConfigurations.Get(3, 25, tonic, mode) with
+        {
+            ShuffleOrnamentationProcessors = false,
+            GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, GroundBass.DescendingTetrachord)
+        };
 
         for (var seed = 1; seed <= 3; ++seed)
         {
@@ -157,13 +163,21 @@ internal sealed class GroundBassCompositionTests
             plan.Should().NotBeNull();
             plan!.Sections.Should().HaveCount(3, $"seed {seed}: the pinned tetrachord must plan the relative journey");
 
-            var foreignPitches = plan.Sections[1].BassNotes.Select(static note => (int)note.NoteNumber).ToList();
+            var homePitches = plan.BassNotes.Select(static note => (int)note.NoteNumber).ToList();
+            var distinctiveForeignPitches = plan.Sections[1].BassNotes
+                .Select(static note => (int)note.NoteNumber)
+                .Where(pitch => !homePitches.Contains(pitch))
+                .ToList();
             var ground = AnalyzeGround(SeededComposition.Compose(configuration, seed), configuration);
 
-            foreignPitches.Should().NotIntersectWith(new[] { (int)Notes.C3.NoteNumber, (int)Notes.B2.NoteNumber }, "sanity: the relative rendering starts elsewhere");
-            ground.DedupedBassPitches.Should().Contain((int)Notes.F2.NoteNumber, $"seed {seed}: the relative statements must sound the subdominant-of-home pitch the home ground never touches");
-            ground.DedupedBassPitches.Should().Contain((int)Notes.E2.NoteNumber, $"seed {seed}: the relative statements must reach the relative dominant below the home ground's floor");
-            (ground.DedupedBassPitches[^1] % 12).Should().Be((int)Notes.C3.NoteNumber % 12, $"seed {seed}: the journey must return home for the close");
+            distinctiveForeignPitches.Should().HaveCount(2, "sanity: the relative tetrachord shares two pitches with home and brings two of its own");
+
+            foreach (var distinctiveForeignPitch in distinctiveForeignPitches)
+            {
+                ground.DedupedBassPitches.Should().Contain(distinctiveForeignPitch, $"seed {seed}: the relative statements must sound pitches the home ground never touches");
+            }
+
+            (ground.DedupedBassPitches[^1] % 12).Should().Be(homePitches[0] % 12, $"seed {seed}: the journey must return home for the close");
         }
     }
 
@@ -204,6 +218,7 @@ internal sealed class GroundBassCompositionTests
 
             (expectedIndex % patternLength).Should().Be(0, $"seed {seed}: the bass line must complete whole statements before the final tonic");
             (expectedIndex / patternLength).Should().Be(expectedStatements, $"seed {seed}: every planned statement must render");
+            (ground.DedupedBassPitches[^1] % 12).Should().Be(renderedPattern[0] % 12, $"seed {seed}: the close must land on the tonic");
         }
     }
 

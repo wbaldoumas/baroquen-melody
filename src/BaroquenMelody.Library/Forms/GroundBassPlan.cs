@@ -30,14 +30,12 @@ internal sealed record GroundBassPlan(
     IReadOnlyList<TonalSection> Sections)
 {
     /// <summary>
-    ///     Retrieve the tonal section a statement belongs to. Sections partition the statement indices, so
-    ///     every in-range statement has exactly one.
+    ///     Retrieve the tonal section a statement belongs to. Sections partition the statement indices in
+    ///     ascending order, so the first section whose span reaches the statement is its owner.
     /// </summary>
     /// <param name="statementIndex"> The zero-based statement index. </param>
     /// <returns> The section spanning the statement. </returns>
-    public TonalSection SectionForStatement(int statementIndex) => Sections.First(
-        section => statementIndex >= section.FirstStatement && statementIndex <= section.LastStatement
-    );
+    public TonalSection SectionForStatement(int statementIndex) => Sections.First(section => statementIndex <= section.LastStatement);
 
     /// <summary>
     ///     How many composition slots each ground note spans: the onset slot, searched against the pinned bass

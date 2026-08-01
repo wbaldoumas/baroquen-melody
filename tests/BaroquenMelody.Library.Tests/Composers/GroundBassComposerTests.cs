@@ -561,6 +561,41 @@ internal sealed class GroundBassComposerTests
     }
 
     [Test]
+    public void Compose_WithASoloOnlyLeadSection_SkipsItsEmptyDecorationSlice()
+    {
+        // arrange: the planner's lead floor keeps two statements home, but the composer must tolerate any
+        // plan shape - a lead holding only the solo announcement yields an empty texture slice, which must
+        // be skipped rather than decorated. Three statements: solo home, foreign, home.
+        var soloLeadPlan = new GroundBassPlan(
+            GroundBassPattern.Bank[0],
+            Instrument.Two,
+            GroundNotes,
+            StatementCount: 3,
+            MeasuresPerStatement: 2,
+            [
+                new TonalSection(NoteName.C, Mode.Ionian, FirstStatement: 0, LastStatement: 0, GroundNotes),
+                new TonalSection(NoteName.A, Mode.Aeolian, FirstStatement: 1, LastStatement: 1, ForeignGroundNotes),
+                new TonalSection(NoteName.C, Mode.Ionian, FirstStatement: 2, LastStatement: 2, GroundNotes)
+            ]);
+
+        _planner.CreatePlan().Returns(soloLeadPlan);
+
+        var homeDecoratedSlices = new List<Composition>();
+
+        _decorator.When(static decorator => decorator.Decorate(Arg.Any<Composition>(), Instrument.One))
+            .Do(call => homeDecoratedSlices.Add(call.Arg<Composition>()));
+
+        // act
+        var composition = CreateComposer(new GroundBassSectionComponents(_relativeStrategy, _relativeSeamStrategy, _relativeSelector, _relativeDecorator, _relativeTonicizationApplicator))
+            .Compose(CancellationToken.None);
+
+        // assert: the home decorator sees only the return statement (measures 4-5); the solo-only lead
+        // contributes no slice at all.
+        homeDecoratedSlices.Should().ContainSingle();
+        homeDecoratedSlices[0].Measures.Should().HaveCount(2).And.ContainInOrder(composition.Measures[4], composition.Measures[5]);
+    }
+
+    [Test]
     public void Compose_WithAForeignSectionButNoRelativeComponents_Throws()
     {
         // arrange: the configurator always builds relative components when a foreign section can be

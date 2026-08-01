@@ -103,12 +103,13 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         var midiGenerator = new MidiGenerator(compositionConfiguration);
 
         IComposer effectiveComposer = composer;
+        var groundBassConfiguration = compositionConfiguration.GroundBassConfiguration ?? GroundBassConfiguration.Default;
 
         // The ground bass form replaces the whole fugal pipeline with its own composer, keeping the standard
         // composer as its fallback for bass ranges no ground can anchor in. When the form is disabled the
         // object graph is exactly the pre-form graph. The home section's components alias the singletons
         // above, so a home-only plan composes through exactly the pre-modulation objects.
-        if ((compositionConfiguration.GroundBassConfiguration ?? GroundBassConfiguration.Default).Enabled)
+        if (groundBassConfiguration.Enabled)
         {
             var groundBassPlanner = new GroundBassPlanner(compositionConfiguration, randomProvider);
             var homeComponents = new GroundBassSectionComponents(compositionStrategy, compositionStrategy, chordSelector, compositionDecorator, tonicizationApplicator);
@@ -117,8 +118,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
             // The planner journeys only in the lifted modes with the toggle on; this gate is deliberately
             // WIDER than the planner's (which also weighs statement counts, range feasibility, and seam
             // legality), so relative components exist whenever a foreign section can possibly be planned.
-            if ((compositionConfiguration.GroundBassConfiguration ?? GroundBassConfiguration.Default).Modulate
-                && compositionConfiguration.Mode is Mode.Ionian or Mode.Aeolian)
+            if (groundBassConfiguration.Modulate && compositionConfiguration.Mode is Mode.Ionian or Mode.Aeolian)
             {
                 var seamRuleConfiguration = new AggregateCompositionRuleConfiguration(
                     effectiveRuleConfiguration.Configurations
