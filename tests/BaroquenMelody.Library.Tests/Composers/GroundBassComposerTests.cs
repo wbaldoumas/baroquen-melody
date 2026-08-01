@@ -529,7 +529,15 @@ internal sealed class GroundBassComposerTests
         Composition? suspensionTarget = null;
 
         _tonicizationApplicator.When(static applicator => applicator.ApplyTonicization(Arg.Any<Composition>()))
-            .Do(call => homeTonicizedSlices.Add(call.Arg<Composition>()));
+            .Do(call =>
+            {
+                if (suspensionTarget is null)
+                {
+                    throw new InvalidOperationException("suspensions must run before any tonicization slice");
+                }
+
+                homeTonicizedSlices.Add(call.Arg<Composition>());
+            });
         _relativeTonicizationApplicator.When(static applicator => applicator.ApplyTonicization(Arg.Any<Composition>()))
             .Do(call =>
             {
@@ -549,14 +557,17 @@ internal sealed class GroundBassComposerTests
         // assert: suspensions still run once over the whole trailing sub-composition (its diatonic-step
         // eligibility reads identically in relative keys), while tonicization runs per section slice - the
         // home lead after the solo, the relative middle, and the home tail carrying the appended close.
+        // Every non-final slice carries the next section's first measure as a read-toward boundary, so
+        // slice-final measures keep their mid-measure sites and the cross-key seam pairs are real sites
+        // under the departing key's licenses.
         suspensionTarget.Should().NotBeNull();
         suspensionTarget!.Measures.Should().HaveCount(7, "the trailing sub-composition spans every statement after the solo plus the close");
         suspensionTarget.Measures[0].Should().BeSameAs(composition.Measures[2]);
         homeTonicizedSlices.Should().HaveCount(2);
-        homeTonicizedSlices[0].Measures.Should().HaveCount(2).And.ContainInOrder(composition.Measures[2], composition.Measures[3]);
+        homeTonicizedSlices[0].Measures.Should().HaveCount(3).And.ContainInOrder(composition.Measures[2], composition.Measures[3], composition.Measures[4]);
         homeTonicizedSlices[1].Measures.Should().HaveCount(3).And.ContainInOrder(composition.Measures[6], composition.Measures[7], composition.Measures[8]);
         relativeTonicizedSlices.Should().ContainSingle();
-        relativeTonicizedSlices[0].Measures.Should().HaveCount(2).And.ContainInOrder(composition.Measures[4], composition.Measures[5]);
+        relativeTonicizedSlices[0].Measures.Should().HaveCount(3).And.ContainInOrder(composition.Measures[4], composition.Measures[5], composition.Measures[6]);
         _decorator.Received(1).ApplySustain(Arg.Is<Composition>(static fullComposition => fullComposition.Measures.Count == 9));
     }
 

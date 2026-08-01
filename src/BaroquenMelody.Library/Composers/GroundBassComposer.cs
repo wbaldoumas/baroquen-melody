@@ -270,7 +270,7 @@ internal sealed class GroundBassComposer(
         // voices above it take ornamentation, and only from the moment they enter. Each section's slice is
         // decorated by its own key's engine (a home-only plan is a single slice - the pre-modulation whole),
         // and the slice boundary keeps a seam-approaching figure from reaching across the key change.
-        foreach (var (section, sliceMeasures) in EnumerateSectionSlices(composition, plan, includeClosingMeasures: false))
+        foreach (var (section, sliceMeasures) in EnumerateSectionSlices(composition, plan, includeBoundaryAndClosingMeasures: false))
         {
             var sliceComposition = new Composition(sliceMeasures);
 
@@ -284,11 +284,15 @@ internal sealed class GroundBassComposer(
     private void ApplyTonicizationPerSection(Composition composition, GroundBassPlan plan)
     {
         // Each section's licenses come from its own mode - the relative minor's raised leading tones are
-        // what make the journey audible - and the cross-key seam pairs fall between slices, where no license
-        // could fire anyway: a license needs the pair's roots a fifth apart, and both relative seams move by
-        // step or by third. The last slice carries the appended close, whose final measure the pass already
-        // treats as a target only.
-        foreach (var (section, sliceMeasures) in EnumerateSectionSlices(composition, plan, includeClosingMeasures: true))
+        // what make the journey audible. Every non-final slice carries the next section's first measure as
+        // a read-toward boundary (the exposition pass's idiom), so a slice-final measure keeps its
+        // mid-measure site and the cross-key seam pair is a real site under the DEPARTING key's licenses -
+        // sound because relative keys license identical pitch classes, and musically the classical pivot:
+        // a departing chord raised into a true dominant of the arriving tonic. The boundary measure's own
+        // mid-measure site stays with the slice that owns it (the pass never alters a final measure's
+        // inside), so every site is drawn exactly once. The last slice carries the appended close, whose
+        // final measure the pass already treats as a target only.
+        foreach (var (section, sliceMeasures) in EnumerateSectionSlices(composition, plan, includeBoundaryAndClosingMeasures: true))
         {
             ComponentsFor(section).TonicizationApplicator.ApplyTonicization(new Composition(sliceMeasures));
         }
@@ -297,17 +301,24 @@ internal sealed class GroundBassComposer(
     /// <summary>
     ///     Enumerates each tonal section's measure slice, sharing measure references with the composition so
     ///     the passes mutate the real chords. The first slice always excludes the solo opening statement (the
-    ///     trailing idiom), and the last slice may extend past the statements to carry the appended close.
+    ///     trailing idiom). With <paramref name="includeBoundaryAndClosingMeasures"/> each non-final slice
+    ///     extends one measure into its successor - a boundary the harmonic pass reads toward without
+    ///     altering its inside - and the last slice extends past the statements to carry the appended close;
+    ///     without it, slices end at their section's edge so no figure reaches across a key change.
     /// </summary>
-    private static IEnumerable<(TonalSection Section, List<Measure> Measures)> EnumerateSectionSlices(Composition composition, GroundBassPlan plan, bool includeClosingMeasures)
+    private static IEnumerable<(TonalSection Section, List<Measure> Measures)> EnumerateSectionSlices(Composition composition, GroundBassPlan plan, bool includeBoundaryAndClosingMeasures)
     {
         for (var sectionIndex = 0; sectionIndex < plan.Sections.Count; ++sectionIndex)
         {
             var section = plan.Sections[sectionIndex];
+            var isFinalSection = sectionIndex == plan.Sections.Count - 1;
             var firstMeasure = Math.Max(section.FirstStatement * plan.MeasuresPerStatement, plan.MeasuresPerStatement);
-            var lastMeasureExclusive = sectionIndex == plan.Sections.Count - 1 && includeClosingMeasures
-                ? composition.Measures.Count
-                : (section.LastStatement + 1) * plan.MeasuresPerStatement;
+            var lastMeasureExclusive = (section.LastStatement + 1) * plan.MeasuresPerStatement;
+
+            if (includeBoundaryAndClosingMeasures)
+            {
+                lastMeasureExclusive = isFinalSection ? composition.Measures.Count : lastMeasureExclusive + 1;
+            }
 
             if (firstMeasure >= lastMeasureExclusive)
             {
