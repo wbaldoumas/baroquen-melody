@@ -42,6 +42,7 @@ internal sealed class GroundBassComposer(
     ISuspensionApplicator suspensionApplicator,
     ITonicizationApplicator tonicizationApplicator,
     ICadenceClassifier cadenceClassifier,
+    IChordNumberIdentifier chordNumberIdentifier,
     ICadentialTrillApplicator cadentialTrillApplicator,
     IDynamicsApplicator dynamicsApplicator,
     IComposer fallbackComposer,
@@ -58,7 +59,9 @@ internal sealed class GroundBassComposer(
 
     private const int ImperfectAuthenticCadenceRank = 1;
 
-    private const int PlainArrivalRank = 2;
+    private const int TonicChordArrivalRank = 2;
+
+    private const int PlainArrivalRank = 3;
 
     public Composition Compose(CancellationToken cancellationToken)
     {
@@ -314,10 +317,16 @@ internal sealed class GroundBassComposer(
         return chordSelector.SelectNextChord(selectorContext, bestCandidates) ?? bestCandidates[0];
     }
 
+    // The authentic ranks need the seam's chord pair to classify as V-to-I, but the walk only guarantees the
+    // dominant in the BASS at a statement seam - when the upper voices leave the pair unclassifiable, every
+    // pinned-tonic arrival would tie and the selector's voice-leading scoring could close on a submediant
+    // color over the tonic bass. Preferring any final chord that parses as the tonic harmony keeps the
+    // submediant as a true last resort.
     private int RankCadence(BaroquenChord penultimateChord, BaroquenChord finalChord) => cadenceClassifier.ClassifyCadence(penultimateChord, finalChord) switch
     {
         CadenceType.PerfectAuthentic => PerfectAuthenticCadenceRank,
         CadenceType.ImperfectAuthentic => ImperfectAuthenticCadenceRank,
+        _ when chordNumberIdentifier.IdentifyChordNumber(finalChord) == ChordNumber.I => TonicChordArrivalRank,
         _ => PlainArrivalRank
     };
 

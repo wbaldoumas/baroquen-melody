@@ -55,6 +55,8 @@ internal sealed class GroundBassComposerTests
 
     private ICadenceClassifier _cadenceClassifier = null!;
 
+    private IChordNumberIdentifier _chordNumberIdentifier = null!;
+
     private ICadentialTrillApplicator _trillApplicator = null!;
 
     private IDynamicsApplicator _dynamicsApplicator = null!;
@@ -76,6 +78,7 @@ internal sealed class GroundBassComposerTests
         _suspensionApplicator = Substitute.For<ISuspensionApplicator>();
         _tonicizationApplicator = Substitute.For<ITonicizationApplicator>();
         _cadenceClassifier = Substitute.For<ICadenceClassifier>();
+        _chordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
         _trillApplicator = Substitute.For<ICadentialTrillApplicator>();
         _dynamicsApplicator = Substitute.For<IDynamicsApplicator>();
         _fallbackComposer = Substitute.For<IComposer>();
@@ -380,6 +383,33 @@ internal sealed class GroundBassComposerTests
     }
 
     [Test]
+    public void Compose_WhenNoCadenceClassifies_PrefersATonicQualityFinalChord()
+    {
+        // arrange: the seam's chord pair classifies as no cadence at all, so the authentic ranks are out of
+        // reach and every pinned-tonic arrival would tie at the plain rank - where the selector's first pick
+        // is the submediant color (A4 over the tonic bass). The close must instead prefer the arrival that
+        // parses as the tonic harmony, leaving the submediant as a true last resort.
+        _cadenceClassifier.ClassifyCadence(Arg.Any<BaroquenChord>(), Arg.Any<BaroquenChord>()).Returns(CadenceType.None);
+        _chordNumberIdentifier.IdentifyChordNumber(Arg.Is<BaroquenChord>(chord => chord[Instrument.One].Raw == Notes.G4)).Returns(ChordNumber.I);
+        _chordNumberIdentifier.IdentifyChordNumber(Arg.Is<BaroquenChord>(chord => chord[Instrument.One].Raw == Notes.A4)).Returns(ChordNumber.VI);
+        _strategy.GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(call => new List<BaroquenChord>
+            {
+                HarmonizePinWith(call.ArgAt<BaroquenChord>(1), Notes.A4),
+                HarmonizePinWith(call.ArgAt<BaroquenChord>(1), Notes.G4)
+            });
+
+        // act
+        var composition = CreateComposer().Compose(CancellationToken.None);
+
+        // assert
+        var finalChord = composition.Measures[^1].Beats[0].Chord;
+
+        finalChord[Instrument.Two].Raw.Should().Be(Notes.C3, "the close always lands the ground's tonic in the bass");
+        finalChord[Instrument.One].Raw.Should().Be(Notes.G4, "a tonic-quality arrival must outrank the submediant color when no cadence classifies");
+    }
+
+    [Test]
     public void Compose_WithACancelledToken_Throws()
     {
         // arrange
@@ -403,6 +433,7 @@ internal sealed class GroundBassComposerTests
         _suspensionApplicator,
         _tonicizationApplicator,
         _cadenceClassifier,
+        _chordNumberIdentifier,
         _trillApplicator,
         _dynamicsApplicator,
         _fallbackComposer,
@@ -417,9 +448,11 @@ internal sealed class GroundBassComposerTests
         new BaroquenNote(Instrument.Two, bassNote, MusicalTimeSpan.Half)
     ]);
 
-    private static BaroquenChord HarmonizePin(BaroquenChord pinnedChord) => new(
+    private static BaroquenChord HarmonizePin(BaroquenChord pinnedChord) => HarmonizePinWith(pinnedChord, Notes.G4);
+
+    private static BaroquenChord HarmonizePinWith(BaroquenChord pinnedChord, Note upperNote) => new(
     [
-        new BaroquenNote(Instrument.One, Notes.G4, MusicalTimeSpan.Half),
+        new BaroquenNote(Instrument.One, upperNote, MusicalTimeSpan.Half),
         new BaroquenNote(Instrument.Two, pinnedChord[Instrument.Two].Raw, MusicalTimeSpan.Half)
     ]);
 }

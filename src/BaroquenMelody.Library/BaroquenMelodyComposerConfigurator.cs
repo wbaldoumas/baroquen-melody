@@ -119,6 +119,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
                 suspensionApplicator,
                 tonicizationApplicator,
                 cadenceClassifier,
+                chordNumberIdentifier,
                 cadentialTrillApplicator,
                 dynamicsApplicator,
                 composer,
