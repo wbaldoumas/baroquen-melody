@@ -184,9 +184,14 @@ internal sealed class BaroquenMelodyComposerConfigurator(
     ///     Builds the relative key's configuration: the same composition in every respect except its tonal
     ///     center - the submediant's Aeolian for an Ionian home, the mediant's Ionian for an Aeolian home.
     ///     Constructed through the full constructor so the property-initialized <see cref="CompositionConfiguration.Scale"/>
-    ///     binds to the relative key (a `with` clone would carry the home scale).
+    ///     binds to the relative key (a `with` clone would carry the home scale). The positional call list is
+    ///     the regression trap: a newly added trailing parameter that is not forwarded here silently takes its
+    ///     default. Internal so the forwarding-guard test can decide every parameter directly - the ground
+    ///     form never reads some of them, so no behavioral test could catch a drop.
     /// </summary>
-    private static CompositionConfiguration BuildRelativeConfiguration(CompositionConfiguration compositionConfiguration)
+    /// <param name="compositionConfiguration">The home-key configuration to re-anchor.</param>
+    /// <returns>The same configuration re-anchored in the relative key.</returns>
+    internal static CompositionConfiguration BuildRelativeConfiguration(CompositionConfiguration compositionConfiguration)
     {
         var (relativeTonic, relativeMode) = compositionConfiguration.Mode == Mode.Ionian
             ? (compositionConfiguration.Scale.Submediant, Mode.Aeolian)

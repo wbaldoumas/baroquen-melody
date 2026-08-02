@@ -10,10 +10,13 @@ namespace BaroquenMelody.Library.Ornamentation;
 /// <inheritdoc cref="ICompositionDecorator"/>
 /// <remarks>
 ///     Under an active accompaniment texture, the whole-composition ornamentation pass decorates in the
-///     scheduler's register order - melody first, figuration last - so the cleaners' just-decorated-loses
-///     rule always resolves a dissonant coincidence in the melody's favor. Only that one path re-orders:
-///     the sustain pass and the per-instrument overload keep the raw configuration order, because every
-///     pass's gate draws once per item and re-ordering a pass re-orders its draws on the shared stream.
+///     scheduler's register order - melody first, figuration last - so within each pass the cleaners'
+///     just-decorated-loses rule resolves a dissonant coincidence in the melody's favor (its callers: the
+///     fugal composer's two body passes and the ending composer's bridging and tonic sub-compositions,
+///     which hold no recorded notes and so re-order harmlessly). Only that one method re-orders: the
+///     sustain pass keeps the raw configuration order, because its gate draws once per item and
+///     re-ordering it would re-order the draws on the shared stream, and the per-instrument overload is
+///     unaffected - it takes an explicit instrument and has no order at all.
 /// </remarks>
 internal sealed class CompositionDecorator(
     IPolicyEngine<OrnamentationItem> ornamentationEngine,

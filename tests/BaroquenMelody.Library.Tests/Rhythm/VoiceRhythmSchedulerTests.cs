@@ -366,6 +366,42 @@ internal sealed class VoiceRhythmSchedulerTests
     }
 
     [Test]
+    public void TryGetTextureRole_WithVoicesSharingAFullRange_BreaksTheTieByInstrument()
+    {
+        // arrange - two voices share both the floor and the ceiling (a legal configuration), so the final
+        // instrument tiebreak must decide deterministically; without it, raw set order would silently pick
+        // the assignment for a whole piece. Constructed fresh: InstrumentConfigurations feeds property
+        // initializers a with-clone would leave stale.
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.Two, Melanchall.DryWetMidi.MusicTheory.Notes.C4, Melanchall.DryWetMidi.MusicTheory.Notes.C6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, Melanchall.DryWetMidi.Standards.GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+                new(Instrument.One, Melanchall.DryWetMidi.MusicTheory.Notes.C4, Melanchall.DryWetMidi.MusicTheory.Notes.C6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, Melanchall.DryWetMidi.Standards.GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+                new(Instrument.Three, Melanchall.DryWetMidi.MusicTheory.Notes.C2, Melanchall.DryWetMidi.MusicTheory.Notes.C3, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, Melanchall.DryWetMidi.Standards.GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            Melanchall.DryWetMidi.MusicTheory.NoteName.C,
+            BaroquenMelody.Library.MusicTheory.Enums.Mode.Ionian,
+            Meter.FourFour,
+            Melanchall.DryWetMidi.Interaction.MusicalTimeSpan.Half,
+            MinimumMeasures: 25,
+            TextureConfiguration: new TextureConfiguration(TextureType.Walking));
+
+        var voiceRhythmScheduler = new VoiceRhythmScheduler(compositionConfiguration);
+
+        // act & assert
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.One, out var melodyRole).Should().BeTrue();
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.Two, out var padRole).Should().BeTrue();
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.Three, out var figurationRole).Should().BeTrue();
+
+        melodyRole.Should().Be(TextureRole.Melody, "an identical range resolves to the lower instrument");
+        padRole.Should().Be(TextureRole.Pad);
+        figurationRole.Should().Be(TextureRole.Figuration);
+    }
+
+    [Test]
     public void TryGetTextureDecorationOrder_WithATextureConfigured_OrdersMelodyFirstAndFigurationLast()
     {
         // arrange - the cleaners sacrifice the just-decorated voice's figure, so decorating melody-first

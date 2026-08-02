@@ -265,6 +265,23 @@ internal sealed class VoiceRhythmPolicyTransformerTests
     }
 
     [Test]
+    public void Transform_WithAnUnclassifiedTextureType_ThrowsInsteadOfInheritingSilence()
+    {
+        // arrange - a future TextureType must be classified deliberately: a silent fall-through would mute
+        // the figuration voice with no figure family to carry it, the same discipline the subdividing set
+        // demands of new ornamentation types
+        var transformer = CreateTransformer(voiceRhythmEnabled: true, (TextureType)99);
+
+        // act
+        var act = () => transformer.Transform(
+            CreateOrnamentationConfiguration(OrnamentationType.RepeatedNote, 15),
+            [new WantsToOrnament(_mockWeightedRandomBooleanGenerator, 15)]);
+
+        // assert
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Test]
     public void CreateSustainGate_StaysNeutralForTextureFigurationNotes()
     {
         // arrange - the pad voices' deterministic ties come from the held store; a bare repeated figuration

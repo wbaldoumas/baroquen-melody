@@ -118,12 +118,15 @@ internal sealed class VoiceRhythmPolicyTransformer(
 
     // With no texture configured the weight is neutral (the store stays empty, but a spurious mark would
     // then behave standardly rather than silently silencing); with one configured, in-family figures are
-    // near-certain and everything else is silenced - Chordal's empty family silences the whole voice.
+    // near-certain and everything else is silenced - Chordal's empty family silences the whole voice. Every
+    // texture is classified explicitly so a new TextureType fails loudly here instead of silently
+    // inheriting Chordal's silence - the same discipline the subdividing set demands.
     private int ResolveTextureProbability(OrnamentationConfiguration ornamentationConfiguration) => _texture switch
     {
         TextureType.None => ornamentationConfiguration.Probability,
         TextureType.Walking => WalkingFigures.Contains(ornamentationConfiguration.OrnamentationType) ? TextureFigureProbability : HeldNoteProbability,
         TextureType.BrokenChord => BrokenChordFigures.Contains(ornamentationConfiguration.OrnamentationType) ? TextureFigureProbability : HeldNoteProbability,
-        _ => HeldNoteProbability
+        TextureType.Chordal => HeldNoteProbability,
+        _ => throw new InvalidOperationException("The configured texture type has no figure-family classification.")
     };
 }

@@ -47,8 +47,10 @@ internal interface IVoiceRhythmScheduler
 
     /// <summary>
     ///     Resolve the decoration sequence for an active texture: melody first, figuration last, so the
-    ///     ornamentation cleaners' just-decorated-loses rule always resolves a dissonant coincidence in the
-    ///     melody's favor.
+    ///     ornamentation cleaners' just-decorated-loses rule resolves a dissonant coincidence between two
+    ///     figures placed in the same decoration pass in the melody's favor. (A melody figure placed by a
+    ///     later pass can still be cleaned against an accompaniment figure that survives from an earlier
+    ///     one - the ordering guarantee is per pass, not global.)
     /// </summary>
     /// <param name="decorationOrder">The register-ordered instruments, when a texture is active.</param>
     /// <returns>Whether a texture is active.</returns>

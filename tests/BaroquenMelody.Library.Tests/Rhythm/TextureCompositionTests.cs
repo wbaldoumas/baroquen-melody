@@ -1,3 +1,4 @@
+using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
@@ -21,9 +22,12 @@ namespace BaroquenMelody.Library.Tests.Rhythm;
 /// <summary>
 ///     End-to-end anchors for accompaniment textures. Seeded walks differ across operating systems, so
 ///     feature-on assertions are all-notes invariants (deterministic consequences of the weight-zero gates),
-///     all-seed separations with wide margins, or in-process byte-identity pairs - never per-seed outcome
-///     pins on probabilistic signatures. Family membership, not figure density, is the deciding metric:
-///     stock decoration already figures most beats, so a rate could not separate texture from baseline.
+///     all-seed separations, or in-process byte-identity pairs - never per-seed outcome pins on
+///     probabilistic signatures. Family membership, not figure density, is the deciding metric: stock
+///     decoration already figures most beats, so a rate could not separate texture from baseline. The
+///     invariants scope by INSTRUMENT and REGION - the ledger only brackets the body span - never by
+///     per-note ledger membership: filtering assertions through the same predicate that drives the gates
+///     would make them self-fulfilling, blind to any note the recording missed.
 /// </summary>
 [TestFixture]
 internal sealed class TextureCompositionTests
@@ -86,7 +90,13 @@ internal sealed class TextureCompositionTests
         var texturedNotes = SeededComposition.Notes(SeededComposition.Compose(texturedConfiguration, seed: 1));
         var untexturedNotes = SeededComposition.Notes(SeededComposition.Compose(untexturedConfiguration, seed: 1));
 
-        // assert
+        // assert - the planner's decline pins that the fallback actually engaged (a future bank or range
+        // change that lets the romanesca fit would otherwise repoint this test's failure at the texture
+        // instead of the planner), and the note streams prove the fallback fugue took the texture
+        new GroundBassPlanner(texturedConfiguration, new SeededRandomProvider(1))
+            .CreatePlan()
+            .Should().BeNull("the romanesca cannot fit a seven-semitone bass range");
+
         texturedNotes.Should().NotBeEmpty("the fallback fugue must compose successfully with a texture active");
         texturedNotes.Should().NotBeEquivalentTo(untexturedNotes, "the fallback fugue takes the texture, unlike the planned ground");
     }
@@ -104,21 +114,17 @@ internal sealed class TextureCompositionTests
 
         foreach (var seed in Enumerable.Range(1, 4))
         {
-            // arrange & act - the hand-wired graph exposes the ledger, and recorded notes are identified by
-            // QUERYING it, never positionally: phrasing inserts copies that shift measure indices
+            // arrange & act
             var composerGraph = ComposerGraph.Create(GetConfiguration(texture), seed);
             var composition = composerGraph.Composer.Compose(CancellationToken.None);
 
-            var figurationNotes = composition.Measures
-                .SelectMany(static measure => measure.Beats)
-                .SelectMany(static beat => beat.Chord.Notes)
-                .Where(composerGraph.Ledger.IsTextureFigurationNote)
-                .ToList();
+            var interiorBodyMeasures = GetInteriorBodyMeasures(composition, composerGraph.Ledger, seed);
+            var figurationNotes = NotesOf(interiorBodyMeasures, composerGraph.Configuration.Instruments[^1]).ToList();
 
-            figurationNotes.Should().NotBeEmpty($"an active texture must record its figuration voice (seed {seed})");
+            figurationNotes.Should().NotBeEmpty($"the figuration voice sounds throughout the body (seed {seed})");
 
             // assert - the family-membership invariant: a deterministic consequence of the weight-zero
-            // gates, so it holds for every note on every seed
+            // gates and the restatement re-clothing, so it holds for every note on every seed
             foreach (var figurationNote in figurationNotes)
             {
                 allowedTypes.Should().Contain(figurationNote.OrnamentationType, $"the figuration voice renders only its family (seed {seed})");
@@ -143,16 +149,16 @@ internal sealed class TextureCompositionTests
             var composerGraph = ComposerGraph.Create(GetConfiguration(TextureType.Chordal), seed);
             var composition = composerGraph.Composer.Compose(CancellationToken.None);
 
-            var allNotes = composition.Measures
+            var interiorBodyMeasures = GetInteriorBodyMeasures(composition, composerGraph.Ledger, seed);
+            var melodyInstrument = composerGraph.Configuration.Instruments[0];
+
+            var accompanimentNotes = interiorBodyMeasures
                 .SelectMany(static measure => measure.Beats)
                 .SelectMany(static beat => beat.Chord.Notes)
+                .Where(note => note.Instrument != melodyInstrument)
                 .ToList();
 
-            var accompanimentNotes = allNotes
-                .Where(note => composerGraph.Ledger.IsHeldNote(note) || composerGraph.Ledger.IsTextureFigurationNote(note))
-                .ToList();
-
-            accompanimentNotes.Should().NotBeEmpty($"a chordal texture must record pads and a figuration voice (seed {seed})");
+            accompanimentNotes.Should().NotBeEmpty($"the accompaniment sounds throughout the body (seed {seed})");
 
             // assert - Chordal's empty family silences every accompaniment gate, so nothing but the sustain
             // and suspension stamps (and the phraser's direct trill) may appear, and only the trill carries
@@ -167,8 +173,8 @@ internal sealed class TextureCompositionTests
                 }
             }
 
-            allNotes
-                .Exists(note => composerGraph.Ledger.IsFloridNote(note) && note.Ornamentations.Count > 0)
+            NotesOf(interiorBodyMeasures, melodyInstrument)
+                .Any(static note => note.Ornamentations.Count > 0)
                 .Should().BeTrue($"the melody still figures over the chordal accompaniment (seed {seed})");
         }
     }
@@ -182,22 +188,21 @@ internal sealed class TextureCompositionTests
             var composerGraph = ComposerGraph.Create(GetConfiguration(TextureType.Walking), seed);
             var composition = composerGraph.Composer.Compose(CancellationToken.None);
 
-            var recordedNotes = composition.Measures
+            var interiorBodyMeasures = GetInteriorBodyMeasures(composition, composerGraph.Ledger, seed);
+            var melodyInstrument = composerGraph.Configuration.Instruments[0];
+
+            var melodyVelocities = NotesOf(interiorBodyMeasures, melodyInstrument).Select(static note => (int)note.Velocity).ToList();
+            var accompanimentVelocities = interiorBodyMeasures
                 .SelectMany(static measure => measure.Beats)
                 .SelectMany(static beat => beat.Chord.Notes)
-                .ToList();
-
-            var melodyVelocities = recordedNotes.Where(composerGraph.Ledger.IsFloridNote).Select(static note => (int)note.Velocity).ToList();
-            var accompanimentVelocities = recordedNotes
-                .Where(note => composerGraph.Ledger.IsHeldNote(note) || composerGraph.Ledger.IsTextureFigurationNote(note))
+                .Where(note => note.Instrument != melodyInstrument)
                 .Select(static note => (int)note.Velocity)
                 .ToList();
 
-            // assert - the prominence offset separates the means on every seed: the melody's strong-beat
-            // accents push it up while the accompaniment sits a full offset lower, a wide margin against
-            // the velocity walk's noise
-            melodyVelocities.Should().NotBeEmpty($"the melody records florid under a texture (seed {seed})");
-            accompanimentVelocities.Should().NotBeEmpty($"the accompaniment records under a texture (seed {seed})");
+            // assert - the prominence offset separates the means on every seed (its magnitude is pinned at
+            // the unit level, where the dynamics walk is held inert)
+            melodyVelocities.Should().NotBeEmpty($"the melody sounds throughout the body (seed {seed})");
+            accompanimentVelocities.Should().NotBeEmpty($"the accompaniment sounds throughout the body (seed {seed})");
             melodyVelocities.Average().Should().BeGreaterThan(accompanimentVelocities.Average(), $"the melody renders above the accompaniment (seed {seed})");
         }
     }
@@ -215,6 +220,43 @@ internal sealed class TextureCompositionTests
             texturedNotes.Should().NotBeEquivalentTo(untexturedNotes, $"an active texture must change the rendered composition (seed {seed})");
         }
     }
+
+    // The ledger's one legitimate test role: BRACKETING the body. The recorded measures delimit the span
+    // between the unrecorded exposition prefix and the unrecorded ending suffix; within the bracket the
+    // assertions run over EVERY note of the scoped instrument, recorded or not, so a recording gap is a
+    // failure rather than an exemption. The last recorded measure is excluded because the ending splices a
+    // fresh stock-decorated cadential beat into it; everything before it is body material - walked
+    // originals and restatement copies alike, which is asserted directly: a static texture must record
+    // every interior body measure.
+    private static List<Measure> GetInteriorBodyMeasures(Composition composition, VoiceRhythmLedger ledger, int seed)
+    {
+        var recordedMeasureIndices = composition.Measures
+            .Select((measure, index) => (Measure: measure, Index: index))
+            .Where(pair => pair.Measure.Beats.Any(beat => beat.Chord.Notes.Any(note => ledger.IsHeldNote(note) || ledger.IsFloridNote(note) || ledger.IsTextureFigurationNote(note))))
+            .Select(static pair => pair.Index)
+            .ToList();
+
+        recordedMeasureIndices.Should().NotBeEmpty($"an active texture must record the body (seed {seed})");
+
+        var interiorBodyMeasures = composition.Measures
+            .Take(recordedMeasureIndices[^1])
+            .Skip(recordedMeasureIndices[0])
+            .ToList();
+
+        foreach (var measure in interiorBodyMeasures)
+        {
+            measure.Beats
+                .Any(beat => beat.Chord.Notes.Any(note => ledger.IsHeldNote(note) || ledger.IsFloridNote(note) || ledger.IsTextureFigurationNote(note)))
+                .Should().BeTrue($"a static texture records every interior body measure - restatement copies included (seed {seed})");
+        }
+
+        return interiorBodyMeasures;
+    }
+
+    private static IEnumerable<BaroquenNote> NotesOf(IEnumerable<Measure> measures, Instrument instrument) => measures
+        .SelectMany(static measure => measure.Beats)
+        .SelectMany(static beat => beat.Chord.Notes)
+        .Where(note => note.Instrument == instrument);
 
     // Production-shaped default ranges rather than the narrow test ranges: the broken-chord family's octave
     // figures need the octave headroom the redesigned defaults guarantee, and the listening artifacts

@@ -1,6 +1,7 @@
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Enums;
+using System.Collections.ObjectModel;
 
 namespace BaroquenMelody.Library.Rhythm;
 
@@ -38,12 +39,15 @@ internal sealed class VoiceRhythmScheduler(CompositionConfiguration compositionC
     private readonly TextureConfiguration _textureConfiguration =
         compositionConfiguration.TextureConfiguration ?? TextureConfiguration.Default;
 
-    private readonly List<Instrument> _textureOrderedInstruments = compositionConfiguration.InstrumentConfigurations
+    // Wrapped read-only because TryGetTextureDecorationOrder hands this instance out: a caller must not be
+    // able to downcast and reorder the scheduler's own state.
+    private readonly ReadOnlyCollection<Instrument> _textureOrderedInstruments = compositionConfiguration.InstrumentConfigurations
         .OrderByDescending(static instrumentConfiguration => instrumentConfiguration.MinNote)
         .ThenByDescending(static instrumentConfiguration => instrumentConfiguration.MaxNote)
         .ThenBy(static instrumentConfiguration => instrumentConfiguration.Instrument)
         .Select(static instrumentConfiguration => instrumentConfiguration.Instrument)
-        .ToList();
+        .ToList()
+        .AsReadOnly();
 
     private bool IsTextureActive => _voiceRhythmConfiguration.Enabled
                                     && _textureConfiguration.Texture != TextureType.None

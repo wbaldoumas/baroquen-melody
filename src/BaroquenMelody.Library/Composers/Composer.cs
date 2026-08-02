@@ -29,6 +29,9 @@ internal sealed class Composer(
     CompositionConfiguration compositionConfiguration
 ) : IComposer
 {
+    // One metric-accent level below the melody; a single named ear-tunable constant.
+    private const int AccompanimentVelocityOffset = -8;
+
     public Composition Compose(CancellationToken cancellationToken)
     {
         dispatcher.Dispatch(new ResetCompositionProgress());
@@ -53,9 +56,6 @@ internal sealed class Composer(
 
         return compositionWithDynamics;
     }
-
-    // One metric-accent level below the melody; a single named ear-tunable constant.
-    private const int AccompanimentVelocityOffset = -8;
 
     // The melody's florid mark is a statistical tilt, not a concentration, so the accompaniment could
     // out-figure it; prominence is therefore carried by velocity. Runs after the dynamics pass and applies
@@ -265,10 +265,51 @@ internal sealed class Composer(
 
         var phrasedComposition = new Composition(phrasedMeasures);
 
+        RecordTextureRolesForRestatements(phrasedComposition);
+
         compositionDecorator.Decorate(phrasedComposition);
 
         return phrasedComposition;
     }
+
+    // The phraser's restatements are deep copies, so they arrive here carrying no ledger marks: left
+    // unrecorded, the redecoration below would re-fill exactly the gaps the texture carved (at stock
+    // weights) and the prominence pass would skip the copies - the texture would flicker off for every
+    // restatement. Texture roles are static per instrument, so each copy simply takes its instrument's
+    // role, and re-recording the walked originals is an idempotent no-op on the reference-keyed stores.
+    // An accompaniment copy also sheds any copied-in figures before it is recorded (a theme-phrase
+    // restatement carries the exposition's stock decoration by value), so the redecoration re-clothes it
+    // in the texture's own fabric; the melody keeps its copied figures - thematic recall is its
+    // privilege. Outside a texture the scheduler answers no roles and the loop touches nothing.
+    private void RecordTextureRolesForRestatements(Composition composition)
+    {
+        foreach (var instrument in compositionConfiguration.Instruments)
+        {
+            if (!voiceRhythmScheduler.TryGetTextureRole(instrument, out var textureRole))
+            {
+                continue;
+            }
+
+            foreach (var beat in composition.Measures.SelectMany(static measure => measure.Beats).Where(beat => beat.Chord.ContainsInstrument(instrument)))
+            {
+                var note = beat.Chord[instrument];
+
+                if (textureRole != TextureRole.Melody && IsUnrecordedAccompanimentCopy(textureRole, note))
+                {
+                    note.ResetOrnamentation(compositionConfiguration.DefaultNoteTimeSpan);
+                }
+
+                RecordTextureRole(textureRole, note);
+            }
+        }
+    }
+
+    // Consulted only for the pad and figuration roles: the melody never sheds figures, so its store is
+    // never read here. A note absent from its role's store at this point in the pipeline can only be a
+    // phraser copy - every walked body note was recorded as it was composed.
+    private bool IsUnrecordedAccompanimentCopy(TextureRole textureRole, BaroquenNote note) => textureRole == TextureRole.Figuration
+        ? !voiceRhythmLedger.IsTextureFigurationNote(note)
+        : !voiceRhythmLedger.IsHeldNote(note);
 
     private Composition ComposeEnding(Composition composition, BaroquenTheme theme, CancellationToken cancellationToken)
     {
