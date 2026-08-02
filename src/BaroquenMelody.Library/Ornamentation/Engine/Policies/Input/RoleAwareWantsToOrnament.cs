@@ -8,14 +8,21 @@ namespace BaroquenMelody.Library.Ornamentation.Engine.Policies.Input;
 ///     The role-aware sibling of <see cref="WantsToOrnament"/>: draws exactly once per item like its sibling —
 ///     the weight can silence, boost, or scale, never add or remove a draw — but resolves the effective weight
 ///     from the note's recorded rhythm role, then scales it by the note's division-escalation intensity when
-///     one is recorded and scaling is enabled. A note the ledger does not know (the fugal exposition and
-///     ending, the ground's composed close, every deep copy) gets the standard weight, so unrecorded
+///     one is recorded and scaling is enabled. Held and texture-figuration notes short-circuit to their own
+///     weights (a texture's fabric is never scaled by the ground's escalation — a decided contract, not an
+///     accident of today's disjoint recording paths). A note the ledger does not know (the fugal exposition
+///     and ending, the ground's composed close, every deep copy) gets the standard weight, so unrecorded
 ///     material behaves exactly as it does without roles.
 /// </summary>
 /// <param name="weightedRandomBooleanGenerator">The weighted random boolean generator used to draw.</param>
 /// <param name="voiceRhythmLedger">The ledger of notes carrying rhythm roles and escalation intensities.</param>
 /// <param name="probability">The weight for notes carrying no role.</param>
 /// <param name="heldProbability">The weight for notes recorded as held.</param>
+/// <param name="textureProbability">
+///     The weight for notes recorded as texture figuration. Deliberately required, never defaulted: each
+///     ornamentation gate takes its build-time family weight (in-family near-certainty, out-of-family
+///     silence) while the sustain gate stays neutral. Every construction site decides.
+/// </param>
 /// <param name="floridProbability">The weight for notes recorded as florid.</param>
 /// <param name="scaleByIntensity">
 ///     Whether a recorded division intensity scales the resolved weight. Deliberately required, never
@@ -28,6 +35,7 @@ internal sealed class RoleAwareWantsToOrnament(
     IVoiceRhythmLedger voiceRhythmLedger,
     int probability,
     int heldProbability,
+    int textureProbability,
     int floridProbability,
     bool scaleByIntensity) : IInputPolicy<OrnamentationItem>
 {
@@ -46,6 +54,11 @@ internal sealed class RoleAwareWantsToOrnament(
         if (voiceRhythmLedger.IsHeldNote(note))
         {
             return heldProbability;
+        }
+
+        if (voiceRhythmLedger.IsTextureFigurationNote(note))
+        {
+            return textureProbability;
         }
 
         var weight = voiceRhythmLedger.IsFloridNote(note) ? floridProbability : probability;

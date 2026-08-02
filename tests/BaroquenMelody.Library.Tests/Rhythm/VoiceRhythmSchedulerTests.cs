@@ -1,4 +1,5 @@
 using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Rhythm;
 using BaroquenMelody.Library.Tests.TestData;
@@ -211,6 +212,188 @@ internal sealed class VoiceRhythmSchedulerTests
         voiceRhythmScheduler.TryGetHeldInstrument(5, out var secondBlockHeld).Should().BeTrue();
         secondBlockHeld.Should().Be(Instrument.Two);
     }
+
+    [Test]
+    public void TryGetTextureRole_WithATextureConfigured_AssignsMelodyFigurationAndPads()
+    {
+        // arrange - four voices order One..Four by register, so the static assignment is melody on top,
+        // figuration at the bottom, pads between
+        var voiceRhythmScheduler = new VoiceRhythmScheduler(GetTextureConfiguration());
+
+        // act & assert
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.One, out var melodyRole).Should().BeTrue();
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.Two, out var upperPadRole).Should().BeTrue();
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.Three, out var lowerPadRole).Should().BeTrue();
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.Four, out var figurationRole).Should().BeTrue();
+
+        melodyRole.Should().Be(TextureRole.Melody);
+        upperPadRole.Should().Be(TextureRole.Pad);
+        lowerPadRole.Should().Be(TextureRole.Pad);
+        figurationRole.Should().Be(TextureRole.Figuration);
+    }
+
+    [Test]
+    public void RotationAnswers_WithATextureConfigured_AllDecline()
+    {
+        // arrange - the texture's static assignment REPLACES the per-block rotation: held, florid, and the
+        // pins all decline so the two modes can never overlap, and the walk machinery stays untouched
+        var voiceRhythmScheduler = new VoiceRhythmScheduler(GetTextureConfiguration());
+
+        // act & assert
+        for (var measureIndex = 0; measureIndex < 8; measureIndex++)
+        {
+            voiceRhythmScheduler.TryGetHeldInstrument(measureIndex, out _).Should().BeFalse();
+            voiceRhythmScheduler.TryGetFloridInstrument(measureIndex, out _).Should().BeFalse();
+
+            for (var beatIndex = 0; beatIndex < 4; beatIndex++)
+            {
+                voiceRhythmScheduler.TryGetPinnedInstrument(measureIndex, beatIndex, out _).Should().BeFalse();
+            }
+        }
+    }
+
+    [Test]
+    public void TryGetTextureRole_WithNoTextureConfigured_AnswersNothingWhileTheRotationStands()
+    {
+        // arrange - the default configuration carries no texture, so the legacy rotation answers exactly
+        // as before and the texture query declines
+        var voiceRhythmScheduler = new VoiceRhythmScheduler(TestCompositionConfigurations.Get());
+
+        // act & assert
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.One, out _).Should().BeFalse();
+        voiceRhythmScheduler.TryGetHeldInstrument(1, out _).Should().BeTrue();
+        voiceRhythmScheduler.TryGetFloridInstrument(1, out _).Should().BeTrue();
+    }
+
+    [Test]
+    public void TryGetTextureRole_WhenVoiceRhythmIsDisabled_AnswersNothing()
+    {
+        // arrange - the voice-rhythm configuration is the texture's master switch
+        var compositionConfiguration = TestCompositionConfigurations.Get() with
+        {
+            VoiceRhythmConfiguration = new VoiceRhythmConfiguration(Enabled: false),
+            TextureConfiguration = new TextureConfiguration(TextureType.Walking)
+        };
+
+        var voiceRhythmScheduler = new VoiceRhythmScheduler(compositionConfiguration);
+
+        // act & assert
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.One, out _).Should().BeFalse();
+    }
+
+    [Test]
+    public void TryGetTextureRole_WithOneVoice_AnswersNothing()
+    {
+        // arrange - a texture needs a melody AND a figuration voice
+        var compositionConfiguration = TestCompositionConfigurations.Get(numberOfInstruments: 1) with
+        {
+            TextureConfiguration = new TextureConfiguration(TextureType.Walking)
+        };
+
+        var voiceRhythmScheduler = new VoiceRhythmScheduler(compositionConfiguration);
+
+        // act & assert
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.One, out _).Should().BeFalse();
+    }
+
+    [Test]
+    public void TryGetTextureRole_WithTwoVoices_AssignsMelodyAndFigurationWithNoPads()
+    {
+        // arrange
+        var compositionConfiguration = TestCompositionConfigurations.Get(numberOfInstruments: 2) with
+        {
+            TextureConfiguration = new TextureConfiguration(TextureType.BrokenChord)
+        };
+
+        var voiceRhythmScheduler = new VoiceRhythmScheduler(compositionConfiguration);
+
+        // act & assert
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.One, out var melodyRole).Should().BeTrue();
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.Two, out var figurationRole).Should().BeTrue();
+
+        melodyRole.Should().Be(TextureRole.Melody);
+        figurationRole.Should().Be(TextureRole.Figuration);
+    }
+
+    [Test]
+    public void TryGetTextureRole_WithAnUnconfiguredInstrument_AnswersNothing()
+    {
+        // arrange - a two-voice texture knows nothing about voices outside its configuration
+        var compositionConfiguration = TestCompositionConfigurations.Get(numberOfInstruments: 2) with
+        {
+            TextureConfiguration = new TextureConfiguration(TextureType.Walking)
+        };
+
+        var voiceRhythmScheduler = new VoiceRhythmScheduler(compositionConfiguration);
+
+        // act & assert
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.Four, out _).Should().BeFalse();
+    }
+
+    [Test]
+    public void TryGetTextureRole_WithVoicesSharingAFloor_BreaksTheTieByCeiling()
+    {
+        // arrange - two voices share the C4 floor; the higher ceiling must take the melody so raw set order
+        // can never decide the assignment. Constructed fresh: InstrumentConfigurations feeds property
+        // initializers a with-clone would leave stale.
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.Two, Melanchall.DryWetMidi.MusicTheory.Notes.C4, Melanchall.DryWetMidi.MusicTheory.Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, Melanchall.DryWetMidi.Standards.GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+                new(Instrument.One, Melanchall.DryWetMidi.MusicTheory.Notes.C4, Melanchall.DryWetMidi.MusicTheory.Notes.C6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, Melanchall.DryWetMidi.Standards.GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+                new(Instrument.Three, Melanchall.DryWetMidi.MusicTheory.Notes.C2, Melanchall.DryWetMidi.MusicTheory.Notes.C3, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, Melanchall.DryWetMidi.Standards.GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            Melanchall.DryWetMidi.MusicTheory.NoteName.C,
+            BaroquenMelody.Library.MusicTheory.Enums.Mode.Ionian,
+            Meter.FourFour,
+            Melanchall.DryWetMidi.Interaction.MusicalTimeSpan.Half,
+            MinimumMeasures: 25,
+            TextureConfiguration: new TextureConfiguration(TextureType.Walking));
+
+        var voiceRhythmScheduler = new VoiceRhythmScheduler(compositionConfiguration);
+
+        // act & assert
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.One, out var melodyRole).Should().BeTrue();
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.Two, out var padRole).Should().BeTrue();
+        voiceRhythmScheduler.TryGetTextureRole(Instrument.Three, out var figurationRole).Should().BeTrue();
+
+        melodyRole.Should().Be(TextureRole.Melody, "the shared floor resolves to the higher ceiling");
+        padRole.Should().Be(TextureRole.Pad);
+        figurationRole.Should().Be(TextureRole.Figuration);
+    }
+
+    [Test]
+    public void TryGetTextureDecorationOrder_WithATextureConfigured_OrdersMelodyFirstAndFigurationLast()
+    {
+        // arrange - the cleaners sacrifice the just-decorated voice's figure, so decorating melody-first
+        // means every dissonant coincidence resolves in the melody's favor
+        var voiceRhythmScheduler = new VoiceRhythmScheduler(GetTextureConfiguration());
+
+        // act
+        var hasOrder = voiceRhythmScheduler.TryGetTextureDecorationOrder(out var decorationOrder);
+
+        // assert
+        hasOrder.Should().BeTrue();
+        decorationOrder.Should().Equal(Instrument.One, Instrument.Two, Instrument.Three, Instrument.Four);
+    }
+
+    [Test]
+    public void TryGetTextureDecorationOrder_WithNoTextureConfigured_AnswersNothing()
+    {
+        // arrange
+        var voiceRhythmScheduler = new VoiceRhythmScheduler(TestCompositionConfigurations.Get());
+
+        // act & assert
+        voiceRhythmScheduler.TryGetTextureDecorationOrder(out _).Should().BeFalse();
+    }
+
+    private static CompositionConfiguration GetTextureConfiguration() => TestCompositionConfigurations.Get() with
+    {
+        TextureConfiguration = new TextureConfiguration(TextureType.Walking)
+    };
 
     private static IEnumerable<TestCaseData> HeldRotationTestCases()
     {

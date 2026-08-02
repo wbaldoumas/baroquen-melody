@@ -19,11 +19,14 @@ internal sealed class VoiceRhythmLedger : IVoiceRhythmLedger
 
     private readonly Dictionary<BaroquenNote, int> _divisionIntensities = new(NoteReferenceComparer.Instance);
 
+    private readonly HashSet<BaroquenNote> _textureFigurationNotes = new(NoteReferenceComparer.Instance);
+
     public void Clear()
     {
         _heldNotes.Clear();
         _floridNotes.Clear();
         _divisionIntensities.Clear();
+        _textureFigurationNotes.Clear();
     }
 
     public void RecordHeldNote(BaroquenNote note) => _heldNotes.Add(note);
@@ -37,6 +40,10 @@ internal sealed class VoiceRhythmLedger : IVoiceRhythmLedger
     public void RecordDivisionIntensity(BaroquenNote note, int intensity) => _divisionIntensities[note] = intensity;
 
     public bool TryGetDivisionIntensity(BaroquenNote note, out int intensity) => _divisionIntensities.TryGetValue(note, out intensity);
+
+    public void RecordTextureFigurationNote(BaroquenNote note) => _textureFigurationNotes.Add(note);
+
+    public bool IsTextureFigurationNote(BaroquenNote note) => _textureFigurationNotes.Contains(note);
 
     private sealed class NoteReferenceComparer : IEqualityComparer<BaroquenNote>
     {

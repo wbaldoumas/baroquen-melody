@@ -73,10 +73,12 @@ internal sealed class VoiceRhythmLedgerTests
         var heldNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
         var floridNote = new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half);
         var escalatedNote = new BaroquenNote(Instrument.Three, Notes.C3, MusicalTimeSpan.Half);
+        var figurationNote = new BaroquenNote(Instrument.Four, Notes.C2, MusicalTimeSpan.Half);
 
         voiceRhythmLedger.RecordHeldNote(heldNote);
         voiceRhythmLedger.RecordFloridNote(floridNote);
         voiceRhythmLedger.RecordDivisionIntensity(escalatedNote, 140);
+        voiceRhythmLedger.RecordTextureFigurationNote(figurationNote);
 
         // act
         voiceRhythmLedger.Clear();
@@ -85,6 +87,25 @@ internal sealed class VoiceRhythmLedgerTests
         voiceRhythmLedger.IsHeldNote(heldNote).Should().BeFalse();
         voiceRhythmLedger.IsFloridNote(floridNote).Should().BeFalse();
         voiceRhythmLedger.TryGetDivisionIntensity(escalatedNote, out _).Should().BeFalse();
+        voiceRhythmLedger.IsTextureFigurationNote(figurationNote).Should().BeFalse();
+    }
+
+    [Test]
+    public void TextureFigurationNotes_AttachToTheInstance_NeverToValueEqualCopies()
+    {
+        // arrange - the same reference-identity contract as the other stores: a deep copy carries no mark
+        var voiceRhythmLedger = new VoiceRhythmLedger();
+        var recordedNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+        var valueEqualCopy = new BaroquenNote(recordedNote);
+
+        // act
+        voiceRhythmLedger.RecordTextureFigurationNote(recordedNote);
+
+        // assert
+        voiceRhythmLedger.IsTextureFigurationNote(recordedNote).Should().BeTrue();
+        voiceRhythmLedger.IsTextureFigurationNote(valueEqualCopy).Should().BeFalse("texture marks attach to the emitted instance, never to copies");
+        voiceRhythmLedger.IsHeldNote(recordedNote).Should().BeFalse("the texture store is orthogonal to the held store");
+        voiceRhythmLedger.IsFloridNote(recordedNote).Should().BeFalse("the texture store is orthogonal to the florid store");
     }
 
     [Test]

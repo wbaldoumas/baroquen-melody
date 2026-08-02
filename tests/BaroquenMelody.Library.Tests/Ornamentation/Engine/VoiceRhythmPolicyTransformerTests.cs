@@ -232,11 +232,111 @@ internal sealed class VoiceRhythmPolicyTransformerTests
         sustainGate.Should().BeOfType<WantsToOrnament>();
     }
 
-    private VoiceRhythmPolicyTransformer CreateTransformer(bool voiceRhythmEnabled)
+    [TestCase(TextureType.Walking, OrnamentationType.RepeatedNote, 15, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
+    [TestCase(TextureType.Walking, OrnamentationType.PassingTone, 80, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
+    [TestCase(TextureType.Walking, OrnamentationType.Mordent, 20, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.Pedal, 80, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.OctavePedalArpeggio, 80, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.PassingTone, 80, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.DecorateThird, 60, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
+    [TestCase(TextureType.Chordal, OrnamentationType.RepeatedNote, 15, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
+    [TestCase(TextureType.Chordal, OrnamentationType.Run, 80, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
+    [TestCase(TextureType.None, OrnamentationType.RepeatedNote, 15, 15)]
+    public void Transform_ResolvesTheTextureWeightFromTheConfiguredFamilyAtBuildTime(TextureType texture, OrnamentationType ornamentationType, int baseProbability, int expectedTextureWeight)
+    {
+        // arrange - the texture is a configuration constant: in-family figures are near-certain, everything
+        // else is silenced (Chordal's empty family silences the whole voice), and with no texture configured
+        // the weight stays neutral so a spurious mark would behave standardly rather than silently silence
+        var transformer = CreateTransformer(voiceRhythmEnabled: true, texture);
+        var transformedPolicies = transformer.Transform(
+            CreateOrnamentationConfiguration(ornamentationType, baseProbability),
+            [new WantsToOrnament(_mockWeightedRandomBooleanGenerator, baseProbability)]);
+
+        var gate = transformedPolicies[0];
+        var figurationNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordTextureFigurationNote(figurationNote);
+
+        // act
+        gate.ShouldProcess(CreateItem(figurationNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(expectedTextureWeight);
+    }
+
+    [Test]
+    public void CreateSustainGate_StaysNeutralForTextureFigurationNotes()
+    {
+        // arrange - the pad voices' deterministic ties come from the held store; a bare repeated figuration
+        // note may tie at stock odds, never at a texture-specific weight
+        var transformer = CreateTransformer(voiceRhythmEnabled: true, TextureType.Walking);
+        var sustainGate = transformer.CreateSustainGate();
+        var figurationNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordTextureFigurationNote(figurationNote);
+
+        // act
+        sustainGate.ShouldProcess(CreateItem(figurationNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(WantsToOrnament.DefaultProbability);
+    }
+
+    [Test]
+    public void WalkingFigures_AllRenderTheEvenQuarterTread()
+    {
+        // arrange - family membership is onset-spacing uniformity: a texture's audible identity is the
+        // spacing of its attacks, so every walking member must render primary and sub-notes as even
+        // quarters in 4/4. If this fails, a member was re-spanned without re-deciding its family.
+        var musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
+
+        // act & assert
+        foreach (var ornamentationType in VoiceRhythmPolicyTransformer.WalkingFigures)
+        {
+            musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, Meter.FourFour)
+                .Should().Be(MusicalTimeSpan.Quarter, $"{ornamentationType} must tread even quarters");
+            musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, Meter.FourFour)
+                .Should().Be(MusicalTimeSpan.Quarter, $"{ornamentationType} must tread even quarters");
+        }
+    }
+
+    [Test]
+    public void BrokenChordFigures_AllRenderTheEvenEighthPattern()
+    {
+        // arrange - the broken-chord family's uniform grid is the even eighth: three sub-notes filling the
+        // beat behind an eighth principal. DecorateThird is deliberately excluded for its mixed
+        // sixteenth/eighth spacing - pinned below so its exclusion is a decision, not an accident.
+        var musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
+
+        // act & assert
+        foreach (var ornamentationType in VoiceRhythmPolicyTransformer.BrokenChordFigures)
+        {
+            musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, Meter.FourFour)
+                .Should().Be(MusicalTimeSpan.Eighth, $"{ornamentationType} must pattern even eighths");
+            musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, Meter.FourFour)
+                .Should().Be(MusicalTimeSpan.Eighth, $"{ornamentationType} must pattern even eighths");
+        }
+
+        musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(OrnamentationType.DecorateThird, Meter.FourFour, ornamentationStep: 0)
+            .Should().Be(MusicalTimeSpan.Sixteenth, "DecorateThird's mixed spacing is why it sits outside the family");
+    }
+
+    [Test]
+    public void TextureFamilies_NeverContainTheCadentialDecorateIntervalOrOverlapEachOther()
+    {
+        // arrange - DecorateInterval fires only at a strict V-to-I approach (cadential, near-zero site
+        // supply under concentration), and the families answer different textures so they must not overlap
+        VoiceRhythmPolicyTransformer.WalkingFigures.Should().NotContain(OrnamentationType.DecorateInterval);
+        VoiceRhythmPolicyTransformer.BrokenChordFigures.Should().NotContain(OrnamentationType.DecorateInterval);
+        VoiceRhythmPolicyTransformer.WalkingFigures.Intersect(VoiceRhythmPolicyTransformer.BrokenChordFigures).Should().BeEmpty();
+    }
+
+    private VoiceRhythmPolicyTransformer CreateTransformer(bool voiceRhythmEnabled, TextureType texture = TextureType.None)
     {
         var compositionConfiguration = TestCompositionConfigurations.Get() with
         {
-            VoiceRhythmConfiguration = new VoiceRhythmConfiguration(voiceRhythmEnabled)
+            VoiceRhythmConfiguration = new VoiceRhythmConfiguration(voiceRhythmEnabled),
+            TextureConfiguration = new TextureConfiguration(texture)
         };
 
         return new VoiceRhythmPolicyTransformer(_mockWeightedRandomBooleanGenerator, _voiceRhythmLedger, compositionConfiguration);

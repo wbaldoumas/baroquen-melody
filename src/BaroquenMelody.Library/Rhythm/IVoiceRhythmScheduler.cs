@@ -3,9 +3,12 @@ using BaroquenMelody.Library.Enums;
 namespace BaroquenMelody.Library.Rhythm;
 
 /// <summary>
-///     Assigns per-voice rhythm roles over phrase-length blocks of the fugal composition body: which voice is
-///     held (moving once per measure), which is florid (attracting more subdividing figures), and where the
-///     held voice's note must be pinned during the body walk.
+///     The fugal body's single per-voice rhythm identity authority, answering in one of two modes. With no
+///     accompaniment texture configured, roles rotate over phrase-length blocks: which voice is held (moving
+///     once per measure), which is florid (attracting more subdividing figures), and where the held voice's
+///     note must be pinned during the body walk. With a texture configured, the rotation yields to one static
+///     whole-composition assignment - melody on top, figuration at the bottom, pads between - and the
+///     rotating answers decline so the two modes can never overlap.
 /// </summary>
 internal interface IVoiceRhythmScheduler
 {
@@ -33,4 +36,21 @@ internal interface IVoiceRhythmScheduler
     /// <param name="floridInstrument">The instrument attracting subdividing figures in the measure, when one exists.</param>
     /// <returns>Whether a florid instrument exists for the measure.</returns>
     bool TryGetFloridInstrument(int measureIndex, out Instrument floridInstrument);
+
+    /// <summary>
+    ///     Determine the given instrument's part in the active accompaniment texture, when one is active.
+    /// </summary>
+    /// <param name="instrument">The instrument to resolve.</param>
+    /// <param name="textureRole">The instrument's texture role, when a texture is active.</param>
+    /// <returns>Whether a texture is active and the instrument participates in it.</returns>
+    bool TryGetTextureRole(Instrument instrument, out TextureRole textureRole);
+
+    /// <summary>
+    ///     Resolve the decoration sequence for an active texture: melody first, figuration last, so the
+    ///     ornamentation cleaners' just-decorated-loses rule always resolves a dissonant coincidence in the
+    ///     melody's favor.
+    /// </summary>
+    /// <param name="decorationOrder">The register-ordered instruments, when a texture is active.</param>
+    /// <returns>Whether a texture is active.</returns>
+    bool TryGetTextureDecorationOrder(out IReadOnlyList<Instrument> decorationOrder);
 }

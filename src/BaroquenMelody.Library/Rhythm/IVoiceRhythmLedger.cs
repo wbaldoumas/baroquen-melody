@@ -4,12 +4,13 @@ namespace BaroquenMelody.Library.Rhythm;
 
 /// <summary>
 ///     Records which of the composed notes carry a rhythm role, so the decoration and sustain passes can
-///     treat exactly those notes differently: the fugal body walk records its held and florid voices, and
-///     the ground bass form records its division roles — the ground line held, and each accompanied
-///     statement's upper-voice notes carrying an escalation intensity. Notes never recorded — the fugal
-///     exposition and ending, the ground's composed close, and every deep copy — take the standard
-///     behavior. The ground's opening announcement is stripped to its ground line before recording, so its
-///     surviving notes record held exactly like every statement's ground-line notes.
+///     treat exactly those notes differently: the fugal body walk records its held and florid voices (or,
+///     under an accompaniment texture, its melody as florid, its pads as held, and its figuration voice in
+///     the texture store), and the ground bass form records its division roles — the ground line held, and
+///     each accompanied statement's upper-voice notes carrying an escalation intensity. Notes never
+///     recorded — the fugal exposition and ending, the ground's composed close, and every deep copy — take
+///     the standard behavior. The ground's opening announcement is stripped to its ground line before
+///     recording, so its surviving notes record held exactly like every statement's ground-line notes.
 /// </summary>
 internal interface IVoiceRhythmLedger
 {
@@ -59,4 +60,17 @@ internal interface IVoiceRhythmLedger
     /// <param name="intensity">The recorded intensity, when one exists.</param>
     /// <returns>Whether an intensity was recorded for the note.</returns>
     bool TryGetDivisionIntensity(BaroquenNote note, out int intensity);
+
+    /// <summary>
+    ///     Record a note emitted for the figuration voice of an active accompaniment texture.
+    /// </summary>
+    /// <param name="note">The exact note instance the body walk emitted.</param>
+    void RecordTextureFigurationNote(BaroquenNote note);
+
+    /// <summary>
+    ///     Determine whether the given note instance was recorded as texture figuration.
+    /// </summary>
+    /// <param name="note">The note instance to look up.</param>
+    /// <returns>Whether the note was recorded as texture figuration.</returns>
+    bool IsTextureFigurationNote(BaroquenNote note);
 }

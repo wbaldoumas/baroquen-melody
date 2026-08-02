@@ -212,7 +212,8 @@ internal sealed class BaroquenMelodyComposerConfigurator(
             compositionConfiguration.SuspensionConfiguration,
             compositionConfiguration.TonicizationConfiguration,
             compositionConfiguration.GroundBassConfiguration,
-            compositionConfiguration.VoiceRhythmConfiguration);
+            compositionConfiguration.VoiceRhythmConfiguration,
+            compositionConfiguration.TextureConfiguration);
     }
 
     /// <summary>

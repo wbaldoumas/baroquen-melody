@@ -35,6 +35,7 @@ namespace BaroquenMelody.Library.Configurations;
 /// <param name="TonicizationConfiguration"> The configuration of tonicization (raised thirds turning minor triads into true dominants of the chords they approach). When <see langword="null"/> (including configurations saved before tonicization existed), <see cref="Configurations.TonicizationConfiguration.Default"/> is used. </param>
 /// <param name="GroundBassConfiguration"> The configuration of the ground bass form (a repeating bass pattern under freshly composed variations, replacing the fugal form). When <see langword="null"/> (including configurations saved before the form existed), <see cref="Configurations.GroundBassConfiguration.Default"/> is used. </param>
 /// <param name="VoiceRhythmConfiguration"> The configuration of per-voice rhythm roles (a held voice and a florid voice rotating over phrase blocks of the fugal body; also the master switch for the ground bass form's divisions). When <see langword="null"/> (including configurations saved before voice rhythm existed), <see cref="Configurations.VoiceRhythmConfiguration.Default"/> is used. </param>
+/// <param name="TextureConfiguration"> The configuration of the fugal body's accompaniment texture (melody over walking, broken-chord, or chordal accompaniment; master-switched by the voice-rhythm configuration). When <see langword="null"/> (including configurations saved before textures existed), <see cref="Configurations.TextureConfiguration.Default"/> is used. </param>
 public sealed record CompositionConfiguration(
     ISet<InstrumentConfiguration> InstrumentConfigurations,
     PhrasingConfiguration PhrasingConfiguration,
@@ -56,7 +57,8 @@ public sealed record CompositionConfiguration(
     SuspensionConfiguration? SuspensionConfiguration = null,
     TonicizationConfiguration? TonicizationConfiguration = null,
     GroundBassConfiguration? GroundBassConfiguration = null,
-    VoiceRhythmConfiguration? VoiceRhythmConfiguration = null)
+    VoiceRhythmConfiguration? VoiceRhythmConfiguration = null,
+    TextureConfiguration? TextureConfiguration = null)
 {
     public const int MaxScaleStepChange = 5;
 

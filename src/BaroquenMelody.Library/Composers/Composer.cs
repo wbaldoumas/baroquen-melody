@@ -32,6 +32,11 @@ internal sealed class Composer(
     {
         dispatcher.Dispatch(new ResetCompositionProgress());
 
+        // Cleared before the theme rather than at the body step: the theme's decoration pass reads the same
+        // gates, and a reused composer instance must never weight a fresh exposition by a previous
+        // composition's stale marks.
+        voiceRhythmLedger.Clear();
+
         var theme = ComposeMainTheme(cancellationToken);
         var compositionBody = ComposeBodyOfComposition(theme, cancellationToken);
         var compositionWithOrnamentation = AddOrnamentation(compositionBody, cancellationToken);
@@ -67,8 +72,6 @@ internal sealed class Composer(
         );
 
         var compositionBody = new List<Measure>();
-
-        voiceRhythmLedger.Clear();
 
         while (compositionBody.Count < compositionConfiguration.MinimumMeasures)
         {
