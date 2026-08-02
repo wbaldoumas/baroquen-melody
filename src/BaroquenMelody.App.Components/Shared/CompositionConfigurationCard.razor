@@ -104,6 +104,21 @@
                     </MudTooltip>
                 </MudItem>
             }
+            else
+            {
+                <MudItem xs="12" sm="6" md="2">
+                    <SelectWithPopover T="TextureType"
+                                       Items="CompositionConfigurationService.ConfigurableTextures"
+                                       Label="Texture"
+                                       ValueProvider="() => Texture"
+                                       ValueChanged="HandleTextureChange"
+                                       ConvertToDisplay="texture => texture.ToSpaceSeparatedString()">
+                        <PopoverContent>
+                            <MudText>How the voices accompany the melody once the opening imitation settles: walking bass, broken-chord figuration, or sustained chords beneath a free melody on top. Needs two or more voices, and the accompaniment draws only on ornamentations you have enabled - disabling a texture's figures quiets it toward sustained chords.</MudText>
+                        </PopoverContent>
+                    </SelectWithPopover>
+                </MudItem>
+            }
             <MudItem xs="12" sm="6" md="2">
                 <NumericInputWithPopover T="int"
                                          Label="Minimum Measures"
@@ -150,6 +165,8 @@
     private GroundBass? GroundBassPattern => CompositionConfigurationState.Value.GroundBassPattern;
 
     private bool GroundBassModulate => CompositionConfigurationState.Value.GroundBassModulate;
+
+    private TextureType Texture => CompositionConfigurationState.Value.Texture;
 
     private int MinimumMeasures => CompositionConfigurationState.Value.MinimumMeasures;
 
@@ -217,19 +234,21 @@
         await base.DisposeAsync();
     }
 
-    private void HandleTonicNoteChange(NoteName note) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(note, Mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern, GroundBassModulate));
+    private void HandleTonicNoteChange(NoteName note) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(note, Mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern, GroundBassModulate, Texture));
 
-    private void HandleModeChange(Mode mode) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern, GroundBassModulate));
+    private void HandleModeChange(Mode mode) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern, GroundBassModulate, Texture));
 
-    private void HandleMeterChange(Meter meter) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, meter, MinimumMeasures, Tempo, Form, GroundBassPattern, GroundBassModulate));
+    private void HandleMeterChange(Meter meter) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, meter, MinimumMeasures, Tempo, Form, GroundBassPattern, GroundBassModulate, Texture));
 
-    private void HandleFormChange(CompositionForm form) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, form, GroundBassPattern, GroundBassModulate));
+    private void HandleFormChange(CompositionForm form) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, form, GroundBassPattern, GroundBassModulate, Texture));
 
-    private void HandleGroundBassPatternChange(GroundBass? groundBassPattern) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, Form, groundBassPattern, GroundBassModulate));
+    private void HandleGroundBassPatternChange(GroundBass? groundBassPattern) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, Form, groundBassPattern, GroundBassModulate, Texture));
 
-    private void HandleGroundBassModulateChange(bool groundBassModulate) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern, groundBassModulate));
+    private void HandleGroundBassModulateChange(bool groundBassModulate) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern, groundBassModulate, Texture));
 
-    private void HandleCompositionLengthChange(int length) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, length, Tempo, Form, GroundBassPattern, GroundBassModulate));
+    private void HandleTextureChange(TextureType texture) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, Tempo, Form, GroundBassPattern, GroundBassModulate, texture));
 
-    private void HandleTempoChange(int tempo) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, tempo, Form, GroundBassPattern, GroundBassModulate));
+    private void HandleCompositionLengthChange(int length) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, length, Tempo, Form, GroundBassPattern, GroundBassModulate, Texture));
+
+    private void HandleTempoChange(int tempo) => Dispatcher.Dispatch(new UpdateCompositionConfiguration(RootNote, Mode, Meter, MinimumMeasures, tempo, Form, GroundBassPattern, GroundBassModulate, Texture));
 }

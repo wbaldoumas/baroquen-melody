@@ -154,6 +154,25 @@ internal sealed class CompositionConfigurationServiceTests
     }
 
     [Test]
+    public void ConfigurableTextures_returns_expected_values()
+    {
+        // arrange
+        var expectedConfigurableTextures = new[]
+        {
+            TextureType.None,
+            TextureType.Chordal,
+            TextureType.Walking,
+            TextureType.BrokenChord
+        };
+
+        // act
+        var actualConfigurableTextures = _compositionConfigurationService.ConfigurableTextures;
+
+        // assert
+        actualConfigurableTextures.Should().BeEquivalentTo(expectedConfigurableTextures);
+    }
+
+    [Test]
     public void Randomize_dispatches_expected_update()
     {
         // act
@@ -161,6 +180,20 @@ internal sealed class CompositionConfigurationServiceTests
 
         // assert
         _mockDispatcher.Received(1).Dispatch(Arg.Any<UpdateCompositionConfiguration>());
+    }
+
+    [Test]
+    public void Randomize_preserves_the_selected_texture()
+    {
+        // arrange: what fabric the piece wears is a structural preference like the form itself, so the dice
+        // must leave the texture alone.
+        _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState { Texture = TextureType.Walking });
+
+        // act
+        _compositionConfigurationService.Randomize();
+
+        // assert
+        _mockDispatcher.Received(1).Dispatch(Arg.Is<UpdateCompositionConfiguration>(static action => action.Texture == TextureType.Walking));
     }
 
     [Test]
@@ -245,15 +278,15 @@ internal sealed class CompositionConfigurationServiceTests
     [Test]
     public void Reset_dispatches_expected_update()
     {
-        // arrange: a reset must also clear a pinned pattern back to the composer's free draw and restore
-        // the default journey.
-        _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState { Form = CompositionForm.GroundBass, GroundBassPattern = GroundBass.CadentialGround, GroundBassModulate = false });
+        // arrange: a reset must also clear a pinned pattern back to the composer's free draw, restore the
+        // default journey, and drop any texture back to the imitative default.
+        _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState { Form = CompositionForm.GroundBass, GroundBassPattern = GroundBass.CadentialGround, GroundBassModulate = false, Texture = TextureType.Chordal });
 
         // act
         _compositionConfigurationService.Reset();
 
         // assert
-        _mockDispatcher.Received(1).Dispatch(Arg.Is<UpdateCompositionConfiguration>(static action => action.Form == CompositionForm.Fugue && action.GroundBassPattern == null && action.GroundBassModulate));
+        _mockDispatcher.Received(1).Dispatch(Arg.Is<UpdateCompositionConfiguration>(static action => action.Form == CompositionForm.Fugue && action.GroundBassPattern == null && action.GroundBassModulate && action.Texture == TextureType.None));
     }
 
     private static Dictionary<Instrument, InstrumentConfiguration> BuildTenorBassConfigurations() => new()

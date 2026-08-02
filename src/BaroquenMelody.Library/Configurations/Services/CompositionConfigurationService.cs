@@ -1,5 +1,6 @@
 ﻿using Atrea.Utilities.Enums;
 using BaroquenMelody.Infrastructure.Random;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Forms;
@@ -42,6 +43,8 @@ internal sealed class CompositionConfigurationService(
 
     private static readonly FrozenSet<CompositionForm> _configurableCompositionForms = EnumUtils<CompositionForm>.AsEnumerable().ToFrozenSet();
 
+    private static readonly FrozenSet<TextureType> _configurableTextures = EnumUtils<TextureType>.AsEnumerable().ToFrozenSet();
+
     public IEnumerable<NoteName> ConfigurableRootNotes => _configurableRootNotes;
 
     public IEnumerable<Mode> ConfigurableScaleModes => _configurableScaleModes;
@@ -49,6 +52,8 @@ internal sealed class CompositionConfigurationService(
     public IEnumerable<Meter> ConfigurableMeters => _configurableMeters;
 
     public IEnumerable<CompositionForm> ConfigurableCompositionForms => _configurableCompositionForms;
+
+    public IEnumerable<TextureType> ConfigurableTextures => _configurableTextures;
 
     public IEnumerable<GroundBass?> ConfigurableGroundBassPatterns { get; } = [null, .. groundBassFeasibilityAnalyzer.GroundBassBank.Select(static groundBass => (GroundBass?)groundBass)];
 
@@ -61,16 +66,17 @@ internal sealed class CompositionConfigurationService(
         var tempo = ThreadLocalRandom.Next(MinRandomTempo, MaxRandomTempo);
 
         // The form is a deliberate structural choice, not a musical parameter to roll dice on: randomizing
-        // keeps whatever form the user has selected, and the modulation toggle follows the same reasoning -
-        // whether the piece journeys is a structural preference the dice leave alone. The ground bass
-        // pattern IS a musical parameter, so a ground bass randomization rolls it too - but only among the
-        // composer's free draw and the patterns that actually fit the randomized key, since pinning an
-        // infeasible pattern would silently turn the randomized composition into a fugue.
+        // keeps whatever form the user has selected, and the modulation toggle and the texture follow the
+        // same reasoning - whether the piece journeys, and what fabric it wears, are structural preferences
+        // the dice leave alone. The ground bass pattern IS a musical parameter, so a ground bass
+        // randomization rolls it too - but only among the composer's free draw and the patterns that
+        // actually fit the randomized key, since pinning an infeasible pattern would silently turn the
+        // randomized composition into a fugue.
         var groundBassPattern = compositionConfigurationState.Value.Form == CompositionForm.GroundBass
             ? RandomizeGroundBassPattern(randomRootNote, randomScaleMode)
             : compositionConfigurationState.Value.GroundBassPattern;
 
-        dispatcher.Dispatch(new UpdateCompositionConfiguration(randomRootNote, randomScaleMode, randomMeter, randomMinimumMeasures, tempo, compositionConfigurationState.Value.Form, groundBassPattern, compositionConfigurationState.Value.GroundBassModulate));
+        dispatcher.Dispatch(new UpdateCompositionConfiguration(randomRootNote, randomScaleMode, randomMeter, randomMinimumMeasures, tempo, compositionConfigurationState.Value.Form, groundBassPattern, compositionConfigurationState.Value.GroundBassModulate, compositionConfigurationState.Value.Texture));
     }
 
     public void Reset() => dispatcher.Dispatch(new UpdateCompositionConfiguration(DefaultRootNote, DefaultMode, DefaultMeter));

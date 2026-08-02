@@ -57,7 +57,8 @@ internal sealed class App : IDisposable
             _compositionConfigurationState.Value.Meter.DefaultMusicalTimeSpan(),
             _compositionConfigurationState.Value.MinimumMeasures,
             Tempo: _compositionConfigurationState.Value.Tempo,
-            GroundBassConfiguration: new GroundBassConfiguration(_compositionConfigurationState.Value.Form == CompositionForm.GroundBass, _compositionConfigurationState.Value.GroundBassPattern, _compositionConfigurationState.Value.GroundBassModulate)
+            GroundBassConfiguration: new GroundBassConfiguration(_compositionConfigurationState.Value.Form == CompositionForm.GroundBass, _compositionConfigurationState.Value.GroundBassPattern, _compositionConfigurationState.Value.GroundBassModulate),
+            TextureConfiguration: new TextureConfiguration(_compositionConfigurationState.Value.Texture)
         );
 
         return _configurator.Configure(compositionConfiguration).Compose(CancellationToken.None);
