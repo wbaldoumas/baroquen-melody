@@ -78,7 +78,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, _musicalTimeSpanCalculator, randomProvider, logger, voiceRhythmLedger);
         var dynamicsEngineBuilder = new DynamicsEngineBuilder(compositionConfiguration, randomProvider);
         var dynamicsApplicator = new DynamicsApplicator(compositionConfiguration, dynamicsEngineBuilder.Build());
-        var compositionDecorator = new CompositionDecorator(ornamentationEngineBuilder.BuildOrnamentationEngine(), ornamentationEngineBuilder.BuildSustainedNoteEngine(), compositionConfiguration);
+        var compositionDecorator = new CompositionDecorator(ornamentationEngineBuilder.BuildOrnamentationEngine(), ornamentationEngineBuilder.BuildSustainedNoteEngine(), voiceRhythmScheduler, compositionConfiguration);
         var motifExtractor = new MotifExtractor(compositionConfiguration);
         var motifApplicator = new MotifApplicator(compositionConfiguration);
         var motifBankFactory = new MotifBankFactory(motifExtractor, compositionConfiguration);
@@ -153,7 +153,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
                 // voice rhythm configuration keeps both graphs uniform - and shares the one ledger, so the
                 // ground form's division roles resolve identically whichever key's engine decorates a slice.
                 var relativeOrnamentationEngineBuilder = new OrnamentationEngineBuilder(relativeConfiguration, _musicalTimeSpanCalculator, randomProvider, logger, voiceRhythmLedger);
-                var relativeDecorator = new CompositionDecorator(relativeOrnamentationEngineBuilder.BuildOrnamentationEngine(), relativeOrnamentationEngineBuilder.BuildSustainedNoteEngine(), relativeConfiguration);
+                var relativeDecorator = new CompositionDecorator(relativeOrnamentationEngineBuilder.BuildOrnamentationEngine(), relativeOrnamentationEngineBuilder.BuildSustainedNoteEngine(), voiceRhythmScheduler, relativeConfiguration);
                 var relativeTonicizationApplicator = new TonicizationApplicator(relativeChordNumberIdentifier, _weightedRandomBooleanGenerator, relativeConfiguration);
 
                 relativeComponents = new GroundBassSectionComponents(relativeStrategy, relativeSeamStrategy, relativeChordSelector, relativeDecorator, relativeTonicizationApplicator);

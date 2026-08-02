@@ -176,6 +176,84 @@ internal sealed class ComposerVoiceRhythmTests
         _mockVoiceRhythmLedger.DidNotReceive().RecordFloridNote(Arg.Is<BaroquenNote>(note => note.Instrument != Instrument.Two));
     }
 
+    [Test]
+    public void Compose_WithTextureRolesScheduled_RoutesEachRoleToItsStore()
+    {
+        // arrange - the static assignment: melody rides the florid store, pads ride the held store, and only
+        // the figuration voice carries the new mark; every beat of every body measure records
+        ScheduleTextureRole(Instrument.One, TextureRole.Melody);
+        ScheduleTextureRole(Instrument.Two, TextureRole.Pad);
+        ScheduleTextureRole(Instrument.Three, TextureRole.Figuration);
+
+        // act
+        _composer.Compose(CancellationToken.None);
+
+        // assert - four body measures of four beats each
+        _mockVoiceRhythmLedger.Received(16).RecordFloridNote(Arg.Is<BaroquenNote>(note => note.Instrument == Instrument.One));
+        _mockVoiceRhythmLedger.Received(16).RecordHeldNote(Arg.Is<BaroquenNote>(note => note.Instrument == Instrument.Two));
+        _mockVoiceRhythmLedger.Received(16).RecordTextureFigurationNote(Arg.Is<BaroquenNote>(note => note.Instrument == Instrument.Three));
+        _mockVoiceRhythmLedger.DidNotReceive().RecordFloridNote(Arg.Is<BaroquenNote>(note => note.Instrument != Instrument.One));
+        _mockVoiceRhythmLedger.DidNotReceive().RecordHeldNote(Arg.Is<BaroquenNote>(note => note.Instrument != Instrument.Two));
+        _mockVoiceRhythmLedger.DidNotReceive().RecordTextureFigurationNote(Arg.Is<BaroquenNote>(note => note.Instrument != Instrument.Three));
+    }
+
+    [Test]
+    public void Compose_WithATextureActive_OffsetsExactlyTheAccompanimentNotesVelocities()
+    {
+        // arrange - the prominence pass runs after dynamics (mocked inert here, so every note sits at the
+        // domain default of 75) and offsets only the notes the ledger knows as pads or figuration; the
+        // test ranges clamp 75 - 8 = 67 to the 60 ceiling's floor-bounded window, exercising the clamp
+        _mockVoiceRhythmScheduler
+            .TryGetTextureDecorationOrder(out Arg.Any<IReadOnlyList<Instrument>>())
+            .Returns(static callInfo =>
+            {
+                callInfo[0] = (IReadOnlyList<Instrument>)[Instrument.One, Instrument.Two, Instrument.Three];
+
+                return true;
+            });
+
+        _mockVoiceRhythmLedger.IsHeldNote(Arg.Is<BaroquenNote>(note => note.Instrument == Instrument.Two)).Returns(true);
+        _mockVoiceRhythmLedger.IsTextureFigurationNote(Arg.Is<BaroquenNote>(note => note.Instrument == Instrument.Three)).Returns(true);
+
+        // act
+        var composition = _composer.Compose(CancellationToken.None);
+
+        // assert
+        var notes = composition.Measures.SelectMany(static measure => measure.Beats).SelectMany(static beat => beat.Chord.Notes).ToList();
+
+        notes.Where(static note => note.Instrument == Instrument.One).Should().OnlyContain(static note => (int)note.Velocity == 75, "the melody keeps its full voice");
+        notes.Where(static note => note.Instrument != Instrument.One).Should().OnlyContain(static note => (int)note.Velocity == 60, "accompaniment notes offset by -8, clamped into the instrument's velocity window");
+    }
+
+    [Test]
+    public void Compose_WithNoTextureActive_NeverTouchesAnyVelocity()
+    {
+        // arrange - outside a texture the held store carries the rotation's roles, which must never be
+        // offset; the pass gates on the scheduler's texture answer before reading anything
+        _mockVoiceRhythmLedger.IsHeldNote(Arg.Any<BaroquenNote>()).Returns(true);
+
+        // act
+        var composition = _composer.Compose(CancellationToken.None);
+
+        // assert
+        composition.Measures
+            .SelectMany(static measure => measure.Beats)
+            .SelectMany(static beat => beat.Chord.Notes)
+            .Should().OnlyContain(static note => (int)note.Velocity == 75, "no texture means no prominence offsets, whatever the ledger holds");
+    }
+
+    private void ScheduleTextureRole(Instrument instrument, TextureRole textureRole)
+    {
+        _mockVoiceRhythmScheduler
+            .TryGetTextureRole(instrument, out Arg.Any<TextureRole>())
+            .Returns(callInfo =>
+            {
+                callInfo[1] = textureRole;
+
+                return true;
+            });
+    }
+
     private BaroquenChord TrackComposedChord()
     {
         // Every tracked chord carries a distinct top-voice pitch, so the pin-source assertion actually

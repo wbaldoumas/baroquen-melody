@@ -9,6 +9,7 @@ using BaroquenMelody.Library.Phrasing;
 using BaroquenMelody.Library.Rhythm;
 using BaroquenMelody.Library.Store.Actions;
 using Fluxor;
+using Melanchall.DryWetMidi.Common;
 
 namespace BaroquenMelody.Library.Composers;
 
@@ -48,7 +49,49 @@ internal sealed class Composer(
         var completeComposition = CompleteComposition(theme, compositionWithSustain, cancellationToken);
         var compositionWithDynamics = ApplyDynamics(completeComposition);
 
+        ApplyTextureProminence(compositionWithDynamics);
+
         return compositionWithDynamics;
+    }
+
+    // One metric-accent level below the melody; a single named ear-tunable constant.
+    private const int AccompanimentVelocityOffset = -8;
+
+    // The melody's florid mark is a statistical tilt, not a concentration, so the accompaniment could
+    // out-figure it; prominence is therefore carried by velocity. Runs after the dynamics pass and applies
+    // exactly once per note (an in-engine offset would compound through the velocity walk - the terrace
+    // precedent), draws nothing, and nothing reads velocities after it. Gated on the scheduler's texture
+    // answer: outside a texture the held store carries the rotation's roles, which must never be offset.
+    // Under a texture the held store holds exactly the pads, and the exposition's notes are unrecorded, so
+    // the frame and the melody keep their full voice.
+    private void ApplyTextureProminence(Composition composition)
+    {
+        if (!voiceRhythmScheduler.TryGetTextureDecorationOrder(out _))
+        {
+            return;
+        }
+
+        var accompanimentNotes = composition.Measures
+            .SelectMany(static measure => measure.Beats)
+            .SelectMany(static beat => beat.Chord.Notes)
+            .Where(note => voiceRhythmLedger.IsHeldNote(note) || voiceRhythmLedger.IsTextureFigurationNote(note));
+
+        foreach (var note in accompanimentNotes)
+        {
+            ApplyProminenceOffset(note);
+
+            foreach (var ornamentationNote in note.Ornamentations)
+            {
+                ApplyProminenceOffset(ornamentationNote);
+            }
+        }
+    }
+
+    private void ApplyProminenceOffset(BaroquenNote note)
+    {
+        var instrumentConfiguration = compositionConfiguration.InstrumentConfigurationsByInstrument[note.Instrument];
+
+        note.Velocity = new SevenBitNumber((byte)Math.Clamp(note.Velocity + AccompanimentVelocityOffset, instrumentConfiguration.MinVelocity, instrumentConfiguration.MaxVelocity));
     }
 
     private BaroquenTheme ComposeMainTheme(CancellationToken cancellationToken)
@@ -122,6 +165,9 @@ internal sealed class Composer(
             ? chordComposer.Compose(compositionContext, beats[^1].Chord[pinnedInstrument])
             : chordComposer.Compose(compositionContext);
 
+    // Each scheduler answer gates only its own recording - the rotation's held and florid marks and the
+    // texture's static assignment are independent contract answers, and the scheduler guarantees the two
+    // modes never answer together (an active texture declines the rotation entirely).
     private void RecordVoiceRhythmRoles(int measureIndex, List<Beat> beats)
     {
         if (voiceRhythmScheduler.TryGetHeldInstrument(measureIndex, out var heldInstrument))
@@ -138,6 +184,39 @@ internal sealed class Composer(
             {
                 voiceRhythmLedger.RecordFloridNote(beat.Chord[floridInstrument]);
             }
+        }
+
+        foreach (var instrument in compositionConfiguration.Instruments)
+        {
+            if (!voiceRhythmScheduler.TryGetTextureRole(instrument, out var textureRole))
+            {
+                continue;
+            }
+
+            foreach (var beat in beats.Where(beat => beat.Chord.ContainsInstrument(instrument)))
+            {
+                RecordTextureRole(textureRole, beat.Chord[instrument]);
+            }
+        }
+    }
+
+    // The melody rides the florid store (the subdividing tier tilts toward it) and the pads ride the held
+    // store (ornament-silenced, tied wherever their pairs repeat), so two of the three texture roles ARE
+    // the shipped roles; only the figuration voice carries the new mark.
+    private void RecordTextureRole(TextureRole textureRole, BaroquenNote note)
+    {
+        switch (textureRole)
+        {
+            case TextureRole.Melody:
+                voiceRhythmLedger.RecordFloridNote(note);
+                break;
+            case TextureRole.Figuration:
+                voiceRhythmLedger.RecordTextureFigurationNote(note);
+                break;
+            case TextureRole.Pad:
+            default:
+                voiceRhythmLedger.RecordHeldNote(note);
+                break;
         }
     }
 
