@@ -77,9 +77,9 @@ internal sealed class GroundBassDivisionSchedulerTests
     }
 
     [TestCase(2, new[] { 140 })]
-    [TestCase(3, new[] { 60, 140 })]
-    [TestCase(4, new[] { 60, 100, 140 })]
-    [TestCase(5, new[] { 60, 87, 114, 140 })]
+    [TestCase(3, new[] { 30, 140 })]
+    [TestCase(4, new[] { 30, 85, 140 })]
+    [TestCase(5, new[] { 30, 67, 104, 140 })]
     public void TryGetIntensity_RampsFromCalmToPeak_AnchoredAtTheFinalStatement(int statementCount, int[] expectedIntensities)
     {
         // arrange - the END anchor is the load-bearing choice: a two-statement plan's only accompanied
@@ -103,8 +103,8 @@ internal sealed class GroundBassDivisionSchedulerTests
     }
 
     [TestCase(2, new[] { 0 })]
-    [TestCase(4, new[] { -4, -2, 0 })]
-    [TestCase(5, new[] { -4, -2, -1, 0 })]
+    [TestCase(4, new[] { -5, -2, 0 })]
+    [TestCase(5, new[] { -5, -3, -1, 0 })]
     public void TryGetTerraceOffset_StepsUpwardToZeroAtTheFinalStatement(int statementCount, int[] expectedOffsets)
     {
         // arrange - the terrace steps DOWNWARD from today's level (no upward velocity headroom exists at

@@ -16,7 +16,7 @@ namespace BaroquenMelody.Library.Forms;
 /// </remarks>
 internal sealed class GroundBassDivisionScheduler(CompositionConfiguration compositionConfiguration) : IGroundBassDivisionScheduler
 {
-    internal const int CalmIntensity = 60;
+    internal const int CalmIntensity = 30;
 
     internal const int PeakIntensity = 140;
 

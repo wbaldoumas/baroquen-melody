@@ -69,6 +69,10 @@ internal sealed class VoiceRhythmPolicyTransformer(
             scaleByIntensity: false)
         : new WantsToOrnament(weightedRandomBooleanGenerator);
 
+    // Only the subdividing tier scales by intensity: decoration coverage is near-saturated, so scaling
+    // every figure's weight mostly reshuffles which processor claims a note (measured, not assumed - the
+    // uniform scale produced no statement arc), while a tier-only scale ramps the division figures
+    // themselves against constant competition.
     private RoleAwareWantsToOrnament CreateRoleAwareGate(OrnamentationConfiguration ornamentationConfiguration) => new(
         weightedRandomBooleanGenerator,
         voiceRhythmLedger,
@@ -77,5 +81,5 @@ internal sealed class VoiceRhythmPolicyTransformer(
         floridProbability: SubdividingOrnamentationTypes.Contains(ornamentationConfiguration.OrnamentationType)
             ? FloridSubdividingProbability
             : ornamentationConfiguration.Probability,
-        scaleByIntensity: true);
+        scaleByIntensity: SubdividingOrnamentationTypes.Contains(ornamentationConfiguration.OrnamentationType));
 }

@@ -33,6 +33,7 @@ using Melanchall.DryWetMidi.Standards;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
+using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Tests.Rhythm;
 
@@ -44,15 +45,9 @@ namespace BaroquenMelody.Library.Tests.Rhythm;
 [TestFixture]
 internal sealed class VoiceRhythmCompositionTests
 {
-    private static readonly OrnamentationType[] SixteenthTierOrnamentations =
-    [
-        OrnamentationType.DoubleTurn,
-        OrnamentationType.DoubleInvertedTurn,
-        OrnamentationType.DoubleRun,
-        OrnamentationType.SequencedThirds,
-        OrnamentationType.DoublePedalPassingTone,
-        OrnamentationType.Trill
-    ];
+    // References the production set directly so this suite can never drift from the tier the
+    // transformer actually boosts (the set itself is pinned by a calculator-deriving deciding test).
+    private static readonly FrozenSet<OrnamentationType> SixteenthTierOrnamentations = VoiceRhythmPolicyTransformer.SubdividingOrnamentationTypes;
 
     private static readonly OrnamentationType[] AllowedHeldOrnamentations =
     [

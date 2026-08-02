@@ -677,6 +677,33 @@ internal sealed class GroundBassComposerTests
     }
 
     [Test]
+    public void Compose_WhenAStatementEscalatesWithoutFiguration_RecordsIntensityAlone()
+    {
+        // arrange: the production scheduler answers the intensity and figuration queries from one gate,
+        // but the contract keeps them independent - a scheduler may carry a statement's intensity without
+        // rotating a florid voice onto it, and the recorder must not conflate the two answers.
+        _divisionScheduler.ShouldHoldGroundLine().Returns(true);
+        _divisionScheduler.TryGetIntensity(Arg.Any<GroundBassPlan>(), 1, out Arg.Any<int>())
+            .Returns(static callInfo =>
+            {
+                callInfo[2] = 90;
+
+                return true;
+            });
+
+        // act
+        var composition = CreateComposer().Compose(CancellationToken.None);
+
+        // assert
+        foreach (var upperNote in composition.Measures.Skip(2).Take(2).SelectMany(static measure => measure.Beats).Select(static beat => beat.Chord[Instrument.One]))
+        {
+            _voiceRhythmLedger.TryGetDivisionIntensity(upperNote, out var intensity).Should().BeTrue("the statement's intensity stands without a florid voice");
+            intensity.Should().Be(90);
+            _voiceRhythmLedger.IsFloridNote(upperNote).Should().BeFalse("no florid voice was scheduled for the statement");
+        }
+    }
+
+    [Test]
     public void Compose_WhenTheSchedulerDeclines_RecordsNothingAndKeepsVelocities()
     {
         // arrange: the substitute's default false answers are the divisions-off shape
