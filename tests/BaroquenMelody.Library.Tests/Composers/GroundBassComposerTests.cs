@@ -704,6 +704,116 @@ internal sealed class GroundBassComposerTests
     }
 
     [Test]
+    public void Compose_WhenTheTreadIsDeclinedButAStatementEscalates_TheGroundLineStaysUnrecorded()
+    {
+        // arrange: the scheduler's answers are independent contract facts - declining the tread must not
+        // silence a statement's escalation, and an escalating statement must not drag the tread back in.
+        _divisionScheduler.TryGetIntensity(Arg.Any<GroundBassPlan>(), 1, out Arg.Any<int>())
+            .Returns(static callInfo =>
+            {
+                callInfo[2] = 90;
+
+                return true;
+            });
+        _divisionScheduler.TryGetFloridInstrument(Arg.Any<GroundBassPlan>(), 1, out Arg.Any<Instrument>())
+            .Returns(static callInfo =>
+            {
+                callInfo[2] = Instrument.One;
+
+                return true;
+            });
+
+        // act
+        var composition = CreateComposer().Compose(CancellationToken.None);
+
+        // assert
+        foreach (var note in composition.Measures.SelectMany(static measure => measure.Beats).SelectMany(static beat => beat.Chord.Notes))
+        {
+            _voiceRhythmLedger.IsHeldNote(note).Should().BeFalse("a declined tread records no held note anywhere");
+        }
+
+        foreach (var upperNote in composition.Measures.Skip(2).Take(2).SelectMany(static measure => measure.Beats).Select(static beat => beat.Chord[Instrument.One]))
+        {
+            _voiceRhythmLedger.TryGetDivisionIntensity(upperNote, out var intensity).Should().BeTrue("the escalation stands without the tread");
+            intensity.Should().Be(90);
+            _voiceRhythmLedger.IsFloridNote(upperNote).Should().BeTrue("the figuration stands without the tread");
+        }
+    }
+
+    [Test]
+    public void Compose_WhenOnlyFigurationIsScheduled_RecordsFloridAlone()
+    {
+        // arrange: the third independent answer - a florid voice with neither tread nor intensity
+        _divisionScheduler.TryGetFloridInstrument(Arg.Any<GroundBassPlan>(), 1, out Arg.Any<Instrument>())
+            .Returns(static callInfo =>
+            {
+                callInfo[2] = Instrument.One;
+
+                return true;
+            });
+
+        // act
+        var composition = CreateComposer().Compose(CancellationToken.None);
+
+        // assert
+        foreach (var upperNote in composition.Measures.Skip(2).Take(2).SelectMany(static measure => measure.Beats).Select(static beat => beat.Chord[Instrument.One]))
+        {
+            _voiceRhythmLedger.IsFloridNote(upperNote).Should().BeTrue("the scheduled figuration records");
+            _voiceRhythmLedger.TryGetDivisionIntensity(upperNote, out _).Should().BeFalse("no intensity was scheduled");
+            _voiceRhythmLedger.IsHeldNote(upperNote).Should().BeFalse("no tread was scheduled");
+        }
+    }
+
+    [Test]
+    public void Compose_WithThreeVoices_RecordsFloridOnlyOnTheScheduledUpperVoice()
+    {
+        // arrange: a second upper voice beside the florid one decides the composer-side half of the
+        // rotation - only the scheduled voice records florid, while every upper voice carries the
+        // statement's intensity.
+        _configuration = TestCompositionConfigurations.Get(3, 4);
+        _planner.CreatePlan().Returns(new GroundBassPlan(
+            GroundBassPattern.Bank[0],
+            Instrument.Three,
+            GroundNotes,
+            StatementCount: 2,
+            MeasuresPerStatement: 2,
+            [new TonalSection(NoteName.C, Mode.Ionian, FirstStatement: 0, LastStatement: 1, GroundNotes)]));
+        _strategy.GenerateInitialChord().Returns(_ => BuildThreeVoiceChord(Notes.E4, Notes.C4, Notes.E3));
+        _strategy.GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(call => new List<BaroquenChord> { HarmonizeThreeVoicePin(call.ArgAt<BaroquenChord>(1)) });
+        _strategy.GetPossibleChords(Arg.Any<IReadOnlyList<BaroquenChord>>()).Returns(_ => new List<BaroquenChord> { BuildThreeVoiceChord(Notes.D4, Notes.B3, Notes.D3) });
+
+        _divisionScheduler.ShouldHoldGroundLine().Returns(true);
+        _divisionScheduler.TryGetIntensity(Arg.Any<GroundBassPlan>(), 1, out Arg.Any<int>())
+            .Returns(static callInfo =>
+            {
+                callInfo[2] = 140;
+
+                return true;
+            });
+        _divisionScheduler.TryGetFloridInstrument(Arg.Any<GroundBassPlan>(), 1, out Arg.Any<Instrument>())
+            .Returns(static callInfo =>
+            {
+                callInfo[2] = Instrument.One;
+
+                return true;
+            });
+
+        // act
+        var composition = CreateComposer().Compose(CancellationToken.None);
+
+        // assert
+        foreach (var beat in composition.Measures.Skip(2).Take(2).SelectMany(static measure => measure.Beats))
+        {
+            _voiceRhythmLedger.IsFloridNote(beat.Chord[Instrument.One]).Should().BeTrue("the rotation's scheduled voice records florid");
+            _voiceRhythmLedger.IsFloridNote(beat.Chord[Instrument.Two]).Should().BeFalse("the other upper voice never records florid");
+            _voiceRhythmLedger.TryGetDivisionIntensity(beat.Chord[Instrument.Two], out var intensity).Should().BeTrue("every upper voice carries the statement's intensity");
+            intensity.Should().Be(140);
+            _voiceRhythmLedger.IsHeldNote(beat.Chord[Instrument.Three]).Should().BeTrue("the ground line still treads");
+        }
+    }
+
+    [Test]
     public void Compose_WhenTheSchedulerDeclines_RecordsNothingAndKeepsVelocities()
     {
         // arrange: the substitute's default false answers are the divisions-off shape
@@ -815,6 +925,20 @@ internal sealed class GroundBassComposerTests
     [
         new BaroquenNote(Instrument.One, upperNote, MusicalTimeSpan.Half),
         new BaroquenNote(Instrument.Two, bassNote, MusicalTimeSpan.Half)
+    ]);
+
+    private static BaroquenChord BuildThreeVoiceChord(Note upperNote, Note innerNote, Note bassNote) => new(
+    [
+        new BaroquenNote(Instrument.One, upperNote, MusicalTimeSpan.Half),
+        new BaroquenNote(Instrument.Two, innerNote, MusicalTimeSpan.Half),
+        new BaroquenNote(Instrument.Three, bassNote, MusicalTimeSpan.Half)
+    ]);
+
+    private static BaroquenChord HarmonizeThreeVoicePin(BaroquenChord pinnedChord) => new(
+    [
+        new BaroquenNote(Instrument.One, Notes.G4, MusicalTimeSpan.Half),
+        new BaroquenNote(Instrument.Two, Notes.C4, MusicalTimeSpan.Half),
+        new BaroquenNote(Instrument.Three, pinnedChord[Instrument.Three].Raw, MusicalTimeSpan.Half)
     ]);
 
     private static BaroquenChord HarmonizePin(BaroquenChord pinnedChord) => HarmonizePinWith(pinnedChord, Notes.G4);

@@ -138,24 +138,32 @@ internal sealed class GroundBassComposer(
     // Roles are recorded only here, after the walk has won and the announcement is stripped: only the
     // winning attempt's chords exist (the retry ladder rebuilds them fresh each attempt), statement s owns
     // measures [s*M, (s+1)*M), and the close does not exist yet, so it is never recorded. The stripped
-    // announcement holds only ground-line notes, which record held like every other statement's.
+    // announcement holds only ground-line notes, which record held like every other statement's. Each of
+    // the scheduler's three answers gates only its own recording - the tread, the intensities, and the
+    // figuration are independent contract answers, even though today's scheduler derives all three from
+    // one activity switch.
     private void RecordDivisionRoles(List<Measure> measures, GroundBassPlan plan)
     {
-        if (!groundBassDivisionScheduler.ShouldHoldGroundLine())
-        {
-            return;
-        }
+        var shouldHoldGroundLine = groundBassDivisionScheduler.ShouldHoldGroundLine();
 
         for (var statementIndex = 0; statementIndex < plan.StatementCount; ++statementIndex)
         {
             var statementEscalates = groundBassDivisionScheduler.TryGetIntensity(plan, statementIndex, out var intensity);
             var statementHasFloridVoice = groundBassDivisionScheduler.TryGetFloridInstrument(plan, statementIndex, out var floridInstrument);
 
+            if (!shouldHoldGroundLine && !statementEscalates && !statementHasFloridVoice)
+            {
+                continue;
+            }
+
             foreach (var note in EnumerateStatementNotes(measures, plan, statementIndex))
             {
                 if (note.Instrument == plan.BassInstrument)
                 {
-                    voiceRhythmLedger.RecordHeldNote(note);
+                    if (shouldHoldGroundLine)
+                    {
+                        voiceRhythmLedger.RecordHeldNote(note);
+                    }
 
                     continue;
                 }

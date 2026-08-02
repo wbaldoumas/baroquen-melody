@@ -7,8 +7,9 @@ namespace BaroquenMelody.Library.Rhythm;
 ///     treat exactly those notes differently: the fugal body walk records its held and florid voices, and
 ///     the ground bass form records its division roles — the ground line held, and each accompanied
 ///     statement's upper-voice notes carrying an escalation intensity. Notes never recorded — the fugal
-///     exposition and ending, the ground's opening announcement and close, and every deep copy — take the
-///     standard behavior.
+///     exposition and ending, the ground's composed close, and every deep copy — take the standard
+///     behavior. The ground's opening announcement is stripped to its ground line before recording, so its
+///     surviving notes record held exactly like every statement's ground-line notes.
 /// </summary>
 internal interface IVoiceRhythmLedger
 {

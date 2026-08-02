@@ -28,6 +28,12 @@ internal sealed class GroundBassDivisionCompositionTests
 
     private const int StatementCount = 13;
 
+    // The planner's draw-free formula for thirteen statements: about a third go foreign, centrally
+    // placed - statements 4 through 7. Drift in either constant fails the close-position guard below.
+    private const int FirstForeignStatement = 4;
+
+    private const int LastForeignStatement = 7;
+
     [Test]
     public void Compose_WithDivisionsToggled_RendersDifferently()
     {
@@ -107,13 +113,49 @@ internal sealed class GroundBassDivisionCompositionTests
     }
 
     [Test]
+    public void Compose_WithDivisions_TheStatementOnsetTreadAlwaysTies()
+    {
+        // arrange - the statement-level half of the tread claim, and the cross-key ledger fact with it,
+        // pinned per seed because it is a deterministic consequence chain. At suspension probability 100
+        // the pass reshapes every stepwise interior boundary (preparations extend, resolutions re-attack
+        // late - those re-strikes are the suspension idiom, not broken treads), but the statement-initial
+        // pair it can never touch: the pair spans its own unchanging harmony, and the seam into it is the
+        // ground's returning leap, never suspension-eligible. Held notes are ornament-silenced (weight 0),
+        // so that whole pair is always sustain-eligible and the certain gate (weight 100) ties it -
+        // however the walk falls on any host, every statement opens with a single tone longer than a half
+        // note, where the stock gate (weight 80) drops one opening in five back to a re-struck pair. The
+        // foreign block (statements 4-7) rides the same pin as the shared-ledger tripwire: a relative
+        // stack with its own ledger would leave its statement openings at stock odds.
+        foreach (var seed in Enumerable.Range(1, 8))
+        {
+            // act
+            var bassNotes = GetBassTrackNotes(SeededComposition.Compose(GetConfiguration(divisions: true), seed));
+
+            // the close-position guard: the hand-derived StatementCount must track the planner, or every
+            // statement window in this fixture silently measures the wrong music
+            bassNotes.Max(static note => note.Time).Should().BeInRange(
+                StatementCount * TicksPerStatement,
+                ((StatementCount + 1) * TicksPerStatement) - 1,
+                $"the close must begin exactly after statement {StatementCount - 1} for seed {seed}");
+
+            // assert
+            UnmergedStatementOnsetCount(bassNotes, 1, StatementCount - 1).Should().Be(0, $"the held tread must tie every statement's opening pair for seed {seed}");
+            UnmergedStatementOnsetCount(bassNotes, FirstForeignStatement, LastForeignStatement).Should().Be(0, $"the relative key's engine must tie the tread from the one shared ledger for seed {seed}");
+        }
+    }
+
+    [Test]
     public void Compose_WithDivisions_TheSixteenthLiftGrowsTowardTheClose()
     {
         // arrange - the escalation signature, isolated from the baseline's own statement-to-statement
         // structure: against the SAME seed's divisions-off render, the sixteenth-tier lift the feature
         // causes in the last third of statements must exceed its lift in the first third (where calm
         // intensities suppress the tier at or below stock). Figure realization is probabilistic and
-        // cross-OS walks differ, so this is a threshold sweep, never a per-seed pin.
+        // cross-OS walks differ, so this is a threshold sweep, never a per-seed pin. The 6/8 floor is a
+        // margin, not the observed value: the windows' intensities separate 30-60 against 110-140, a
+        // measured tier-ratio spread of roughly 0.85x against 1.5-1.9x, and it also discriminates the
+        // uniform-scaling failure the probe actually caught, where the lift is flat and the comparison
+        // degenerates to a coin flip.
         var seedsWithEscalation = 0;
 
         foreach (var seed in Enumerable.Range(1, 8))
@@ -138,27 +180,32 @@ internal sealed class GroundBassDivisionCompositionTests
     [Test]
     public void Compose_WithDivisions_EarlyStatementsAreQuieterThanTheClose()
     {
-        // arrange - the terrace's -4 offset against a +/-1 velocity walk is a large signal, but clamping
-        // at the range floor can shave it, so this stays a threshold sweep with a generous margin
+        // arrange - the terrace signature, isolated from the baseline's own dynamics shape the way the
+        // sixteenth test isolates from its statement curve (the upper voices' statement-1 entry seeds
+        // below the ceiling, so even an unterraced render trends louder toward the close): against the
+        // SAME seed's divisions-off render, the velocity the feature removes from statement 1 (five
+        // steps) must exceed what it removes from the final statement (none). Figure divergence keeps the
+        // two renders' dynamics walks from aligning exactly, so this is a threshold sweep - but the
+        // five-step signal dwarfs the walk's +/-1 wander, leaving the 6/8 floor generous.
         var seedsWithTerrace = 0;
 
         foreach (var seed in Enumerable.Range(1, 8))
         {
             // act
-            var composition = SeededComposition.Compose(GetConfiguration(divisions: true), seed);
-            var allNotes = SeededComposition.Notes(composition);
+            var divisionsOnNotes = SeededComposition.Notes(SeededComposition.Compose(GetConfiguration(divisions: true), seed));
+            var divisionsOffNotes = SeededComposition.Notes(SeededComposition.Compose(GetConfiguration(divisions: false), seed));
 
-            var earlyMeanVelocity = MeanVelocity(allNotes, firstStatement: 1, lastStatement: 1);
-            var finalMeanVelocity = MeanVelocity(allNotes, firstStatement: StatementCount - 1, lastStatement: StatementCount - 1);
+            var earlyDrop = MeanVelocity(divisionsOnNotes, firstStatement: 1, lastStatement: 1) - MeanVelocity(divisionsOffNotes, firstStatement: 1, lastStatement: 1);
+            var finalDrop = MeanVelocity(divisionsOnNotes, firstStatement: StatementCount - 1, lastStatement: StatementCount - 1) - MeanVelocity(divisionsOffNotes, firstStatement: StatementCount - 1, lastStatement: StatementCount - 1);
 
-            if (earlyMeanVelocity < finalMeanVelocity)
+            if (earlyDrop < finalDrop)
             {
                 ++seedsWithTerrace;
             }
         }
 
         // assert
-        seedsWithTerrace.Should().BeGreaterThanOrEqualTo(6, "the opening statement terraces four velocity steps below the close");
+        seedsWithTerrace.Should().BeGreaterThanOrEqualTo(6, "the opening statement terraces five velocity steps below its unterraced self; the final statement none");
     }
 
     private static CompositionConfiguration GetConfiguration(bool divisions, bool voiceRhythmEnabled = true) =>
@@ -166,6 +213,11 @@ internal sealed class GroundBassDivisionCompositionTests
         {
             GroundBassConfiguration = new GroundBassConfiguration(Enabled: true, Pattern: GroundBass.DescendingTetrachord, Modulate: true, Divisions: divisions),
             VoiceRhythmConfiguration = new VoiceRhythmConfiguration(voiceRhythmEnabled),
+
+            // Pinned rather than defaulted: the tread tests' superset argument (identical suspension
+            // stamps between the toggles) holds only at probability 100, where every eligible site
+            // suspends regardless of the draw's value.
+            SuspensionConfiguration = new SuspensionConfiguration(Enabled: true, Probability: 100),
             ShuffleOrnamentationProcessors = false
         };
 
@@ -196,6 +248,15 @@ internal sealed class GroundBassDivisionCompositionTests
         .Count(note => note.Time >= firstStatement * TicksPerStatement
                        && note.Time < (lastStatement + 1) * TicksPerStatement
                        && note.Length <= SixteenthTicks);
+
+    // A statement's opening ground note always attacks exactly at the statement boundary; when its pair
+    // is tied the single tone runs at least a whole pair (longer when a suspension preparation extends
+    // it), while an unmerged pair leaves the opening attack at a bare half note. Single() throws loudly
+    // if the structure ever drifts from one bass attack per statement boundary.
+    private static int UnmergedStatementOnsetCount(IReadOnlyList<Note> bassNotes, int firstStatement, int lastStatement) =>
+        Enumerable.Range(firstStatement, lastStatement - firstStatement + 1)
+            .Select(statement => bassNotes.Single(note => note.Time == statement * TicksPerStatement))
+            .Count(static onsetNote => onsetNote.Length < TiedPairTicks);
 
     private static double MeanVelocity(IReadOnlyList<MidiNoteSnapshot> notes, int firstStatement, int lastStatement)
     {

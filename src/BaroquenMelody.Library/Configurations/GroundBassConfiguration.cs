@@ -21,9 +21,10 @@ namespace BaroquenMelody.Library.Configurations;
 ///     singable seams; when any condition fails the composition simply stays in the home key.
 /// </param>
 /// <param name="Divisions">
-///     Whether the accompanied statements escalate in the divisions idiom: figuration intensifying
-///     statement over statement toward the close, one upper voice per statement carrying the
-///     concentration, the ground line tying into a sustained tread, and statement-level terraced dynamics.
+///     Whether the accompanied statements escalate in the divisions idiom: the sixteenth-subdividing
+///     figure tier intensifying statement over statement toward the close, one upper voice per statement
+///     carrying the concentration, the ground line tying into a sustained tread, and statement-level
+///     terraced dynamics.
 ///     Requires the voice-rhythm role machinery (<see cref="VoiceRhythmConfiguration"/>) to be enabled;
 ///     the opening announcement and the final cadence never escalate, and a ground with no upper voices
 ///     only takes the sustained tread.

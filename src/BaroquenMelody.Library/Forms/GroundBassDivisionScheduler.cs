@@ -22,6 +22,8 @@ internal sealed class GroundBassDivisionScheduler(CompositionConfiguration compo
 
     internal const int TerraceDivisor = 20;
 
+    // Counts every voice, the ground line included: the planner always draws the bass from Instruments,
+    // so two voices guarantee the non-empty upper-voice list the florid rotation indexes into.
     private const int MinimumVoicesForEscalation = 2;
 
     private readonly bool _isActive =

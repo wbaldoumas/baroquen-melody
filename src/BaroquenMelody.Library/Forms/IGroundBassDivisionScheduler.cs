@@ -18,7 +18,10 @@ internal interface IGroundBassDivisionScheduler
 
     /// <summary>
     ///     Determine the escalation intensity for an accompanied statement: the percentage scale applied to
-    ///     the statement's upper-voice ornamentation gate weights.
+    ///     the statement's upper-voice SUBDIVIDING-tier ornamentation gate weights — only the
+    ///     sixteenth-subdividing figures scale (measured: decoration coverage is near-saturated, so a
+    ///     uniform scale reshuffles processor competition instead of composing an arc), and the terrace
+    ///     offset derives from the same value.
     /// </summary>
     /// <param name="plan">The ground bass plan.</param>
     /// <param name="statementIndex">The zero-based statement index.</param>

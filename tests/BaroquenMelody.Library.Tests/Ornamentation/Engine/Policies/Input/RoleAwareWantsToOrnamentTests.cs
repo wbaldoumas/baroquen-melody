@@ -39,7 +39,8 @@ internal sealed class RoleAwareWantsToOrnamentTests
             _voiceRhythmLedger,
             Probability,
             HeldProbability,
-            FloridProbability);
+            FloridProbability,
+            scaleByIntensity: true);
     }
 
     [Test]
@@ -118,7 +119,7 @@ internal sealed class RoleAwareWantsToOrnamentTests
         // arrange - a recorded intensity scales the resolved weight (clamped to the legal range) without
         // adding or removing a draw
         var scaledNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
-        var gate = new RoleAwareWantsToOrnament(_mockWeightedRandomBooleanGenerator, _voiceRhythmLedger, baseProbability, HeldProbability, FloridProbability);
+        var gate = new RoleAwareWantsToOrnament(_mockWeightedRandomBooleanGenerator, _voiceRhythmLedger, baseProbability, HeldProbability, FloridProbability, scaleByIntensity: true);
 
         _voiceRhythmLedger.RecordDivisionIntensity(scaledNote, intensity);
 
