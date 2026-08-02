@@ -39,7 +39,8 @@ internal sealed class RoleAwareWantsToOrnamentTests
             _voiceRhythmLedger,
             Probability,
             HeldProbability,
-            FloridProbability);
+            FloridProbability,
+            scaleByIntensity: true);
     }
 
     [Test]
@@ -108,6 +109,79 @@ internal sealed class RoleAwareWantsToOrnamentTests
         // assert
         result.Should().Be(InputPolicyResult.Reject);
         _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(Probability);
+    }
+
+    [TestCase(40, 60, 24)]
+    [TestCase(40, 140, 56)]
+    [TestCase(80, 140, 100)]
+    public void ShouldProcess_WithARecordedIntensity_DrawsExactlyOnceAtTheScaledAndClampedWeight(int baseProbability, int intensity, int expectedWeight)
+    {
+        // arrange - a recorded intensity scales the resolved weight (clamped to the legal range) without
+        // adding or removing a draw
+        var scaledNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+        var gate = new RoleAwareWantsToOrnament(_mockWeightedRandomBooleanGenerator, _voiceRhythmLedger, baseProbability, HeldProbability, FloridProbability, scaleByIntensity: true);
+
+        _voiceRhythmLedger.RecordDivisionIntensity(scaledNote, intensity);
+
+        // act
+        gate.ShouldProcess(CreateItem(scaledNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(expectedWeight);
+    }
+
+    [Test]
+    public void ShouldProcess_WithAFloridNoteCarryingAnIntensity_ScalesTheFloridWeight()
+    {
+        // arrange - the florid boost and the escalation compose: 70 at 140 clamps from 98
+        var floridNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordFloridNote(floridNote);
+        _voiceRhythmLedger.RecordDivisionIntensity(floridNote, 140);
+
+        // act
+        _roleAwareWantsToOrnament.ShouldProcess(CreateItem(floridNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(98);
+    }
+
+    [Test]
+    public void ShouldProcess_WithScalingDisabled_IgnoresARecordedIntensity()
+    {
+        // arrange - the sustain gate's shape: intensities exist but must not move its weights
+        var scaledNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+        var sustainShapedGate = new RoleAwareWantsToOrnament(
+            _mockWeightedRandomBooleanGenerator,
+            _voiceRhythmLedger,
+            Probability,
+            HeldProbability,
+            FloridProbability,
+            scaleByIntensity: false);
+
+        _voiceRhythmLedger.RecordDivisionIntensity(scaledNote, 60);
+
+        // act
+        sustainShapedGate.ShouldProcess(CreateItem(scaledNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(Probability);
+    }
+
+    [Test]
+    public void ShouldProcess_WithAHeldNoteCarryingAnIntensity_TheHeldWeightIsNeverScaled()
+    {
+        // arrange - held resolves before the intensity consult: suppression stays absolute
+        var heldNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordHeldNote(heldNote);
+        _voiceRhythmLedger.RecordDivisionIntensity(heldNote, 140);
+
+        // act
+        _roleAwareWantsToOrnament.ShouldProcess(CreateItem(heldNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(HeldProbability);
     }
 
     private static OrnamentationItem CreateItem(BaroquenNote note) =>

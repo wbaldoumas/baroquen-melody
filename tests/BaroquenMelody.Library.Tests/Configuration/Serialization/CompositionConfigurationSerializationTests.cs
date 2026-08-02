@@ -449,7 +449,7 @@ internal sealed class CompositionConfigurationSerializationTests
             Meter.FourFour,
             MusicalTimeSpan.Half,
             MinimumMeasures: 100,
-            GroundBassConfiguration: new GroundBassConfiguration(Enabled: true, GroundBass.Romanesca, Modulate: false)
+            GroundBassConfiguration: new GroundBassConfiguration(Enabled: true, GroundBass.Romanesca, Modulate: false, Divisions: false)
         );
 
         // act
@@ -461,6 +461,7 @@ internal sealed class CompositionConfigurationSerializationTests
         deserializedConfiguration.GroundBassConfiguration!.Enabled.Should().BeTrue();
         deserializedConfiguration.GroundBassConfiguration.Pattern.Should().Be(GroundBass.Romanesca);
         deserializedConfiguration.GroundBassConfiguration.Modulate.Should().BeFalse("a disabled journey must survive the round-trip");
+        deserializedConfiguration.GroundBassConfiguration.Divisions.Should().BeFalse("disabled divisions must survive the round-trip");
     }
 
     [Test]
@@ -536,6 +537,44 @@ internal sealed class CompositionConfigurationSerializationTests
         deserializedConfiguration.GroundBassConfiguration!.Enabled.Should().BeTrue();
         deserializedConfiguration.GroundBassConfiguration.Pattern.Should().Be(GroundBass.Romanesca);
         deserializedConfiguration.GroundBassConfiguration.Modulate.Should().BeTrue("a legacy save must take the default journey");
+    }
+
+    [Test]
+    public void Deserialization_of_a_ground_bass_configuration_without_a_divisions_flag_defaults_to_divisions()
+    {
+        // arrange: a configuration saved before divisions existed carries no Divisions property, and must
+        // deserialize to the default escalation rather than fail or silently flatten the arc.
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.G5, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100,
+            GroundBassConfiguration: new GroundBassConfiguration(Enabled: true, GroundBass.Romanesca, Modulate: false, Divisions: false)
+        );
+
+        var serializedConfiguration = JsonSerializer.Serialize(compositionConfiguration, CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration);
+        var legacyConfigurationJson = JsonNode.Parse(serializedConfiguration)!.AsObject();
+
+        legacyConfigurationJson[nameof(CompositionConfiguration.GroundBassConfiguration)]!
+            .AsObject()
+            .Remove(nameof(GroundBassConfiguration.Divisions));
+
+        // act
+        var deserializedConfiguration = JsonSerializer.Deserialize(legacyConfigurationJson.ToJsonString(), CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration)!;
+
+        // assert
+        deserializedConfiguration.GroundBassConfiguration.Should().NotBeNull();
+        deserializedConfiguration.GroundBassConfiguration!.Enabled.Should().BeTrue();
+        deserializedConfiguration.GroundBassConfiguration.Modulate.Should().BeFalse("the removed property must not disturb its siblings");
+        deserializedConfiguration.GroundBassConfiguration.Divisions.Should().BeTrue("a legacy save must take the default escalation");
     }
 
     [Test]

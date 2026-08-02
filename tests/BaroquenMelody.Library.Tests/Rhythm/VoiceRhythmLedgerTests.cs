@@ -72,9 +72,11 @@ internal sealed class VoiceRhythmLedgerTests
         var voiceRhythmLedger = new VoiceRhythmLedger();
         var heldNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
         var floridNote = new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half);
+        var escalatedNote = new BaroquenNote(Instrument.Three, Notes.C3, MusicalTimeSpan.Half);
 
         voiceRhythmLedger.RecordHeldNote(heldNote);
         voiceRhythmLedger.RecordFloridNote(floridNote);
+        voiceRhythmLedger.RecordDivisionIntensity(escalatedNote, 140);
 
         // act
         voiceRhythmLedger.Clear();
@@ -82,5 +84,39 @@ internal sealed class VoiceRhythmLedgerTests
         // assert
         voiceRhythmLedger.IsHeldNote(heldNote).Should().BeFalse();
         voiceRhythmLedger.IsFloridNote(floridNote).Should().BeFalse();
+        voiceRhythmLedger.TryGetDivisionIntensity(escalatedNote, out _).Should().BeFalse();
+    }
+
+    [Test]
+    public void DivisionIntensities_AttachToTheInstance_NeverToValueEqualCopies()
+    {
+        // arrange - the same reference-identity contract as the role sets: a deep copy carries no intensity
+        var voiceRhythmLedger = new VoiceRhythmLedger();
+        var recordedNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+        var valueEqualCopy = new BaroquenNote(recordedNote);
+
+        // act
+        voiceRhythmLedger.RecordDivisionIntensity(recordedNote, 60);
+
+        // assert
+        voiceRhythmLedger.TryGetDivisionIntensity(recordedNote, out var intensity).Should().BeTrue();
+        intensity.Should().Be(60);
+        voiceRhythmLedger.TryGetDivisionIntensity(valueEqualCopy, out _).Should().BeFalse("intensity attaches to the emitted instance, never to copies");
+    }
+
+    [Test]
+    public void RecordingAnIntensityTwice_TheLastRecordingWins()
+    {
+        // arrange
+        var voiceRhythmLedger = new VoiceRhythmLedger();
+        var note = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        // act
+        voiceRhythmLedger.RecordDivisionIntensity(note, 60);
+        voiceRhythmLedger.RecordDivisionIntensity(note, 140);
+
+        // assert
+        voiceRhythmLedger.TryGetDivisionIntensity(note, out var intensity).Should().BeTrue();
+        intensity.Should().Be(140);
     }
 }

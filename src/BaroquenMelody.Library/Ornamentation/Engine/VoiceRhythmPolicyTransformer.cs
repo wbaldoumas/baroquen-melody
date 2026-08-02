@@ -15,7 +15,9 @@ namespace BaroquenMelody.Library.Ornamentation.Engine;
 ///     an in-place replacement is reach- and draw-identical wherever the gate lives. Held notes take weight
 ///     zero everywhere (any figure on a held run's note would block its sustain tie — the draw still happens,
 ///     preserving the stream), florid notes boost only the beat-subdividing figure tier, and the sustain gate
-///     ties held pairs deterministically.
+///     ties held pairs deterministically. The ornamentation gates additionally scale by any recorded
+///     division-escalation intensity; the sustain gate never scales, because a calm statement's reappearing
+///     ties are the escalation's quiet end — scaling them away would defeat it.
 /// </remarks>
 internal sealed class VoiceRhythmPolicyTransformer(
     IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
@@ -63,9 +65,14 @@ internal sealed class VoiceRhythmPolicyTransformer(
             voiceRhythmLedger,
             probability: WantsToOrnament.DefaultProbability,
             heldProbability: HeldSustainProbability,
-            floridProbability: WantsToOrnament.DefaultProbability)
+            floridProbability: WantsToOrnament.DefaultProbability,
+            scaleByIntensity: false)
         : new WantsToOrnament(weightedRandomBooleanGenerator);
 
+    // Only the subdividing tier scales by intensity: decoration coverage is near-saturated, so scaling
+    // every figure's weight mostly reshuffles which processor claims a note (measured, not assumed - the
+    // uniform scale produced no statement arc), while a tier-only scale ramps the division figures
+    // themselves against constant competition.
     private RoleAwareWantsToOrnament CreateRoleAwareGate(OrnamentationConfiguration ornamentationConfiguration) => new(
         weightedRandomBooleanGenerator,
         voiceRhythmLedger,
@@ -73,5 +80,6 @@ internal sealed class VoiceRhythmPolicyTransformer(
         heldProbability: HeldNoteProbability,
         floridProbability: SubdividingOrnamentationTypes.Contains(ornamentationConfiguration.OrnamentationType)
             ? FloridSubdividingProbability
-            : ornamentationConfiguration.Probability);
+            : ornamentationConfiguration.Probability,
+        scaleByIntensity: SubdividingOrnamentationTypes.Contains(ornamentationConfiguration.OrnamentationType));
 }

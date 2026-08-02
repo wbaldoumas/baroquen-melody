@@ -8,9 +8,11 @@ using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Enums;
+using BaroquenMelody.Library.Rhythm;
 using BaroquenMelody.Library.Rules;
 using BaroquenMelody.Library.Store.Actions;
 using Fluxor;
+using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Interaction;
 using Microsoft.Extensions.Logging;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
@@ -41,6 +43,8 @@ internal sealed class GroundBassComposer(
     IGroundBassPlanner groundBassPlanner,
     GroundBassSectionComponents homeComponents,
     GroundBassSectionComponents? relativeComponents,
+    IGroundBassDivisionScheduler groundBassDivisionScheduler,
+    IVoiceRhythmLedger voiceRhythmLedger,
     ICompositionRule compositionRule,
     ISuspensionApplicator suspensionApplicator,
     ICadenceClassifier cadenceClassifier,
@@ -69,6 +73,10 @@ internal sealed class GroundBassComposer(
     {
         dispatcher.Dispatch(new ResetCompositionProgress());
 
+        // Cleared before anything composes so a repeat invocation never reads a previous composition's
+        // entries; the fallback path is covered too, because the fugal composer clears again for itself.
+        voiceRhythmLedger.Clear();
+
         var plan = groundBassPlanner.CreatePlan();
 
         if (plan is null)
@@ -96,6 +104,7 @@ internal sealed class GroundBassComposer(
         var measures = ConvertChordsToMeasures(statementChords);
 
         StripOpeningStatementToTheGround(measures, plan);
+        RecordDivisionRoles(measures, plan);
 
         var composition = new Composition(measures);
 
@@ -121,9 +130,95 @@ internal sealed class GroundBassComposer(
 
         dispatcher.Dispatch(new ProgressCompositionStep(CompositionStep.Complete));
         dynamicsApplicator.Apply(composition);
+        ApplyDivisionTerrace(composition, plan);
 
         return composition;
     }
+
+    // Roles are recorded only here, after the walk has won and the announcement is stripped: only the
+    // winning attempt's chords exist (the retry ladder rebuilds them fresh each attempt), statement s owns
+    // measures [s*M, (s+1)*M), and the close does not exist yet, so it is never recorded. The stripped
+    // announcement holds only ground-line notes, which record held like every other statement's. Each of
+    // the scheduler's three answers gates only its own recording - the tread, the intensities, and the
+    // figuration are independent contract answers, even though today's scheduler derives all three from
+    // one activity switch.
+    private void RecordDivisionRoles(List<Measure> measures, GroundBassPlan plan)
+    {
+        var shouldHoldGroundLine = groundBassDivisionScheduler.ShouldHoldGroundLine();
+
+        for (var statementIndex = 0; statementIndex < plan.StatementCount; ++statementIndex)
+        {
+            var statementEscalates = groundBassDivisionScheduler.TryGetIntensity(plan, statementIndex, out var intensity);
+            var statementHasFloridVoice = groundBassDivisionScheduler.TryGetFloridInstrument(plan, statementIndex, out var floridInstrument);
+
+            if (!shouldHoldGroundLine && !statementEscalates && !statementHasFloridVoice)
+            {
+                continue;
+            }
+
+            foreach (var note in EnumerateStatementNotes(measures, plan, statementIndex))
+            {
+                if (note.Instrument == plan.BassInstrument)
+                {
+                    if (shouldHoldGroundLine)
+                    {
+                        voiceRhythmLedger.RecordHeldNote(note);
+                    }
+
+                    continue;
+                }
+
+                if (statementEscalates)
+                {
+                    voiceRhythmLedger.RecordDivisionIntensity(note, intensity);
+                }
+
+                if (statementHasFloridVoice && note.Instrument == floridInstrument)
+                {
+                    voiceRhythmLedger.RecordFloridNote(note);
+                }
+            }
+        }
+    }
+
+    // The terrace runs after the dynamics pass and applies exactly once per note: the dynamics engine's
+    // velocity walk reads each preceding note's velocity, so an offset inside the engine would compound
+    // through a statement instead of terracing it flat. Nothing draws or reads velocities after this pass,
+    // and the announcement and the close sit outside every terraced statement.
+    private void ApplyDivisionTerrace(Composition composition, GroundBassPlan plan)
+    {
+        for (var statementIndex = 0; statementIndex < plan.StatementCount; ++statementIndex)
+        {
+            if (!groundBassDivisionScheduler.TryGetTerraceOffset(plan, statementIndex, out var terraceOffset) || terraceOffset == 0)
+            {
+                continue;
+            }
+
+            foreach (var note in EnumerateStatementNotes(composition.Measures, plan, statementIndex))
+            {
+                ApplyTerraceOffset(note, terraceOffset);
+
+                foreach (var ornamentationNote in note.Ornamentations)
+                {
+                    ApplyTerraceOffset(ornamentationNote, terraceOffset);
+                }
+            }
+        }
+    }
+
+    private void ApplyTerraceOffset(BaroquenNote note, int terraceOffset)
+    {
+        var instrumentConfiguration = compositionConfiguration.InstrumentConfigurationsByInstrument[note.Instrument];
+
+        note.Velocity = new SevenBitNumber((byte)Math.Clamp(note.Velocity + terraceOffset, instrumentConfiguration.MinVelocity, instrumentConfiguration.MaxVelocity));
+    }
+
+    private static IEnumerable<BaroquenNote> EnumerateStatementNotes(IReadOnlyList<Measure> measures, GroundBassPlan plan, int statementIndex) =>
+        measures
+            .Skip(statementIndex * plan.MeasuresPerStatement)
+            .Take(plan.MeasuresPerStatement)
+            .SelectMany(static measure => measure.Beats)
+            .SelectMany(static beat => beat.Chord.Notes);
 
     private List<BaroquenChord>? ComposeStatements(GroundBassPlan plan, CancellationToken cancellationToken)
     {
