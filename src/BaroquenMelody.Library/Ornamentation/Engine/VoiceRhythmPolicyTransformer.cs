@@ -28,7 +28,12 @@ internal sealed class VoiceRhythmPolicyTransformer(
 
     internal const int HeldSustainProbability = 100;
 
-    private static readonly FrozenSet<OrnamentationType> SubdividingOrnamentationTypes = new[]
+    private readonly bool _isEnabled = (compositionConfiguration.VoiceRhythmConfiguration ?? VoiceRhythmConfiguration.Default).Enabled;
+
+    // Deliberately an explicit set rather than a runtime derivation: a deciding test re-derives the membership
+    // from the MusicalTimeSpanCalculator's 4/4 column, so a new beat-subdividing ornamentation fails the build
+    // until it is added here (or consciously excluded).
+    internal static FrozenSet<OrnamentationType> SubdividingOrnamentationTypes { get; } = new[]
     {
         OrnamentationType.DoubleTurn,
         OrnamentationType.DoubleInvertedTurn,
@@ -37,8 +42,6 @@ internal sealed class VoiceRhythmPolicyTransformer(
         OrnamentationType.DoublePedalPassingTone,
         OrnamentationType.Trill
     }.ToFrozenSet();
-
-    private readonly bool _isEnabled = (compositionConfiguration.VoiceRhythmConfiguration ?? VoiceRhythmConfiguration.Default).Enabled;
 
     public IInputPolicy<OrnamentationItem>[] Transform(OrnamentationConfiguration ornamentationConfiguration, IInputPolicy<OrnamentationItem>[] inputPolicies)
     {

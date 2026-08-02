@@ -8,6 +8,7 @@ using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Engine;
 using BaroquenMelody.Library.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Ornamentation.Enums;
+using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Rhythm;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
@@ -117,6 +118,23 @@ internal sealed class VoiceRhythmPolicyTransformerTests
     }
 
     [Test]
+    public void SubdividingOrnamentationTypes_MatchTheFiguresTheCalculatorRendersAsFullSixteenths()
+    {
+        // arrange - the tier is derived knowledge: a figure subdivides the beat when its 4/4 rendering makes
+        // both the primary note and its ornamentation notes sixteenths. If this fails, an ornamentation was
+        // added or re-spanned without deciding its rhythm-role tier - add it to (or consciously exclude it
+        // from) the transformer's set.
+        var musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
+
+        // act
+        var fullSixteenthFigures = Enum.GetValues<OrnamentationType>()
+            .Where(ornamentationType => IsFullSixteenthFigure(musicalTimeSpanCalculator, ornamentationType));
+
+        // assert
+        VoiceRhythmPolicyTransformer.SubdividingOrnamentationTypes.Should().BeEquivalentTo(fullSixteenthFigures);
+    }
+
+    [Test]
     public void CreateSustainGate_WhenEnabled_TiesHeldPairsDeterministically()
     {
         // arrange
@@ -166,4 +184,24 @@ internal sealed class VoiceRhythmPolicyTransformerTests
 
     private static OrnamentationItem CreateItem(BaroquenNote note) =>
         new(note.Instrument, [], new Beat(new BaroquenChord([note])), NextBeat: null);
+
+    // The 4/4 column is the canonical duple rendering (in the triple meters the same figures carry a longer
+    // primary ahead of their sixteenths), and stamps and pass-managed types have no beat rendering at all,
+    // which the calculator signals by throwing.
+    private static bool IsFullSixteenthFigure(MusicalTimeSpanCalculator musicalTimeSpanCalculator, OrnamentationType ornamentationType)
+    {
+        try
+        {
+            return musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, Meter.FourFour) == MusicalTimeSpan.Sixteenth
+                && musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, Meter.FourFour) == MusicalTimeSpan.Sixteenth;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return false;
+        }
+        catch (NotSupportedException)
+        {
+            return false;
+        }
+    }
 }
