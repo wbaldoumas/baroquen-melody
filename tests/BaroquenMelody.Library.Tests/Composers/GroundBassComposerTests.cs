@@ -9,6 +9,7 @@ using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Enums;
+using BaroquenMelody.Library.Rhythm;
 using BaroquenMelody.Library.Rules;
 using BaroquenMelody.Library.Scoring;
 using BaroquenMelody.Library.Store.Actions;
@@ -69,6 +70,10 @@ internal sealed class GroundBassComposerTests
 
     private ITonicizationApplicator _relativeTonicizationApplicator = null!;
 
+    private IGroundBassDivisionScheduler _divisionScheduler = null!;
+
+    private VoiceRhythmLedger _voiceRhythmLedger = null!;
+
     private ICadenceClassifier _cadenceClassifier = null!;
 
     private IChordNumberIdentifier _chordNumberIdentifier = null!;
@@ -116,6 +121,8 @@ internal sealed class GroundBassComposerTests
         _suspensionApplicator = Substitute.For<ISuspensionApplicator>();
         _tonicizationApplicator = Substitute.For<ITonicizationApplicator>();
         _relativeTonicizationApplicator = Substitute.For<ITonicizationApplicator>();
+        _divisionScheduler = Substitute.For<IGroundBassDivisionScheduler>();
+        _voiceRhythmLedger = new VoiceRhythmLedger();
         _cadenceClassifier = Substitute.For<ICadenceClassifier>();
         _chordNumberIdentifier = Substitute.For<IChordNumberIdentifier>();
         _trillApplicator = Substitute.For<ICadentialTrillApplicator>();
@@ -622,6 +629,120 @@ internal sealed class GroundBassComposerTests
     }
 
     [Test]
+    public void Compose_RecordsDivisionRoles_ForTheWinningWalk()
+    {
+        // arrange: the scheduler holds the ground line, escalates statement 1 at 140, and gives its
+        // figuration to Instrument.One. The announcement can record only the ground line (the strip has
+        // discarded its upper voices), and the close, composed after the recording site, is never recorded.
+        _divisionScheduler.ShouldHoldGroundLine().Returns(true);
+        _divisionScheduler.TryGetIntensity(Arg.Any<GroundBassPlan>(), 1, out Arg.Any<int>())
+            .Returns(static callInfo =>
+            {
+                callInfo[2] = 140;
+
+                return true;
+            });
+        _divisionScheduler.TryGetFloridInstrument(Arg.Any<GroundBassPlan>(), 1, out Arg.Any<Instrument>())
+            .Returns(static callInfo =>
+            {
+                callInfo[2] = Instrument.One;
+
+                return true;
+            });
+
+        // act
+        var composition = CreateComposer().Compose(CancellationToken.None);
+
+        // assert
+        var announcementBassNotes = composition.Measures.Take(2).SelectMany(static measure => measure.Beats).Select(static beat => beat.Chord[Instrument.Two]).ToList();
+
+        announcementBassNotes.Should().OnlyContain(note => _voiceRhythmLedger.IsHeldNote(note), "the ground line holds through the announcement");
+
+        var statementBeats = composition.Measures.Skip(2).Take(2).SelectMany(static measure => measure.Beats).ToList();
+
+        statementBeats.Select(static beat => beat.Chord[Instrument.Two]).Should().OnlyContain(note => _voiceRhythmLedger.IsHeldNote(note), "the ground line holds through every statement");
+
+        foreach (var upperNote in statementBeats.Select(static beat => beat.Chord[Instrument.One]))
+        {
+            _voiceRhythmLedger.TryGetDivisionIntensity(upperNote, out var intensity).Should().BeTrue("every accompanied upper note carries its statement's intensity");
+            intensity.Should().Be(140);
+            _voiceRhythmLedger.IsFloridNote(upperNote).Should().BeTrue("statement 1's florid voice is Instrument.One");
+        }
+
+        foreach (var closeNote in composition.Measures[^1].Beats.SelectMany(static beat => beat.Chord.Notes))
+        {
+            _voiceRhythmLedger.IsHeldNote(closeNote).Should().BeFalse("the close is composed after the recording site");
+            _voiceRhythmLedger.TryGetDivisionIntensity(closeNote, out _).Should().BeFalse("the close never escalates");
+        }
+    }
+
+    [Test]
+    public void Compose_WhenTheSchedulerDeclines_RecordsNothingAndKeepsVelocities()
+    {
+        // arrange: the substitute's default false answers are the divisions-off shape
+
+        // act
+        var composition = CreateComposer().Compose(CancellationToken.None);
+
+        // assert
+        foreach (var note in composition.Measures.SelectMany(static measure => measure.Beats).SelectMany(static beat => beat.Chord.Notes))
+        {
+            _voiceRhythmLedger.IsHeldNote(note).Should().BeFalse();
+            _voiceRhythmLedger.IsFloridNote(note).Should().BeFalse();
+            _voiceRhythmLedger.TryGetDivisionIntensity(note, out _).Should().BeFalse();
+            ((int)note.Velocity).Should().Be(75, "no terrace may touch a declining composition's velocities");
+        }
+    }
+
+    [Test]
+    public void Compose_AppliesTheTerraceExactlyOncePerNote_WithClamping()
+    {
+        // arrange: statement 1 terraces by -10 from the default 75-velocity notes; the instrument ceiling
+        // is 60, so a single application clamps to the ceiling while a double application would land at 50
+        // - the assertion distinguishes exactly-once from compounding.
+        _divisionScheduler.TryGetTerraceOffset(Arg.Any<GroundBassPlan>(), 1, out Arg.Any<int>())
+            .Returns(static callInfo =>
+            {
+                callInfo[2] = -10;
+
+                return true;
+            });
+
+        // act
+        var composition = CreateComposer().Compose(CancellationToken.None);
+
+        // assert
+        var expectedTerracedVelocity = (int)InstrumentConfiguration.DefaultMaxVelocity;
+
+        foreach (var note in composition.Measures.Skip(2).Take(2).SelectMany(static measure => measure.Beats).SelectMany(static beat => beat.Chord.Notes))
+        {
+            ((int)note.Velocity).Should().Be(expectedTerracedVelocity, "75 - 10 clamps to the 60 ceiling exactly once; a second application would land at 50");
+        }
+
+        foreach (var note in composition.Measures.Take(2).Concat([composition.Measures[^1]]).SelectMany(static measure => measure.Beats).SelectMany(static beat => beat.Chord.Notes))
+        {
+            ((int)note.Velocity).Should().Be(75, "the announcement and the close sit outside every terraced statement");
+        }
+    }
+
+    [Test]
+    public void Compose_ClearsTheLedgerBeforeComposing()
+    {
+        // arrange: a stale entry from a previous composition must not survive into this one
+        var staleNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordHeldNote(staleNote);
+        _voiceRhythmLedger.RecordDivisionIntensity(staleNote, 140);
+
+        // act
+        CreateComposer().Compose(CancellationToken.None);
+
+        // assert
+        _voiceRhythmLedger.IsHeldNote(staleNote).Should().BeFalse();
+        _voiceRhythmLedger.TryGetDivisionIntensity(staleNote, out _).Should().BeFalse();
+    }
+
+    [Test]
     public void Compose_WithACancelledToken_Throws()
     {
         // arrange
@@ -642,6 +763,8 @@ internal sealed class GroundBassComposerTests
         _planner,
         new GroundBassSectionComponents(_strategy, _homeSeamStrategy, _selector, _decorator, _tonicizationApplicator),
         relativeComponents,
+        _divisionScheduler,
+        _voiceRhythmLedger,
         _rule,
         _suspensionApplicator,
         _cadenceClassifier,

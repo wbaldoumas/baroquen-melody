@@ -150,8 +150,8 @@ internal sealed class BaroquenMelodyComposerConfigurator(
                 var relativeChordSelector = new WeightedChordSelector(relativeScoringRule, randomProvider);
 
                 // The relative-key builder substitutes (or not) exactly as the home builder does - the forwarded
-                // voice rhythm configuration keeps both graphs uniform - and shares the one ledger, which the
-                // ground form never records into, so relative-key decoration stays standard in practice.
+                // voice rhythm configuration keeps both graphs uniform - and shares the one ledger, so the
+                // ground form's division roles resolve identically whichever key's engine decorates a slice.
                 var relativeOrnamentationEngineBuilder = new OrnamentationEngineBuilder(relativeConfiguration, _musicalTimeSpanCalculator, randomProvider, logger, voiceRhythmLedger);
                 var relativeDecorator = new CompositionDecorator(relativeOrnamentationEngineBuilder.BuildOrnamentationEngine(), relativeOrnamentationEngineBuilder.BuildSustainedNoteEngine(), relativeConfiguration);
                 var relativeTonicizationApplicator = new TonicizationApplicator(relativeChordNumberIdentifier, _weightedRandomBooleanGenerator, relativeConfiguration);
@@ -163,6 +163,8 @@ internal sealed class BaroquenMelodyComposerConfigurator(
                 groundBassPlanner,
                 homeComponents,
                 relativeComponents,
+                new GroundBassDivisionScheduler(compositionConfiguration),
+                voiceRhythmLedger,
                 compositionRule,
                 suspensionApplicator,
                 cadenceClassifier,

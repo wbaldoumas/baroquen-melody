@@ -135,6 +135,46 @@ internal sealed class VoiceRhythmPolicyTransformerTests
     }
 
     [Test]
+    public void Transform_TheOrnamentationGates_ScaleByRecordedIntensity()
+    {
+        // arrange - the ground's escalation reaches decoration through the transformed gates: a recorded
+        // intensity of 60 scales a base-40 weight to 24
+        var transformer = CreateTransformer(voiceRhythmEnabled: true);
+        var transformedPolicies = transformer.Transform(
+            CreateOrnamentationConfiguration(OrnamentationType.PassingTone, 40),
+            [new WantsToOrnament(_mockWeightedRandomBooleanGenerator, 40)]);
+
+        var gate = transformedPolicies[0];
+        var escalatedNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordDivisionIntensity(escalatedNote, 60);
+
+        // act
+        gate.ShouldProcess(CreateItem(escalatedNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(24);
+    }
+
+    [Test]
+    public void CreateSustainGate_NeverScalesByIntensity()
+    {
+        // arrange - a calm statement's reappearing ties ARE the escalation's quiet end: the sustain gate
+        // must keep the stock weight for an intensity-carrying note rather than scale it away
+        var transformer = CreateTransformer(voiceRhythmEnabled: true);
+        var sustainGate = transformer.CreateSustainGate();
+        var escalatedNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordDivisionIntensity(escalatedNote, 60);
+
+        // act
+        sustainGate.ShouldProcess(CreateItem(escalatedNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(WantsToOrnament.DefaultProbability);
+    }
+
+    [Test]
     public void CreateSustainGate_WhenEnabled_TiesHeldPairsDeterministically()
     {
         // arrange
