@@ -73,7 +73,9 @@ internal sealed class BaroquenMelodyComposerConfigurator(
 
         var fugalEntryCompositionRule = compositionRuleFactory.CreateAggregate(fugalEntryRuleConfiguration);
         var fugalEntryCompositionStrategy = new CompositionStrategyFactory(_noteChoiceGenerator, fugalEntryCompositionRule, randomProvider, logger).Create(compositionConfiguration);
-        var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, _musicalTimeSpanCalculator, randomProvider, logger);
+        var voiceRhythmLedger = new VoiceRhythmLedger();
+        var voiceRhythmScheduler = new VoiceRhythmScheduler(compositionConfiguration);
+        var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, _musicalTimeSpanCalculator, randomProvider, logger, voiceRhythmLedger);
         var dynamicsEngineBuilder = new DynamicsEngineBuilder(compositionConfiguration, randomProvider);
         var dynamicsApplicator = new DynamicsApplicator(compositionConfiguration, dynamicsEngineBuilder.Build());
         var compositionDecorator = new CompositionDecorator(ornamentationEngineBuilder.BuildOrnamentationEngine(), ornamentationEngineBuilder.BuildSustainedNoteEngine(), compositionConfiguration);
@@ -99,7 +101,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         var harmonicRhythmScheduler = new HarmonicRhythmScheduler(compositionConfiguration);
         var suspensionApplicator = new SuspensionApplicator(_weightedRandomBooleanGenerator, compositionConfiguration);
         var tonicizationApplicator = new TonicizationApplicator(chordNumberIdentifier, _weightedRandomBooleanGenerator, compositionConfiguration);
-        var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, harmonicRhythmScheduler, suspensionApplicator, tonicizationApplicator, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
+        var composer = new Composer(compositionDecorator, compositionPhraser, chordComposer, harmonicRhythmScheduler, voiceRhythmScheduler, voiceRhythmLedger, suspensionApplicator, tonicizationApplicator, themeComposer, endingComposer, dynamicsApplicator, dispatcher, compositionConfiguration);
         var midiGenerator = new MidiGenerator(compositionConfiguration);
 
         IComposer effectiveComposer = composer;
@@ -146,7 +148,11 @@ internal sealed class BaroquenMelodyComposerConfigurator(
                 var relativeScoringRuleFactory = new ScoringRuleFactory(relativeConfiguration, relativeChordNumberIdentifier, relativeChordInversionIdentifier);
                 var relativeScoringRule = relativeScoringRuleFactory.CreateAggregate(compositionConfiguration.AggregateScoringRuleConfiguration ?? AggregateScoringRuleConfiguration.Default);
                 var relativeChordSelector = new WeightedChordSelector(relativeScoringRule, randomProvider);
-                var relativeOrnamentationEngineBuilder = new OrnamentationEngineBuilder(relativeConfiguration, _musicalTimeSpanCalculator, randomProvider, logger);
+
+                // The relative-key builder substitutes (or not) exactly as the home builder does - the forwarded
+                // voice rhythm configuration keeps both graphs uniform - and shares the one ledger, which the
+                // ground form never records into, so relative-key decoration stays standard in practice.
+                var relativeOrnamentationEngineBuilder = new OrnamentationEngineBuilder(relativeConfiguration, _musicalTimeSpanCalculator, randomProvider, logger, voiceRhythmLedger);
                 var relativeDecorator = new CompositionDecorator(relativeOrnamentationEngineBuilder.BuildOrnamentationEngine(), relativeOrnamentationEngineBuilder.BuildSustainedNoteEngine(), relativeConfiguration);
                 var relativeTonicizationApplicator = new TonicizationApplicator(relativeChordNumberIdentifier, _weightedRandomBooleanGenerator, relativeConfiguration);
 
@@ -203,7 +209,8 @@ internal sealed class BaroquenMelodyComposerConfigurator(
             compositionConfiguration.HarmonicRhythmConfiguration,
             compositionConfiguration.SuspensionConfiguration,
             compositionConfiguration.TonicizationConfiguration,
-            compositionConfiguration.GroundBassConfiguration);
+            compositionConfiguration.GroundBassConfiguration,
+            compositionConfiguration.VoiceRhythmConfiguration);
     }
 
     /// <summary>

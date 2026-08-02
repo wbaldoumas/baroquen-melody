@@ -18,6 +18,7 @@ using BaroquenMelody.Library.Ornamentation.Engine.Processors;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Ornamentation.Utilities;
+using BaroquenMelody.Library.Rhythm;
 using LazyCart;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics.CodeAnalysis;
@@ -41,17 +42,21 @@ internal sealed class OrnamentationEngineBuilder
 
     private readonly ILogger _logger;
 
+    private readonly VoiceRhythmPolicyTransformer _voiceRhythmPolicyTransformer;
+
     public OrnamentationEngineBuilder(
         CompositionConfiguration compositionConfiguration,
         IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
         IRandomProvider randomProvider,
-        ILogger logger)
+        ILogger logger,
+        IVoiceRhythmLedger voiceRhythmLedger)
     {
         _compositionConfiguration = compositionConfiguration;
         _musicalTimeSpanCalculator = musicalTimeSpanCalculator;
         _logger = logger;
         _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator(randomProvider);
         _noteIndexPairSelector = new NoteIndexPairSelector(new NoteOnsetCalculator(musicalTimeSpanCalculator, compositionConfiguration));
+        _voiceRhythmPolicyTransformer = new VoiceRhythmPolicyTransformer(_weightedRandomBooleanGenerator, voiceRhythmLedger, compositionConfiguration);
 
         _processorFactory = new OrnamentationProcessorFactory(
             musicalTimeSpanCalculator,
@@ -61,7 +66,8 @@ internal sealed class OrnamentationEngineBuilder
                 compositionConfiguration,
                 logger
             ),
-            new CleanConflictingOrnamentations(BuildOrnamentationCleaningEngine())
+            new CleanConflictingOrnamentations(BuildOrnamentationCleaningEngine()),
+            _voiceRhythmPolicyTransformer
         );
     }
 
@@ -73,7 +79,7 @@ internal sealed class OrnamentationEngineBuilder
 
     public IPolicyEngine<OrnamentationItem> BuildSustainedNoteEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
-            new WantsToOrnament(_weightedRandomBooleanGenerator),
+            _voiceRhythmPolicyTransformer.CreateSustainGate(),
             new IsRepeatedNote(),
             _hasNoOrnamentation,
             new IsApplicableInterval(_compositionConfiguration, SustainedNoteProcessor.Interval)

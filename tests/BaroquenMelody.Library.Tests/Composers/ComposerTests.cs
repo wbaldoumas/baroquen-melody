@@ -89,7 +89,7 @@ internal sealed class ComposerTests
         _chordComposer = new ChordComposer(_mockCompositionStrategy, chordSelector, _mockLogger);
         _themeComposer = new ThemeComposer(_mockCompositionStrategy, _mockCompositionStrategy, _mockCompositionDecorator, _chordComposer, _fugalEntryPlacer, new FugalAnswerStrategy(_compositionConfiguration), chordSelector, _mockDispatcher, _mockLogger, _compositionConfiguration);
         _endingComposer = new EndingComposer(_mockCompositionStrategy, _mockCompositionDecorator, _mockChordNumberIdentifier, Substitute.For<ICadenceClassifier>(), Substitute.For<ICadentialTrillApplicator>(), chordSelector, _mockDispatcher, _mockLogger, _compositionConfiguration);
-        _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, new HarmonicRhythmScheduler(_compositionConfiguration), _mockSuspensionApplicator, _mockTonicizationApplicator, _themeComposer, _endingComposer, _mockDynamicsApplicator, _mockDispatcher, _compositionConfiguration);
+        _composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, new HarmonicRhythmScheduler(_compositionConfiguration), new VoiceRhythmScheduler(_compositionConfiguration), new VoiceRhythmLedger(), _mockSuspensionApplicator, _mockTonicizationApplicator, _themeComposer, _endingComposer, _mockDynamicsApplicator, _mockDispatcher, _compositionConfiguration);
     }
 
     [Test]
@@ -246,7 +246,7 @@ internal sealed class ComposerTests
             HarmonicRhythmConfiguration = new HarmonicRhythmConfiguration(Enabled: false)
         };
 
-        var composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, new HarmonicRhythmScheduler(configurationWithoutHolds), _mockSuspensionApplicator, _mockTonicizationApplicator, _themeComposer, _endingComposer, _mockDynamicsApplicator, _mockDispatcher, configurationWithoutHolds);
+        var composer = new Composer(_mockCompositionDecorator, _mockCompositionPhraser, _chordComposer, new HarmonicRhythmScheduler(configurationWithoutHolds), new VoiceRhythmScheduler(configurationWithoutHolds), new VoiceRhythmLedger(), _mockSuspensionApplicator, _mockTonicizationApplicator, _themeComposer, _endingComposer, _mockDynamicsApplicator, _mockDispatcher, configurationWithoutHolds);
 
         // act
         var composition = composer.Compose(CancellationToken.None);
