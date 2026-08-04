@@ -237,6 +237,8 @@ internal sealed class VoiceRhythmPolicyTransformerTests
     [TestCase(TextureType.Walking, OrnamentationType.Mordent, 20, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
     [TestCase(TextureType.BrokenChord, OrnamentationType.Pedal, 80, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
     [TestCase(TextureType.BrokenChord, OrnamentationType.OctavePedalArpeggio, 80, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.OctavePedalPassingTone, 80, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.UpperOctavePedalPassingTone, 80, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
     [TestCase(TextureType.BrokenChord, OrnamentationType.PassingTone, 80, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
     [TestCase(TextureType.BrokenChord, OrnamentationType.DecorateThird, 60, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
     [TestCase(TextureType.Chordal, OrnamentationType.RepeatedNote, 15, VoiceRhythmPolicyTransformer.HeldNoteProbability)]

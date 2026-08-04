@@ -69,7 +69,7 @@
                                        ValueChanged="HandleGroundBassPatternChange"
                                        ConvertToDisplay="ConvertGroundBassPatternToDisplay">
                         <PopoverContent>
-                            <MudText>The repeating bass pattern (<MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Ground_bass">ground</MudLink>) stated beneath the composition. Random lets the composer draw among the patterns that fit the lowest voice's range; a pattern marked as not fitting would fall back to the fugue form - and a fallback fugue takes on any Texture configured under the fugue form, even though that control is hidden here.</MudText>
+                            <MudText>The repeating bass pattern (<MudLink Color="Color.Tertiary" Href="https://en.wikipedia.org/wiki/Ground_bass">ground</MudLink>) stated beneath the composition. Random lets the composer draw among the patterns that fit the lowest voice's range; a pattern marked as not fitting would fall back to the fugue form - and a fallback fugue keeps the Texture selection saved under the Fugue form (nothing is ever rolled: that selection stays None unless you chose a texture there, and the fallback simply composes as the fugue you configured).</MudText>
                         </PopoverContent>
                     </SelectWithPopover>
                     @if (GroundBassPattern is { } selectedGroundBass)
