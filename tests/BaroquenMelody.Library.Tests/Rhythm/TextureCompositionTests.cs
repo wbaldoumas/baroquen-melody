@@ -141,6 +141,38 @@ internal sealed class TextureCompositionTests
     }
 
     [Test]
+    public void Compose_WithABrokenChordTexture_TheArpeggioCellCarriesTheFabricAndTheStaticBounceIsGone()
+    {
+        var seedsWithArpeggioCells = 0;
+
+        foreach (var seed in Enumerable.Range(1, 4))
+        {
+            // arrange & act
+            var composerGraph = ComposerGraph.Create(GetConfiguration(TextureType.BrokenChord), seed);
+            var composition = composerGraph.Composer.Compose(CancellationToken.None);
+
+            var interiorBodyMeasures = GetInteriorBodyMeasures(composition, composerGraph.Ledger, seed);
+            var figurationNotes = NotesOf(interiorBodyMeasures, composerGraph.Configuration.Instruments[^1]).ToList();
+
+            // assert - the evicted static pedals are weight-zero under the texture, so their absence is a
+            // deterministic per-seed consequence (the family invariant restated for the correction's core
+            // members: the harmonically empty octave bounce may never re-enter the fabric unnoticed)
+            figurationNotes.Should().NotContain(
+                static note => note.OrnamentationType == OrnamentationType.OctavePedal || note.OrnamentationType == OrnamentationType.UpperOctavePedal,
+                $"the static octave bounce is evicted from the broken-chord family (seed {seed})");
+
+            if (figurationNotes.Exists(static note => note.OrnamentationType == OrnamentationType.Arpeggio))
+            {
+                seedsWithArpeggioCells++;
+            }
+        }
+
+        // assert - and the chord-tone cell actually carries the fabric (an eligibility sweep, not a
+        // per-seed pin: seeded walks differ across operating systems)
+        seedsWithArpeggioCells.Should().BeGreaterThanOrEqualTo(3, "the arpeggio's broad degree-gated eligibility must reach most seeds' fabrics");
+    }
+
+    [Test]
     public void Compose_WithAChordalTexture_TheAccompanimentStaysFigureFreeWhileTheMelodyFigures()
     {
         foreach (var seed in Enumerable.Range(1, 4))

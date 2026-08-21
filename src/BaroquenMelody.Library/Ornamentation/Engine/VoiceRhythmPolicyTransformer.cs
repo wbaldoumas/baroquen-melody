@@ -65,17 +65,18 @@ internal sealed class VoiceRhythmPolicyTransformer(
         OrnamentationType.PassingTone
     }.ToFrozenSet();
 
-    // BrokenChord = the even eighth pattern (three sub-notes per beat, octave pedals and chordal pedals);
-    // DecorateThird is excluded for its mixed sixteenth/eighth spacing. The passing-tone pedal variants
-    // complete the octave-pedal class's eligibility coverage: the plain pedals decline third and fifth
-    // motion, the arpeggios demand a directed fifth, and only the passing-tone forms put a moving interior
-    // step over third motion - without them the fabric collapses onto the static octave bounce.
+    // BrokenChord = the even eighth pattern (three sub-notes per beat); DecorateThird is excluded for its
+    // mixed sixteenth/eighth spacing. The Arpeggio's chord-tone cell carries the fabric (its broad
+    // degree-gated eligibility reaches most beats), the passing-tone and arpeggio pedals color the third
+    // and fifth motions, and the chordal pedal covers degree-gated thirds. The plain octave pedals are
+    // deliberately EVICTED: their interior note is a repeat, so the cell is one pitch class four times -
+    // a measured census showed that harmonically empty bounce claiming ~40% of the fabric, which is what
+    // the ear reported as irritating. They remain ordinary ornaments everywhere else.
     internal static FrozenSet<OrnamentationType> BrokenChordFigures { get; } = new[]
     {
+        OrnamentationType.Arpeggio,
         OrnamentationType.OctavePedalArpeggio,
         OrnamentationType.UpperOctavePedalArpeggio,
-        OrnamentationType.OctavePedal,
-        OrnamentationType.UpperOctavePedal,
         OrnamentationType.OctavePedalPassingTone,
         OrnamentationType.UpperOctavePedalPassingTone,
         OrnamentationType.Pedal
