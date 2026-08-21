@@ -205,8 +205,8 @@ public enum OrnamentationType : byte
     SuspensionResolution,
 
     /// <summary>
-    ///     An arpeggio: an even traversal of the sounding chord's own tones from the principal (the Alberti
-    ///     cell), gated per chord degree so every sub-note is a true chord tone.
+    ///     An arpeggio: an even traversal of the chord's tones from the principal (the Alberti cell), gated
+    ///     per chord degree so every sub-note is a chord tone of the harmony that licensed the cell.
     /// </summary>
     Arpeggio
 }

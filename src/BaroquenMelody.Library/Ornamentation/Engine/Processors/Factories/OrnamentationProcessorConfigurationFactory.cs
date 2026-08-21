@@ -777,8 +777,9 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
 
     // Deliberately no next-motion condition: the cell ends on a chord tone of the CURRENT harmony, so any
     // continuation works - that breadth is what lets the broken-chord texture wear it as a fabric rather
-    // than an accent. The two distinct offsets are both range-checked; the target-ornamentation guard is
-    // the same-beat cross-voice dedup the pedal uses, so consecutive-beat cells stay legal.
+    // than an accent. The range guards are derived from the cell's distinct offsets, so a re-voiced cell
+    // can never leave an offset unchecked; the target-ornamentation guard is the same-beat cross-voice
+    // dedup the pedal uses, so consecutive-beat cells stay legal.
     private OrnamentationProcessorConfiguration CreateArpeggioOrnamentationProcessorConfiguration(
         IInputPolicy<OrnamentationItem> scaleDegreePolicy,
         int[] translations,
@@ -791,8 +792,7 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
             _hasNoOrnamentation,
             scaleDegreePolicy,
             new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Arpeggio)),
-            new IsIntervalWithinInstrumentRange(compositionConfiguration, translations[0]),
-            new IsIntervalWithinInstrumentRange(compositionConfiguration, translations[1])
+            .. translations.Distinct().Select(translation => new IsIntervalWithinInstrumentRange(compositionConfiguration, translation))
         ],
         OutputPolicies: [new LogOrnamentation(configuration.OrnamentationType, logger)],
         Translations: [.. translations],

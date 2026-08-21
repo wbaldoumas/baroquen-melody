@@ -5,8 +5,10 @@ using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Effects;
+using BaroquenMelody.Library.Store.Reducers;
 using BaroquenMelody.Library.Store.State;
 using BaroquenMelody.Library.Tests.TestData;
+using FluentAssertions;
 using Fluxor;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
@@ -169,11 +171,13 @@ internal sealed class CompositionConfigurationEffectsTests
     }
 
     [Test]
-    public async Task HandleLoadSavedCompositionConfigurationAsync_never_touches_ornamentations_the_saved_configuration_lacks()
+    public async Task HandleLoadSavedCompositionConfigurationAsync_leaves_the_default_for_ornamentations_the_saved_configuration_lacks()
     {
-        // arrange - a save from before an ornamentation existed carries no entry for it; the load must
-        // dispatch per-entry updates only, so the state's Defaults-initialized entry for the missing type
-        // survives and the newer ornamentation keeps working on legacy saves
+        // arrange - a save from before an ornamentation existed carries no entry for it; the newer
+        // ornamentation must keep working on legacy saves, so the STATE that results from folding the
+        // load's dispatches over the Defaults-initialized dictionary must still hold the default entry.
+        // Asserting the folded state (not just the dispatcher) decides the mechanism: a rewrite to a
+        // whole-set batch replacement would wipe the entry while dispatching nothing per-entry.
         var legacyOrnamentationConfigurations = AggregateOrnamentationConfiguration.Default.Configurations
             .Where(static ornamentationConfiguration => ornamentationConfiguration.OrnamentationType != OrnamentationType.Arpeggio)
             .ToHashSet();
@@ -183,16 +187,30 @@ internal sealed class CompositionConfigurationEffectsTests
             AggregateOrnamentationConfiguration = new AggregateOrnamentationConfiguration(legacyOrnamentationConfigurations)
         };
 
-        var action = new LoadSavedCompositionConfiguration(configuration);
+        var dispatchedActions = new List<object>();
+
+        _mockDispatcher.When(static dispatcher => dispatcher.Dispatch(Arg.Any<object>()))
+            .Do(callInfo => dispatchedActions.Add(callInfo.Arg<object>()));
 
         // act
-        await CompositionConfigurationEffects.HandleLoadSavedCompositionConfigurationAsync(action, _mockDispatcher);
+        await CompositionConfigurationEffects.HandleLoadSavedCompositionConfigurationAsync(new LoadSavedCompositionConfiguration(configuration), _mockDispatcher);
 
-        // assert
-        _mockDispatcher.DidNotReceive().Dispatch(
-            Arg.Is<UpdateCompositionOrnamentationConfiguration>(
-                static updateCompositionOrnamentationConfiguration => updateCompositionOrnamentationConfiguration.OrnamentationType == OrnamentationType.Arpeggio
-            )
-        );
+        // assert - fold every dispatched ornamentation action through the real reducers over the default
+        // state, exactly as the store would
+        var foldedState = new CompositionOrnamentationConfigurationState();
+
+        foreach (var dispatchedAction in dispatchedActions)
+        {
+            foldedState = dispatchedAction switch
+            {
+                UpdateCompositionOrnamentationConfiguration update => CompositionOrnamentationConfigurationReducers.ReduceUpdateCompositionOrnamentationConfiguration(foldedState, update),
+                BatchUpdateCompositionOrnamentationConfiguration batch => CompositionOrnamentationConfigurationReducers.ReduceBatchUpdateCompositionOrnamentationConfiguration(foldedState, batch),
+                _ => foldedState
+            };
+        }
+
+        foldedState[OrnamentationType.Arpeggio].Should().Be(
+            new OrnamentationConfiguration(OrnamentationType.Arpeggio, ConfigurationStatus.Enabled, 25),
+            "the ornamentation the save predates must keep its default after the load");
     }
 }

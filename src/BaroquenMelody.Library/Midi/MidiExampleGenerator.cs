@@ -72,6 +72,10 @@ internal sealed class MidiExampleGenerator(
     private static BaroquenNote GetNote(OrnamentationType ornamentationType, CompositionConfiguration compositionConfiguration) => ornamentationType switch
     {
         OrnamentationType.DecorateInterval => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Supertonic, 4), compositionConfiguration.DefaultNoteTimeSpan),
+
+        // the arpeggio is a bass-register figure; the example's principal sits an octave below the default
+        // so the cell sounds where the broken-chord texture actually wears it
+        OrnamentationType.Arpeggio => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 3), compositionConfiguration.DefaultNoteTimeSpan),
         _ => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 4), compositionConfiguration.DefaultNoteTimeSpan)
     };
 
@@ -111,7 +115,7 @@ internal sealed class MidiExampleGenerator(
         OrnamentationType.DoublePedalPassingTone => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Dominant, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.Trill => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 4), compositionConfiguration.DefaultNoteTimeSpan),
         OrnamentationType.Appoggiatura => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Mediant, 4), compositionConfiguration.DefaultNoteTimeSpan),
-        OrnamentationType.Arpeggio => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Tonic, 3), compositionConfiguration.DefaultNoteTimeSpan),
+        OrnamentationType.Arpeggio => new BaroquenNote(Instrument.One, Note.Get(compositionConfiguration.Scale.Submediant, 3), compositionConfiguration.DefaultNoteTimeSpan),
         _ => throw new ArgumentOutOfRangeException(nameof(ornamentationType), ornamentationType, "Ornamentation type not supported.")
     };
 }

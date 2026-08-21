@@ -103,7 +103,13 @@ internal sealed class OrnamentationProcessorConfigurationFactoryTests
             // the breadth is a decision: the cell ends on a chord tone of the CURRENT harmony, so any
             // continuation works and no next-motion gate may narrow the fabric
             configuration.InputPolicies.Should().NotContain(static policy => policy is IsApplicableInterval, "the arpeggio carries no next-motion condition");
-            configuration.InputPolicies.Count(static policy => policy is IsIntervalWithinInstrumentRange).Should().Be(2, "both distinct offsets are range-checked");
+
+            configuration.InputPolicies.Count(static policy => policy is IsIntervalWithinInstrumentRange)
+                .Should()
+                .Be(
+                    configuration.Translations.Distinct().Count(),
+                    "every distinct offset in the cell must carry its own range guard, however the cell is voiced"
+                );
         }
     }
 
