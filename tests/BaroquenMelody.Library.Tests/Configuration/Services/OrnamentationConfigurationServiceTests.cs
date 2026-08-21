@@ -68,7 +68,8 @@ internal sealed class OrnamentationConfigurationServiceTests
             OrnamentationType.SequencedThirds,
             OrnamentationType.DoublePedalPassingTone,
             OrnamentationType.Trill,
-            OrnamentationType.Appoggiatura
+            OrnamentationType.Appoggiatura,
+            OrnamentationType.Arpeggio
         };
 
         // act
@@ -129,7 +130,8 @@ internal sealed class OrnamentationConfigurationServiceTests
             { OrnamentationType.SequencedThirds, new OrnamentationConfiguration(OrnamentationType.SequencedThirds, ConfigurationStatus.Enabled, 100) },
             { OrnamentationType.DoublePedalPassingTone, new OrnamentationConfiguration(OrnamentationType.DoublePedalPassingTone, ConfigurationStatus.Enabled, 100) },
             { OrnamentationType.Trill, new OrnamentationConfiguration(OrnamentationType.Trill, ConfigurationStatus.Enabled, 100) },
-            { OrnamentationType.Appoggiatura, new OrnamentationConfiguration(OrnamentationType.Appoggiatura, ConfigurationStatus.Enabled, 100) }
+            { OrnamentationType.Appoggiatura, new OrnamentationConfiguration(OrnamentationType.Appoggiatura, ConfigurationStatus.Enabled, 100) },
+            { OrnamentationType.Arpeggio, new OrnamentationConfiguration(OrnamentationType.Arpeggio, ConfigurationStatus.Enabled, 100) }
         };
 
         _mockState.Value.Returns(new CompositionOrnamentationConfigurationState(configurations));

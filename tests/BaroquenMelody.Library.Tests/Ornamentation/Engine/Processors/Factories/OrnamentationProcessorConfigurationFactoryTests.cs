@@ -78,6 +78,36 @@ internal sealed class OrnamentationProcessorConfigurationFactoryTests
     }
 
     [Test]
+    public void Create_ForArpeggio_ProducesThreeDegreeGatedChordToneCells()
+    {
+        // act
+        var configurations = _ornamentationProcessorConfigurationFactory
+            .Create(new OrnamentationConfiguration(OrnamentationType.Arpeggio, ConfigurationStatus.Enabled, 100))
+            .ToList();
+
+        // assert - one cell per triad degree, each traversing only the sounding chord's own tones; the
+        // fixed scale-step offsets are exact chord tones ONLY under the matching degree gate, so each
+        // configuration must carry exactly the gate its offsets assume
+        configurations.Should().HaveCount(3);
+
+        var rootConfiguration = configurations.Single(static configuration => configuration.InputPolicies.Any(static policy => policy is IsRootOfChord));
+        var thirdConfiguration = configurations.Single(static configuration => configuration.InputPolicies.Any(static policy => policy is IsThirdOfChord));
+        var fifthConfiguration = configurations.Single(static configuration => configuration.InputPolicies.Any(static policy => policy is IsFifthOfChord));
+
+        rootConfiguration.Translations.Should().Equal([4, 2, 4], "the root sounds the textbook Alberti cell: root, fifth, third, fifth");
+        thirdConfiguration.Translations.Should().Equal([-2, 2, -2], "the third traverses down to the root and up to the fifth");
+        fifthConfiguration.Translations.Should().Equal([-2, -4, -2], "the fifth traverses down through the third to the root");
+
+        foreach (var configuration in configurations)
+        {
+            // the breadth is a decision: the cell ends on a chord tone of the CURRENT harmony, so any
+            // continuation works and no next-motion gate may narrow the fabric
+            configuration.InputPolicies.Should().NotContain(static policy => policy is IsApplicableInterval, "the arpeggio carries no next-motion condition");
+            configuration.InputPolicies.Count(static policy => policy is IsIntervalWithinInstrumentRange).Should().Be(2, "both distinct offsets are range-checked");
+        }
+    }
+
+    [Test]
     public void Create_ProducesConfigurationsLabeledWithTheRequestedOrnamentationType()
     {
         // arrange

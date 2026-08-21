@@ -43,7 +43,11 @@ public sealed record AggregateOrnamentationConfiguration(ISet<OrnamentationConfi
             new(OrnamentationType.SequencedThirds, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.DoublePedalPassingTone, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.Trill, ConfigurationStatus.Enabled, 20),
-            new(OrnamentationType.Appoggiatura, ConfigurationStatus.Enabled, 20)
+            new(OrnamentationType.Appoggiatura, ConfigurationStatus.Enabled, 20),
+
+            // Deliberately the sprinkle tier: as a stock ornament the Alberti cell is seasoning, while the
+            // broken-chord texture lifts it to near-certainty at engine build regardless of this value.
+            new(OrnamentationType.Arpeggio, ConfigurationStatus.Enabled, 25)
         }
     );
 }

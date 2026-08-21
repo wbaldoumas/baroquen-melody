@@ -202,5 +202,11 @@ public enum OrnamentationType : byte
     ///     A suspension's delayed resolution: the chord tone a step below the tied preparation, sounding in the
     ///     remainder of the suspended beat.
     /// </summary>
-    SuspensionResolution
+    SuspensionResolution,
+
+    /// <summary>
+    ///     An arpeggio: an even traversal of the sounding chord's own tones from the principal (the Alberti
+    ///     cell), gated per chord degree so every sub-note is a true chord tone.
+    /// </summary>
+    Arpeggio
 }

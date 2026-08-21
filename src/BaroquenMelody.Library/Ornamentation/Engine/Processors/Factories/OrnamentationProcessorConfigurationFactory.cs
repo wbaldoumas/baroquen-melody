@@ -38,6 +38,15 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
 
     private const int FifthPedalInterval = -4;
 
+    // The arpeggio cells traverse the sounding chord's own tones from each degree: from the root the
+    // textbook Alberti cell (root-fifth-third-fifth), from the third and fifth the traversals that stay
+    // nearest the principal's register. Offsets are scale steps, exact chord tones under the degree gate.
+    private static readonly int[] RootArpeggioTranslations = [4, 2, 4];
+
+    private static readonly int[] ThirdArpeggioTranslations = [-2, 2, -2];
+
+    private static readonly int[] FifthArpeggioTranslations = [-2, -4, -2];
+
     private static readonly IInputPolicy<OrnamentationItem> _hasNoOrnamentation = new Not<OrnamentationItem>(new HasOrnamentation());
 
     private static readonly IInputPolicy<OrnamentationItem> _hasNextBeat = new HasNextBeat();
@@ -711,6 +720,31 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                     )
                 );
                 break;
+            case OrnamentationType.Arpeggio:
+                processorConfigurations.Add(
+                    CreateArpeggioOrnamentationProcessorConfiguration(
+                        _isRootOfChord,
+                        RootArpeggioTranslations,
+                        ornamentationConfiguration
+                    )
+                );
+
+                processorConfigurations.Add(
+                    CreateArpeggioOrnamentationProcessorConfiguration(
+                        _isThirdOfChord,
+                        ThirdArpeggioTranslations,
+                        ornamentationConfiguration
+                    )
+                );
+
+                processorConfigurations.Add(
+                    CreateArpeggioOrnamentationProcessorConfiguration(
+                        _isFifthOfChord,
+                        FifthArpeggioTranslations,
+                        ornamentationConfiguration
+                    )
+                );
+                break;
             case OrnamentationType.None:
             case OrnamentationType.Sustain:
             case OrnamentationType.MidSustain:
@@ -737,6 +771,31 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
         ],
         OutputPolicies: [new LogOrnamentation(configuration.OrnamentationType, logger)],
         Translations: [intervalChange, intervalChange - 1, intervalChange],
+        ShouldNotInvert,
+        TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
+    );
+
+    // Deliberately no next-motion condition: the cell ends on a chord tone of the CURRENT harmony, so any
+    // continuation works - that breadth is what lets the broken-chord texture wear it as a fabric rather
+    // than an accent. The two distinct offsets are both range-checked; the target-ornamentation guard is
+    // the same-beat cross-voice dedup the pedal uses, so consecutive-beat cells stay legal.
+    private OrnamentationProcessorConfiguration CreateArpeggioOrnamentationProcessorConfiguration(
+        IInputPolicy<OrnamentationItem> scaleDegreePolicy,
+        int[] translations,
+        OrnamentationConfiguration configuration
+    ) => new(
+        OrnamentationType.Arpeggio,
+        InputPolicies:
+        [
+            new WantsToOrnament(weightedRandomBooleanGenerator, configuration.Probability),
+            _hasNoOrnamentation,
+            scaleDegreePolicy,
+            new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Arpeggio)),
+            new IsIntervalWithinInstrumentRange(compositionConfiguration, translations[0]),
+            new IsIntervalWithinInstrumentRange(compositionConfiguration, translations[1])
+        ],
+        OutputPolicies: [new LogOrnamentation(configuration.OrnamentationType, logger)],
+        Translations: [.. translations],
         ShouldNotInvert,
         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
     );

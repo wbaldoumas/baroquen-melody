@@ -2,6 +2,7 @@
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
+using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Effects;
 using BaroquenMelody.Library.Store.State;
@@ -165,5 +166,33 @@ internal sealed class CompositionConfigurationEffectsTests
                 )
             );
         }
+    }
+
+    [Test]
+    public async Task HandleLoadSavedCompositionConfigurationAsync_never_touches_ornamentations_the_saved_configuration_lacks()
+    {
+        // arrange - a save from before an ornamentation existed carries no entry for it; the load must
+        // dispatch per-entry updates only, so the state's Defaults-initialized entry for the missing type
+        // survives and the newer ornamentation keeps working on legacy saves
+        var legacyOrnamentationConfigurations = AggregateOrnamentationConfiguration.Default.Configurations
+            .Where(static ornamentationConfiguration => ornamentationConfiguration.OrnamentationType != OrnamentationType.Arpeggio)
+            .ToHashSet();
+
+        var configuration = TestCompositionConfigurations.Get() with
+        {
+            AggregateOrnamentationConfiguration = new AggregateOrnamentationConfiguration(legacyOrnamentationConfigurations)
+        };
+
+        var action = new LoadSavedCompositionConfiguration(configuration);
+
+        // act
+        await CompositionConfigurationEffects.HandleLoadSavedCompositionConfigurationAsync(action, _mockDispatcher);
+
+        // assert
+        _mockDispatcher.DidNotReceive().Dispatch(
+            Arg.Is<UpdateCompositionOrnamentationConfiguration>(
+                static updateCompositionOrnamentationConfiguration => updateCompositionOrnamentationConfiguration.OrnamentationType == OrnamentationType.Arpeggio
+            )
+        );
     }
 }
