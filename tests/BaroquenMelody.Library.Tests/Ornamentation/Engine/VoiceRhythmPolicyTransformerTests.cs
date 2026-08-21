@@ -236,9 +236,10 @@ internal sealed class VoiceRhythmPolicyTransformerTests
     [TestCase(TextureType.Walking, OrnamentationType.PassingTone, 80, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
     [TestCase(TextureType.Walking, OrnamentationType.Mordent, 20, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
     [TestCase(TextureType.BrokenChord, OrnamentationType.Pedal, 80, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
-    [TestCase(TextureType.BrokenChord, OrnamentationType.OctavePedalArpeggio, 80, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
-    [TestCase(TextureType.BrokenChord, OrnamentationType.OctavePedalPassingTone, 80, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
-    [TestCase(TextureType.BrokenChord, OrnamentationType.UpperOctavePedalPassingTone, 80, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.OctavePedalArpeggio, 25, VoiceRhythmPolicyTransformer.TextureAccentFigureProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.UpperOctavePedalArpeggio, 25, VoiceRhythmPolicyTransformer.TextureAccentFigureProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.OctavePedalPassingTone, 25, VoiceRhythmPolicyTransformer.TextureAccentFigureProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.UpperOctavePedalPassingTone, 25, VoiceRhythmPolicyTransformer.TextureAccentFigureProbability)]
     [TestCase(TextureType.BrokenChord, OrnamentationType.Arpeggio, 25, VoiceRhythmPolicyTransformer.TextureFigureProbability)]
     [TestCase(TextureType.BrokenChord, OrnamentationType.OctavePedal, 80, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
     [TestCase(TextureType.BrokenChord, OrnamentationType.UpperOctavePedal, 80, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
@@ -352,6 +353,18 @@ internal sealed class VoiceRhythmPolicyTransformerTests
         VoiceRhythmPolicyTransformer.WalkingFigures.Should().NotContain(OrnamentationType.DecorateInterval);
         VoiceRhythmPolicyTransformer.BrokenChordFigures.Should().NotContain(OrnamentationType.DecorateInterval);
         VoiceRhythmPolicyTransformer.WalkingFigures.Intersect(VoiceRhythmPolicyTransformer.BrokenChordFigures).Should().BeEmpty();
+    }
+
+    [Test]
+    public void BrokenChordAccentFigures_AreAProperSubsetOfTheFamilyThatNeverClaimsTheCarryingFigures()
+    {
+        // arrange - the accent tier only modulates weight WITHIN the family: an accent member outside
+        // BrokenChordFigures would take the accent weight while flunking the family's spacing pins, and
+        // an accent set that swallowed the carrying figures (Arpeggio, Pedal) would thin the fabric to
+        // nothing - both must be decisions, never drift
+        VoiceRhythmPolicyTransformer.BrokenChordAccentFigures.Should().BeSubsetOf(VoiceRhythmPolicyTransformer.BrokenChordFigures);
+        VoiceRhythmPolicyTransformer.BrokenChordAccentFigures.Should().NotContain(OrnamentationType.Arpeggio);
+        VoiceRhythmPolicyTransformer.BrokenChordAccentFigures.Should().NotContain(OrnamentationType.Pedal);
     }
 
     private VoiceRhythmPolicyTransformer CreateTransformer(bool voiceRhythmEnabled, TextureType texture = TextureType.None)

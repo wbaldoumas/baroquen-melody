@@ -38,6 +38,11 @@ internal sealed class VoiceRhythmPolicyTransformer(
     // the tread breathes; a single ear-tunable constant.
     internal const int TextureFigureProbability = 95;
 
+    // Very low: accent-tier family members stay in the fabric's palette (same eighth grid) but appear as
+    // occasional color rather than competing with the carrying figures - the ear reported the octave-pedal
+    // bounce as a mannerism when it recurs, so within the texture it must stay rare.
+    internal const int TextureAccentFigureProbability = 10;
+
     private readonly bool _isEnabled = (compositionConfiguration.VoiceRhythmConfiguration ?? VoiceRhythmConfiguration.Default).Enabled;
 
     private readonly TextureType _texture = (compositionConfiguration.TextureConfiguration ?? TextureConfiguration.Default).Texture;
@@ -66,12 +71,14 @@ internal sealed class VoiceRhythmPolicyTransformer(
     }.ToFrozenSet();
 
     // BrokenChord = the even eighth pattern (three sub-notes per beat); DecorateThird is excluded for its
-    // mixed sixteenth/eighth spacing. The Arpeggio's chord-tone cell carries the fabric (its broad
-    // degree-gated eligibility reaches most beats), the passing-tone and arpeggio pedals color the third
-    // and fifth motions, and the chordal pedal covers degree-gated thirds. The plain octave pedals are
-    // deliberately EVICTED: their interior note is a repeat, so the cell is one pitch class four times -
-    // a measured census showed that harmonically empty bounce claiming ~40% of the fabric, which is what
-    // the ear reported as irritating. They remain ordinary ornaments everywhere else.
+    // mixed sixteenth/eighth spacing. The Arpeggio's chord-tone cell and the chordal pedal CARRY the
+    // fabric (both degree-gated, both spelling the sounding harmony); the four moving octave-pedal
+    // variants are family members for spacing but ride the accent tier - a census showed the
+    // passing-tone pedals otherwise outdrawing the arpeggio, and their octave-leap cells recur as a
+    // mannerism. The plain octave pedals are deliberately EVICTED: their interior note is a repeat, so
+    // the cell is one pitch class four times - a measured census showed that harmonically empty bounce
+    // claiming ~40% of the fabric, which is what the ear reported as irritating. All six remain
+    // ordinary ornaments everywhere else.
     internal static FrozenSet<OrnamentationType> BrokenChordFigures { get; } = new[]
     {
         OrnamentationType.Arpeggio,
@@ -80,6 +87,17 @@ internal sealed class VoiceRhythmPolicyTransformer(
         OrnamentationType.OctavePedalPassingTone,
         OrnamentationType.UpperOctavePedalPassingTone,
         OrnamentationType.Pedal
+    }.ToFrozenSet();
+
+    // The subset of BrokenChordFigures gated at the accent tier instead of the carrying tier. A subset
+    // rather than a second family: membership in BrokenChordFigures still states the spacing identity
+    // (and the spacing deciding tests iterate it whole); this set only modulates weight within it.
+    internal static FrozenSet<OrnamentationType> BrokenChordAccentFigures { get; } = new[]
+    {
+        OrnamentationType.OctavePedalArpeggio,
+        OrnamentationType.UpperOctavePedalArpeggio,
+        OrnamentationType.OctavePedalPassingTone,
+        OrnamentationType.UpperOctavePedalPassingTone
     }.ToFrozenSet();
 
     public IInputPolicy<OrnamentationItem>[] Transform(OrnamentationConfiguration ornamentationConfiguration, IInputPolicy<OrnamentationItem>[] inputPolicies)
@@ -123,14 +141,16 @@ internal sealed class VoiceRhythmPolicyTransformer(
         scaleByIntensity: SubdividingOrnamentationTypes.Contains(ornamentationConfiguration.OrnamentationType));
 
     // With no texture configured the weight is neutral (the store stays empty, but a spurious mark would
-    // then behave standardly rather than silently silencing); with one configured, in-family figures are
-    // near-certain and everything else is silenced - Chordal's empty family silences the whole voice. Every
-    // texture is classified explicitly so a new TextureType fails loudly here instead of silently
-    // inheriting Chordal's silence - the same discipline the subdividing set demands.
+    // then behave standardly rather than silently silencing); with one configured, carrying in-family
+    // figures are near-certain, accent-tier members are rare color, and everything else is silenced -
+    // Chordal's empty family silences the whole voice. Every texture is classified explicitly so a new
+    // TextureType fails loudly here instead of silently inheriting Chordal's silence - the same
+    // discipline the subdividing set demands.
     private int ResolveTextureProbability(OrnamentationConfiguration ornamentationConfiguration) => _texture switch
     {
         TextureType.None => ornamentationConfiguration.Probability,
         TextureType.Walking => WalkingFigures.Contains(ornamentationConfiguration.OrnamentationType) ? TextureFigureProbability : HeldNoteProbability,
+        TextureType.BrokenChord when BrokenChordAccentFigures.Contains(ornamentationConfiguration.OrnamentationType) => TextureAccentFigureProbability,
         TextureType.BrokenChord => BrokenChordFigures.Contains(ornamentationConfiguration.OrnamentationType) ? TextureFigureProbability : HeldNoteProbability,
         TextureType.Chordal => HeldNoteProbability,
         _ => throw new InvalidOperationException("The configured texture type has no figure-family classification.")
