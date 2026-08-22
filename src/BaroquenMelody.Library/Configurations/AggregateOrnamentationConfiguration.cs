@@ -33,17 +33,27 @@ public sealed record AggregateOrnamentationConfiguration(ISet<OrnamentationConfi
             new(OrnamentationType.DoublePickup, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.DelayedDoublePickup, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.DecorateThird, ConfigurationStatus.Enabled, 60),
-            new(OrnamentationType.OctavePedal, ConfigurationStatus.Enabled, 80),
-            new(OrnamentationType.OctavePedalPassingTone, ConfigurationStatus.Enabled, 80),
-            new(OrnamentationType.OctavePedalArpeggio, ConfigurationStatus.Enabled, 80),
-            new(OrnamentationType.UpperOctavePedal, ConfigurationStatus.Enabled, 80),
-            new(OrnamentationType.UpperOctavePedalPassingTone, ConfigurationStatus.Enabled, 80),
-            new(OrnamentationType.UpperOctavePedalArpeggio, ConfigurationStatus.Enabled, 80),
+
+            // The octave-pedal family is deliberately far below the workhorse tier: the ear reads the
+            // octave bounce as a mannerism when it recurs. The static-interior pair sits at the
+            // repetition-figure tier (their cell is one pitch class four times, like RepeatedNote), the
+            // four moving-interior variants at the sprinkle tier beside their cousins
+            // (DoublePedalPassingTone, Arpeggio).
+            new(OrnamentationType.OctavePedal, ConfigurationStatus.Enabled, 15),
+            new(OrnamentationType.OctavePedalPassingTone, ConfigurationStatus.Enabled, 25),
+            new(OrnamentationType.OctavePedalArpeggio, ConfigurationStatus.Enabled, 25),
+            new(OrnamentationType.UpperOctavePedal, ConfigurationStatus.Enabled, 15),
+            new(OrnamentationType.UpperOctavePedalPassingTone, ConfigurationStatus.Enabled, 25),
+            new(OrnamentationType.UpperOctavePedalArpeggio, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.TriplePickup, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.SequencedThirds, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.DoublePedalPassingTone, ConfigurationStatus.Enabled, 25),
             new(OrnamentationType.Trill, ConfigurationStatus.Enabled, 20),
-            new(OrnamentationType.Appoggiatura, ConfigurationStatus.Enabled, 20)
+            new(OrnamentationType.Appoggiatura, ConfigurationStatus.Enabled, 20),
+
+            // Deliberately the sprinkle tier: as a stock ornament the Alberti cell is seasoning, while the
+            // broken-chord texture lifts it to near-certainty at engine build regardless of this value.
+            new(OrnamentationType.Arpeggio, ConfigurationStatus.Enabled, 25)
         }
     );
 }

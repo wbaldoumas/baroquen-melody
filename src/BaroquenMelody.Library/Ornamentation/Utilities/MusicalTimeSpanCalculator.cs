@@ -151,6 +151,10 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.Trill when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter + MusicalTimeSpan.Sixteenth,
         OrnamentationType.Trill when meter == Meter.FiveEight => MusicalTimeSpan.Eighth.Dotted(1),
 
+        OrnamentationType.Arpeggio when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.Arpeggio when meter == Meter.ThreeFour => MusicalTimeSpan.Quarter.Dotted(1),
+        OrnamentationType.Arpeggio when meter == Meter.FiveEight => MusicalTimeSpan.Quarter,
+
         // The appoggiatura's principal is the silent harmonic anchor (the chord tone); both the dissonance and its
         // resolution are sounded as ornamentations, so the principal itself occupies no time.
         OrnamentationType.Appoggiatura => Zero,
@@ -307,6 +311,10 @@ internal sealed class MusicalTimeSpanCalculator : IMusicalTimeSpanCalculator
         OrnamentationType.SequencedThirds when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.SequencedThirds when meter == Meter.ThreeFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.SequencedThirds when meter == Meter.FiveEight => MusicalTimeSpan.Sixteenth,
+
+        OrnamentationType.Arpeggio when meter == Meter.FourFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.Arpeggio when meter == Meter.ThreeFour => MusicalTimeSpan.Eighth,
+        OrnamentationType.Arpeggio when meter == Meter.FiveEight => MusicalTimeSpan.Eighth,
 
         OrnamentationType.DoublePedalPassingTone when meter == Meter.FourFour => MusicalTimeSpan.Sixteenth,
         OrnamentationType.DoublePedalPassingTone when meter == Meter.ThreeFour => MusicalTimeSpan.Sixteenth,

@@ -78,7 +78,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, _musicalTimeSpanCalculator, randomProvider, logger, voiceRhythmLedger);
         var dynamicsEngineBuilder = new DynamicsEngineBuilder(compositionConfiguration, randomProvider);
         var dynamicsApplicator = new DynamicsApplicator(compositionConfiguration, dynamicsEngineBuilder.Build());
-        var compositionDecorator = new CompositionDecorator(ornamentationEngineBuilder.BuildOrnamentationEngine(), ornamentationEngineBuilder.BuildSustainedNoteEngine(), compositionConfiguration);
+        var compositionDecorator = new CompositionDecorator(ornamentationEngineBuilder.BuildOrnamentationEngine(), ornamentationEngineBuilder.BuildSustainedNoteEngine(), voiceRhythmScheduler, compositionConfiguration);
         var motifExtractor = new MotifExtractor(compositionConfiguration);
         var motifApplicator = new MotifApplicator(compositionConfiguration);
         var motifBankFactory = new MotifBankFactory(motifExtractor, compositionConfiguration);
@@ -153,7 +153,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
                 // voice rhythm configuration keeps both graphs uniform - and shares the one ledger, so the
                 // ground form's division roles resolve identically whichever key's engine decorates a slice.
                 var relativeOrnamentationEngineBuilder = new OrnamentationEngineBuilder(relativeConfiguration, _musicalTimeSpanCalculator, randomProvider, logger, voiceRhythmLedger);
-                var relativeDecorator = new CompositionDecorator(relativeOrnamentationEngineBuilder.BuildOrnamentationEngine(), relativeOrnamentationEngineBuilder.BuildSustainedNoteEngine(), relativeConfiguration);
+                var relativeDecorator = new CompositionDecorator(relativeOrnamentationEngineBuilder.BuildOrnamentationEngine(), relativeOrnamentationEngineBuilder.BuildSustainedNoteEngine(), voiceRhythmScheduler, relativeConfiguration);
                 var relativeTonicizationApplicator = new TonicizationApplicator(relativeChordNumberIdentifier, _weightedRandomBooleanGenerator, relativeConfiguration);
 
                 relativeComponents = new GroundBassSectionComponents(relativeStrategy, relativeSeamStrategy, relativeChordSelector, relativeDecorator, relativeTonicizationApplicator);
@@ -184,9 +184,14 @@ internal sealed class BaroquenMelodyComposerConfigurator(
     ///     Builds the relative key's configuration: the same composition in every respect except its tonal
     ///     center - the submediant's Aeolian for an Ionian home, the mediant's Ionian for an Aeolian home.
     ///     Constructed through the full constructor so the property-initialized <see cref="CompositionConfiguration.Scale"/>
-    ///     binds to the relative key (a `with` clone would carry the home scale).
+    ///     binds to the relative key (a `with` clone would carry the home scale). The positional call list is
+    ///     the regression trap: a newly added trailing parameter that is not forwarded here silently takes its
+    ///     default. Internal so the forwarding-guard test can decide every parameter directly - the ground
+    ///     form never reads some of them, so no behavioral test could catch a drop.
     /// </summary>
-    private static CompositionConfiguration BuildRelativeConfiguration(CompositionConfiguration compositionConfiguration)
+    /// <param name="compositionConfiguration">The home-key configuration to re-anchor.</param>
+    /// <returns>The same configuration re-anchored in the relative key.</returns>
+    internal static CompositionConfiguration BuildRelativeConfiguration(CompositionConfiguration compositionConfiguration)
     {
         var (relativeTonic, relativeMode) = compositionConfiguration.Mode == Mode.Ionian
             ? (compositionConfiguration.Scale.Submediant, Mode.Aeolian)
@@ -212,7 +217,8 @@ internal sealed class BaroquenMelodyComposerConfigurator(
             compositionConfiguration.SuspensionConfiguration,
             compositionConfiguration.TonicizationConfiguration,
             compositionConfiguration.GroundBassConfiguration,
-            compositionConfiguration.VoiceRhythmConfiguration);
+            compositionConfiguration.VoiceRhythmConfiguration,
+            compositionConfiguration.TextureConfiguration);
     }
 
     /// <summary>

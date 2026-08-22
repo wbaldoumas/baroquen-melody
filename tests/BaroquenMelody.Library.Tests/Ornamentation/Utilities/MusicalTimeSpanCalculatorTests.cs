@@ -215,6 +215,13 @@ internal sealed class MusicalTimeSpanCalculatorTests
             yield return new TestCaseData(OrnamentationType.Appoggiatura, Meter.FourFour, new MusicalTimeSpan());
 
             yield return new TestCaseData(OrnamentationType.Appoggiatura, Meter.ThreeFour, new MusicalTimeSpan());
+
+            // the arpeggio matches the pedal rows exactly, keeping it on the even eighth grid in 4/4.
+            yield return new TestCaseData(OrnamentationType.Arpeggio, Meter.FourFour, MusicalTimeSpan.Eighth);
+
+            yield return new TestCaseData(OrnamentationType.Arpeggio, Meter.ThreeFour, MusicalTimeSpan.Quarter.Dotted(1));
+
+            yield return new TestCaseData(OrnamentationType.Arpeggio, Meter.FiveEight, MusicalTimeSpan.Quarter);
         }
     }
 
@@ -326,6 +333,13 @@ internal sealed class MusicalTimeSpanCalculatorTests
             yield return new TestCaseData(OrnamentationType.Appoggiatura, Meter.ThreeFour, MusicalTimeSpan.Half, 0);
 
             yield return new TestCaseData(OrnamentationType.Appoggiatura, Meter.ThreeFour, MusicalTimeSpan.Quarter, 1);
+
+            // the arpeggio's sub-notes ride the flat eighth grid in every meter, like the pedals.
+            yield return new TestCaseData(OrnamentationType.Arpeggio, Meter.FourFour, MusicalTimeSpan.Eighth, 1);
+
+            yield return new TestCaseData(OrnamentationType.Arpeggio, Meter.ThreeFour, MusicalTimeSpan.Eighth, 1);
+
+            yield return new TestCaseData(OrnamentationType.Arpeggio, Meter.FiveEight, MusicalTimeSpan.Eighth, 1);
         }
     }
 }

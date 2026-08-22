@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
@@ -24,7 +25,7 @@ internal sealed class CompositionConfigurationReducersTests
         var state = new CompositionConfigurationState();
 
         // act
-        state = CompositionConfigurationReducers.ReduceUpdateCompositionConfiguration(state, new UpdateCompositionConfiguration(rootNote, mode, Meter.ThreeFour, 8, 555, CompositionForm.GroundBass, GroundBass.Romanesca, GroundBassModulate: false));
+        state = CompositionConfigurationReducers.ReduceUpdateCompositionConfiguration(state, new UpdateCompositionConfiguration(rootNote, mode, Meter.ThreeFour, 8, 555, CompositionForm.GroundBass, GroundBass.Romanesca, GroundBassModulate: false, Texture: TextureType.Walking));
 
         // assert
         state.Meter.Should().Be(Meter.ThreeFour);
@@ -35,6 +36,7 @@ internal sealed class CompositionConfigurationReducersTests
         state.Form.Should().Be(CompositionForm.GroundBass);
         state.GroundBassPattern.Should().Be(GroundBass.Romanesca);
         state.GroundBassModulate.Should().BeFalse("the action's toggle must land in the store");
+        state.Texture.Should().Be(TextureType.Walking, "the action's texture must land in the store");
     }
 
     [Test]
@@ -56,6 +58,21 @@ internal sealed class CompositionConfigurationReducersTests
         state.Form.Should().Be(CompositionForm.Fugue, "a configuration without a ground bass section is the standard form");
         state.GroundBassPattern.Should().BeNull("a configuration without a ground bass section pins no pattern");
         state.GroundBassModulate.Should().BeTrue("a configuration without a ground bass section keeps the default journey");
+        state.Texture.Should().Be(TextureType.None, "a configuration without a texture section keeps the texture-free default");
+    }
+
+    [Test]
+    public void ReduceLoadCompositionConfiguration_maps_a_texture_configuration_into_the_store()
+    {
+        // arrange
+        var configuration = TestCompositionConfigurations.Get() with { TextureConfiguration = new TextureConfiguration(TextureType.BrokenChord) };
+        var state = new CompositionConfigurationState();
+
+        // act
+        state = CompositionConfigurationReducers.ReduceLoadCompositionConfiguration(state, new LoadCompositionConfiguration(configuration));
+
+        // assert
+        state.Texture.Should().Be(TextureType.BrokenChord, "the loaded configuration's texture must surface in the store");
     }
 
     [Test]

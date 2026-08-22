@@ -40,6 +40,7 @@ internal static class OrnamentationTypeExtensions
         { OrnamentationType.DoublePedalPassingTone, 7 },
         { OrnamentationType.Trill, 7 },
         { OrnamentationType.Appoggiatura, 2 },
+        { OrnamentationType.Arpeggio, 3 },
         { OrnamentationType.None, 0 },
         { OrnamentationType.Sustain, 0 },
         { OrnamentationType.MidSustain, 0 },

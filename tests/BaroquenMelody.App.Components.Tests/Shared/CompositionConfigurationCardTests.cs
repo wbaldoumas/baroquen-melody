@@ -1,6 +1,7 @@
 using BaroquenMelody.App.Components.Shared;
 using BaroquenMelody.App.Components.Tests.TestComponents;
 using BaroquenMelody.App.Components.Tests.TestData;
+using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
@@ -159,6 +160,60 @@ internal sealed class CompositionConfigurationCardTests
 
         // assert
         component.FindComponents<SelectWithPopover<GroundBass?>>().Should().ContainSingle();
+    }
+
+    [Test]
+    public void The_texture_dropdown_appears_only_under_the_fugue_form()
+    {
+        // arrange: the texture shapes the fugal body's accompaniment, so the ground bass form (whose
+        // texture is its divisions) hides the dropdown entirely.
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        component.FindComponents<SelectWithPopover<TextureType>>().Should().ContainSingle();
+
+        // act
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        component.Render();
+
+        // assert
+        component.FindComponents<SelectWithPopover<TextureType>>().Should().BeEmpty();
+    }
+
+    [Test]
+    public void Choosing_a_texture_updates_the_store()
+    {
+        // arrange
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+        var select = component.FindComponent<MudSelect<TextureType>>();
+
+        // act
+        component.InvokeAsync(() => select.Instance.ValueChanged.InvokeAsync(TextureType.Walking)).GetAwaiter().GetResult();
+
+        // assert
+        _testContext.StateOf<CompositionConfigurationState>().Texture.Should().Be(TextureType.Walking);
+    }
+
+    [Test]
+    public void Changing_the_tonic_preserves_the_selected_texture()
+    {
+        // arrange: every handler must carry the whole state forward, or a tonic change would silently
+        // reset the texture to the imitative default.
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+        var textureSelect = component.FindComponent<MudSelect<TextureType>>();
+
+        component.InvokeAsync(() => textureSelect.Instance.ValueChanged.InvokeAsync(TextureType.BrokenChord)).GetAwaiter().GetResult();
+        component.Render();
+
+        var tonicSelect = component.FindComponent<MudSelect<NoteName>>();
+
+        // act
+        component.InvokeAsync(() => tonicSelect.Instance.ValueChanged.InvokeAsync(NoteName.G)).GetAwaiter().GetResult();
+
+        // assert
+        var state = _testContext.StateOf<CompositionConfigurationState>();
+
+        state.TonicNote.Should().Be(NoteName.G);
+        state.Texture.Should().Be(TextureType.BrokenChord);
     }
 
     [Test]

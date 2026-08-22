@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Library.Enums;
+﻿using BaroquenMelody.Library.Configurations.Enums;
+using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Forms.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using Melanchall.DryWetMidi.MusicTheory;
@@ -35,6 +36,12 @@ public interface ICompositionConfigurationService
     ///     composer's free draw among the patterns that fit, then the bank's patterns in bank order.
     /// </summary>
     IEnumerable<GroundBass?> ConfigurableGroundBassPatterns { get; }
+
+    /// <summary>
+    ///     The accompaniment textures that can be configured by the user for the fugue form
+    ///     (e.g. "None", "Chordal", "Walking", "Broken Chord").
+    /// </summary>
+    IEnumerable<TextureType> ConfigurableTextures { get; }
 
     /// <summary>
     ///     Randomize the composition configuration.

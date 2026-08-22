@@ -20,6 +20,10 @@ internal sealed class RoleAwareWantsToOrnamentTests
 
     private const int HeldProbability = 0;
 
+    private const int PadProbability = 10;
+
+    private const int TextureProbability = 95;
+
     private const int FloridProbability = 70;
 
     private IWeightedRandomBooleanGenerator _mockWeightedRandomBooleanGenerator = null!;
@@ -39,6 +43,8 @@ internal sealed class RoleAwareWantsToOrnamentTests
             _voiceRhythmLedger,
             Probability,
             HeldProbability,
+            PadProbability,
+            TextureProbability,
             FloridProbability,
             scaleByIntensity: true);
     }
@@ -119,7 +125,7 @@ internal sealed class RoleAwareWantsToOrnamentTests
         // arrange - a recorded intensity scales the resolved weight (clamped to the legal range) without
         // adding or removing a draw
         var scaledNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
-        var gate = new RoleAwareWantsToOrnament(_mockWeightedRandomBooleanGenerator, _voiceRhythmLedger, baseProbability, HeldProbability, FloridProbability, scaleByIntensity: true);
+        var gate = new RoleAwareWantsToOrnament(_mockWeightedRandomBooleanGenerator, _voiceRhythmLedger, baseProbability, HeldProbability, PadProbability, TextureProbability, FloridProbability, scaleByIntensity: true);
 
         _voiceRhythmLedger.RecordDivisionIntensity(scaledNote, intensity);
 
@@ -156,6 +162,8 @@ internal sealed class RoleAwareWantsToOrnamentTests
             _voiceRhythmLedger,
             Probability,
             HeldProbability,
+            PadProbability,
+            TextureProbability,
             FloridProbability,
             scaleByIntensity: false);
 
@@ -182,6 +190,110 @@ internal sealed class RoleAwareWantsToOrnamentTests
 
         // assert
         _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(HeldProbability);
+    }
+
+    [Test]
+    public void ShouldProcess_WithATextureFigurationNote_DrawsExactlyOnceAtTheTextureWeight()
+    {
+        // arrange
+        var figurationNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordTextureFigurationNote(figurationNote);
+        _mockWeightedRandomBooleanGenerator.IsTrue(TextureProbability).Returns(true);
+
+        // act
+        var result = _roleAwareWantsToOrnament.ShouldProcess(CreateItem(figurationNote));
+
+        // assert
+        result.Should().Be(InputPolicyResult.Continue);
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(TextureProbability);
+    }
+
+    [Test]
+    public void ShouldProcess_WithATextureNoteCarryingAnIntensity_TheTextureWeightIsNeverScaled()
+    {
+        // arrange - the texture branch short-circuits ahead of the intensity consult: a texture's fabric is
+        // never scaled by the ground's escalation, a decided contract rather than unreachable-path luck
+        var figurationNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordTextureFigurationNote(figurationNote);
+        _voiceRhythmLedger.RecordDivisionIntensity(figurationNote, 140);
+
+        // act
+        _roleAwareWantsToOrnament.ShouldProcess(CreateItem(figurationNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(TextureProbability);
+    }
+
+    [Test]
+    public void ShouldProcess_WithATexturePadNote_DrawsExactlyOnceAtThePadWeight()
+    {
+        // arrange - a pad is recorded in BOTH stores by contract; the pad branch must resolve before the
+        // held branch or every pad would take the held silence and the breathing weight would be dead code
+        var padNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordHeldNote(padNote);
+        _voiceRhythmLedger.RecordTexturePadNote(padNote);
+        _mockWeightedRandomBooleanGenerator.IsTrue(PadProbability).Returns(true);
+
+        // act
+        var result = _roleAwareWantsToOrnament.ShouldProcess(CreateItem(padNote));
+
+        // assert
+        result.Should().Be(InputPolicyResult.Continue);
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(PadProbability);
+    }
+
+    [Test]
+    public void ShouldProcess_WithAPadNoteCarryingAnIntensity_ThePadWeightIsNeverScaled()
+    {
+        // arrange - the pad branch resolves ahead of the intensity consult, the same contract the held and
+        // texture branches keep: an accompaniment's calm is never scaled by the ground's escalation
+        var padNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordHeldNote(padNote);
+        _voiceRhythmLedger.RecordTexturePadNote(padNote);
+        _voiceRhythmLedger.RecordDivisionIntensity(padNote, 140);
+
+        // act
+        _roleAwareWantsToOrnament.ShouldProcess(CreateItem(padNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(PadProbability);
+    }
+
+    [Test]
+    public void ShouldProcess_WithANoteBothHeldAndTexture_HeldWins()
+    {
+        // arrange - the scheduler keeps the marks disjoint by construction; the gate's precedence is the
+        // belt-and-suspenders contract should a future recorder ever overlap them
+        var conflictedNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordHeldNote(conflictedNote);
+        _voiceRhythmLedger.RecordTextureFigurationNote(conflictedNote);
+
+        // act
+        _roleAwareWantsToOrnament.ShouldProcess(CreateItem(conflictedNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(HeldProbability);
+    }
+
+    [Test]
+    public void ShouldProcess_WithANoteBothTextureAndFlorid_TextureWins()
+    {
+        // arrange
+        var conflictedNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordTextureFigurationNote(conflictedNote);
+        _voiceRhythmLedger.RecordFloridNote(conflictedNote);
+
+        // act
+        _roleAwareWantsToOrnament.ShouldProcess(CreateItem(conflictedNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(TextureProbability);
     }
 
     private static OrnamentationItem CreateItem(BaroquenNote note) =>

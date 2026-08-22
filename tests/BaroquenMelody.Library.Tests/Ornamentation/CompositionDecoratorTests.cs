@@ -2,7 +2,9 @@
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Ornamentation;
+using BaroquenMelody.Library.Rhythm;
 using BaroquenMelody.Library.Tests.TestData;
+using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using NSubstitute;
@@ -17,6 +19,8 @@ internal sealed class CompositionDecoratorTests
 
     private IPolicyEngine<OrnamentationItem> _mockSustainEngine = null!;
 
+    private IVoiceRhythmScheduler _mockVoiceRhythmScheduler = null!;
+
     private CompositionDecorator _compositionDecorator = null!;
 
     [SetUp]
@@ -26,8 +30,9 @@ internal sealed class CompositionDecoratorTests
 
         _mockOrnamentationEngine = Substitute.For<IPolicyEngine<OrnamentationItem>>();
         _mockSustainEngine = Substitute.For<IPolicyEngine<OrnamentationItem>>();
+        _mockVoiceRhythmScheduler = Substitute.For<IVoiceRhythmScheduler>();
 
-        _compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, _mockSustainEngine, compositionConfiguration);
+        _compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, _mockSustainEngine, _mockVoiceRhythmScheduler, compositionConfiguration);
     }
 
     [Test]
@@ -210,7 +215,7 @@ internal sealed class CompositionDecoratorTests
     {
         // arrange
         var compositionConfiguration = TestCompositionConfigurations.Get(2) with { ShuffleOrnamentationProcessors = false };
-        var compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, _mockSustainEngine, compositionConfiguration);
+        var compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, _mockSustainEngine, _mockVoiceRhythmScheduler, compositionConfiguration);
         var composition = CreateTwoInstrumentComposition();
 
         // act
@@ -219,6 +224,52 @@ internal sealed class CompositionDecoratorTests
         // assert
         _mockOrnamentationEngine.DidNotReceive().Shuffle();
         _mockOrnamentationEngine.ReceivedWithAnyArgs(8).Process(Arg.Any<OrnamentationItem>());
+    }
+
+    [Test]
+    public void WhenDecorateIsInvoked_AndATextureOrderExists_TheInstrumentsDecorateInThatOrder()
+    {
+        // arrange - the scheduler's texture order (melody first, figuration last) must drive the
+        // whole-composition ornamentation pass, so cleaning conflicts always resolve in the melody's favor
+        _mockVoiceRhythmScheduler
+            .TryGetTextureDecorationOrder(out Arg.Any<IReadOnlyList<Instrument>>())
+            .Returns(static callInfo =>
+            {
+                callInfo[0] = (IReadOnlyList<Instrument>)[Instrument.Two, Instrument.One];
+
+                return true;
+            });
+
+        var processedInstruments = new List<Instrument>();
+
+        _mockOrnamentationEngine
+            .When(static engine => engine.Process(Arg.Any<OrnamentationItem>()))
+            .Do(callInfo => processedInstruments.Add(callInfo.Arg<OrnamentationItem>().Instrument));
+
+        var composition = CreateTwoInstrumentComposition();
+
+        // act
+        _compositionDecorator.Decorate(composition);
+
+        // assert - four beats per instrument, the scheduler's order, not the configuration set's
+        var expectedSequence = Enumerable.Repeat(Instrument.Two, 4).Concat(Enumerable.Repeat(Instrument.One, 4));
+
+        processedInstruments.Should().Equal(expectedSequence);
+    }
+
+    [Test]
+    public void WhenApplySustainIsInvoked_TheTextureOrderIsNeverConsulted()
+    {
+        // arrange - the sustain gate draws once per item, so re-ordering the sustain pass would re-order
+        // its draws on the shared stream; only the ornamentation pass takes the texture order
+        var composition = CreateTwoInstrumentComposition();
+
+        // act
+        _compositionDecorator.ApplySustain(composition);
+
+        // assert
+        _mockVoiceRhythmScheduler.DidNotReceive().TryGetTextureDecorationOrder(out Arg.Any<IReadOnlyList<Instrument>>());
+        _mockSustainEngine.ReceivedWithAnyArgs(8).Process(Arg.Any<OrnamentationItem>());
     }
 
     private static Composition CreateTwoInstrumentComposition() => new(
