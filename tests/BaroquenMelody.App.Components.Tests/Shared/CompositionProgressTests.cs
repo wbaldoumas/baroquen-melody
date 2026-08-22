@@ -192,6 +192,26 @@ internal sealed class CompositionProgressTests
     }
 
     [Test]
+    public void Failing_to_save_the_composition_does_not_mark_it_saved()
+    {
+        // arrange
+        _testContext.MockMidiSaver.SaveAsync(Arg.Any<MidiFileComposition>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(false);
+        DispatchCompletedComposition();
+
+        var component = _testContext.RenderComponent<CompositionProgress>();
+
+        // act
+        component.FindAll("button").Single(button => button.TextContent.Contains("Save Composition", StringComparison.Ordinal)).Click();
+
+        // assert: a failed save leaves the composition unsaved and shows no confirmation snackbar
+        component.WaitForAssertion(() =>
+        {
+            _testContext.StateOf<BaroquenMelodyState>().HasBeenSaved.Should().BeFalse();
+            Snackbar.ShownSnackbars.Should().BeEmpty();
+        });
+    }
+
+    [Test]
     public void Composing_over_an_unsaved_composition_asks_for_confirmation()
     {
         // arrange: an unsaved composition exists while waiting to compose
