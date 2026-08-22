@@ -1,7 +1,5 @@
 ﻿using BaroquenMelody.Library;
 using BaroquenMelody.Library.Midi;
-using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Storage;
 using System.Globalization;
 using MauiFileSystem = Microsoft.Maui.Storage.FileSystem;
@@ -48,16 +46,8 @@ internal sealed class MauiMidiSaver : IMidiSaver
             return false;
         }
 
-        return await MainThread.InvokeOnMainThreadAsync(async () =>
-        {
-            var isSuccessful = await SavePlatformAsync(tempPath, cancellationToken).ConfigureAwait(true);
-
-            await Toast.Make(
-                isSuccessful ? "MIDI file saved successfully." : "Failed to save the MIDI file.",
-                isSuccessful ? ToastDuration.Short : ToastDuration.Long).Show(cancellationToken).ConfigureAwait(true);
-
-            return isSuccessful;
-        }).ConfigureAwait(false);
+        return await MainThread.InvokeOnMainThreadAsync(
+            () => SavePlatformAsync(tempPath, cancellationToken)).ConfigureAwait(false);
     }
 
 #if WINDOWS
