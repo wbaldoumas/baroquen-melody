@@ -46,13 +46,14 @@ internal interface IVoiceRhythmScheduler
     bool TryGetTextureRole(Instrument instrument, out TextureRole textureRole);
 
     /// <summary>
-    ///     Resolve the decoration sequence for an active texture: melody first, figuration last, so the
-    ///     ornamentation cleaners' just-decorated-loses rule resolves a dissonant coincidence between two
-    ///     figures placed in the same decoration pass in the melody's favor. (A melody figure placed by a
-    ///     later pass can still be cleaned against an accompaniment figure that survives from an earlier
-    ///     one - the ordering guarantee is per pass, not global.)
+    ///     Resolve the decoration sequence for an active texture: melody, then figuration, then the pads -
+    ///     the structural hierarchy, so the ornamentation cleaners' just-decorated-loses rule resolves a
+    ///     dissonant coincidence between two figures placed in the same decoration pass in favor of the more
+    ///     structural line: the melody wins everything, and the figuration's fabric wins over a pad's gentle
+    ///     breath. (A figure placed by a later pass can still be cleaned against one that survives from an
+    ///     earlier pass - the ordering guarantee is per pass, not global.)
     /// </summary>
-    /// <param name="decorationOrder">The register-ordered instruments, when a texture is active.</param>
+    /// <param name="decorationOrder">The hierarchy-ordered instruments, when a texture is active.</param>
     /// <returns>Whether a texture is active.</returns>
     bool TryGetTextureDecorationOrder(out IReadOnlyList<Instrument> decorationOrder);
 }

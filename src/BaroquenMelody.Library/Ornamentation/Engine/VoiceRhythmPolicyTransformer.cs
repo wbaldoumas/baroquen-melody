@@ -15,7 +15,10 @@ namespace BaroquenMelody.Library.Ornamentation.Engine;
 ///     of most processors but sits behind a deterministic precondition in the interval-decoration family, and
 ///     an in-place replacement is reach- and draw-identical wherever the gate lives. Held notes take weight
 ///     zero everywhere (any figure on a held run's note would block its sustain tie — the draw still happens,
-///     preserving the stream), florid notes boost only the beat-subdividing figure tier, and the sustain gate
+///     preserving the stream), except that texture pads — distinguished from the held store's other tenants
+///     by their own ledger store — take a very low weight on the gentle stepwise figures under the figural
+///     textures so the holds breathe (Chordal's pads stay silent: its identity is the figure-free
+///     accompaniment); florid notes boost only the beat-subdividing figure tier, and the sustain gate
 ///     ties held pairs deterministically. Texture-figuration notes take each gate's build-time family weight:
 ///     near-certainty for the configured texture's figure family, silence for everything else, so the
 ///     figuration voice renders only its family — the texture is a configuration constant, resolved here
@@ -42,6 +45,16 @@ internal sealed class VoiceRhythmPolicyTransformer(
     // occasional color rather than competing with the carrying figures - the ear reported the octave-pedal
     // bounce as a mannerism when it recurs, so within the texture it must stay rare.
     internal const int TextureAccentFigureProbability = 10;
+
+    // Very low: a pad's identity is its stillness, but a fully inert interior reads as lifeless - the pads
+    // take an occasional gentle stepwise figure so the holds breathe without becoming a texture of their
+    // own. Tuned by a bracketed census on the 3-voice single-pad interior body: 20 lands roughly one
+    // breath every three measures (10 measured at one per six - too close to inaudible against a
+    // too-static complaint). A figured pad breaks the tie FORWARD only; a preceding repeat still ties
+    // INTO it, silencing its principal while the gentle sub-note sounds - a hold resolving into the
+    // neighbor, decided by the sustain processor's figured-next test. The suspension pass may also
+    // overwrite a breath outright (structural dissonance outranks decoration, its standing rule).
+    internal const int PadGentleFigureProbability = 20;
 
     private readonly bool _isEnabled = (compositionConfiguration.VoiceRhythmConfiguration ?? VoiceRhythmConfiguration.Default).Enabled;
 
@@ -100,6 +113,17 @@ internal sealed class VoiceRhythmPolicyTransformer(
         OrnamentationType.UpperOctavePedalPassingTone
     }.ToFrozenSet();
 
+    // The figures a texture pad may take at the gentle weight; everything else stays silenced on pads.
+    // Both are single-sub-note stepwise figures whose own preconditions aim them exactly where a pad
+    // needs motion: NeighborTone fires on repeated pairs (the hold's interior, waving to a step neighbor
+    // and back) and PassingTone fires on a third (the pad's harmonic seams, filling the step between).
+    // The delayed variants are excluded - dotted syncopation is more intrusive than a pad should be.
+    internal static FrozenSet<OrnamentationType> PadGentleFigures { get; } = new[]
+    {
+        OrnamentationType.PassingTone,
+        OrnamentationType.NeighborTone
+    }.ToFrozenSet();
+
     public IInputPolicy<OrnamentationItem>[] Transform(OrnamentationConfiguration ornamentationConfiguration, IInputPolicy<OrnamentationItem>[] inputPolicies)
     {
         if (!_isEnabled)
@@ -120,6 +144,7 @@ internal sealed class VoiceRhythmPolicyTransformer(
             voiceRhythmLedger,
             probability: WantsToOrnament.DefaultProbability,
             heldProbability: HeldSustainProbability,
+            padProbability: HeldSustainProbability,
             textureProbability: WantsToOrnament.DefaultProbability,
             floridProbability: WantsToOrnament.DefaultProbability,
             scaleByIntensity: false)
@@ -134,11 +159,27 @@ internal sealed class VoiceRhythmPolicyTransformer(
         voiceRhythmLedger,
         probability: ornamentationConfiguration.Probability,
         heldProbability: HeldNoteProbability,
+        padProbability: ResolvePadProbability(ornamentationConfiguration),
         textureProbability: ResolveTextureProbability(ornamentationConfiguration),
         floridProbability: SubdividingOrnamentationTypes.Contains(ornamentationConfiguration.OrnamentationType)
             ? FloridSubdividingProbability
             : ornamentationConfiguration.Probability,
         scaleByIntensity: SubdividingOrnamentationTypes.Contains(ornamentationConfiguration.OrnamentationType));
+
+    // Exhaustive like its texture-weight sibling, and for the same reason: a new TextureType must decide
+    // its pads' breathing deliberately, never inherit it silently. None stays neutral (the pad store is
+    // empty, but a spurious mark would behave standardly rather than silently breathe or silence); the
+    // figural textures let the gentle figures through at the pad weight; Chordal's pads never breathe -
+    // its whole identity is the figure-free accompaniment.
+    private int ResolvePadProbability(OrnamentationConfiguration ornamentationConfiguration) => _texture switch
+    {
+        TextureType.None => ornamentationConfiguration.Probability,
+        TextureType.Walking or TextureType.BrokenChord => PadGentleFigures.Contains(ornamentationConfiguration.OrnamentationType)
+            ? PadGentleFigureProbability
+            : HeldNoteProbability,
+        TextureType.Chordal => HeldNoteProbability,
+        _ => throw new InvalidOperationException("The configured texture type has no pad classification.")
+    };
 
     // With no texture configured the weight is neutral (the store stays empty, but a spurious mark would
     // then behave standardly rather than silently silencing); with one configured, carrying in-family

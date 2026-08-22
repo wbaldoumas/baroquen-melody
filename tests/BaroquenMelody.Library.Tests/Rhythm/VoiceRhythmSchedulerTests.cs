@@ -402,18 +402,20 @@ internal sealed class VoiceRhythmSchedulerTests
     }
 
     [Test]
-    public void TryGetTextureDecorationOrder_WithATextureConfigured_OrdersMelodyFirstAndFigurationLast()
+    public void TryGetTextureDecorationOrder_WithATextureConfigured_OrdersTheStructuralHierarchy()
     {
-        // arrange - the cleaners sacrifice the just-decorated voice's figure, so decorating melody-first
-        // means every dissonant coincidence resolves in the melody's favor
+        // arrange - the cleaners sacrifice the just-decorated voice's figure, so the decoration sequence is
+        // the structural hierarchy: melody first (wins every dissonant coincidence), figuration second (its
+        // fabric wins over a pad's gentle breath), pads last - NOT plain register order, which would let a
+        // pad's breath strip the carrying fabric it was decorated before
         var voiceRhythmScheduler = new VoiceRhythmScheduler(GetTextureConfiguration());
 
         // act
         var hasOrder = voiceRhythmScheduler.TryGetTextureDecorationOrder(out var decorationOrder);
 
-        // assert
+        // assert - melody (One, highest), figuration (Four, lowest), then the pads in register order
         hasOrder.Should().BeTrue();
-        decorationOrder.Should().Equal(Instrument.One, Instrument.Two, Instrument.Three, Instrument.Four);
+        decorationOrder.Should().Equal(Instrument.One, Instrument.Four, Instrument.Two, Instrument.Three);
     }
 
     [Test]

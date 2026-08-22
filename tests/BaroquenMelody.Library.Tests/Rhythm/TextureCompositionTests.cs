@@ -172,6 +172,61 @@ internal sealed class TextureCompositionTests
         seedsWithArpeggioCells.Should().BeGreaterThanOrEqualTo(3, "the arpeggio's broad degree-gated eligibility must reach most seeds' fabrics");
     }
 
+    [TestCase(TextureType.Walking, 3)]
+    [TestCase(TextureType.BrokenChord, 3)]
+    [TestCase(TextureType.Walking, 4)]
+    [TestCase(TextureType.BrokenChord, 4)]
+    public void Compose_WithAFiguralTexture_ThePadsBreatheGentlyAndCarryNothingElse(TextureType texture, int voiceCount)
+    {
+        var allowedTypes = VoiceRhythmPolicyTransformer.PadGentleFigures.Concat(NonFamilyAllowance).ToHashSet();
+        var seedsWithBreathingPads = 0;
+
+        foreach (var seed in Enumerable.Range(1, 4))
+        {
+            // arrange & act - both voice counts matter: 4 voices assign TWO pads (the configuration the
+            // listen gate found doubly static), and the pad instruments are derived from the scheduler's
+            // own role answers rather than a list index, so a register tiebreak can never silently point
+            // these assertions at the wrong voice
+            var composerGraph = ComposerGraph.Create(GetConfiguration(texture, voiceCount: voiceCount), seed);
+            var composition = composerGraph.Composer.Compose(CancellationToken.None);
+            var voiceRhythmScheduler = new VoiceRhythmScheduler(composerGraph.Configuration);
+
+            var padInstruments = composerGraph.Configuration.Instruments
+                .Where(instrument => voiceRhythmScheduler.TryGetTextureRole(instrument, out var textureRole) && textureRole == TextureRole.Pad)
+                .ToList();
+
+            padInstruments.Should().HaveCount(voiceCount - 2, "every voice between the melody and the figuration is a pad");
+
+            var interiorBodyMeasures = GetInteriorBodyMeasures(composition, composerGraph.Ledger, seed);
+
+            foreach (var padInstrument in padInstruments)
+            {
+                var padNotes = NotesOf(interiorBodyMeasures, padInstrument).ToList();
+
+                padNotes.Should().NotBeEmpty($"the pad voice sounds throughout the body (seed {seed})");
+
+                // assert - the gentle-only invariant: every figure gate except the gentle pair is
+                // weight-zero on pads, so anything else appearing here is a deterministic failure on
+                // every seed, for every pad
+                foreach (var padNote in padNotes)
+                {
+                    allowedTypes.Should().Contain(padNote.OrnamentationType, $"a pad may breathe only through the gentle figures (seed {seed})");
+                }
+
+                if (padNotes.Exists(static note => VoiceRhythmPolicyTransformer.PadGentleFigures.Contains(note.OrnamentationType)))
+                {
+                    seedsWithBreathingPads++;
+                }
+            }
+        }
+
+        // assert - and the breathing actually happens (an eligibility sweep, not a per-seed pin: a
+        // 24-seed census at HALF the shipped weight measured a per-seed floor of one gentle figure and
+        // a mean near four on the single 3-voice pad, so a zero-breath seed is already rare there and
+        // rarer at the shipped weight)
+        seedsWithBreathingPads.Should().BeGreaterThanOrEqualTo(3, "the pads must breathe on most seeds");
+    }
+
     [Test]
     public void Compose_WithAChordalTexture_TheAccompanimentStaysFigureFreeWhileTheMelodyFigures()
     {
@@ -297,13 +352,9 @@ internal sealed class TextureCompositionTests
     private static CompositionConfiguration GetConfiguration(
         TextureType texture,
         bool voiceRhythmEnabled = true,
-        GroundBassConfiguration? groundBassConfiguration = null) => new(
-        new HashSet<InstrumentConfiguration>
-        {
-            InstrumentConfiguration.DefaultConfigurations[Instrument.One],
-            InstrumentConfiguration.DefaultConfigurations[Instrument.Two],
-            InstrumentConfiguration.DefaultConfigurations[Instrument.Three]
-        },
+        GroundBassConfiguration? groundBassConfiguration = null,
+        int voiceCount = 3) => new(
+        BuildInstrumentConfigurations(voiceCount),
         PhrasingConfiguration.Default,
         AggregateCompositionRuleConfiguration.Default,
         AggregateOrnamentationConfiguration.Default,
@@ -316,6 +367,32 @@ internal sealed class TextureCompositionTests
         GroundBassConfiguration: groundBassConfiguration,
         VoiceRhythmConfiguration: new VoiceRhythmConfiguration(voiceRhythmEnabled),
         TextureConfiguration: new TextureConfiguration(texture));
+
+    private static HashSet<InstrumentConfiguration> BuildInstrumentConfigurations(int voiceCount)
+    {
+        var instrumentConfigurations = new HashSet<InstrumentConfiguration>
+        {
+            InstrumentConfiguration.DefaultConfigurations[Instrument.One],
+            InstrumentConfiguration.DefaultConfigurations[Instrument.Two],
+            InstrumentConfiguration.DefaultConfigurations[Instrument.Three]
+        };
+
+        if (voiceCount == 4)
+        {
+            var defaultFour = InstrumentConfiguration.DefaultConfigurations[Instrument.Four];
+
+            instrumentConfigurations.Add(new InstrumentConfiguration(
+                Instrument.Four,
+                defaultFour.MinNote,
+                defaultFour.MaxNote,
+                defaultFour.MinVelocity,
+                defaultFour.MaxVelocity,
+                defaultFour.MidiProgram,
+                ConfigurationStatus.Enabled));
+        }
+
+        return instrumentConfigurations;
+    }
 
     private static CompositionConfiguration GetUnplannableGroundConfiguration(TextureType texture) => new(
         new HashSet<InstrumentConfiguration>

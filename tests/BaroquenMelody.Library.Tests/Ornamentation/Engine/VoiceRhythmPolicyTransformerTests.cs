@@ -4,9 +4,11 @@ using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Engine;
 using BaroquenMelody.Library.Ornamentation.Engine.Policies.Input;
+using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Rhythm;
@@ -14,6 +16,7 @@ using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -286,6 +289,98 @@ internal sealed class VoiceRhythmPolicyTransformerTests
 
         // assert
         act.Should().Throw<InvalidOperationException>();
+    }
+
+    [TestCase(TextureType.BrokenChord, OrnamentationType.PassingTone, VoiceRhythmPolicyTransformer.PadGentleFigureProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.NeighborTone, VoiceRhythmPolicyTransformer.PadGentleFigureProbability)]
+    [TestCase(TextureType.Walking, OrnamentationType.NeighborTone, VoiceRhythmPolicyTransformer.PadGentleFigureProbability)]
+    [TestCase(TextureType.Chordal, OrnamentationType.PassingTone, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
+    [TestCase(TextureType.Chordal, OrnamentationType.NeighborTone, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
+    [TestCase(TextureType.None, OrnamentationType.PassingTone, 80)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.Run, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.Arpeggio, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.OctavePedal, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
+    [TestCase(TextureType.BrokenChord, OrnamentationType.DelayedNeighborTone, VoiceRhythmPolicyTransformer.HeldNoteProbability)]
+    public void Transform_ResolvesThePadWeightFromTheGentleFamilyUnderTheFiguralTextures(TextureType texture, OrnamentationType ornamentationType, int expectedPadWeight)
+    {
+        // arrange - under the figural textures the gentle figures take the very-low pad weight and every
+        // other figure stays silenced on pads (including the excluded delayed variants); Chordal is the
+        // deliberate exception - its identity IS the figure-free accompaniment, so its pads never breathe;
+        // under None a spurious pad mark stays NEUTRAL at the configured probability, the same discipline
+        // as the texture weight. The note is recorded in the pad store ONLY, so every row also decides
+        // that the pad branch itself is reached - a note in both stores could take the held branch's zero
+        // and still satisfy the silent rows.
+        var transformer = CreateTransformer(voiceRhythmEnabled: true, texture);
+        var transformedPolicies = transformer.Transform(
+            CreateOrnamentationConfiguration(ornamentationType, 80),
+            [new WantsToOrnament(_mockWeightedRandomBooleanGenerator, 80)]);
+
+        var gate = transformedPolicies[0];
+        var padNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordTexturePadNote(padNote);
+
+        // act
+        gate.ShouldProcess(CreateItem(padNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(expectedPadWeight);
+    }
+
+    [Test]
+    public void CreateSustainGate_TiesPadPairsAtTheHeldWeight()
+    {
+        // arrange - the gentle-figure weight belongs to the ornamentation gates alone: the sustain gate
+        // must keep the deterministic tie weight for pads, or the breathing change would silently loosen
+        // every pad hold instead of adding occasional motion
+        var transformer = CreateTransformer(voiceRhythmEnabled: true, TextureType.BrokenChord);
+        var sustainGate = transformer.CreateSustainGate();
+        var padNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordTexturePadNote(padNote);
+
+        // act
+        sustainGate.ShouldProcess(CreateItem(padNote));
+
+        // assert - pad-store-only, so this decides the sustain gate's OWN padProbability wiring: wiring
+        // the gentle resolver in by mistake would surface as 20 here instead of the tie weight
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(VoiceRhythmPolicyTransformer.HeldSustainProbability);
+    }
+
+    [Test]
+    public void PadGentleFigures_AreEvenSingleStepFiguresThatDecorateTheHoldItself()
+    {
+        // arrange - gentle must MEAN gentle, decided against the factory and the calculator rather than
+        // the coarse count table (which six other figures would satisfy, including the deliberately
+        // excluded delayed variants and the non-stepwise RepeatedNote): one sub-note exactly one scale
+        // step away, an even un-syncopated split of the beat, translated on the pad's own note (never an
+        // anticipation of the next), and outside the subdividing tier
+        var compositionConfiguration = TestCompositionConfigurations.Get();
+        var ornamentationProcessorConfigurationFactory = new OrnamentationProcessorConfigurationFactory(
+            new ChordNumberIdentifier(compositionConfiguration),
+            new WeightedRandomBooleanGenerator(),
+            compositionConfiguration,
+            Substitute.For<ILogger>());
+
+        var musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
+
+        foreach (var ornamentationType in VoiceRhythmPolicyTransformer.PadGentleFigures)
+        {
+            var configuration = ornamentationProcessorConfigurationFactory
+                .Create(CreateOrnamentationConfiguration(ornamentationType, 100))
+                .Should().ContainSingle($"{ornamentationType} must be a single-configuration figure").Subject;
+
+            configuration.Translations.Should().ContainSingle($"{ornamentationType} must add exactly one sub-note")
+                .Which.Should().Match(static translation => Math.Abs(translation) == 1, "the sub-note must sit one scale step from the hold");
+            configuration.ShouldTranslateOnCurrentNote.Should().BeTrue($"{ornamentationType} must decorate the hold itself, never anticipate the next note");
+
+            musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(ornamentationType, Meter.FourFour)
+                .Should().Be(
+                    musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(ornamentationType, Meter.FourFour),
+                    $"{ornamentationType} must split the beat evenly - a dotted, delayed shape is more intrusive than a pad should be");
+
+            VoiceRhythmPolicyTransformer.SubdividingOrnamentationTypes.Should().NotContain(ornamentationType);
+        }
     }
 
     [Test]

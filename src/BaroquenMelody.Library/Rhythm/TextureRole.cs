@@ -17,7 +17,9 @@ internal enum TextureRole : byte
     Figuration,
 
     /// <summary>
-    ///     An inner voice: ornament-silenced and tied wherever its pairs repeat - the sustained inner harmony.
+    ///     An inner voice: tied wherever its pairs repeat - the sustained inner harmony. Under the figural
+    ///     textures it takes an occasional gentle stepwise figure at a very low weight so the holds breathe;
+    ///     every other figure is silenced, and Chordal's pads stay fully silent.
     /// </summary>
     Pad
 }

@@ -39,15 +39,15 @@ internal sealed class VoiceRhythmScheduler(CompositionConfiguration compositionC
     private readonly TextureConfiguration _textureConfiguration =
         compositionConfiguration.TextureConfiguration ?? TextureConfiguration.Default;
 
-    // Wrapped read-only because TryGetTextureDecorationOrder hands this instance out: a caller must not be
-    // able to downcast and reorder the scheduler's own state.
-    private readonly ReadOnlyCollection<Instrument> _textureOrderedInstruments = compositionConfiguration.InstrumentConfigurations
-        .OrderByDescending(static instrumentConfiguration => instrumentConfiguration.MinNote)
-        .ThenByDescending(static instrumentConfiguration => instrumentConfiguration.MaxNote)
-        .ThenBy(static instrumentConfiguration => instrumentConfiguration.Instrument)
-        .Select(static instrumentConfiguration => instrumentConfiguration.Instrument)
-        .ToList()
-        .AsReadOnly();
+    // Wrapped read-only because TryGetTextureDecorationOrder hands a derivative of this out: a caller must
+    // not be able to downcast and reorder the scheduler's own state.
+    private readonly ReadOnlyCollection<Instrument> _textureOrderedInstruments = OrderByRegister(compositionConfiguration);
+
+    // The structural hierarchy, not the register: melody first (it wins every dissonant coincidence under
+    // the cleaners' just-decorated-loses rule), the figuration second (its family carries the texture's
+    // fabric - a pad's gentle breath must never strip it), and the pads last, losing any collision. Role
+    // ASSIGNMENT stays register-ordered; only the decoration sequence takes this order.
+    private readonly ReadOnlyCollection<Instrument> _textureDecorationOrder = DeriveTextureDecorationOrder(OrderByRegister(compositionConfiguration));
 
     private bool IsTextureActive => _voiceRhythmConfiguration.Enabled
                                     && _textureConfiguration.Texture != TextureType.None
@@ -107,7 +107,7 @@ internal sealed class VoiceRhythmScheduler(CompositionConfiguration compositionC
             return false;
         }
 
-        decorationOrder = _textureOrderedInstruments;
+        decorationOrder = _textureDecorationOrder;
 
         return true;
     }
@@ -131,6 +131,19 @@ internal sealed class VoiceRhythmScheduler(CompositionConfiguration compositionC
     }
 
     private bool IsSeamMeasure(int measureIndex) => measureIndex % compositionConfiguration.PhrasingConfiguration.MinPhraseLength == 0;
+
+    private static ReadOnlyCollection<Instrument> OrderByRegister(CompositionConfiguration compositionConfiguration) => compositionConfiguration.InstrumentConfigurations
+        .OrderByDescending(static instrumentConfiguration => instrumentConfiguration.MinNote)
+        .ThenByDescending(static instrumentConfiguration => instrumentConfiguration.MaxNote)
+        .ThenBy(static instrumentConfiguration => instrumentConfiguration.Instrument)
+        .Select(static instrumentConfiguration => instrumentConfiguration.Instrument)
+        .ToList()
+        .AsReadOnly();
+
+    private static ReadOnlyCollection<Instrument> DeriveTextureDecorationOrder(ReadOnlyCollection<Instrument> registerOrderedInstruments) =>
+        registerOrderedInstruments.Count < MinimumVoicesForTexture
+            ? registerOrderedInstruments
+            : new ReadOnlyCollection<Instrument>([registerOrderedInstruments[0], registerOrderedInstruments[^1], .. registerOrderedInstruments.Skip(1).Take(registerOrderedInstruments.Count - 2)]);
 
     private int GetBlockIndex(int measureIndex) => measureIndex / compositionConfiguration.PhrasingConfiguration.MinPhraseLength;
 }

@@ -201,8 +201,10 @@ internal sealed class Composer(
     }
 
     // The melody rides the florid store (the subdividing tier tilts toward it) and the pads ride the held
-    // store (ornament-silenced, tied wherever their pairs repeat), so two of the three texture roles ARE
-    // the shipped roles; only the figuration voice carries the new mark.
+    // store (tied wherever their pairs repeat), so two of the three texture roles ARE the shipped roles;
+    // the figuration voice carries its own mark, and pads carry one besides the held record so the
+    // gentle-figure gate can tell them from the rotation's held voice and the ground's tread - the other
+    // held-store tenants, which must stay fully ornament-silenced.
     private void RecordTextureRole(TextureRole textureRole, BaroquenNote note)
     {
         switch (textureRole)
@@ -214,9 +216,13 @@ internal sealed class Composer(
                 voiceRhythmLedger.RecordTextureFigurationNote(note);
                 break;
             case TextureRole.Pad:
-            default:
                 voiceRhythmLedger.RecordHeldNote(note);
+                voiceRhythmLedger.RecordTexturePadNote(note);
                 break;
+            default:
+                // The same discipline the transformer's texture classification enforces: a future role must
+                // decide its stores deliberately, never inherit the pad's by fall-through.
+                throw new InvalidOperationException("The texture role has no store classification.");
         }
     }
 
@@ -305,11 +311,11 @@ internal sealed class Composer(
     }
 
     // Consulted only for the pad and figuration roles: the melody never sheds figures, so its store is
-    // never read here. A note absent from its role's store at this point in the pipeline can only be a
-    // phraser copy - every walked body note was recorded as it was composed.
+    // never read here. A note absent from its role's OWN store at this point in the pipeline can only be
+    // a phraser copy - every walked body note was recorded as it was composed, pads into the pad store.
     private bool IsUnrecordedAccompanimentCopy(TextureRole textureRole, BaroquenNote note) => textureRole == TextureRole.Figuration
         ? !voiceRhythmLedger.IsTextureFigurationNote(note)
-        : !voiceRhythmLedger.IsHeldNote(note);
+        : !voiceRhythmLedger.IsTexturePadNote(note);
 
     private Composition ComposeEnding(Composition composition, BaroquenTheme theme, CancellationToken cancellationToken)
     {

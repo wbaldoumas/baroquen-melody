@@ -5,8 +5,8 @@ namespace BaroquenMelody.Library.Rhythm;
 /// <summary>
 ///     Records which of the composed notes carry a rhythm role, so the decoration and sustain passes can
 ///     treat exactly those notes differently: the fugal body walk records its held and florid voices (or,
-///     under an accompaniment texture, its melody as florid, its pads as held, and its figuration voice in
-///     the texture store), and the ground bass form records its division roles — the ground line held, and
+///     under an accompaniment texture, its melody as florid, its pads as held AND in their own pad store,
+///     and its figuration voice in the texture store), and the ground bass form records its division roles — the ground line held, and
 ///     each accompanied statement's upper-voice notes carrying an escalation intensity. Notes never
 ///     recorded — the fugal exposition and ending, the ground's composed close, and every deep copy — take
 ///     the standard behavior. The ground's opening announcement is stripped to its ground line before
@@ -73,4 +73,20 @@ internal interface IVoiceRhythmLedger
     /// <param name="note">The note instance to look up.</param>
     /// <returns>Whether the note was recorded as texture figuration.</returns>
     bool IsTextureFigurationNote(BaroquenNote note);
+
+    /// <summary>
+    ///     Record a note emitted for a pad voice of an active accompaniment texture. Pad notes are ALSO
+    ///     recorded as held (the sustain ties and copy detection ride the held store); this store exists so
+    ///     the gentle-figure gate can tell a texture pad from the rotation's held voice and the ground's
+    ///     tread, which share the held store and must stay fully ornament-silenced.
+    /// </summary>
+    /// <param name="note">The exact note instance the body walk emitted.</param>
+    void RecordTexturePadNote(BaroquenNote note);
+
+    /// <summary>
+    ///     Determine whether the given note instance was recorded as a texture pad.
+    /// </summary>
+    /// <param name="note">The note instance to look up.</param>
+    /// <returns>Whether the note was recorded as a texture pad.</returns>
+    bool IsTexturePadNote(BaroquenNote note);
 }

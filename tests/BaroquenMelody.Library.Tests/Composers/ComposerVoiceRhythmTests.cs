@@ -173,6 +173,7 @@ internal sealed class ComposerVoiceRhythmTests
         _mockVoiceRhythmLedger.Received(4).RecordFloridNote(Arg.Is<BaroquenNote>(note => note.Instrument == Instrument.Two));
         _mockVoiceRhythmLedger.DidNotReceive().RecordHeldNote(Arg.Is<BaroquenNote>(note => note.Instrument != Instrument.One));
         _mockVoiceRhythmLedger.DidNotReceive().RecordFloridNote(Arg.Is<BaroquenNote>(note => note.Instrument != Instrument.Two));
+        _mockVoiceRhythmLedger.DidNotReceive().RecordTexturePadNote(Arg.Any<BaroquenNote>());
     }
 
     [Test]
@@ -191,10 +192,26 @@ internal sealed class ComposerVoiceRhythmTests
         // idempotently on the real reference-keyed stores, by the post-phrasing restatement pass
         _mockVoiceRhythmLedger.Received(32).RecordFloridNote(Arg.Is<BaroquenNote>(note => note.Instrument == Instrument.One));
         _mockVoiceRhythmLedger.Received(32).RecordHeldNote(Arg.Is<BaroquenNote>(note => note.Instrument == Instrument.Two));
+        _mockVoiceRhythmLedger.Received(32).RecordTexturePadNote(Arg.Is<BaroquenNote>(note => note.Instrument == Instrument.Two));
         _mockVoiceRhythmLedger.Received(32).RecordTextureFigurationNote(Arg.Is<BaroquenNote>(note => note.Instrument == Instrument.Three));
         _mockVoiceRhythmLedger.DidNotReceive().RecordFloridNote(Arg.Is<BaroquenNote>(note => note.Instrument != Instrument.One));
         _mockVoiceRhythmLedger.DidNotReceive().RecordHeldNote(Arg.Is<BaroquenNote>(note => note.Instrument != Instrument.Two));
+        _mockVoiceRhythmLedger.DidNotReceive().RecordTexturePadNote(Arg.Is<BaroquenNote>(note => note.Instrument != Instrument.Two));
         _mockVoiceRhythmLedger.DidNotReceive().RecordTextureFigurationNote(Arg.Is<BaroquenNote>(note => note.Instrument != Instrument.Three));
+    }
+
+    [Test]
+    public void Compose_WithAnUnclassifiedTextureRole_ThrowsInsteadOfInheritingThePadStores()
+    {
+        // arrange - the same discipline the transformer's texture classification enforces: a future role
+        // must decide its stores deliberately, never breathe like a pad by fall-through
+        ScheduleTextureRole(Instrument.Two, (TextureRole)99);
+
+        // act
+        var act = () => _composer.Compose(CancellationToken.None);
+
+        // assert
+        act.Should().Throw<InvalidOperationException>();
     }
 
     [Test]
@@ -288,6 +305,7 @@ internal sealed class ComposerVoiceRhythmTests
             });
 
         _mockVoiceRhythmLedger.IsHeldNote(Arg.Any<BaroquenNote>()).Returns(callInfo => !IsCopied(callInfo.Arg<BaroquenNote>()));
+        _mockVoiceRhythmLedger.IsTexturePadNote(Arg.Any<BaroquenNote>()).Returns(callInfo => !IsCopied(callInfo.Arg<BaroquenNote>()));
         _mockVoiceRhythmLedger.IsTextureFigurationNote(Arg.Any<BaroquenNote>()).Returns(callInfo => !IsCopied(callInfo.Arg<BaroquenNote>()));
 
         // act
@@ -313,6 +331,7 @@ internal sealed class ComposerVoiceRhythmTests
 
         _mockVoiceRhythmLedger.Received().RecordFloridNote(Arg.Is<BaroquenNote>(note => copiedNotes.Any(copiedNote => ReferenceEquals(copiedNote, note)) && note.Instrument == Instrument.One));
         _mockVoiceRhythmLedger.Received().RecordHeldNote(Arg.Is<BaroquenNote>(note => copiedNotes.Any(copiedNote => ReferenceEquals(copiedNote, note)) && note.Instrument == Instrument.Two));
+        _mockVoiceRhythmLedger.Received().RecordTexturePadNote(Arg.Is<BaroquenNote>(note => copiedNotes.Any(copiedNote => ReferenceEquals(copiedNote, note)) && note.Instrument == Instrument.Two));
         _mockVoiceRhythmLedger.Received().RecordTextureFigurationNote(Arg.Is<BaroquenNote>(note => copiedNotes.Any(copiedNote => ReferenceEquals(copiedNote, note)) && note.Instrument == Instrument.Three));
     }
 

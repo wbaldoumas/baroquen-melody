@@ -20,6 +20,8 @@ internal sealed class RoleAwareWantsToOrnamentTests
 
     private const int HeldProbability = 0;
 
+    private const int PadProbability = 10;
+
     private const int TextureProbability = 95;
 
     private const int FloridProbability = 70;
@@ -41,6 +43,7 @@ internal sealed class RoleAwareWantsToOrnamentTests
             _voiceRhythmLedger,
             Probability,
             HeldProbability,
+            PadProbability,
             TextureProbability,
             FloridProbability,
             scaleByIntensity: true);
@@ -122,7 +125,7 @@ internal sealed class RoleAwareWantsToOrnamentTests
         // arrange - a recorded intensity scales the resolved weight (clamped to the legal range) without
         // adding or removing a draw
         var scaledNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
-        var gate = new RoleAwareWantsToOrnament(_mockWeightedRandomBooleanGenerator, _voiceRhythmLedger, baseProbability, HeldProbability, TextureProbability, FloridProbability, scaleByIntensity: true);
+        var gate = new RoleAwareWantsToOrnament(_mockWeightedRandomBooleanGenerator, _voiceRhythmLedger, baseProbability, HeldProbability, PadProbability, TextureProbability, FloridProbability, scaleByIntensity: true);
 
         _voiceRhythmLedger.RecordDivisionIntensity(scaledNote, intensity);
 
@@ -159,6 +162,7 @@ internal sealed class RoleAwareWantsToOrnamentTests
             _voiceRhythmLedger,
             Probability,
             HeldProbability,
+            PadProbability,
             TextureProbability,
             FloridProbability,
             scaleByIntensity: false);
@@ -220,6 +224,43 @@ internal sealed class RoleAwareWantsToOrnamentTests
 
         // assert
         _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(TextureProbability);
+    }
+
+    [Test]
+    public void ShouldProcess_WithATexturePadNote_DrawsExactlyOnceAtThePadWeight()
+    {
+        // arrange - a pad is recorded in BOTH stores by contract; the pad branch must resolve before the
+        // held branch or every pad would take the held silence and the breathing weight would be dead code
+        var padNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordHeldNote(padNote);
+        _voiceRhythmLedger.RecordTexturePadNote(padNote);
+        _mockWeightedRandomBooleanGenerator.IsTrue(PadProbability).Returns(true);
+
+        // act
+        var result = _roleAwareWantsToOrnament.ShouldProcess(CreateItem(padNote));
+
+        // assert
+        result.Should().Be(InputPolicyResult.Continue);
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(PadProbability);
+    }
+
+    [Test]
+    public void ShouldProcess_WithAPadNoteCarryingAnIntensity_ThePadWeightIsNeverScaled()
+    {
+        // arrange - the pad branch resolves ahead of the intensity consult, the same contract the held and
+        // texture branches keep: an accompaniment's calm is never scaled by the ground's escalation
+        var padNote = new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half);
+
+        _voiceRhythmLedger.RecordHeldNote(padNote);
+        _voiceRhythmLedger.RecordTexturePadNote(padNote);
+        _voiceRhythmLedger.RecordDivisionIntensity(padNote, 140);
+
+        // act
+        _roleAwareWantsToOrnament.ShouldProcess(CreateItem(padNote));
+
+        // assert
+        _mockWeightedRandomBooleanGenerator.Received(1).IsTrue(PadProbability);
     }
 
     [Test]
