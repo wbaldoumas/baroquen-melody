@@ -1,4 +1,5 @@
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Rhythm.Enums;
 
 namespace BaroquenMelody.Library.Rhythm;
 

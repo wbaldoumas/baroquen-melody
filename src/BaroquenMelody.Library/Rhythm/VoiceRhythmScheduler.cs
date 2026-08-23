@@ -1,6 +1,7 @@
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Rhythm.Enums;
 using System.Collections.ObjectModel;
 
 namespace BaroquenMelody.Library.Rhythm;

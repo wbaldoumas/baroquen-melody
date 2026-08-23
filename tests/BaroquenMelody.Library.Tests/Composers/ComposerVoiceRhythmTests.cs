@@ -10,6 +10,7 @@ using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Phrasing;
 using BaroquenMelody.Library.Rhythm;
+using BaroquenMelody.Library.Rhythm.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Fluxor;

@@ -1,4 +1,4 @@
-namespace BaroquenMelody.Library.Rhythm;
+namespace BaroquenMelody.Library.Rhythm.Enums;
 
 /// <summary>
 ///     A voice's part in an active accompaniment texture: one melody on top, one figuration carrier at the

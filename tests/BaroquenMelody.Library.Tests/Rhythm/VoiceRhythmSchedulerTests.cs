@@ -2,6 +2,7 @@ using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Rhythm;
+using BaroquenMelody.Library.Rhythm.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using NUnit.Framework;

@@ -1,6 +1,7 @@
 ﻿using Atrea.PolicyEngine;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Dynamics;
+using BaroquenMelody.Library.Dynamics.Enums;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
