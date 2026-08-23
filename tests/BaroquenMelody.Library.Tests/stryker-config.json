@@ -18,6 +18,13 @@
     "test-case-filter": "TestCategory!=Composition",
     "configuration": "Release",
     "additional-timeout": 60000,
+    "since": {
+      "enabled": false,
+      "ignore-changes-in": [
+        "**/*.csproj",
+        "**/stryker-config.json"
+      ]
+    },
     "ignore-methods": [
       "*Exception.ctor"
     ],

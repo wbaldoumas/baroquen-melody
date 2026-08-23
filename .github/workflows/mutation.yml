@@ -2,7 +2,11 @@ name: Mutation
 
 # Mutation testing with Stryker.NET (https://stryker-mutator.io/docs/stryker-net/).
 #
-# - pull_request: incremental — only mutants in code changed since origin/main are tested (--since).
+# - pull_request: incremental — only mutants in code changed since origin/main are tested (--since), plus
+#   mutants covered by changed tests. Stryker re-tests EVERY mutant when a non-C# file inside a test
+#   project changes, so each stryker-config.json lists those files (the .csproj and the config itself)
+#   under since.ignore-changes-in; the full runs below cover them. Incremental legs are bounded to two
+#   hours so a change that touches a broadly covering test fails loudly instead of holding a runner.
 # - push to main / schedule / manual: full runs per test project, uploaded to the Stryker dashboard when
 #   the STRYKER_DASHBOARD_API_KEY secret is available.
 #
@@ -46,7 +50,7 @@ jobs:
   mutate:
     name: 🧬 mutate ${{ matrix.name }}
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ matrix.timeout-minutes }}
+    timeout-minutes: ${{ github.event_name == 'pull_request' && 120 || matrix.timeout-minutes }}
     strategy:
       fail-fast: false
       matrix:

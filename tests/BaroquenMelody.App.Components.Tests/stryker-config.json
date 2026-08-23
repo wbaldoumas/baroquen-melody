@@ -15,6 +15,13 @@
       "!**/obj/**",
       "!**/bin/**"
     ],
+    "since": {
+      "enabled": false,
+      "ignore-changes-in": [
+        "**/*.csproj",
+        "**/stryker-config.json"
+      ]
+    },
     "ignore-methods": [
       "*Exception.ctor"
     ],
