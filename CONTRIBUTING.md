@@ -30,6 +30,28 @@ has been discussed in the past, or if the change was already implemented but not
 We expect new pull requests to include tests for any affected behavior, and, as we follow semantic versioning, we may
 reserve breaking changes until the next major version release.
 
+### Mutation Testing
+
+Pull requests are mutation-tested with [Stryker.NET](https://stryker-mutator.io/docs/stryker-net/): Stryker plants small
+bugs ("mutants") in the code your change touches and checks that the tests catch them. The `Mutation` workflow posts a
+per-project summary to the run's job summary and uploads the full HTML reports as artifacts; full runs of every project
+happen on pushes to `main`, weekly, and on demand.
+
+To run it locally, restore the repository's tools once, then run Stryker from the test project whose source you changed
+(each test project carries its own `stryker-config.json`):
+
+```bash
+dotnet tool restore
+
+cd tests/BaroquenMelody.Library.Tests
+dotnet stryker --since:main        # only mutants in code changed since main
+dotnet stryker --open-report       # everything, and open the HTML report when done
+```
+
+The Library configuration runs the unit-level suite only: the seeded composition sweeps (`*CompositionTests`,
+`MusicalInvariantTests`, `CadentialEndingTests`, `FugalExpositionTests`) take most of the suite's wall time and are left
+to `dotnet test`, so mutants that only those sweeps would catch are reported as "no coverage" rather than survived.
+
 ## Other Ways to Contribute
 
 We welcome anyone that wants to contribute to `baroquen-melody` to triage and reply to open issues to help troubleshoot

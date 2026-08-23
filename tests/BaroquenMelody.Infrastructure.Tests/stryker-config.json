@@ -1,0 +1,28 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "github.com/wbaldoumas/baroquen-melody",
+      "module": "infrastructure"
+    },
+    "reporters": [
+      "progress",
+      "json",
+      "markdown",
+      "html"
+    ],
+    "mutate": [
+      "**/*.cs",
+      "!**/obj/**",
+      "!**/bin/**"
+    ],
+    "ignore-methods": [
+      "*Exception.ctor"
+    ],
+    "break-on-initial-test-failure": true,
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 0
+    }
+  }
+}

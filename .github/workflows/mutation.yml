@@ -1,0 +1,125 @@
+name: Mutation
+
+# Mutation testing with Stryker.NET (https://stryker-mutator.io/docs/stryker-net/).
+#
+# - pull_request: incremental — only mutants in code changed since origin/main are tested (--since).
+# - push to main / schedule / manual: full runs per test project, uploaded to the Stryker dashboard when
+#   the STRYKER_DASHBOARD_API_KEY secret is available.
+#
+# Each test project carries its own stryker-config.json (thresholds, reporters, test filters). The Library
+# config restricts Stryker to the unit-level suite (the seeded composition sweeps stay in test.yml).
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'global.json'
+      - '.config/dotnet-tools.json'
+      - '.github/workflows/mutation.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'global.json'
+      - '.config/dotnet-tools.json'
+      - '.github/workflows/mutation.yml'
+  schedule:
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+
+jobs:
+  mutate:
+    name: 🧬 mutate ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: library
+            test-project: tests/BaroquenMelody.Library.Tests
+          - name: infrastructure
+            test-project: tests/BaroquenMelody.Infrastructure.Tests
+          - name: app-components
+            test-project: tests/BaroquenMelody.App.Components.Tests
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: 🔨 set up .net
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: 🧰 restore tools
+        run: dotnet tool restore
+
+      - name: 🧬 mutate changed code (pull request)
+        if: github.event_name == 'pull_request'
+        working-directory: ${{ matrix.test-project }}
+        run: >
+          dotnet stryker
+          --since:origin/main
+          --output "${{ github.workspace }}/StrykerOutput/${{ matrix.name }}"
+
+      - name: 🧬 mutate everything (main, schedule, manual)
+        if: github.event_name != 'pull_request'
+        working-directory: ${{ matrix.test-project }}
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+        run: |
+          reporters="--reporter progress --reporter json --reporter markdown --reporter html"
+          if [ -n "$STRYKER_DASHBOARD_API_KEY" ]; then
+            reporters="$reporters --reporter dashboard"
+          fi
+          dotnet stryker $reporters --version "$GITHUB_REF_NAME" --output "${{ github.workspace }}/StrykerOutput/${{ matrix.name }}"
+
+      - name: 📝 summarize
+        if: always()
+        run: |
+          report="${{ github.workspace }}/StrykerOutput/${{ matrix.name }}/reports/mutation-report.md"
+          if [ -f "$report" ]; then
+            { echo "## 🧬 ${{ matrix.name }}"; echo; cat "$report"; echo; } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## 🧬 ${{ matrix.name }}: no report produced" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: 📦 upload report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutation-report-${{ matrix.name }}
+          path: StrykerOutput/${{ matrix.name }}/reports/
+          if-no-files-found: ignore
+
+  mutation:
+    name: 🧬 mutation
+    needs: [ mutate ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: ✅ gate
+        env:
+          MUTATE_RESULT: ${{ needs.mutate.result }}
+        run: |
+          if [ "$MUTATE_RESULT" != "success" ]; then
+            echo "::error title=Mutation::one or more mutation runs failed ($MUTATE_RESULT)"
+            exit 1
+          fi
+          echo "mutation runs succeeded ✅"

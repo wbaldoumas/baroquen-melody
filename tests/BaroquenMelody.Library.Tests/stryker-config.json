@@ -1,0 +1,29 @@
+{
+  "stryker-config": {
+    "project-info": {
+      "name": "github.com/wbaldoumas/baroquen-melody",
+      "module": "library"
+    },
+    "reporters": [
+      "progress",
+      "json",
+      "markdown",
+      "html"
+    ],
+    "mutate": [
+      "**/*.cs",
+      "!**/obj/**",
+      "!**/bin/**"
+    ],
+    "test-case-filter": "FullyQualifiedName!~CompositionTests&FullyQualifiedName!~MusicalInvariantTests&FullyQualifiedName!~CadentialEndingTests&FullyQualifiedName!~FugalExpositionTests",
+    "ignore-methods": [
+      "*Exception.ctor"
+    ],
+    "break-on-initial-test-failure": true,
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 0
+    }
+  }
+}
