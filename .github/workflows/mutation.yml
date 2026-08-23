@@ -46,17 +46,20 @@ jobs:
   mutate:
     name: 🧬 mutate ${{ matrix.name }}
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: ${{ matrix.timeout-minutes }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: library
             test-project: tests/BaroquenMelody.Library.Tests
+            timeout-minutes: 360
           - name: infrastructure
             test-project: tests/BaroquenMelody.Infrastructure.Tests
+            timeout-minutes: 60
           - name: app-components
             test-project: tests/BaroquenMelody.App.Components.Tests
+            timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
         with:

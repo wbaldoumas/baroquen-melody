@@ -48,9 +48,11 @@ dotnet stryker --since:main        # only mutants in code changed since main
 dotnet stryker --open-report       # everything, and open the HTML report when done
 ```
 
-The Library configuration runs the unit-level suite only: the seeded composition sweeps (`*CompositionTests`,
-`MusicalInvariantTests`, `CadentialEndingTests`, `FugalExpositionTests`) take most of the suite's wall time and are left
-to `dotnet test`, so mutants that only those sweeps would catch are reported as "no coverage" rather than survived.
+The Library configuration runs the unit-level suite only: the seeded composition sweeps — fixtures tagged
+`[Category("Composition")]` — take most of the suite's wall time and are left to `dotnet test`, so mutants that only
+those sweeps would catch are reported as "no coverage" rather than survived. Tag any new `Enumerable.Range(1, N)`
+composition sweep the same way. (The filter has to be a category filter: NUnit's adapter silently runs every test when
+a name-based filter selects more than 2,000 of them.)
 
 ## Other Ways to Contribute
 

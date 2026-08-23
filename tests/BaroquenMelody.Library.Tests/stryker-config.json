@@ -15,7 +15,7 @@
       "!**/obj/**",
       "!**/bin/**"
     ],
-    "test-case-filter": "FullyQualifiedName!~CompositionTests&FullyQualifiedName!~MusicalInvariantTests&FullyQualifiedName!~CadentialEndingTests&FullyQualifiedName!~FugalExpositionTests",
+    "test-case-filter": "TestCategory!=Composition",
     "ignore-methods": [
       "*Exception.ctor"
     ],

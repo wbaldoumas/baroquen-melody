@@ -43,6 +43,7 @@ namespace BaroquenMelody.Library.Tests.Rhythm;
 ///     the byte-identity anchor compares two same-process renders, not a recorded baseline.
 /// </summary>
 [TestFixture]
+[Category("Composition")]
 internal sealed class VoiceRhythmCompositionTests
 {
     // References the production set directly so this suite can never drift from the tier the

@@ -28,6 +28,7 @@ namespace BaroquenMelody.Library.Tests;
 ///     </para>
 /// </remarks>
 [TestFixture]
+[Category("Composition")]
 internal sealed class MusicalInvariantTests
 {
     private const int SampleIterations = 5;

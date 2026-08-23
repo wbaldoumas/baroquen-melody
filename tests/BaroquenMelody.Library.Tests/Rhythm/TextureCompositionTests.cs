@@ -30,6 +30,7 @@ namespace BaroquenMelody.Library.Tests.Rhythm;
 ///     would make them self-fulfilling, blind to any note the recording missed.
 /// </summary>
 [TestFixture]
+[Category("Composition")]
 internal sealed class TextureCompositionTests
 {
     // Everything a recorded figuration-voice note may legally carry besides its family: the unfired case,
