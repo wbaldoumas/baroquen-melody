@@ -16,6 +16,8 @@
       "!**/bin/**"
     ],
     "test-case-filter": "TestCategory!=Composition",
+    "configuration": "Release",
+    "additional-timeout": 60000,
     "ignore-methods": [
       "*Exception.ctor"
     ],
