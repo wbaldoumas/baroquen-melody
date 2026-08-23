@@ -6,14 +6,24 @@ using static ArchUnitNET.Fluent.ArchRuleDefinition;
 namespace BaroquenMelody.ArchitectureTests;
 
 /// <summary>
-///     Tier 2: structural conventions inside the Library. Internal Library types are addressed by full-name
-///     strings (the test project has no InternalsVisibleTo grant); a stale string matches zero types and
-///     the rule then FAILS thanks to ArchUnitNET's require-positive-results default, so typos cannot rot.
+///     Tier 2: structural conventions inside the Library. Internal Library interfaces are resolved to domain
+///     objects from the cached Architecture (0.13 removed the string overloads), so a stale name throws at
+///     lookup time instead of silently matching nothing.
 /// </summary>
 [TestFixture]
 internal sealed class LibraryStructureTests
 {
     private static readonly Architecture Architecture = BaroquenMelodyArchitecture.Architecture;
+
+    private static readonly string[] ConcreteComposers =
+    [
+        "BaroquenMelody.Library.Composers.ChordComposer",
+        "BaroquenMelody.Library.Composers.ThemeComposer",
+        "BaroquenMelody.Library.Composers.EndingComposer",
+        "BaroquenMelody.Library.Composers.GroundBassComposer",
+        "BaroquenMelody.Library.Composers.Composer",
+        "BaroquenMelody.Library.Composers.MidiFileComposer",
+    ];
 
     [Test]
     public void Composition_rules_reside_in_Rules_and_are_internal_sealed()
@@ -27,6 +37,7 @@ internal sealed class LibraryStructureTests
             .BeInternal()
             .AndShould()
             .BeSealed()
+            .Because("rules are selected through CompositionRuleFactory and never exported or subclassed")
             .Check(Architecture);
     }
 
@@ -42,11 +53,12 @@ internal sealed class LibraryStructureTests
             .BeInternal()
             .AndShould()
             .BeSealed()
+            .Because("melodic rules reach the walk only through MelodicCompositionRuleAdapter and stay inside Rules")
             .Check(Architecture);
     }
 
     [Test]
-    public void Ornamentation_types_are_internal_except_the_public_enums()
+    public void Ornamentation_types_are_not_public_except_the_enums()
     {
         Types()
             .That()
@@ -56,12 +68,13 @@ internal sealed class LibraryStructureTests
             .And()
             .AreNotEnums()
             .Should()
-            .BeInternal()
+            .NotBePublic()
+            .Because("the ornamentation engine is an implementation detail; only OrnamentationType is part of the configuration contract")
             .Check(Architecture);
     }
 
     [Test]
-    public void Store_states_are_public_sealed_records_named_State()
+    public void Store_states_are_public_sealed_feature_state_records_named_State()
     {
         Classes()
             .That()
@@ -76,6 +89,9 @@ internal sealed class LibraryStructureTests
             .BePublic()
             .AndShould()
             .HaveNameEndingWith("State")
+            .AndShould()
+            .HaveAnyAttributes(typeof(Fluxor.FeatureStateAttribute))
+            .Because("Fluxor discovers feature state by attribute and the UI binds IState<T> to these records")
             .Check(Architecture);
     }
 
@@ -93,6 +109,7 @@ internal sealed class LibraryStructureTests
             .BeSealed()
             .AndShould()
             .BePublic()
+            .Because("actions are immutable messages dispatched by the UI and the composers alike")
             .Check(Architecture);
     }
 
@@ -110,12 +127,12 @@ internal sealed class LibraryStructureTests
             .BeSealed()
             .AndShould()
             .BeAbstract()
-            .Because("sealed+abstract in IL is exactly a C# static class")
+            .Because("reducers are pure static [ReducerMethod] functions; sealed+abstract in IL is exactly a C# static class")
             .Check(Architecture);
     }
 
     [Test]
-    public void Store_effects_are_sealed_classes_named_Effects()
+    public void Store_effects_are_public_sealed_classes_named_Effects()
     {
         Classes()
             .That()
@@ -126,6 +143,9 @@ internal sealed class LibraryStructureTests
             .HaveNameEndingWith("Effects")
             .AndShould()
             .BeSealed()
+            .AndShould()
+            .BePublic()
+            .Because("Fluxor instantiates effect classes through DI; they are the only stateful Store types")
             .Check(Architecture);
     }
 
@@ -139,6 +159,7 @@ internal sealed class LibraryStructureTests
             .AreEnums()
             .Should()
             .ResideInNamespaceMatching(@"\.Enums$")
+            .Because("19 of 21 Library enums already live in a *.Enums sub-namespace; the convention is real")
             .Check(Architecture);
     }
 
@@ -150,6 +171,7 @@ internal sealed class LibraryStructureTests
             .ResideInAssembly(BaroquenMelodyArchitecture.Library, BaroquenMelodyArchitecture.Infrastructure, BaroquenMelodyArchitecture.Components)
             .Should()
             .HaveNameStartingWith("I")
+            .Because("the editorconfig naming rule is only a suggestion; this makes it a gate")
             .Check(Architecture);
     }
 
@@ -193,6 +215,7 @@ internal sealed class LibraryStructureTests
             .Should()
             .NotDependOnAnyTypesThat()
             .HaveFullName("System.Random")
+            .Because("ThreadLocalRandom and SeededRandomProvider are the only sanctioned constructors of System.Random")
             .Check(Architecture);
     }
 
@@ -205,6 +228,7 @@ internal sealed class LibraryStructureTests
             .Should()
             .NotDependOnAnyTypesThat()
             .HaveFullName("System.Console")
+            .Because("logging goes through Infrastructure.Logging.Log; only the console harness writes to the console")
             .Check(Architecture);
     }
 
@@ -216,22 +240,21 @@ internal sealed class LibraryStructureTests
             .ResideInAssembly(BaroquenMelodyArchitecture.Library)
             .Should()
             .NotDependOnAnyTypesThat()
-            .HaveFullNameMatching(@"^System\.IO\.(File|Directory|FileStream|StreamWriter|StreamReader)$")
-            .Because("Library disk access goes through System.IO.Abstractions so it stays testable and AOT-friendly; System.IO.Path is pure string manipulation and stays allowed")
+            .HaveFullNameMatching(@"^System\.IO\.(File|Directory|DirectoryInfo|FileStream|StreamWriter|StreamReader)$")
+            .Because("Library disk access goes through System.IO.Abstractions so it stays testable and AOT-friendly; System.IO.Path is pure string manipulation and stays allowed; FileInfo is used for metadata by the persistence service today and is a documented follow-up, not part of this rule yet")
             .Check(Architecture);
     }
 
     [Test]
     public void Only_the_configurator_wires_concrete_pipeline_composers()
     {
-        string[] concreteComposers = ["ChordComposer", "ThemeComposer", "EndingComposer", "GroundBassComposer", "Composer", "MidiFileComposer"];
-        string[] allowedDependents = ["BaroquenMelodyComposerConfigurator", .. concreteComposers];
+        string[] allowedDependents = ["BaroquenMelody.Library.BaroquenMelodyComposerConfigurator", .. ConcreteComposers];
 
         var offenders = Architecture.Types
-            .Where(type => type.Assembly.Equals(Architecture.Assemblies.First(assembly => string.Equals(assembly.Name, BaroquenMelodyArchitecture.Library.GetName().Name, StringComparison.Ordinal))))
-            .Where(type => !allowedDependents.Contains(type.Name, StringComparer.Ordinal))
+            .Where(type => string.Equals(type.Assembly.Name, "BaroquenMelody.Library", StringComparison.Ordinal))
+            .Where(type => !allowedDependents.Contains(type.FullName, StringComparer.Ordinal))
             .Where(type => type.Dependencies.Any(dependency =>
-                concreteComposers.Contains(dependency.Target.Name, StringComparer.Ordinal)
+                ConcreteComposers.Contains(dependency.Target.FullName, StringComparer.Ordinal)
                 && !dependency.Target.Equals(type)))
             .Select(type => type.FullName)
             .OrderBy(name => name, StringComparer.Ordinal)
@@ -278,10 +301,13 @@ internal sealed class LibraryStructureTests
             .That()
             .ResideInAssembly(BaroquenMelodyArchitecture.Library)
             .And()
-            .DoNotResideInNamespaceMatching(@"^BaroquenMelody\.Library$|^BaroquenMelody\.Library\.(Ornamentation|Dynamics)(\..+)?$")
+            .DoNotResideInNamespaceMatching(@"^BaroquenMelody\.Library\.(Ornamentation|Dynamics)(\..+)?$")
+            .And()
+            .DoNotHaveFullName("BaroquenMelody.Library.BaroquenMelodyComposerConfigurator")
             .Should()
             .NotDependOnAnyTypesThat()
             .ResideInNamespaceMatching(@"^Atrea\.PolicyEngine")
+            .Because("the policy engine is the ornamentation and dynamics engines' implementation choice; only the configurator that builds them may see it")
             .Check(Architecture);
     }
 

@@ -16,6 +16,7 @@
     <ProjectReference Include="..\..\src\BaroquenMelody.Infrastructure\BaroquenMelody.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\BaroquenMelody.App.Components\BaroquenMelody.App.Components.csproj" />
     <ProjectReference Include="..\..\src\BaroquenMelody\BaroquenMelody.csproj" />
+    <ProjectReference Include="..\..\benchmarks\BaroquenMelody.Benchmarks\BaroquenMelody.Benchmarks.csproj" />
     <ProjectReference Include="..\BaroquenMelody.Library.Tests\BaroquenMelody.Library.Tests.csproj" />
     <ProjectReference Include="..\BaroquenMelody.Infrastructure.Tests\BaroquenMelody.Infrastructure.Tests.csproj" />
     <ProjectReference Include="..\BaroquenMelody.App.Components.Tests\BaroquenMelody.App.Components.Tests.csproj" />

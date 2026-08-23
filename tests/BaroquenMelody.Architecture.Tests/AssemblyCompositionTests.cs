@@ -1,14 +1,24 @@
-using ArchUnitNET.Loader;
 using NUnit.Framework;
-using System.Diagnostics;
 
 namespace BaroquenMelody.ArchitectureTests;
 
 [TestFixture]
 internal sealed class AssemblyCompositionTests
 {
+    private static readonly string[] ExpectedAssemblies =
+    [
+        "BaroquenMelody.Library",
+        "BaroquenMelody.Infrastructure",
+        "BaroquenMelody.App.Components",
+        "baroquen-melody",
+        "BaroquenMelody.Benchmarks",
+        "BaroquenMelody.Library.Tests",
+        "BaroquenMelody.Infrastructure.Tests",
+        "BaroquenMelody.App.Components.Tests",
+    ];
+
     [Test]
-    public void Architecture_loads_every_production_and_test_assembly()
+    public void Architecture_loads_every_expected_assembly()
     {
         var architecture = BaroquenMelodyArchitecture.Architecture;
 
@@ -18,27 +28,6 @@ internal sealed class AssemblyCompositionTests
             TestContext.Out.WriteLine($"{assembly.Name}: {count} types");
         }
 
-        Assert.That(architecture.Assemblies.Count(), Is.EqualTo(7));
-    }
-
-    [Test]
-    public void Measure_architecture_build_time()
-    {
-        var stopwatch = Stopwatch.StartNew();
-
-        var architecture = new ArchLoader()
-            .LoadAssemblies(
-                BaroquenMelodyArchitecture.Library,
-                BaroquenMelodyArchitecture.Infrastructure,
-                BaroquenMelodyArchitecture.Components,
-                BaroquenMelodyArchitecture.Console,
-                BaroquenMelodyArchitecture.LibraryTests,
-                BaroquenMelodyArchitecture.InfrastructureTests,
-                BaroquenMelodyArchitecture.ComponentsTests)
-            .Build();
-
-        stopwatch.Stop();
-
-        TestContext.Out.WriteLine($"cold build of {architecture.Types.Count()} types took {stopwatch.ElapsedMilliseconds} ms");
+        Assert.That(architecture.Assemblies.Select(assembly => assembly.Name), Is.EquivalentTo(ExpectedAssemblies));
     }
 }

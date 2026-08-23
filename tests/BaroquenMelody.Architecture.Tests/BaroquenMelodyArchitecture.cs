@@ -5,7 +5,7 @@ using Assembly = System.Reflection.Assembly;
 namespace BaroquenMelody.ArchitectureTests;
 
 /// <summary>
-///     Loads every production and test assembly once per test run. Building an
+///     Loads every production, benchmark and test assembly once per test run. Building an
 ///     <see cref="ArchUnitNET.Domain.Architecture"/> reads every type with Mono.Cecil, so it is cached in a
 ///     static field and shared by every fixture. Rules must scope by assembly (never by bare namespace
 ///     prefix alone) because the console app declares its own BaroquenMelody.Infrastructure.FileSystem
@@ -21,6 +21,8 @@ internal static class BaroquenMelodyArchitecture
 
     public static readonly Assembly Console = Assembly.Load("baroquen-melody");
 
+    public static readonly Assembly Benchmarks = Assembly.Load("BaroquenMelody.Benchmarks");
+
     public static readonly Assembly LibraryTests = Assembly.Load("BaroquenMelody.Library.Tests");
 
     public static readonly Assembly InfrastructureTests = Assembly.Load("BaroquenMelody.Infrastructure.Tests");
@@ -28,6 +30,6 @@ internal static class BaroquenMelodyArchitecture
     public static readonly Assembly ComponentsTests = Assembly.Load("BaroquenMelody.App.Components.Tests");
 
     public static readonly Architecture Architecture = new ArchLoader()
-        .LoadAssemblies(Library, Infrastructure, Components, Console, LibraryTests, InfrastructureTests, ComponentsTests)
+        .LoadAssemblies(Library, Infrastructure, Components, Console, Benchmarks, LibraryTests, InfrastructureTests, ComponentsTests)
         .Build();
 }

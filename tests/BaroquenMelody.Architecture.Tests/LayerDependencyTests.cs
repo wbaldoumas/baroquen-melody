@@ -34,6 +34,7 @@ internal sealed class LayerDependencyTests
             .ResideInAssembly(BaroquenMelodyArchitecture.Infrastructure)
             .Should()
             .NotDependOnAny(Types().That().ResideInAssembly(BaroquenMelodyArchitecture.Components))
+            .Because("Infrastructure is a ports layer consumed by the hosts; it must know nothing about them")
             .Check(Architecture);
     }
 
@@ -45,6 +46,7 @@ internal sealed class LayerDependencyTests
             .ResideInAssembly(BaroquenMelodyArchitecture.Library)
             .Should()
             .NotDependOnAny(Types().That().ResideInAssembly(BaroquenMelodyArchitecture.Components))
+            .Because("the Library composes music for any host; the Razor class library is one consumer among several")
             .Check(Architecture);
     }
 
@@ -56,6 +58,19 @@ internal sealed class LayerDependencyTests
             .ResideInAssembly(BaroquenMelodyArchitecture.Console)
             .Should()
             .NotDependOnAny(Types().That().ResideInAssembly(BaroquenMelodyArchitecture.Components))
+            .Because("the console harness is headless and references only the Library")
+            .Check(Architecture);
+    }
+
+    [Test]
+    public void The_benchmarks_must_not_depend_on_the_UI_assembly()
+    {
+        Types()
+            .That()
+            .ResideInAssembly(BaroquenMelodyArchitecture.Benchmarks)
+            .Should()
+            .NotDependOnAny(Types().That().ResideInAssembly(BaroquenMelodyArchitecture.Components))
+            .Because("benchmarks exercise Library internals only; loading them here also makes CI compile them")
             .Check(Architecture);
     }
 
@@ -77,10 +92,11 @@ internal sealed class LayerDependencyTests
     {
         Types()
             .That()
-            .ResideInAssembly(BaroquenMelodyArchitecture.Library, BaroquenMelodyArchitecture.Infrastructure, BaroquenMelodyArchitecture.Console)
+            .ResideInAssembly(BaroquenMelodyArchitecture.Library, BaroquenMelodyArchitecture.Infrastructure, BaroquenMelodyArchitecture.Console, BaroquenMelodyArchitecture.Benchmarks)
             .Should()
             .NotDependOnAnyTypesThat()
             .ResideInNamespaceMatching(@"^MudBlazor")
+            .Because("the component library is a UI concern; nothing below the Razor class library may see it")
             .Check(Architecture);
     }
 
@@ -89,7 +105,7 @@ internal sealed class LayerDependencyTests
     {
         Types()
             .That()
-            .ResideInAssembly(BaroquenMelodyArchitecture.Library, BaroquenMelodyArchitecture.Infrastructure, BaroquenMelodyArchitecture.Console)
+            .ResideInAssembly(BaroquenMelodyArchitecture.Library, BaroquenMelodyArchitecture.Infrastructure, BaroquenMelodyArchitecture.Console, BaroquenMelodyArchitecture.Benchmarks)
             .Should()
             .NotDependOnAnyTypesThat()
             .ResideInNamespaceMatching(@"^Fluxor\.Blazor")
