@@ -48,6 +48,11 @@ dotnet stryker --since:main        # only mutants in code changed since main
 dotnet stryker --open-report       # everything, and open the HTML report when done
 ```
 
+`--since` reads the git diff itself, so run it from a normal clone rather than a linked `git worktree` (there it resolves
+the main checkout and reports nothing changed). It re-tests every mutant covered by a test you changed — and would
+re-test *everything* when a non-C# file under a test project changes, so each `stryker-config.json` lists the test
+`.csproj` and the config itself under `since.ignore-changes-in`; add any new non-C# test-project file there too.
+
 The Library configuration runs the unit-level suite only: the seeded composition sweeps — fixtures tagged
 `[Category("Composition")]` — take most of the suite's wall time and are left to `dotnet test`, so mutants that only
 those sweeps would catch are reported as "no coverage" rather than survived. Tag any new `Enumerable.Range(1, N)`
