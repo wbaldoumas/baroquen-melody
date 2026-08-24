@@ -1,4 +1,4 @@
-namespace BaroquenMelody.Library.Dynamics;
+namespace BaroquenMelody.Library.Dynamics.Enums;
 
 /// <summary>
 ///     The metric strength of a beat within its (hyper)measure, used to shape expressive dynamics.

@@ -1,4 +1,5 @@
 using BaroquenMelody.Library.Dynamics;
+using BaroquenMelody.Library.Dynamics.Enums;
 using FluentAssertions;
 using NUnit.Framework;
 

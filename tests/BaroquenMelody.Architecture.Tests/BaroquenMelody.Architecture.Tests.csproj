@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BaroquenMelody.Library\BaroquenMelody.Library.csproj" />
+    <ProjectReference Include="..\..\src\BaroquenMelody.Infrastructure\BaroquenMelody.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\BaroquenMelody.App.Components\BaroquenMelody.App.Components.csproj" />
+    <ProjectReference Include="..\..\src\BaroquenMelody\BaroquenMelody.csproj" />
+    <ProjectReference Include="..\..\benchmarks\BaroquenMelody.Benchmarks\BaroquenMelody.Benchmarks.csproj" />
+    <ProjectReference Include="..\BaroquenMelody.Library.Tests\BaroquenMelody.Library.Tests.csproj" />
+    <ProjectReference Include="..\BaroquenMelody.Infrastructure.Tests\BaroquenMelody.Infrastructure.Tests.csproj" />
+    <ProjectReference Include="..\BaroquenMelody.App.Components.Tests\BaroquenMelody.App.Components.Tests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Inherited via the ProjectReference to BaroquenMelody.App.Components.Tests (bunit -> AngleSharp 1.2.0);
+         same rationale as the suppression in that project's csproj. -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-pgww-w46g-26qg" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="NUnit" Version="4.6.1" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.14.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="TngTech.ArchUnitNET" Version="0.13.4" />
+    <PackageReference Include="TngTech.ArchUnitNET.NUnit" Version="0.13.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
+</Project>

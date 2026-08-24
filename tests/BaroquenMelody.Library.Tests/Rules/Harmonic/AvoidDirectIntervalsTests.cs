@@ -11,7 +11,7 @@ using Interval = BaroquenMelody.Library.MusicTheory.Enums.Interval;
 namespace BaroquenMelody.Library.Tests.Rules.Harmonic;
 
 [TestFixture]
-internal sealed class AvoidDirectIntervalsTest
+internal sealed class AvoidDirectIntervalsTests
 {
     private AvoidDirectIntervals _avoidDirectIntervals = null!;
 

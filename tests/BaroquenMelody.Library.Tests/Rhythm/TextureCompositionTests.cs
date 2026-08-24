@@ -9,6 +9,7 @@ using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation.Engine;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Rhythm;
+using BaroquenMelody.Library.Rhythm.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;

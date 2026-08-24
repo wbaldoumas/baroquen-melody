@@ -7,6 +7,7 @@ using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Phrasing;
 using BaroquenMelody.Library.Rhythm;
+using BaroquenMelody.Library.Rhythm.Enums;
 using BaroquenMelody.Library.Store.Actions;
 using Fluxor;
 using Melanchall.DryWetMidi.Common;

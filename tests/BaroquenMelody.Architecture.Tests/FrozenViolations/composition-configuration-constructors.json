@@ -1,0 +1,24 @@
+[
+  {
+    "ArchRuleDescription": "Types that reside in assembly \"BaroquenMelody.Library.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\" and do not reside in namespace with full name \"BaroquenMelody.Library.Tests.TestData\" should not call any Method members that are constructors and are declared in \"BaroquenMelody.Library.Configurations.CompositionConfiguration\" and do not h... because seeded tests build configurations through TestCompositionConfigurations.Get so determinism conventions stay in one place; the copy constructor is excluded because sealed-record with-clones compile to a direct copy-constructor call",
+    "Violations": [
+      "BaroquenMelody.Library.Tests.BaroquenMelodyComposerConfiguratorTests",
+      "BaroquenMelody.Library.Tests.CadentialEndingTests",
+      "BaroquenMelody.Library.Tests.FugalExpositionTests",
+      "BaroquenMelody.Library.Tests.Strategies.CompositionStrategyTests",
+      "BaroquenMelody.Library.Tests.Rules.VoiceSpacingSatisfiabilityAnalyzerTests",
+      "BaroquenMelody.Library.Tests.Rhythm.TextureCompositionTests",
+      "BaroquenMelody.Library.Tests.Rhythm.VoiceRhythmCompositionTests",
+      "BaroquenMelody.Library.Tests.Rhythm.VoiceRhythmSchedulerTests",
+      "BaroquenMelody.Library.Tests.Ornamentation.CadentialTrillApplicatorTests",
+      "BaroquenMelody.Library.Tests.MusicTheory.TonicizationApplicatorTests",
+      "BaroquenMelody.Library.Tests.Motifs.MotifApplicatorTests",
+      "BaroquenMelody.Library.Tests.Forms.GroundBassPlannerTests",
+      "BaroquenMelody.Library.Tests.Dynamics.Engine.Processors.DefaultDynamicsProcessorTests",
+      "BaroquenMelody.Library.Tests.Dynamics.Engine.Processors.InitialDynamicsProcessorTests",
+      "BaroquenMelody.Library.Tests.Configuration.CompositionConfigurationTests",
+      "BaroquenMelody.Library.Tests.Configuration.Serialization.CompositionConfigurationSerializationTests",
+      "BaroquenMelody.Library.Tests.Composers.ComposerVoiceRhythmTests"
+    ]
+  }
+]
