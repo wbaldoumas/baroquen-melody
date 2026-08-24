@@ -1,4 +1,4 @@
-﻿using Atrea.PolicyEngine;
+﻿using Atrea.PolicyEngine.Processors;
 using BaroquenMelody.Infrastructure.Collections;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
@@ -18,12 +18,12 @@ internal sealed class CleanConflictingOrnamentationsTests
 {
     private CleanConflictingOrnamentations _cleanConflictingOrnamentations = null!;
 
-    private IPolicyEngine<OrnamentationCleaningItem> _mockOrnamentationCleaningEngine = null!;
+    private IProcessor<OrnamentationCleaningItem> _mockOrnamentationCleaningEngine = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _mockOrnamentationCleaningEngine = Substitute.For<IPolicyEngine<OrnamentationCleaningItem>>();
+        _mockOrnamentationCleaningEngine = Substitute.For<IProcessor<OrnamentationCleaningItem>>();
         _cleanConflictingOrnamentations = new CleanConflictingOrnamentations(_mockOrnamentationCleaningEngine);
     }
 

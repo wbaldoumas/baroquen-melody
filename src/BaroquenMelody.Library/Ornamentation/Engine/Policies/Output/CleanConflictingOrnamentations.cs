@@ -1,14 +1,15 @@
-﻿using Atrea.PolicyEngine;
-using Atrea.PolicyEngine.Policies.Output;
+﻿using Atrea.PolicyEngine.Policies.Output;
+using Atrea.PolicyEngine.Processors;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Ornamentation.Cleaning;
 
 namespace BaroquenMelody.Library.Ornamentation.Engine.Policies.Output;
 
 /// <summary>
-///     Identifies ornamentations that conflict with each other and removes them.
+///     Identifies ornamentations that conflict with each other and removes them, handing each (note, other note)
+///     pair of the beat to the ornamentation cleaner.
 /// </summary>
-internal sealed class CleanConflictingOrnamentations(IPolicyEngine<OrnamentationCleaningItem> ornamentationCleaningEngine) : IOutputPolicy<OrnamentationItem>
+internal sealed class CleanConflictingOrnamentations(IProcessor<OrnamentationCleaningItem> ornamentationCleaner) : IOutputPolicy<OrnamentationItem>
 {
     public void Apply(OrnamentationItem item)
     {
@@ -25,7 +26,7 @@ internal sealed class CleanConflictingOrnamentations(IPolicyEngine<Ornamentation
             var note = item.CurrentBeat[item.Instrument];
             var otherNote = item.CurrentBeat[otherInstrument];
 
-            ornamentationCleaningEngine.Process(new OrnamentationCleaningItem(note, otherNote));
+            ornamentationCleaner.Process(new OrnamentationCleaningItem(note, otherNote));
 
             processedInstrumentCombinations.Add((item.Instrument, otherInstrument));
         }

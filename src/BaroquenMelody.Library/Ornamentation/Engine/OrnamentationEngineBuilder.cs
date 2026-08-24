@@ -8,7 +8,6 @@ using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation.Cleaning;
 using BaroquenMelody.Library.Ornamentation.Cleaning.Engine.Configuration;
-using BaroquenMelody.Library.Ornamentation.Cleaning.Engine.Policies.Input;
 using BaroquenMelody.Library.Ornamentation.Cleaning.Engine.Processors;
 using BaroquenMelody.Library.Ornamentation.Cleaning.Engine.Selection;
 using BaroquenMelody.Library.Ornamentation.Cleaning.Engine.Selection.Strategies;
@@ -19,8 +18,8 @@ using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Rhythm;
-using LazyCart;
 using Microsoft.Extensions.Logging;
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 
 namespace BaroquenMelody.Library.Ornamentation.Engine;
@@ -66,7 +65,7 @@ internal sealed class OrnamentationEngineBuilder
                 compositionConfiguration,
                 logger
             ),
-            new CleanConflictingOrnamentations(BuildOrnamentationCleaningEngine()),
+            new CleanConflictingOrnamentations(BuildOrnamentationCleaner()),
             _voiceRhythmPolicyTransformer
         );
     }
@@ -88,7 +87,12 @@ internal sealed class OrnamentationEngineBuilder
         .WithOutputPolicies(new LogOrnamentation(OrnamentationType.Sustain, _logger))
         .Build();
 
-    private IPolicyEngine<OrnamentationCleaningItem> BuildOrnamentationCleaningEngine()
+    /// <summary>
+    ///     Builds the cross-voice cleaner: one <see cref="OrnamentationCleaner"/> per ordered pair of cleanable
+    ///     ornamentation types, keyed for direct dispatch on the item's own pair.
+    /// </summary>
+    /// <returns>The keyed ornamentation cleaner.</returns>
+    public IProcessor<OrnamentationCleaningItem> BuildOrnamentationCleaner()
     {
         var ornamentationTypes = EnumUtils<OrnamentationType>
             .AsEnumerable()
@@ -112,37 +116,25 @@ internal sealed class OrnamentationEngineBuilder
             ]
         );
 
-        var ornamentationCombinations = new LazyCartesianProduct<OrnamentationType, OrnamentationType>(ornamentationTypes, ornamentationTypes);
+        var cleanersByOrnamentationPair = new Dictionary<(OrnamentationType Note, OrnamentationType OtherNote), IProcessor<OrnamentationCleaningItem>>();
 
-        var processors = new List<IProcessor<OrnamentationCleaningItem>>();
-
-        for (var i = 0; i < ornamentationCombinations.Size; i++)
+        foreach (var primaryOrnamentation in ornamentationTypes)
         {
-            var (primaryOrnamentation, secondaryOrnamentation) = ornamentationCombinations[i];
+            foreach (var secondaryOrnamentation in ornamentationTypes)
+            {
+                var noteSelector = new NotePairSelector(primaryOrnamentation, secondaryOrnamentation);
+                var indices = _noteIndexPairSelector.Select(primaryOrnamentation, secondaryOrnamentation);
 
-            var noteSelector = new NotePairSelector(primaryOrnamentation, secondaryOrnamentation);
-            var indices = _noteIndexPairSelector.Select(primaryOrnamentation, secondaryOrnamentation);
+                var ornamentationCleaningConfiguration = new OrnamentationCleanerConfiguration(
+                    noteSelector,
+                    indices,
+                    cleaningSelector
+                );
 
-            var ornamentationCleaningConfiguration = new OrnamentationCleanerConfiguration(
-                noteSelector,
-                indices,
-                cleaningSelector
-            );
-
-            var processor = PolicyEngineBuilder<OrnamentationCleaningItem>
-                .Configure()
-                .WithInputPolicies(new HasTargetOrnamentations(primaryOrnamentation, secondaryOrnamentation))
-                .WithProcessors(new OrnamentationCleaner(ornamentationCleaningConfiguration, _compositionConfiguration, _weightedRandomBooleanGenerator))
-                .Build();
-
-            processors.Add(processor);
+                cleanersByOrnamentationPair[(primaryOrnamentation, secondaryOrnamentation)] = new OrnamentationCleaner(ornamentationCleaningConfiguration, _compositionConfiguration, _weightedRandomBooleanGenerator);
+            }
         }
 
-        return PolicyEngineBuilder<OrnamentationCleaningItem>
-            .Configure()
-            .WithoutInputPolicies()
-            .WithProcessors([.. processors])
-            .WithOutputPolicies()
-            .Build();
+        return new OrnamentationCleaningDispatcher(cleanersByOrnamentationPair.ToFrozenDictionary());
     }
 }
