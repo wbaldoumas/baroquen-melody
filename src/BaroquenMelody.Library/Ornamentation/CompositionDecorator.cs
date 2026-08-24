@@ -1,5 +1,6 @@
 using Atrea.PolicyEngine;
 using BaroquenMelody.Infrastructure.Collections;
+using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
@@ -17,12 +18,16 @@ namespace BaroquenMelody.Library.Ornamentation;
 ///     sustain pass keeps the raw configuration order, because its gate draws once per item and
 ///     re-ordering it would re-order the draws on the shared stream, and the per-instrument overload is
 ///     unaffected - it takes an explicit instrument and has no order at all.
+///     The between-beat processor shuffle (<see cref="CompositionConfiguration.ShuffleOrnamentationProcessors"/>)
+///     draws from its own <paramref name="processorShuffleRandomProvider"/>, so it is reproducible under a seed
+///     without touching the composition's shared stream.
 /// </remarks>
 internal sealed class CompositionDecorator(
     IPolicyEngine<OrnamentationItem> ornamentationEngine,
     IPolicyEngine<OrnamentationItem> sustainEngine,
     IVoiceRhythmScheduler voiceRhythmScheduler,
-    CompositionConfiguration configuration
+    CompositionConfiguration configuration,
+    IRandomProvider processorShuffleRandomProvider
 ) : ICompositionDecorator
 {
     public void Decorate(Composition composition) => Decorate(composition, ornamentationEngine, ResolveOrnamentationInstrumentOrder(), shuffleProcessors: configuration.ShuffleOrnamentationProcessors);
@@ -56,7 +61,7 @@ internal sealed class CompositionDecorator(
     private IEnumerable<Instrument> GetConfiguredInstrumentOrder() =>
         configuration.InstrumentConfigurations.Select(static instrumentConfiguration => instrumentConfiguration.Instrument);
 
-    private static void Decorate(
+    private void Decorate(
         Instrument instrument,
         List<Beat> beats,
         FixedSizeList<Beat> compositionContext,
@@ -79,10 +84,19 @@ internal sealed class CompositionDecorator(
 
             if (shuffleProcessors)
             {
-                processor.Shuffle();
+                ShuffleProcessors(processor);
             }
 
             compositionContext.Add(beats[i]);
         }
     }
+
+    /// <summary>
+    ///     Re-orders the engine's processors through the seeded shuffle stream rather than the engine's own
+    ///     <c>Shuffle()</c>, which draws from an unseeded shared source. One draw per processor,
+    ///     all from the shuffle stream - never the composition's shared stream, whose draw count therefore stays the
+    ///     same whether or not shuffling is on.
+    /// </summary>
+    private void ShuffleProcessors(IPolicyEngine<OrnamentationItem> processor) =>
+        processor.Replace(processor.Processors.OrderByRandom(processorShuffleRandomProvider).ToArray());
 }

@@ -36,6 +36,10 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IWeightedRandomBooleanGenerator, WeightedRandomBooleanGenerator>()
         .AddSingleton<IVoiceSpacingSatisfiabilityAnalyzer, VoiceSpacingSatisfiabilityAnalyzer>()
         .AddSingleton<IGroundBassFeasibilityAnalyzer, GroundBassFeasibilityAnalyzer>()
+
+        // Both of the configurator's random providers (the composition stream and the processor-shuffle stream)
+        // resolve to this one unseeded singleton: the streams only need to be distinct under a seed, which is a
+        // test-side construction (SeededRandomProviders), never a registration.
         .AddSingleton<IRandomProvider, ThreadLocalRandomProvider>()
         .AddSingleton<IMusicalTimeSpanCalculator, MusicalTimeSpanCalculator>()
         .AddSingleton<IOrnamentationProcessorConfigurationFactoryProvider, OrnamentationProcessorConfigurationFactoryProvider>();

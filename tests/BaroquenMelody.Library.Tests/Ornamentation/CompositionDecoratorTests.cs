@@ -1,4 +1,6 @@
 ﻿using Atrea.PolicyEngine;
+using Atrea.PolicyEngine.Processors;
+using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Ornamentation;
@@ -32,7 +34,7 @@ internal sealed class CompositionDecoratorTests
         _mockSustainEngine = Substitute.For<IPolicyEngine<OrnamentationItem>>();
         _mockVoiceRhythmScheduler = Substitute.For<IVoiceRhythmScheduler>();
 
-        _compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, _mockSustainEngine, _mockVoiceRhythmScheduler, compositionConfiguration);
+        _compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, _mockSustainEngine, _mockVoiceRhythmScheduler, compositionConfiguration, new SeededRandomProvider(1));
     }
 
     [Test]
@@ -198,24 +200,60 @@ internal sealed class CompositionDecoratorTests
     }
 
     [Test]
-    public void WhenDecorateIsInvoked_AndShuffleOrnamentationProcessorsIsTrue_ThenTheOrnamentationEngineIsShuffled()
+    public void WhenDecorateIsInvoked_AndShuffleOrnamentationProcessorsIsTrue_ThenTheProcessorsAreReplacedWithAPermutationAtEveryBeat()
     {
         // arrange
+        var processors = CreateProcessors(5);
+        var replacements = CaptureReplacements(_mockOrnamentationEngine, processors);
         var composition = CreateTwoInstrumentComposition();
 
         // act
         _compositionDecorator.Decorate(composition);
 
         // assert
-        _mockOrnamentationEngine.Received(8).Shuffle();
+        _mockOrnamentationEngine.DidNotReceive().Shuffle();
+        replacements.Should().HaveCount(8, "every (beat, instrument) item re-orders the processors once");
+
+        foreach (var replacement in replacements)
+        {
+            replacement.Should().HaveCount(processors.Count);
+            replacement.Should().OnlyHaveUniqueItems();
+            replacement.Should().OnlyContain(processor => processors.Contains(processor), "a shuffle is a permutation of the configured processors");
+        }
+
+        replacements.Should().Contain(replacement => !replacement.SequenceEqual(processors), "the seeded order must actually move the processors");
     }
 
     [Test]
-    public void WhenDecorateIsInvoked_AndShuffleOrnamentationProcessorsIsFalse_ThenTheOrnamentationEngineIsNotShuffled()
+    public void WhenDecorateIsInvoked_WithTheSameShuffleSeed_ThenTheProcessorOrdersAreReproducible()
+    {
+        // arrange
+        var compositionConfiguration = TestCompositionConfigurations.Get(2);
+        var processors = CreateProcessors(5);
+
+        var firstEngine = Substitute.For<IPolicyEngine<OrnamentationItem>>();
+        var secondEngine = Substitute.For<IPolicyEngine<OrnamentationItem>>();
+        var firstReplacements = CaptureReplacements(firstEngine, processors);
+        var secondReplacements = CaptureReplacements(secondEngine, processors);
+
+        var firstDecorator = new CompositionDecorator(firstEngine, _mockSustainEngine, _mockVoiceRhythmScheduler, compositionConfiguration, new SeededRandomProvider(42));
+        var secondDecorator = new CompositionDecorator(secondEngine, _mockSustainEngine, _mockVoiceRhythmScheduler, compositionConfiguration, new SeededRandomProvider(42));
+
+        // act
+        firstDecorator.Decorate(CreateTwoInstrumentComposition());
+        secondDecorator.Decorate(CreateTwoInstrumentComposition());
+
+        // assert
+        firstReplacements.Should().HaveCount(8);
+        firstReplacements.Zip(secondReplacements).Should().AllSatisfy(pair => pair.First.Should().Equal(pair.Second));
+    }
+
+    [Test]
+    public void WhenDecorateIsInvoked_AndShuffleOrnamentationProcessorsIsFalse_ThenTheOrnamentationEngineIsNeverReordered()
     {
         // arrange
         var compositionConfiguration = TestCompositionConfigurations.Get(2) with { ShuffleOrnamentationProcessors = false };
-        var compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, _mockSustainEngine, _mockVoiceRhythmScheduler, compositionConfiguration);
+        var compositionDecorator = new CompositionDecorator(_mockOrnamentationEngine, _mockSustainEngine, _mockVoiceRhythmScheduler, compositionConfiguration, new SeededRandomProvider(1));
         var composition = CreateTwoInstrumentComposition();
 
         // act
@@ -223,7 +261,22 @@ internal sealed class CompositionDecoratorTests
 
         // assert
         _mockOrnamentationEngine.DidNotReceive().Shuffle();
+        _mockOrnamentationEngine.DidNotReceiveWithAnyArgs().Replace(default!);
         _mockOrnamentationEngine.ReceivedWithAnyArgs(8).Process(Arg.Any<OrnamentationItem>());
+    }
+
+    [Test]
+    public void WhenApplySustainIsInvoked_ThenTheSustainEngineIsNeverReordered()
+    {
+        // arrange
+        var composition = CreateTwoInstrumentComposition();
+
+        // act
+        _compositionDecorator.ApplySustain(composition);
+
+        // assert
+        _mockSustainEngine.DidNotReceive().Shuffle();
+        _mockSustainEngine.DidNotReceiveWithAnyArgs().Replace(default!);
     }
 
     [Test]
@@ -285,6 +338,21 @@ internal sealed class CompositionDecoratorTests
             )
         ]
     );
+
+    private static List<IProcessor<OrnamentationItem>> CreateProcessors(int count) =>
+        Enumerable.Range(0, count).Select(static _ => Substitute.For<IProcessor<OrnamentationItem>>()).ToList();
+
+    private static List<IReadOnlyCollection<IProcessor<OrnamentationItem>>> CaptureReplacements(IPolicyEngine<OrnamentationItem> engine, List<IProcessor<OrnamentationItem>> processors)
+    {
+        var replacements = new List<IReadOnlyCollection<IProcessor<OrnamentationItem>>>();
+
+        engine.Processors.Returns(processors);
+
+        engine.When(static policyEngine => policyEngine.Replace(Arg.Any<IReadOnlyCollection<IProcessor<OrnamentationItem>>>()))
+            .Do(callInfo => replacements.Add(callInfo.Arg<IReadOnlyCollection<IProcessor<OrnamentationItem>>>()));
+
+        return replacements;
+    }
 
     private static BaroquenChord CreateChord() => new(
         [

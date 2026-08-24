@@ -30,6 +30,22 @@ internal sealed class EngineDeterminismTests
     );
 
     [Test]
+    public void Compose_WithSameSeedAndShuffleEnabled_ProducesIdenticalMidi() => Gen.Int.Sample(
+        seed =>
+        {
+            // the processor shuffle draws from its own seed-derived stream, so the default (shuffle on) is reproducible too
+            var configuration = TestCompositionConfigurations.Get(3, 10);
+
+            var first = SeededComposition.Notes(SeededComposition.Compose(configuration, seed));
+            var second = SeededComposition.Notes(SeededComposition.Compose(configuration, seed));
+
+            first.Should().NotBeEmpty();
+            first.Should().Equal(second);
+        },
+        iter: SampleIterations
+    );
+
+    [Test]
     public void Compose_WithDifferentSeeds_ProducesDifferentMidi()
     {
         // arrange

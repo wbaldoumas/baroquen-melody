@@ -34,11 +34,13 @@ namespace BaroquenMelody.Library;
 /// <param name="logger">A logger to be used throughout the composition process.</param>
 /// <param name="dispatcher">A dispatcher to be used to dispatch actions to the store.</param>
 /// <param name="randomProvider">The random provider threaded through the composition graph so randomness is reproducible under a seed.</param>
+/// <param name="processorShuffleRandomProvider">A separate random provider that orders the ornamentation processors between beats when <see cref="CompositionConfiguration.ShuffleOrnamentationProcessors"/> is on. It is kept apart from <paramref name="randomProvider"/> so shuffling never shifts the composition's own draws, and shuffle-off draws nothing from it.</param>
 /// <param name="voiceSpacingSatisfiabilityAnalyzer">Determines whether the voice spacing rule can be satisfied by the configured instrument ranges, so an unsatisfiable rule can be skipped instead of dead-ending the composition.</param>
 internal sealed class BaroquenMelodyComposerConfigurator(
     ILogger<MidiFileComposition> logger,
     IDispatcher dispatcher,
     IRandomProvider randomProvider,
+    IRandomProvider processorShuffleRandomProvider,
     IVoiceSpacingSatisfiabilityAnalyzer voiceSpacingSatisfiabilityAnalyzer
 ) : IBaroquenMelodyComposerConfigurator
 {
@@ -78,7 +80,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         var ornamentationEngineBuilder = new OrnamentationEngineBuilder(compositionConfiguration, _musicalTimeSpanCalculator, randomProvider, logger, voiceRhythmLedger);
         var dynamicsEngineBuilder = new DynamicsEngineBuilder(compositionConfiguration, randomProvider);
         var dynamicsApplicator = new DynamicsApplicator(compositionConfiguration, dynamicsEngineBuilder.Build());
-        var compositionDecorator = new CompositionDecorator(ornamentationEngineBuilder.BuildOrnamentationEngine(), ornamentationEngineBuilder.BuildSustainedNoteEngine(), voiceRhythmScheduler, compositionConfiguration);
+        var compositionDecorator = new CompositionDecorator(ornamentationEngineBuilder.BuildOrnamentationEngine(), ornamentationEngineBuilder.BuildSustainedNoteEngine(), voiceRhythmScheduler, compositionConfiguration, processorShuffleRandomProvider);
         var motifExtractor = new MotifExtractor(compositionConfiguration);
         var motifApplicator = new MotifApplicator(compositionConfiguration);
         var motifBankFactory = new MotifBankFactory(motifExtractor, compositionConfiguration);
@@ -153,7 +155,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
                 // voice rhythm configuration keeps both graphs uniform - and shares the one ledger, so the
                 // ground form's division roles resolve identically whichever key's engine decorates a slice.
                 var relativeOrnamentationEngineBuilder = new OrnamentationEngineBuilder(relativeConfiguration, _musicalTimeSpanCalculator, randomProvider, logger, voiceRhythmLedger);
-                var relativeDecorator = new CompositionDecorator(relativeOrnamentationEngineBuilder.BuildOrnamentationEngine(), relativeOrnamentationEngineBuilder.BuildSustainedNoteEngine(), voiceRhythmScheduler, relativeConfiguration);
+                var relativeDecorator = new CompositionDecorator(relativeOrnamentationEngineBuilder.BuildOrnamentationEngine(), relativeOrnamentationEngineBuilder.BuildSustainedNoteEngine(), voiceRhythmScheduler, relativeConfiguration, processorShuffleRandomProvider);
                 var relativeTonicizationApplicator = new TonicizationApplicator(relativeChordNumberIdentifier, _weightedRandomBooleanGenerator, relativeConfiguration);
 
                 relativeComponents = new GroundBassSectionComponents(relativeStrategy, relativeSeamStrategy, relativeChordSelector, relativeDecorator, relativeTonicizationApplicator);
