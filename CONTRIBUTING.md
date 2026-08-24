@@ -27,8 +27,44 @@ possible, and, if possible, a test case.
 Before sending a new pull request, take a look at existing pull requests and issues to see if the proposed change or fix
 has been discussed in the past, or if the change was already implemented but not yet released.
 
-We expect new pull requests to include tests for any affected behavior, and, as we follow semantic versioning, we may
-reserve breaking changes until the next major version release.
+We expect new pull requests to include tests for any affected behavior, to keep the analyzers and the architecture
+tests green, and, as we follow semantic versioning, we may reserve breaking changes until the next major version
+release.
+
+### Building and Testing
+
+The repository targets the .NET SDK pinned in `global.json` (`dotnet --version` must report at least that feature
+band; Renovate moves the pin, so update your SDK when it does). The solution also contains the .NET MAUI host, which
+needs the MAUI workloads — you do not need them to work on the composition engine, the infrastructure or the Blazor
+components. Build and test the projects directly:
+
+```bash
+dotnet test tests/BaroquenMelody.Library.Tests/          # composition engine; the seeded sweeps take 15-20 minutes
+dotnet test tests/BaroquenMelody.Infrastructure.Tests/
+dotnet test tests/BaroquenMelody.App.Components.Tests/   # bUnit tests for the Razor components
+dotnet test tests/BaroquenMelody.Architecture.Tests/     # architecture rules, about ten seconds
+```
+
+Every project treats analyzer warnings (StyleCop, Meziantou, the .NET analyzers) as errors, so a clean build is the
+first gate. CI (`.github/workflows/test.yml`) runs all four suites on every pull request and fails on any red test.
+
+### Architecture Tests
+
+`tests/BaroquenMelody.Architecture.Tests` uses [ArchUnitNET](https://github.com/TNG/ArchUnitNET) to keep the
+project's structure honest: the dependency direction between assemblies (Infrastructure ← Library ← UI, console app
+and benchmarks), where types live (enums in `*.Enums`, composition rules in `Rules.*`, components in `Layout`, `Pages`
+or `Shared`), type shapes (sealed classes, record configurations, the Fluxor store's state/action/reducer/effect
+shapes), forbidden dependencies (`System.Random` outside the random providers, `System.Console` outside the console
+app, static `System.IO` inside the library, the policy engine outside the ornamentation and dynamics engines) and
+test-suite conventions (`internal sealed class *Tests`, no `[Explicit]` or `[Ignore]`, new fixtures building their
+configurations through `TestCompositionConfigurations`).
+
+If one of these tests fails on your branch, its message names the rule, states why the rule exists and lists the
+offending types. Please fix the code rather than the rule — every rule describes how the codebase is already written.
+If you believe a convention should change, say so in your pull request and change the rule in the same PR, updating
+its `Because()` so the reason travels with it. One rule is frozen against a committed baseline of pre-existing
+violations (`FrozenViolations/`): if you fix or rename one of those fixtures, rerun the tests and commit the
+regenerated JSON rather than editing it by hand.
 
 ### Mutation Testing
 
