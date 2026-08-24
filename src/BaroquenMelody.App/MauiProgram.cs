@@ -29,6 +29,9 @@ public static class MauiProgram
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddSingleton<IPhysicalDeviceInfo, MauiDeviceInfo>();
         builder.Services.AddSingleton<IMidiLauncher, MauiMidiLauncher>();
+#if WINDOWS
+        builder.Services.AddSingleton<IWindowsSaveFileDialog, WindowsSaveFileDialog>();
+#endif
         builder.Services.AddSingleton<IMidiSaver, MauiMidiSaver>();
         builder.Services.AddSingleton<IThemeProvider, MauiThemeProvider>();
         builder.Services.AddSingleton<IDeviceDirectoryProvider, MauiDeviceDirectoryProvider>();
