@@ -28,6 +28,45 @@ internal sealed class ChordNumberIdentifierTests
     public void IdentifyChordNumber_identifies_chord_number_as_expected(BaroquenChord chord, ChordNumber expectedChordNumber) =>
         _chordNumberIdentifier.IdentifyChordNumber(chord).Should().Be(expectedChordNumber);
 
+    // Audit: domain-music-theory-2 - a fifth-less dominant dyad {G, B} is V, yet the first-subset-match walk labels it
+    // III; likewise {E, G} is read as I although the tonic is absent.
+    [Test]
+    public void IdentifyChordNumber_IdentifiesAFifthlessDominantDyad_AsV()
+    {
+        // arrange
+        var identifier = new ChordNumberIdentifier(TestCompositionConfigurations.Get(2));
+
+        var dominantDyad = new BaroquenChord([
+            new BaroquenNote(Instrument.One, Notes.B4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+        ]);
+
+        // act
+        var chordNumber = identifier.IdentifyChordNumber(dominantDyad);
+
+        // assert
+        chordNumber.Should().Be(ChordNumber.V);
+    }
+
+    // Audit: domain-music-theory-2
+    [Test]
+    public void IdentifyChordNumber_DoesNotIdentifyARootlessDyad_AsTheTonic()
+    {
+        // arrange
+        var identifier = new ChordNumberIdentifier(TestCompositionConfigurations.Get(2));
+
+        var rootlessDyad = new BaroquenChord([
+            new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+        ]);
+
+        // act
+        var chordNumber = identifier.IdentifyChordNumber(rootlessDyad);
+
+        // assert
+        chordNumber.Should().NotBe(ChordNumber.I, "the tonic pitch class is not sounded");
+    }
+
     private static IEnumerable<TestCaseData> TestCases
     {
         get

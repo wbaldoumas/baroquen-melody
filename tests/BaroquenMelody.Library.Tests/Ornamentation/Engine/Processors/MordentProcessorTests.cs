@@ -82,6 +82,34 @@ internal sealed class MordentProcessorTests
         noteToAssert.Ornamentations[1].MusicalTimeSpan.Should().Be(MusicalTimeSpan.Quarter.Dotted(1));
     }
 
+    // Audit: ornament-figures-4
+    // Pins the C.P.E. Bach definition: the mordent is principal - LOWER auxiliary - principal (A4 G4 A4). The upper form
+    // (A4 B4 A4) is the Schneller / Pralltriller, not a mordent, so the figure must not depend on the inversion draw.
+    [Test]
+    public void Process_applies_the_lower_auxiliary_regardless_of_the_inversion_draw()
+    {
+        // arrange
+        var ornamentationItem = new OrnamentationItem(
+            Instrument.One,
+            new FixedSizeList<Beat>(1),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Half)]))
+        );
+
+        _mockWeightedRandomBooleanGenerator.IsTrue().Returns(false);
+
+        // act
+        _mordentProcessor.Process(ornamentationItem);
+
+        // assert
+        var noteToAssert = ornamentationItem.CurrentBeat[Instrument.One];
+
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.Mordent);
+        noteToAssert.Ornamentations.Should().HaveCount(2);
+        noteToAssert.Ornamentations[0].Raw.Should().Be(Notes.G4, "the Baroque mordent sounds the lower auxiliary");
+        noteToAssert.Ornamentations[1].Raw.Should().Be(Notes.A4);
+    }
+
     [Test]
     public void Process_applies_lower_mordent_as_expected()
     {

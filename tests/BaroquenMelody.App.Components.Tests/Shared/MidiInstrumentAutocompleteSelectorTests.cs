@@ -1,6 +1,7 @@
 using BaroquenMelody.App.Components.Shared;
 using BaroquenMelody.Library.Configurations.Enums;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using Bunit;
 using FluentAssertions;
@@ -153,6 +154,23 @@ internal sealed class MidiInstrumentAutocompleteSelectorTests
 
         // assert
         component.Find("input").GetAttribute("value").Should().Be("Acoustic Grand Piano");
+    }
+
+    [Test]
+    public void Clearing_the_autocomplete_does_not_change_the_stored_instrument()
+    {
+        // Audit: ui-razor-components-6
+        // arrange
+        _testContext.Dispatcher.Dispatch(new UpdateMidiInstrument(Instrument.One, GeneralMidi2Program.Harpsichord));
+
+        var component = RenderSelector();
+        var autocomplete = component.FindComponent<MudAutocomplete<GeneralMidi2Program>>();
+
+        // act: the clear button resets the field to default(T), which is a real instrument (Acoustic Grand Piano)
+        component.InvokeAsync(() => autocomplete.Instance.ClearAsync()).GetAwaiter().GetResult();
+
+        // assert
+        _testContext.StateOf<InstrumentConfigurationState>()[Instrument.One]!.MidiProgram.Should().Be(GeneralMidi2Program.Harpsichord);
     }
 
     private IRenderedComponent<MidiInstrumentAutocompleteSelector> RenderSelector(ConfigurationStatus status = ConfigurationStatus.Enabled) => _testContext.RenderComponent<MidiInstrumentAutocompleteSelector>(parameters => parameters

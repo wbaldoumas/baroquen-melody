@@ -199,6 +199,27 @@ internal sealed class PreferLeapRecoveryTests
             ]),
             0d
         ).SetName("An out-of-scale note in the middle context chord is not scored");
+
+        // Audit: search-scoring-random-1 - a held-harmony duplicate (the harmonic-rhythm hold) must not erase the leap.
+        yield return new TestCaseData(
+            new List<BaroquenChord>
+            {
+                new([
+                    new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]),
+                new([
+                    new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]),
+                new BaroquenChord(new BaroquenChord([
+                    new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]))
+            },
+            BuildNextChord(Notes.C5),
+            1d
+        ).SetName("A leap held across a duplicated chord and then continued in the same direction costs one");
     }
 
     private static List<BaroquenChord> BuildPrecedingChords(Note firstNote, Note secondNote) =>

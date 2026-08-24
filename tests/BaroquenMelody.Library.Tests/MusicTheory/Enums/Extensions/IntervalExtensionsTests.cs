@@ -17,6 +17,37 @@ internal sealed class IntervalExtensionsTests
     public void FromNotes_generates_expected_interval(BaroquenNote note, BaroquenNote otherNote, Interval expectedInterval) =>
         IntervalExtensions.FromNotes(note, otherNote).Should().Be(expectedInterval);
 
+    // Audit: rules-1 - the interval between two pitches is inversion-independent of which pitch class is numerically
+    // larger; when the lower pitch carries the higher pitch class the current subtraction yields the inversion.
+    [Test]
+    [TestCaseSource(nameof(WrapAroundTestCases))]
+    public void FromNotes_is_independent_of_pitch_class_wrap_around(BaroquenNote note, BaroquenNote otherNote, Interval expectedInterval) =>
+        IntervalExtensions.FromNotes(note, otherNote).Should().Be(expectedInterval);
+
+    private static IEnumerable<TestCaseData> WrapAroundTestCases
+    {
+        get
+        {
+            yield return new TestCaseData(
+                new BaroquenNote(Instrument.One, Notes.G3, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.D4, MusicalTimeSpan.Half),
+                Interval.PerfectFifth
+            ).SetName("G3 to D4 is a perfect fifth, not its inversion");
+
+            yield return new TestCaseData(
+                new BaroquenNote(Instrument.One, Notes.B3, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C4, MusicalTimeSpan.Half),
+                Interval.MinorSecond
+            ).SetName("B3 to C4 is a minor second, not a major seventh");
+
+            yield return new TestCaseData(
+                new BaroquenNote(Instrument.One, Notes.G4, MusicalTimeSpan.Half),
+                new BaroquenNote(Instrument.Two, Notes.C5, MusicalTimeSpan.Half),
+                Interval.PerfectFourth
+            ).SetName("G4 to C5 is a perfect fourth, not a perfect fifth");
+        }
+    }
+
     private static IEnumerable<TestCaseData> TestCases
     {
         get

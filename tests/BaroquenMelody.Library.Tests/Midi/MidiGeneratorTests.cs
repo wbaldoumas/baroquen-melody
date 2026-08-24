@@ -71,6 +71,29 @@ internal sealed class MidiGeneratorTests
         midiFile.Chunks.Should().HaveCount(2, "because there are two instruments");
     }
 
+    // Audit: ui-razor-components-1 - demonstration (passes by design): a tempo of 2 BPM is not encodable in a MIDI
+    // set-tempo event (30,000,000 us per quarter exceeds the 24-bit ceiling), so the generator throws after the whole
+    // composition has run. The UI admits tempos 1..3 through its Min="1" bound; the clamp belongs in the card.
+    [Test]
+    public void Generate_ThrowsForATempoBelowTheMidiEncodableMinimum()
+    {
+        // arrange
+        var compositionConfiguration = TestCompositionConfigurations.Get(2) with { Tempo = 2 };
+        var midiGenerator = new MidiGenerator(compositionConfiguration);
+
+        var composition = new Composition(
+            [
+                new Measure([new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)]))], Meter.FourFour)
+            ]
+        );
+
+        // act
+        var act = () => midiGenerator.Generate(composition);
+
+        // assert
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
     [Test]
     public void Generate_does_not_sound_the_silent_principal_of_an_appoggiatura()
     {

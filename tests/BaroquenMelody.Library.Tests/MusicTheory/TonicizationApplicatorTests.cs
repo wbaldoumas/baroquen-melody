@@ -117,6 +117,104 @@ internal sealed class TonicizationApplicatorTests
     }
 
     [Test]
+    public void ApplyTonicization_WhenTheRaisedVoiceApproachesFromTheWholeStepBelow_RaisesNothing()
+    {
+        // Audit: suspension-tonicization-phrasing-motifs-1
+        // arrange - A Aeolian, three voices: the soprano walks F4 -> G4 -> A4 through iv -> v -> i. Raising G4
+        // would sing F4 -> G#4 -> A4, a melodic augmented second, so the site must be rejected outright.
+        var configuration = TestCompositionConfigurations.Get(3, tonic: NoteName.A, mode: Mode.Aeolian);
+        var composition = BuildComposition(
+            BuildMeasure(
+                ThreeVoiceChord(Notes.C5, Notes.E4, Notes.A2),
+                ThreeVoiceChord(Notes.C5, Notes.E4, Notes.A2),
+                ThreeVoiceChord(Notes.F4, Notes.A3, Notes.D2),
+                ThreeVoiceChord(Notes.G4, Notes.B3, Notes.E2)),
+            BuildMeasure(
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2)));
+
+        // act
+        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.G4, "F4 -> G#4 would be a melodic augmented second");
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenTheRaisedVoiceApproachesFromAMinorThirdBelow_StillRaisesTheThird()
+    {
+        // Audit: suspension-tonicization-phrasing-motifs-1 (control)
+        // arrange - the mirror: the soprano arrives on G4 from E4, so the raise sounds E4 -> G#4 -> A4 with no
+        // augmented second, and the site must keep firing.
+        var configuration = TestCompositionConfigurations.Get(3, tonic: NoteName.A, mode: Mode.Aeolian);
+        var composition = BuildComposition(
+            BuildMeasure(
+                ThreeVoiceChord(Notes.C5, Notes.E4, Notes.A2),
+                ThreeVoiceChord(Notes.C5, Notes.E4, Notes.A2),
+                ThreeVoiceChord(Notes.E4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.G4, Notes.B3, Notes.E2)),
+            BuildMeasure(
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2)));
+
+        // act
+        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.GSharp4);
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenAnotherVoiceSoundedTheNaturalThirdOnThePreviousBeat_RaisesNothing()
+    {
+        // Audit: suspension-tonicization-phrasing-motifs-2
+        // arrange - i re-voiced across beats 2 and 3: the soprano sounds C5 on beat 2, then the bass takes C3 on
+        // beat 3 and steps to D3 under iv. Raising C3 to C#3 would be a cross-relation against the soprano's
+        // C natural one beat earlier.
+        var composition = BuildComposition(
+            BuildMeasure(Chord(Notes.E4, Notes.A2), Chord(Notes.E4, Notes.A2), Chord(Notes.C5, Notes.A2), Chord(Notes.E5, Notes.C3)),
+            BuildMeasure(Chord(Notes.A4, Notes.D3), Chord(Notes.A4, Notes.D3), Chord(Notes.A4, Notes.D3), Chord(Notes.A4, Notes.D3)));
+
+        // act
+        CreateApplicator().ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.Two].Raw.Should().Be(Notes.C3, "the soprano sounded C natural on the preceding beat");
+    }
+
+    [Test]
+    public void ApplyTonicization_WhenTheThirdIsDoubled_RaisesNothing()
+    {
+        // Audit: suspension-tonicization-phrasing-motifs-3
+        // arrange - three voices, the third G doubled in soprano and bass: raising both would double the
+        // (secondary) leading tone, so the site is rejected before any draw.
+        var configuration = TestCompositionConfigurations.Get(3, tonic: NoteName.A, mode: Mode.Aeolian);
+        var composition = BuildComposition(
+            BuildMeasure(
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.G4, Notes.B3, Notes.G2)),
+            BuildMeasure(
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2),
+                ThreeVoiceChord(Notes.A4, Notes.C4, Notes.A2)));
+
+        // act
+        new TonicizationApplicator(new ChordNumberIdentifier(configuration), _mockWeightedRandomBooleanGenerator, configuration).ApplyTonicization(composition);
+
+        // assert
+        composition.Measures[0].Beats[^1].Chord[Instrument.One].Raw.Should().Be(Notes.G4, "a doubled third must never become a doubled leading tone");
+        composition.Measures[0].Beats[^1].Chord[Instrument.Three].Raw.Should().Be(Notes.G2, "a doubled third must never become a doubled leading tone");
+        _mockWeightedRandomBooleanGenerator.DidNotReceive().IsTrue(Arg.Any<int>());
+    }
+
+    [Test]
     public void ApplyTonicization_WhenOneDoublingFailsItsResolutionObligation_RaisesNothing()
     {
         // arrange - the bass G resolves to E instead of A, so the whole site must be rejected: a partial

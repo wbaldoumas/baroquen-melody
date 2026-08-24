@@ -375,6 +375,28 @@ internal sealed class SuspensionApplicatorTests
         resolution.MusicalTimeSpan.Should().Be(defaultSpan / 2);
     }
 
+    [Test]
+    public void ApplySuspensions_WhenAnotherUpperVoiceAlreadySoundsTheResolution_LeavesTheSiteAlone()
+    {
+        // Audit: suspension-tonicization-phrasing-motifs-4
+        // arrange - three voices: the soprano's F4 steps down to E4 over C-E, but the alto already sounds E3 on
+        // the strong beat, so the tone of resolution would be doubled against the suspension. The site must be
+        // skipped and the soprano left as a plain principal note.
+        var configuration = TestCompositionConfigurations.Get(3);
+        var composition = BuildComposition(
+            BuildMeasure([ThreeVoiceChord(Notes.A4, Notes.C4, Notes.F3), ThreeVoiceChord(Notes.F4, Notes.A3, Notes.F3), ThreeVoiceChord(Notes.E4, Notes.E3, Notes.C3), ThreeVoiceChord(Notes.G4, Notes.E3, Notes.C3)]),
+            BuildMeasure([ThreeVoiceChord(Notes.A4, Notes.C4, Notes.F3), ThreeVoiceChord(Notes.A4, Notes.C4, Notes.F3), ThreeVoiceChord(Notes.A4, Notes.C4, Notes.F3), ThreeVoiceChord(Notes.A4, Notes.C4, Notes.F3)]));
+
+        var preparation = composition.Measures[0].Beats[1].Chord[Instrument.One];
+
+        // act
+        new SuspensionApplicator(_mockWeightedRandomBooleanGenerator, configuration).ApplySuspensions(composition);
+
+        // assert
+        preparation.OrnamentationType.Should().Be(OrnamentationType.None, "the alto already sounds the tone of resolution");
+        preparation.MusicalTimeSpan.Should().Be(configuration.DefaultNoteTimeSpan);
+    }
+
     private SuspensionApplicator CreateApplicator() => new(_mockWeightedRandomBooleanGenerator, _compositionConfiguration);
 
     private static Composition BuildComposition(params Measure[] measures) => new([.. measures]);
@@ -389,6 +411,12 @@ internal sealed class SuspensionApplicatorTests
     private static Beat Chord(Note sopranoNote, Note altoNote, CompositionConfiguration configuration) => new(new BaroquenChord([
         new BaroquenNote(Instrument.One, sopranoNote, configuration.DefaultNoteTimeSpan),
         new BaroquenNote(Instrument.Two, altoNote, configuration.DefaultNoteTimeSpan)
+    ]));
+
+    private static Beat ThreeVoiceChord(Note sopranoNote, Note altoNote, Note bassNote) => new(new BaroquenChord([
+        new BaroquenNote(Instrument.One, sopranoNote, MusicalTimeSpan.Half),
+        new BaroquenNote(Instrument.Two, altoNote, MusicalTimeSpan.Half),
+        new BaroquenNote(Instrument.Three, bassNote, MusicalTimeSpan.Half)
     ]));
 
     private static IEnumerable<BaroquenNote> AllNotes(Composition composition) =>

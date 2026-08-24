@@ -55,6 +55,19 @@ internal sealed class AvoidRepetitionTests
             yield return new TestCaseData(new List<BaroquenChord> { cMajor, cMajor, cMajor }, cMajor, false).SetName("Repetition of the same chord is not allowed.");
 
             yield return new TestCaseData(new List<BaroquenChord> { cMajor, fMajor, aMinor }, cMajor, true).SetName("Non-repeating chords are not a repetition");
+
+            // Audit: rules-4 - the rule promises per-voice repetition control ("avoid repeated notes"), so a voice
+            // holding E4 for a third consecutive chord while the other voice moves must be rejected.
+            var sopranoE4 = new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half);
+            var altoC4Repeated = new BaroquenNote(Instrument.Two, Notes.C4, MusicalTimeSpan.Half);
+            var altoD4 = new BaroquenNote(Instrument.Two, Notes.D4, MusicalTimeSpan.Half);
+            var altoF4 = new BaroquenNote(Instrument.Two, Notes.F4, MusicalTimeSpan.Half);
+
+            yield return new TestCaseData(
+                new List<BaroquenChord> { new BaroquenChord([sopranoE4, altoC4Repeated]), new BaroquenChord([sopranoE4, altoD4]) },
+                new BaroquenChord([sopranoE4, altoF4]),
+                false
+            ).SetName("A single voice repeating its note three times in a row is a repetition.");
         }
     }
 }

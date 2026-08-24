@@ -37,6 +37,8 @@ internal sealed class PreferHarmonicSequencesTests
         var chordI = CreateChord(Notes.C2, Notes.G2, Notes.E3, Notes.C4);
         var chordII = CreateChord(Notes.D2, Notes.A2, Notes.F3, Notes.D4);
         var chordIII = CreateChord(Notes.E2, Notes.B2, Notes.G3, Notes.E4);
+        var chordIV = CreateChord(Notes.F2, Notes.C3, Notes.A3, Notes.F4);
+        var chordVII = CreateChord(Notes.B1, Notes.D3, Notes.F3, Notes.B4);
         var chordV = CreateChord(Notes.G1, Notes.B2, Notes.D3, Notes.G4);
         var chordVI = CreateChord(Notes.A1, Notes.C3, Notes.E3, Notes.A4);
         var chromaticChord = CreateChord(Notes.D2, Notes.A2, Notes.D3, Notes.FSharp4);
@@ -73,6 +75,13 @@ internal sealed class PreferHarmonicSequencesTests
 
         yield return new TestCaseData(new List<BaroquenChord> { chromaticChord, chordVI, chordII }, chordV, 0d)
             .SetName("An unidentifiable chord before the established motion cannot saturate the sequence.");
+
+        // Audit: search-scoring-random-1 - a held-harmony duplicate must not erase the established motion.
+        yield return new TestCaseData(new List<BaroquenChord> { chordI, chordIV, new BaroquenChord(chordIV) }, chordVII, 0d)
+            .SetName("Continuing a motion established across a held duplicate costs nothing.");
+
+        yield return new TestCaseData(new List<BaroquenChord> { chordI, chordIV, new BaroquenChord(chordIV) }, chordV, 1d)
+            .SetName("Breaking a motion established across a held duplicate costs one.");
     }
 
     private static BaroquenChord CreateChord(Note four, Note three, Note two, Note one) => new([

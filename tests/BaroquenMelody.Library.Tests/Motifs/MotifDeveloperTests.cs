@@ -280,6 +280,55 @@ internal sealed class MotifDeveloperTests
     }
 
     [Test]
+    public void TryDevelop_WithAllVoicesScope_DevelopsEveryCatalogedVoice()
+    {
+        // Audit: suspension-tonicization-phrasing-motifs-7
+        // arrange: both voices are cataloged and both move through the phrase; under AllVoices each developed line
+        // must differ from its verbatim phrase line (Invert flips every step of both motifs).
+        var configuration = ConfigurationWith(new MotifDevelopmentConfiguration(true, [MotifTransform.Invert], 100, MotifDevelopmentScope.AllVoices));
+        var motifApplicator = new MotifApplicator(configuration);
+
+        var motif = new Motif([
+            new MotivicGesture(0, MusicalTimeSpan.Half),
+            new MotivicGesture(1, MusicalTimeSpan.Half),
+            new MotivicGesture(1, MusicalTimeSpan.Half),
+            new MotivicGesture(1, MusicalTimeSpan.Half)
+        ]);
+
+        var motifBank = new MotifBank(new Dictionary<Instrument, AnchoredMotif>
+        {
+            [Instrument.One] = new AnchoredMotif(motif, 0, Instrument.One),
+            [Instrument.Two] = new AnchoredMotif(motif, 0, Instrument.Two)
+        });
+
+        var phrase = new List<Measure>
+        {
+            BuildMeasure(
+                BuildChord(BuildNote(Instrument.One, Notes.E4), BuildNote(Instrument.Two, Notes.G3)),
+                BuildChord(BuildNote(Instrument.One, Notes.F4), BuildNote(Instrument.Two, Notes.A3)),
+                BuildChord(BuildNote(Instrument.One, Notes.G4), BuildNote(Instrument.Two, Notes.B3)),
+                BuildChord(BuildNote(Instrument.One, Notes.A4), BuildNote(Instrument.Two, Notes.C4))
+            )
+        };
+
+        var motifDeveloper = BuildMotifDeveloper(motifApplicator, configuration, new SeededRandomProvider(Seed));
+
+        // act
+        var developed = motifDeveloper.TryDevelop(motifBank, phrase);
+
+        // assert
+        developed.Should().NotBeNull();
+
+        var phraseOne = phrase[0].Beats.Select(static beat => beat[Instrument.One].Raw).ToList();
+        var phraseTwo = phrase[0].Beats.Select(static beat => beat[Instrument.Two].Raw).ToList();
+        var developedOne = developed![0].Beats.Select(static beat => beat[Instrument.One].Raw).ToList();
+        var developedTwo = developed[0].Beats.Select(static beat => beat[Instrument.Two].Raw).ToList();
+
+        developedOne.Should().NotEqual(phraseOne, "AllVoices develops Instrument.One");
+        developedTwo.Should().NotEqual(phraseTwo, "AllVoices develops Instrument.Two");
+    }
+
+    [Test]
     public void TryDevelop_NullMotifBank_ThrowsArgumentNullException()
     {
         // arrange

@@ -1,5 +1,6 @@
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Rules.Melodic;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
@@ -33,6 +34,30 @@ internal sealed class HandleAscendingSeventhTests
 
         // assert
         result.Should().Be(expectedResult);
+    }
+
+    // Audit: rules-2 - only a half-step leading tone has an upward tendency; the whole-step subtonic of a modal scale
+    // (A Aeolian's G) is free to fall, so F4 -> G4 -> E4 must be accepted.
+    [Test]
+    public void Evaluate_AllowsTheSubtonicToDescend_InAMinorModeWithoutALeadingTone()
+    {
+        // arrange
+        var compositionConfiguration = TestCompositionConfigurations.Get(2, tonic: NoteName.A, mode: Mode.Aeolian);
+        var handleAscendingSeventh = new MelodicCompositionRuleAdapter(new HandleAscendingSeventh(compositionConfiguration));
+
+        var altoE3 = new BaroquenNote(Instrument.Two, Notes.E3, MusicalTimeSpan.Half);
+        var precedingChords = new List<BaroquenChord>
+        {
+            new([new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Half), altoE3]),
+            new([new BaroquenNote(Instrument.One, Notes.G4, MusicalTimeSpan.Half), altoE3])
+        };
+        var nextChord = new BaroquenChord([new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half), altoE3]);
+
+        // act
+        var result = handleAscendingSeventh.Evaluate(precedingChords, nextChord);
+
+        // assert
+        result.Should().BeTrue("the subtonic of A Aeolian is a whole step below the tonic and carries no upward tendency");
     }
 
     private static IEnumerable<TestCaseData> TestCases

@@ -12,6 +12,7 @@ using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Phrasing;
 using BaroquenMelody.Library.Rhythm;
 using BaroquenMelody.Library.Scoring;
+using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Strategies;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
@@ -254,6 +255,25 @@ internal sealed class ComposerTests
         // assert - the walking strategy never repeats a candidate, so any adjacent duplicate beats could only
         // come from the scheduler
         FindHeldBeats(composition, configurationWithoutHolds.MinimumMeasures).Should().BeEmpty();
+    }
+
+    [Test]
+    public void WhenComposeIsInvoked_DynamicsAreAppliedBeforeTheCompleteStepIsDispatched()
+    {
+        // Audit: state-store-effects-1
+        // arrange
+        ArrangeComposableStrategy();
+
+        // act
+        _composer.Compose(CancellationToken.None);
+
+        // assert - Complete ends the loading state in the UI, so it must not be announced while the
+        // composition is still being finished (dynamics still to apply)
+        Received.InOrder(() =>
+        {
+            _mockDynamicsApplicator.Apply(Arg.Any<Composition>());
+            _mockDispatcher.Dispatch(Arg.Is<ProgressCompositionStep>(action => action.Step == CompositionStep.Complete));
+        });
     }
 
     private void ArrangeComposableStrategy()

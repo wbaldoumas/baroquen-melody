@@ -894,6 +894,30 @@ internal sealed class GroundBassComposerTests
         act.Should().Throw<OperationCanceledException>();
     }
 
+    // Audit: composers-body-forms-rhythm-3
+    [Test]
+    public void Compose_EvaluatesEveryOnsetAgainstAtLeastTwoPrecedingChords()
+    {
+        // arrange: the walk always holds the previous onset and its duplicate, so the repetition rules can only fire
+        // when the strategy is handed both.
+        var precedingChordCounts = new List<int>();
+
+        _strategy.GetRuleValidChordsForPartiallyVoicedChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<BaroquenChord>())
+            .Returns(call =>
+            {
+                precedingChordCounts.Add(call.ArgAt<IReadOnlyList<BaroquenChord>>(0).Count);
+
+                return new List<BaroquenChord> { HarmonizePin(call.ArgAt<BaroquenChord>(1)) };
+            });
+
+        // act
+        CreateComposer().Compose(CancellationToken.None);
+
+        // assert
+        precedingChordCounts.Should().HaveCountGreaterThan(1, "the walk searches every onset after the bootstrap");
+        precedingChordCounts.Should().OnlyContain(count => count >= 2, "AvoidRepeatedChords and AvoidRepetition need two preceding chords to fire");
+    }
+
     private GroundBassComposer CreateComposer() => CreateComposer(relativeComponents: null);
 
     private GroundBassComposer CreateComposer(GroundBassSectionComponents? relativeComponents) => new(

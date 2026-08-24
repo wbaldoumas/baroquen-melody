@@ -109,6 +109,21 @@ internal sealed class CompositionConfigurationCardTests
         _testContext.StateOf<CompositionConfigurationState>().Tempo.Should().Be(90);
     }
 
+    // Audit: ui-razor-components-1 - BPM 1..3 cannot be encoded in a MIDI set-tempo event (DryWetMidi throws once the
+    // whole composition has run); the tempo input must not let such a value reach the store.
+    [Test]
+    public void Entering_a_tempo_below_the_midi_encodable_minimum_is_clamped()
+    {
+        // arrange
+        var component = _testContext.RenderComponent<CompositionConfigurationCard>();
+
+        // act
+        component.FindAll("input[type=number]")[1].Change("2");
+
+        // assert
+        _testContext.StateOf<CompositionConfigurationState>().Tempo.Should().BeGreaterThanOrEqualTo(4);
+    }
+
     [Test]
     public void Choosing_the_ground_bass_form_updates_the_store()
     {

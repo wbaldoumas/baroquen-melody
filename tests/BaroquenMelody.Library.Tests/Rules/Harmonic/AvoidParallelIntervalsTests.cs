@@ -67,6 +67,19 @@ internal sealed class AvoidParallelIntervalsTests
             yield return new TestCaseData(new List<BaroquenChord> { cMajor }, dMinorDifferentDirection, true).SetName("No parallel fifths when instruments are moving in different directions.");
 
             yield return new TestCaseData(new List<BaroquenChord> { cMajor }, cMajor, true).SetName("No parallel fifths when chords are identical.");
+
+            // Audit: rules-1 - E4/B4 -> F4/C5 are real parallel perfect fifths in similar motion; the second pair's
+            // pitch classes wrap around the octave (C = 0 below F = 5), which the interval mapping reads as a fourth.
+            var sopranoB4 = new BaroquenNote(Instrument.One, Notes.B4, MusicalTimeSpan.Half);
+            var altoE4 = new BaroquenNote(Instrument.Two, Notes.E4, MusicalTimeSpan.Half);
+            var sopranoC5 = new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half);
+            var altoF4 = new BaroquenNote(Instrument.Two, Notes.F4, MusicalTimeSpan.Half);
+
+            yield return new TestCaseData(
+                new List<BaroquenChord> { new BaroquenChord([sopranoB4, altoE4]) },
+                new BaroquenChord([sopranoC5, altoF4]),
+                false
+            ).SetName("Parallel fifths present when the target fifth wraps around the octave (E4/B4 -> F4/C5).");
         }
     }
 }

@@ -411,6 +411,50 @@ internal sealed class CompositionStrategyTests
         act.Should().Throw<CouldNotFindStartingNoteForInstrumentException>();
     }
 
+    // Audit: search-scoring-random-4 - three voices confined to C4..D4 can only sound C; once two voices have taken
+    // it, the third voice's fallback keeps drawing the saturated C and the starting-note loop never exits. The
+    // strategy must terminate (by throwing CouldNotFindStartingNoteForInstrumentException) instead of spinning.
+    [Test]
+    public void GenerateInitialChord_WhenEveryInRangeTriadNoteIsAlreadyDoubled_TerminatesByThrowing()
+    {
+        // arrange - built the same way as GenerateInitialChord_WhenStartingNoteCannotBeFound_Throws
+        var compositionConfiguration = new CompositionConfiguration(
+            new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.D4, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+                new(Instrument.Two, Notes.C4, Notes.D4, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+                new(Instrument.Three, Notes.C4, Notes.D4, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            },
+            PhrasingConfiguration.Default,
+            AggregateCompositionRuleConfiguration.Default,
+            AggregateOrnamentationConfiguration.Default,
+            NoteName.C,
+            Mode.Ionian,
+            Meter.FourFour,
+            MusicalTimeSpan.Half,
+            MinimumMeasures: 100
+        );
+
+        var strategy = new CompositionStrategy(
+            _mockChordChoiceEnumerator,
+            _mockCompositionRule,
+            _mockLogger,
+            compositionConfiguration,
+            new ThreadLocalRandomProvider()
+        );
+
+        // act - run on a worker so a hang surfaces as a timed-out wait rather than a stuck test run
+        var task = Task.Run(() => strategy.GenerateInitialChord());
+        var completed = task.Wait(TimeSpan.FromSeconds(5));
+
+        // assert
+        completed.Should().BeTrue("the starting-note search must terminate when no in-range triad note can take another voice");
+
+        var act = () => task.GetAwaiter().GetResult();
+
+        act.Should().Throw<CouldNotFindStartingNoteForInstrumentException>();
+    }
+
     /// <summary>
     ///     Arranges the enumerator to yield three candidates from a common preceding chord - an oblique candidate
     ///     that keeps instrument One on C4, and two candidates that move every voice by five and one scale steps

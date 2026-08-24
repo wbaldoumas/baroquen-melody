@@ -30,6 +30,45 @@ internal sealed class FollowsStandardProgressionTests
     public void Evaluate_ReturnsExpectedResult(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord, bool expectedResult) =>
         _followsStandardProgression.Evaluate(precedingChords, nextChord).Should().Be(expectedResult);
 
+    // Audit: rules-3 - IV -> ii and vi -> V are textbook progressions (Kostka-Payne chart) missing from the table.
+    [Test]
+    [TestCaseSource(nameof(TextbookProgressionTestCases))]
+    public void Evaluate_AcceptsTextbookProgressions(IReadOnlyList<BaroquenChord> precedingChords, BaroquenChord nextChord) =>
+        _followsStandardProgression.Evaluate(precedingChords, nextChord).Should().BeTrue();
+
+    private static IEnumerable<TestCaseData> TextbookProgressionTestCases
+    {
+        get
+        {
+            var iv = new BaroquenChord([
+                new BaroquenNote(Instrument.One, Notes.F4, MusicalTimeSpan.Quarter),
+                new BaroquenNote(Instrument.Two, Notes.A3, MusicalTimeSpan.Quarter),
+                new BaroquenNote(Instrument.Three, Notes.C3, MusicalTimeSpan.Quarter)
+            ]);
+
+            var ii = new BaroquenChord([
+                new BaroquenNote(Instrument.One, Notes.D4, MusicalTimeSpan.Quarter),
+                new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Quarter),
+                new BaroquenNote(Instrument.Three, Notes.A2, MusicalTimeSpan.Quarter)
+            ]);
+
+            var vi = new BaroquenChord([
+                new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Quarter),
+                new BaroquenNote(Instrument.Two, Notes.C4, MusicalTimeSpan.Quarter),
+                new BaroquenNote(Instrument.Three, Notes.E3, MusicalTimeSpan.Quarter)
+            ]);
+
+            var v = new BaroquenChord([
+                new BaroquenNote(Instrument.One, Notes.G4, MusicalTimeSpan.Quarter),
+                new BaroquenNote(Instrument.Two, Notes.B3, MusicalTimeSpan.Quarter),
+                new BaroquenNote(Instrument.Three, Notes.D3, MusicalTimeSpan.Quarter)
+            ]);
+
+            yield return new TestCaseData(new List<BaroquenChord> { iv }, ii).SetName("IV -> ii is a standard progression.");
+            yield return new TestCaseData(new List<BaroquenChord> { vi }, v).SetName("vi -> V is a standard progression.");
+        }
+    }
+
     private static IEnumerable<TestCaseData> TestCases
     {
         get

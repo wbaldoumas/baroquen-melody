@@ -1,9 +1,11 @@
 ﻿using BaroquenMelody.Library.Composers;
 using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Midi;
 using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.Effects;
 using BaroquenMelody.Library.Store.State;
+using FluentAssertions;
 using Fluxor;
 using Melanchall.DryWetMidi.Core;
 using NSubstitute;
@@ -123,9 +125,124 @@ internal sealed class BaroquenMelodyEffectsTests
         _mockDispatcher.Received().Dispatch(Arg.Any<MarkCompositionFailed>());
     }
 
+    [Test]
+    public async Task HandleCompose_DispatchesCompleteOnlyAfterTheTempFileIsSaved()
+    {
+        // Audit: state-store-effects-1
+        // arrange
+        ArrangeHappyPathStates();
+
+        var baroquenMelody = new MidiFileComposition(new MidiFile());
+        var saveCompletion = new TaskCompletionSource<string>();
+
+        _mockComposer.Compose(Arg.Any<CancellationToken>()).Returns(baroquenMelody);
+        _mockMidiSaver.SaveTempAsync(Arg.Any<MidiFileComposition>(), Arg.Any<CancellationToken>()).Returns(saveCompletion.Task);
+
+        // act
+        var run = _baroquenMelodyEffects.HandleCompose(new Compose(), _mockDispatcher);
+
+        await WaitUntil(() => _mockMidiSaver.ReceivedCalls().Any(call => call.GetMethodInfo().Name == nameof(IMidiSaver.SaveTempAsync)));
+
+        // assert - while the temp file is still being written the run is not complete
+        _mockDispatcher.DidNotReceive().Dispatch(Arg.Is<ProgressCompositionStep>(action => action.Step == CompositionStep.Complete));
+
+        saveCompletion.SetResult("path");
+        await run;
+
+        Received.InOrder(() =>
+        {
+            _mockDispatcher.Dispatch(Arg.Any<UpdateBaroquenMelody>());
+            _mockDispatcher.Dispatch(Arg.Is<ProgressCompositionStep>(action => action.Step == CompositionStep.Complete));
+        });
+    }
+
+    [Test]
+    public async Task HandleCancelComposition_AfterACompletedCompose_DoesNotThrow()
+    {
+        // Audit: state-store-effects-2
+        // arrange
+        ArrangeHappyPathStates();
+        _mockComposer.Compose(Arg.Any<CancellationToken>()).Returns(new MidiFileComposition(new MidiFile()));
+
+        await _baroquenMelodyEffects.HandleCompose(new Compose(), _mockDispatcher);
+
+        // act
+        var act = () => _baroquenMelodyEffects.HandleCancelComposition(new CancelComposition(), _mockDispatcher);
+
+        // assert
+        await act.Should().NotThrowAsync();
+    }
+
+    [Test]
+    public async Task HandleCompose_OverlappingRuns_DoNotFailEachOther()
+    {
+        // Audit: state-store-effects-2
+        // arrange
+        ArrangeHappyPathStates();
+
+        var baroquenMelody = new MidiFileComposition(new MidiFile());
+        var firstSave = new TaskCompletionSource<string>();
+        using var secondComposeGate = new ManualResetEventSlim(false);
+
+        _mockComposer.Compose(Arg.Any<CancellationToken>()).Returns(
+            _ => baroquenMelody,
+            _ =>
+            {
+                secondComposeGate.Wait(TimeSpan.FromSeconds(10));
+
+                return baroquenMelody;
+            }
+        );
+
+        _mockMidiSaver.SaveTempAsync(Arg.Any<MidiFileComposition>(), Arg.Any<CancellationToken>()).Returns(
+            _ => firstSave.Task,
+            _ => Task.FromResult("second")
+        );
+
+        // act - run A is writing its temp file when run B starts composing
+        var runA = _baroquenMelodyEffects.HandleCompose(new Compose(), _mockDispatcher);
+
+        await WaitUntil(() => _mockMidiSaver.ReceivedCalls().Any(call => call.GetMethodInfo().Name == nameof(IMidiSaver.SaveTempAsync)));
+
+        var runB = _baroquenMelodyEffects.HandleCompose(new Compose(), _mockDispatcher);
+
+        await WaitUntil(() => _mockComposer.ReceivedCalls().Count(call => call.GetMethodInfo().Name == nameof(IMidiFileComposer.Compose)) == 2);
+
+        firstSave.SetResult("first");
+        await runA;
+
+        secondComposeGate.Set();
+        await runB;
+
+        // assert - run B composed successfully, so it must publish its melody and never be marked failed
+        _mockDispatcher.DidNotReceive().Dispatch(Arg.Any<MarkCompositionFailed>());
+        _mockDispatcher.Received(2).Dispatch(Arg.Any<UpdateBaroquenMelody>());
+    }
+
     [TearDown]
     public void TearDown()
     {
         _baroquenMelodyEffects.Dispose();
+    }
+
+    private static async Task WaitUntil(Func<bool> condition)
+    {
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(10);
+
+        while (!condition() && DateTime.UtcNow < deadline)
+        {
+            await Task.Delay(10);
+        }
+
+        condition().Should().BeTrue("the awaited condition should be met within the deadline");
+    }
+
+    private void ArrangeHappyPathStates()
+    {
+        _mockInstrumentConfigurationState.Value.Returns(new InstrumentConfigurationState());
+        _mockCompositionRuleConfigurationState.Value.Returns(new CompositionRuleConfigurationState());
+        _mockCompositionOrnamentationConfigurationState.Value.Returns(new CompositionOrnamentationConfigurationState());
+        _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState());
+        _mockBaroquenMelodyComposerConfigurator.Configure(Arg.Any<CompositionConfiguration>()).Returns(_mockComposer);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BaroquenMelody.Infrastructure.Devices;
+using BaroquenMelody.Library.Configurations.Serialization.JsonSerializerContexts;
 using BaroquenMelody.Library.Configurations.Services;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
@@ -8,6 +9,7 @@ using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.Text.Json;
 
 namespace BaroquenMelody.Library.Tests.Configuration;
 
@@ -100,6 +102,59 @@ internal sealed class CompositionConfigurationPersistenceServiceTests
 
         // assert
         await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Test]
+    public async Task LoadConfigurationsAsync_WhenOneFileIsUnreadable_ReturnsTheReadableConfigurations()
+    {
+        // Audit: state-store-effects-4
+        // arrange
+        const string goodPath = "test-dir/good.dat";
+        const string badPath = "test-dir/bad.dat";
+
+        var serializedConfiguration = JsonSerializer.Serialize(
+            TestCompositionConfigurations.Get(),
+            CompositionConfigurationJsonSerializerContext.Default.CompositionConfiguration
+        );
+
+        var goodFileSystem = new MockFileSystem(new MockFileSystemOptions());
+
+        goodFileSystem.AddDirectory("test-dir");
+
+        using (var writer = new BinaryWriter(goodFileSystem.FileStream.New(goodPath, FileMode.Create)))
+        {
+            writer.Write(serializedConfiguration);
+        }
+
+        _mockDeviceDirectoryProvider.AppDataDirectory.Returns("test-dir");
+        _mockDirectory.Exists(Arg.Any<string>()).Returns(true);
+        _mockDirectory.EnumerateFiles(Arg.Any<string>()).Returns([badPath, goodPath]);
+
+        _mockFileSystem.FileStream.New(
+                Arg.Is<string>(path => path.EndsWith("good.dat", StringComparison.Ordinal)),
+                Arg.Any<FileMode>(),
+                Arg.Any<FileAccess>(),
+                Arg.Any<FileShare>(),
+                Arg.Any<int>(),
+                Arg.Any<bool>()
+            )
+            .Returns(_ => goodFileSystem.FileStream.New(goodPath, FileMode.Open));
+
+        _mockFileSystem.FileStream.New(
+                Arg.Is<string>(path => path.EndsWith("bad.dat", StringComparison.Ordinal)),
+                Arg.Any<FileMode>(),
+                Arg.Any<FileAccess>(),
+                Arg.Any<FileShare>(),
+                Arg.Any<int>(),
+                Arg.Any<bool>()
+            )
+            .Throws(new IOException("corrupt"));
+
+        // act
+        var configurations = await _persistenceService.LoadConfigurationsAsync(CancellationToken.None);
+
+        // assert - one unreadable file must not hide every other saved configuration
+        configurations.Should().ContainSingle(saved => saved.ConfigurationFile.Name == "good.dat");
     }
 
     [Test]

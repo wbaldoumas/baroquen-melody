@@ -325,6 +325,16 @@ internal sealed class NoteIndexPairSelectorTests
             );
         }
 
+        // Audit: ornamentation-engine-3
+        // The Appoggiatura's principal has a zero-length span: its leaning tone (sub-note 0) sounds at pulse 0 and its
+        // resolution (sub-note 1) at pulse 8, so at pulse 8 the cleaner must compare sub-note 1, not sub-note 0.
+        yield return new TestCaseData(
+            OrnamentationType.Appoggiatura,
+            OrnamentationType.RepeatedNote,
+            Meter.FourFour,
+            new[] { new NoteIndexPair(1, 0, 8) }
+        ).SetName("Appoggiatura against RepeatedNote in 4/4 pairs the resolution (sub-note 1) with the repeated note at pulse 8.");
+
         // 3/4 time
         var ornamentationsWithSingleMatchingIndicesInThreeFour = new List<(OrnamentationType, OrnamentationType)>
         {

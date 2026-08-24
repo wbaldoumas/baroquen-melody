@@ -1,4 +1,5 @@
-﻿using BaroquenMelody.Infrastructure.Collections;
+﻿using Atrea.PolicyEngine.Policies.Input;
+using BaroquenMelody.Infrastructure.Collections;
 using BaroquenMelody.Infrastructure.Random;
 using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Configurations.Enums;
@@ -7,6 +8,7 @@ using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors;
+using BaroquenMelody.Library.Ornamentation.Engine.Processors.Configurations;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Ornamentation.Utilities;
@@ -25,10 +27,16 @@ internal sealed class TurnProcessorTests
 {
     private OrnamentationProcessor _processor = null!;
 
+    private CompositionConfiguration _compositionConfiguration = null!;
+
+    private OrnamentationProcessorConfiguration _configuration = null!;
+
     [SetUp]
     public void SetUp()
     {
         var compositionConfiguration = TestCompositionConfigurations.Get(2);
+
+        _compositionConfiguration = compositionConfiguration;
 
         var ornamentationProcessorConfigurationFactory = new OrnamentationProcessorConfigurationFactory(
             new ChordNumberIdentifier(compositionConfiguration),
@@ -45,7 +53,41 @@ internal sealed class TurnProcessorTests
             )
         ).First();
 
+        _configuration = configuration;
+
         _processor = new OrnamentationProcessor(new MusicalTimeSpanCalculator(), compositionConfiguration, configuration);
+    }
+
+    // Audit: ornamentation-engine-4
+    // Instrument.One's floor is C4. An ascending turn on C4 emits the lower auxiliary B3, below the configured range,
+    // and no input policy guards the -1 offset, so the sub-note leaves the instrument's window.
+    [Test]
+    public void Process_never_emits_a_sub_note_below_the_instrument_range_when_every_input_policy_passes()
+    {
+        // arrange
+        var ornamentationItem = new OrnamentationItem(
+            Instrument.One,
+            new FixedSizeList<Beat>(1),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.E4, MusicalTimeSpan.Half)]))
+        );
+
+        var inputPolicyResults = _configuration.InputPolicies.Select(policy => policy.ShouldProcess(ornamentationItem)).ToList();
+
+        // act
+        _processor.Process(ornamentationItem);
+
+        // assert: either a range guard rejects the site, or every emitted sub-note stays inside the instrument range.
+        var noteToAssert = ornamentationItem.CurrentBeat[Instrument.One];
+
+        var subNotesOutsideRange = noteToAssert.Ornamentations
+            .Select(static ornamentation => ornamentation.Raw)
+            .Where(raw => !_compositionConfiguration.IsNoteInInstrumentRange(Instrument.One, raw))
+            .ToList();
+
+        (inputPolicyResults.Contains(InputPolicyResult.Reject) || subNotesOutsideRange.Count == 0)
+            .Should()
+            .BeTrue($"a turn at the instrument floor must be rejected or kept in range, but every input policy passed and the sub-notes {string.Join(", ", subNotesOutsideRange)} fall outside the instrument range");
     }
 
     [Test]
