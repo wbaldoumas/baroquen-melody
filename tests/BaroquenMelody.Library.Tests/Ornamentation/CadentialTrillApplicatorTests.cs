@@ -14,8 +14,6 @@ using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 using NUnit.Framework;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
@@ -204,8 +202,7 @@ internal sealed class CadentialTrillApplicatorTests
             new OrnamentationProcessorConfigurationFactory(
                 chordNumberIdentifier,
                 new WeightedRandomBooleanGenerator(new ThreadLocalRandomProvider()),
-                compositionConfiguration,
-                Substitute.For<ILogger>()),
+                compositionConfiguration),
             new MusicalTimeSpanCalculator(),
             compositionConfiguration);
     }

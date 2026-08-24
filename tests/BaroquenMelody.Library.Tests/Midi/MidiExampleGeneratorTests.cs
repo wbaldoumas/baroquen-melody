@@ -9,8 +9,6 @@ using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
 using Melanchall.DryWetMidi.Standards;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 using NUnit.Framework;
 using System.Collections.Frozen;
 
@@ -26,10 +24,7 @@ internal sealed class MidiExampleGeneratorTests
     {
         _midiExampleGenerator = new MidiExampleGenerator(
             new MusicalTimeSpanCalculator(),
-            new OrnamentationProcessorConfigurationFactoryProvider(
-                new WeightedRandomBooleanGenerator(),
-                Substitute.For<ILogger<MidiFileComposition>>()
-            )
+            new OrnamentationProcessorConfigurationFactoryProvider(new WeightedRandomBooleanGenerator())
         );
     }
 

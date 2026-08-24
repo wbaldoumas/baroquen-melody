@@ -14,8 +14,6 @@ using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests.Ornamentation.Engine.Processors;
@@ -37,8 +35,7 @@ internal sealed class PedalProcessorTests
         var ornamentationProcessorConfigurationFactory = new OrnamentationProcessorConfigurationFactory(
             new ChordNumberIdentifier(compositionConfiguration),
             new WeightedRandomBooleanGenerator(),
-            compositionConfiguration,
-            Substitute.For<ILogger>()
+            compositionConfiguration
         );
 
         var configurations = ornamentationProcessorConfigurationFactory.Create(

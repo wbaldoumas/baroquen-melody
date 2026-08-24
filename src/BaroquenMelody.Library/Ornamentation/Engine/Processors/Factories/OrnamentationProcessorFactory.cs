@@ -9,10 +9,12 @@ namespace BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 internal sealed class OrnamentationProcessorFactory(
     IMusicalTimeSpanCalculator musicalTimeSpanCalculator,
     IOrnamentationProcessorConfigurationFactory configurationFactory,
+    IOutputPolicy<OrnamentationItem> ornamentationLoggingOutputPolicy,
     IOutputPolicy<OrnamentationItem> ornamentationCleaningOutputPolicy,
     IVoiceRhythmPolicyTransformer voiceRhythmPolicyTransformer
 ) : IOrnamentationProcessorFactory
 {
+    // The applied ornamentation is logged first, then the cross-voice cleaner may strip it again.
     public IEnumerable<IProcessor<OrnamentationItem>> Create(CompositionConfiguration compositionConfiguration) =>
         from configuration in compositionConfiguration.AggregateOrnamentationConfiguration.Configurations
         where configuration.IsEnabled
@@ -20,6 +22,6 @@ internal sealed class OrnamentationProcessorFactory(
         select PolicyEngineBuilder<OrnamentationItem>.Configure()
             .WithInputPolicies(voiceRhythmPolicyTransformer.Transform(configuration, processorConfiguration.InputPolicies))
             .WithProcessors(new OrnamentationProcessor(musicalTimeSpanCalculator, compositionConfiguration, processorConfiguration))
-            .WithOutputPolicies([.. processorConfiguration.OutputPolicies, ornamentationCleaningOutputPolicy])
+            .WithOutputPolicies(ornamentationLoggingOutputPolicy, ornamentationCleaningOutputPolicy)
             .Build();
 }

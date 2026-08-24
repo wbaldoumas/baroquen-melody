@@ -16,8 +16,6 @@ using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 using NUnit.Framework;
 using Note = Melanchall.DryWetMidi.MusicTheory.Note;
 
@@ -49,8 +47,7 @@ internal sealed class ArpeggioProcessorTests
         var configurations = new OrnamentationProcessorConfigurationFactory(
             new ChordNumberIdentifier(compositionConfiguration),
             new WeightedRandomBooleanGenerator(),
-            compositionConfiguration,
-            Substitute.For<ILogger>()
+            compositionConfiguration
         ).Create(
             new OrnamentationConfiguration(OrnamentationType.Arpeggio, ConfigurationStatus.Enabled, Probability: 100)
         ).ToList();

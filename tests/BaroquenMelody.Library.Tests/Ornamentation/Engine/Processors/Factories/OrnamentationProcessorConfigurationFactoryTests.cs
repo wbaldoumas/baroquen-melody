@@ -8,8 +8,6 @@ using BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 using NUnit.Framework;
 using System.Collections.Frozen;
 
@@ -28,8 +26,7 @@ internal sealed class OrnamentationProcessorConfigurationFactoryTests
         _ornamentationProcessorConfigurationFactory = new OrnamentationProcessorConfigurationFactory(
             new ChordNumberIdentifier(compositionConfiguration),
             new WeightedRandomBooleanGenerator(),
-            compositionConfiguration,
-            Substitute.For<ILogger>()
+            compositionConfiguration
         );
     }
 

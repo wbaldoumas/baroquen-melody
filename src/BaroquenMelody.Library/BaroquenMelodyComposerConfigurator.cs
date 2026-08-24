@@ -86,7 +86,7 @@ internal sealed class BaroquenMelodyComposerConfigurator(
         var cadenceClassifier = new CadenceClassifier(chordNumberIdentifier, chordInversionIdentifier, compositionConfiguration);
         var cadentialTrillApplicator = new CadentialTrillApplicator(
             cadenceClassifier,
-            new OrnamentationProcessorConfigurationFactory(chordNumberIdentifier, _weightedRandomBooleanGenerator, compositionConfiguration, logger),
+            new OrnamentationProcessorConfigurationFactory(chordNumberIdentifier, _weightedRandomBooleanGenerator, compositionConfiguration),
             _musicalTimeSpanCalculator,
             compositionConfiguration);
         var compositionPhraser = new CompositionPhraser(compositionRule, _themeSplitter, _weightedRandomBooleanGenerator, randomProvider, logger, compositionConfiguration, motifBankFactory, motifDeveloper, cadentialTrillApplicator);

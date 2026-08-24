@@ -65,7 +65,7 @@ internal sealed record ComposerGraph(Composer Composer, VoiceRhythmLedger Ledger
 
         var cadentialTrillApplicator = new CadentialTrillApplicator(
             cadenceClassifier,
-            new OrnamentationProcessorConfigurationFactory(chordNumberIdentifier, weightedRandomBooleanGenerator, configuration, logger),
+            new OrnamentationProcessorConfigurationFactory(chordNumberIdentifier, weightedRandomBooleanGenerator, configuration),
             musicalTimeSpanCalculator,
             configuration);
 

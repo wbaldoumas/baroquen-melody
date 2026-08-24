@@ -1,6 +1,7 @@
 ﻿using Atrea.PolicyEngine;
 using Atrea.PolicyEngine.Builders;
 using Atrea.PolicyEngine.Policies.Input;
+using Atrea.PolicyEngine.Policies.Output;
 using Atrea.PolicyEngine.Processors;
 using Atrea.Utilities.Enums;
 using BaroquenMelody.Infrastructure.Random;
@@ -40,7 +41,10 @@ internal sealed class OrnamentationEngineBuilder
 
     private readonly IMusicalTimeSpanCalculator _musicalTimeSpanCalculator;
 
-    private readonly ILogger _logger;
+    /// <summary>
+    ///     Shared by every ornamentation engine and the sustain engine: it logs whatever type the processor just applied.
+    /// </summary>
+    private readonly IOutputPolicy<OrnamentationItem> _logAppliedOrnamentation;
 
     private readonly VoiceRhythmPolicyTransformer _voiceRhythmPolicyTransformer;
 
@@ -53,7 +57,7 @@ internal sealed class OrnamentationEngineBuilder
     {
         _compositionConfiguration = compositionConfiguration;
         _musicalTimeSpanCalculator = musicalTimeSpanCalculator;
-        _logger = logger;
+        _logAppliedOrnamentation = new LogAppliedOrnamentation(logger);
         _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator(randomProvider);
         _noteIndexPairSelector = new NoteIndexPairSelector(new NoteOnsetCalculator(musicalTimeSpanCalculator, compositionConfiguration));
         _voiceRhythmPolicyTransformer = new VoiceRhythmPolicyTransformer(_weightedRandomBooleanGenerator, voiceRhythmLedger, compositionConfiguration);
@@ -63,9 +67,9 @@ internal sealed class OrnamentationEngineBuilder
             new OrnamentationProcessorConfigurationFactory(
                 new ChordNumberIdentifier(compositionConfiguration),
                 _weightedRandomBooleanGenerator,
-                compositionConfiguration,
-                logger
+                compositionConfiguration
             ),
+            _logAppliedOrnamentation,
             new CleanConflictingOrnamentations(BuildOrnamentationCleaningEngine()),
             _voiceRhythmPolicyTransformer
         );
@@ -85,7 +89,7 @@ internal sealed class OrnamentationEngineBuilder
             new IsApplicableInterval(_compositionConfiguration, SustainedNoteProcessor.Interval)
         )
         .WithProcessors(new SustainedNoteProcessor(_compositionConfiguration))
-        .WithOutputPolicies(new LogOrnamentation(OrnamentationType.Sustain, _logger))
+        .WithOutputPolicies(_logAppliedOrnamentation)
         .Build();
 
     private IPolicyEngine<OrnamentationCleaningItem> BuildOrnamentationCleaningEngine()

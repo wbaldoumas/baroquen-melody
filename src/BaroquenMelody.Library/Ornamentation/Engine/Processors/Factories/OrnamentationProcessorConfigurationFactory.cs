@@ -4,11 +4,9 @@ using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.MusicTheory;
 using BaroquenMelody.Library.Ornamentation.Engine.Policies.Input;
-using BaroquenMelody.Library.Ornamentation.Engine.Policies.Output;
 using BaroquenMelody.Library.Ornamentation.Engine.Processors.Configurations;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using Melanchall.DryWetMidi.MusicTheory;
-using Microsoft.Extensions.Logging;
 using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
@@ -16,8 +14,7 @@ namespace BaroquenMelody.Library.Ornamentation.Engine.Processors.Factories;
 internal sealed class OrnamentationProcessorConfigurationFactory(
     IChordNumberIdentifier chordNumberIdentifier,
     IWeightedRandomBooleanGenerator weightedRandomBooleanGenerator,
-    CompositionConfiguration compositionConfiguration,
-    ILogger logger
+    CompositionConfiguration compositionConfiguration
 ) : IOrnamentationProcessorConfigurationFactory
 {
     private const int DecorateDominantSeventhAboveSupertonicInterval = 3;
@@ -78,7 +75,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
     {
         var processorConfigurations = new List<OrnamentationProcessorConfiguration>();
         var wantsToOrnament = new WantsToOrnament(weightedRandomBooleanGenerator, ornamentationConfiguration.Probability);
-        var logOrnamentation = new LogOrnamentation(ornamentationConfiguration.OrnamentationType, logger);
 
         switch (ornamentationConfiguration.OrnamentationType)
         {
@@ -92,7 +88,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             new IsApplicableInterval(compositionConfiguration, interval: PassingToneInterval)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0 }.ToFrozenSet()
@@ -109,7 +104,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             new IsApplicableInterval(compositionConfiguration, interval: 4)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1, 2, 3],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1, 2 }.ToFrozenSet()
@@ -126,7 +120,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             new IsApplicableInterval(compositionConfiguration, interval: 2)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0 }.ToFrozenSet()
@@ -143,7 +136,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             new IsApplicableInterval(compositionConfiguration, interval: 2)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [-1, 0, 1],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1, 2 }.ToFrozenSet()
@@ -160,7 +152,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             new IsApplicableInterval(compositionConfiguration, interval: 1)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1, -1, 0],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1, 2 }.ToFrozenSet()
@@ -177,7 +168,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             new IsApplicableInterval(compositionConfiguration, 5)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1, 2, 3, 4],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1, 2, 3 }.ToFrozenSet()
@@ -194,7 +184,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             new IsApplicableInterval(compositionConfiguration, interval: 4)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [-1, 0, 1, 2, 1, 2, 3],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1, 2, 3, 4, 5, 6 }.ToFrozenSet()
@@ -211,7 +200,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             new IsApplicableInterval(compositionConfiguration, interval: 2)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1, -1, 0, 1, 2, 0, 1],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1, 2, 3, 4, 5, 6 }.ToFrozenSet()
@@ -228,7 +216,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             new IsApplicableInterval(compositionConfiguration, 3)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1, 2],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1 }.ToFrozenSet()
@@ -278,7 +265,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             new IsApplicableInterval(compositionConfiguration, 5)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1, 2, 3, 1, 2, 3, 4],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1, 2, 3, 4, 5, 6 }.ToFrozenSet()
@@ -321,7 +307,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Mordent)),
                             new IsIntervalWithinInstrumentRange(compositionConfiguration, 1).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -1))
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1, 0],
                         _shouldInvertRandomly,
                         TranslationInversionIndices: new HashSet<int> { 0 }.ToFrozenSet()
@@ -337,7 +322,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             wantsToOrnament,
                             _hasNoOrnamentation
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [0],
                         ShouldNotInvert,
                         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
@@ -353,7 +337,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             wantsToOrnament,
                             _hasNoOrnamentation
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [0],
                         ShouldNotInvert,
                         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
@@ -370,7 +353,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             _isRepeatedNote
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1],
                         _shouldInvertRandomly,
                         TranslationInversionIndices: new HashSet<int> { 0 }.ToFrozenSet()
@@ -387,7 +369,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             _isRepeatedNote
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1],
                         _shouldInvertRandomly,
                         TranslationInversionIndices: new HashSet<int> { 0 }.ToFrozenSet()
@@ -406,7 +387,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _isNotRepeatedNote,
                             new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, 1).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -1))
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0 }.ToFrozenSet(),
@@ -424,7 +404,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             new IsApplicableInterval(compositionConfiguration, 3)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1, 2],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1 }.ToFrozenSet()
@@ -443,7 +422,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _isNotRepeatedNote,
                             new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, 1).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -1))
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0 }.ToFrozenSet(),
@@ -463,7 +441,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _isNotRepeatedNote,
                             new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, 2).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -2))
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [2, 1],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1 }.ToFrozenSet(),
@@ -483,7 +460,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _isNotRepeatedNote,
                             new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, 2).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -2))
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [2, 1],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1 }.ToFrozenSet(),
@@ -502,7 +478,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNextBeat,
                             _isDescending.And(new IsApplicableInterval(compositionConfiguration, interval: 1)).Or(_isRepeatedNote)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [-1, 0, -2],
                         ShouldNotInvert,
                         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
@@ -521,7 +496,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             new Not<OrnamentationItem>(new IsApplicableInterval(compositionConfiguration, PassingToneInterval)),
                             new Not<OrnamentationItem>(new IsApplicableInterval(compositionConfiguration, 4))
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [-7, 0, -7],
                         ShouldNotInvert,
                         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
@@ -539,7 +513,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             new IsIntervalWithinInstrumentRange(compositionConfiguration, -7),
                             new IsApplicableInterval(compositionConfiguration, PassingToneInterval).Or(_isRepeatedNote)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [-7, 1, -7],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 1 }.ToFrozenSet()
@@ -559,7 +532,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             new IsIntervalWithinInstrumentRange(compositionConfiguration, -7),
                             new IsApplicableInterval(compositionConfiguration, 4).Or(_isRepeatedNote),
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [-7, 2, -7],
                         ShouldNotInvert,
                         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
@@ -578,7 +550,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             new Not<OrnamentationItem>(new IsApplicableInterval(compositionConfiguration, PassingToneInterval)),
                             new Not<OrnamentationItem>(new IsApplicableInterval(compositionConfiguration, 4))
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [7, 0, 7],
                         ShouldNotInvert,
                         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
@@ -596,7 +567,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             new IsIntervalWithinInstrumentRange(compositionConfiguration, 7),
                             new IsApplicableInterval(compositionConfiguration, PassingToneInterval).Or(_isRepeatedNote)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [7, 1, 7],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 1 }.ToFrozenSet()
@@ -616,7 +586,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             new IsIntervalWithinInstrumentRange(compositionConfiguration, 7),
                             new IsApplicableInterval(compositionConfiguration, 4).Or(_isRepeatedNote),
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [7, 2, 7],
                         ShouldNotInvert,
                         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
@@ -635,7 +604,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _isNotRepeatedNote,
                             new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, 3).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -3))
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [3, 2, 1],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1, 2 }.ToFrozenSet(),
@@ -657,7 +625,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _isAscending.And(new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, 1))
                                 .Or(_isDescending.And(new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, -1)))
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [2, 1, 3, 2, 4, 3, 5],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 0, 1, 2, 3, 4, 5, 6 }.ToFrozenSet(),
@@ -675,7 +642,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             _hasNoOrnamentation,
                             new IsApplicableInterval(compositionConfiguration, DoublePedalPassingToneInterval)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [0, 1, 0, 2, 0, 3, 0],
                         ShouldInvertBasedOnDirection,
                         TranslationInversionIndices: new HashSet<int> { 1, 3, 5 }.ToFrozenSet()
@@ -693,7 +659,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Trill)),
                             new IsIntervalWithinInstrumentRange(compositionConfiguration, 1).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -1))
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1, 0, 1, 0, 1, -1, 0],
                         ShouldNotInvert,
                         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
@@ -713,7 +678,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             new LeaningToneIsDissonant(compositionConfiguration),
                             new LeaningToneIsNotRestruck(compositionConfiguration)
                         ],
-                        OutputPolicies: [logOrnamentation],
                         Translations: [1, 0],
                         ShouldNotInvert,
                         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
@@ -769,7 +733,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
             new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.DecorateInterval)),
             new IsIntervalWithinInstrumentRange(compositionConfiguration, intervalChange)
         ],
-        OutputPolicies: [new LogOrnamentation(configuration.OrnamentationType, logger)],
         Translations: [intervalChange, intervalChange - 1, intervalChange],
         ShouldNotInvert,
         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
@@ -794,7 +757,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
             new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Arpeggio)),
             .. translations.Distinct().Select(translation => new IsIntervalWithinInstrumentRange(compositionConfiguration, translation))
         ],
-        OutputPolicies: [new LogOrnamentation(configuration.OrnamentationType, logger)],
         Translations: [.. translations],
         ShouldNotInvert,
         TranslationInversionIndices: new HashSet<int>().ToFrozenSet()
@@ -815,7 +777,6 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
             new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Pedal)),
             new IsIntervalWithinInstrumentRange(compositionConfiguration, pedalInterval)
         ],
-        OutputPolicies: [new LogOrnamentation(configuration.OrnamentationType, logger)],
         Translations: [pedalInterval, 1, pedalInterval],
         ShouldInvertBasedOnDirection,
         TranslationInversionIndices: new HashSet<int> { 1 }.ToFrozenSet()

@@ -16,7 +16,6 @@ using BaroquenMelody.Library.Tests.TestData;
 using FluentAssertions;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.MusicTheory;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -359,8 +358,7 @@ internal sealed class VoiceRhythmPolicyTransformerTests
         var ornamentationProcessorConfigurationFactory = new OrnamentationProcessorConfigurationFactory(
             new ChordNumberIdentifier(compositionConfiguration),
             new WeightedRandomBooleanGenerator(),
-            compositionConfiguration,
-            Substitute.For<ILogger>());
+            compositionConfiguration);
 
         var musicalTimeSpanCalculator = new MusicalTimeSpanCalculator();
 
