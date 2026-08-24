@@ -39,14 +39,4 @@ internal sealed class DynamicsApplicationItem
     ///     The metric strength of the current beat within its (hyper)measure, used to shape expressive dynamics.
     /// </summary>
     public MetricStrength CurrentBeatStrength { get; init; } = MetricStrength.Weak;
-
-    /// <summary>
-    ///     Whether the current beat has already had dynamics applied to it.
-    /// </summary>
-    public bool HasProcessedCurrentBeat { get; set; }
-
-    /// <summary>
-    ///     Whether the next beat has already had dynamics applied to it.
-    /// </summary>
-    public bool HasProcessedNextBeat { get; set; }
 }

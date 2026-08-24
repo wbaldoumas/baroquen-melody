@@ -51,14 +51,6 @@ internal sealed class DynamicsApplicator(CompositionConfiguration configuration,
             dynamicsEngine.Process(dynamicsApplicationItem);
 
             compositionContext.Add(beats[i]);
-
-            if (!dynamicsApplicationItem.HasProcessedNextBeat)
-            {
-                continue;
-            }
-
-            i++;
-            compositionContext.Add(beats[i]);
         }
     }
 }

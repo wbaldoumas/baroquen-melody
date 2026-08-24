@@ -14,8 +14,6 @@ internal sealed class DynamicsEngineBuilder(CompositionConfiguration configurati
 {
     private readonly IVelocityCalculator _velocityCalculator = new VelocityCalculator();
 
-    private readonly IInputPolicy<DynamicsApplicationItem> _hasNotProcessedCurrentBeat = new Not<DynamicsApplicationItem>(new HasProcessedCurrentBeat());
-
     private readonly IInputPolicy<DynamicsApplicationItem> _instrumentIsPresentInCurrentBeat = new InstrumentIsPresentInCurrentBeat();
 
     private readonly IInputPolicy<DynamicsApplicationItem> _instrumentIsPresentInPreviousBeat = new InstrumentIsPresentInPreviousBeat();
@@ -39,7 +37,6 @@ internal sealed class DynamicsEngineBuilder(CompositionConfiguration configurati
 
     private IProcessor<DynamicsApplicationItem> BuildInitialDynamicsProcessor() => PolicyEngineBuilder<DynamicsApplicationItem>.Configure()
             .WithInputPolicies(
-                _hasNotProcessedCurrentBeat,
                 _instrumentIsNotPresentInPreviousBeat,
                 _instrumentIsPresentInCurrentBeat
             )
@@ -50,7 +47,6 @@ internal sealed class DynamicsEngineBuilder(CompositionConfiguration configurati
     private IProcessor<DynamicsApplicationItem> BuildDefaultDynamicsProcessor() => PolicyEngineBuilder<DynamicsApplicationItem>
         .Configure()
         .WithInputPolicies(
-            _hasNotProcessedCurrentBeat,
             _instrumentIsPresentInPreviousBeat,
             _instrumentIsPresentInCurrentBeat
         )

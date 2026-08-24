@@ -35,7 +35,5 @@ internal sealed class DefaultDynamicsProcessor(
         {
             ornamentation.Velocity = newVelocity;
         }
-
-        item.HasProcessedCurrentBeat = true;
     }
 }

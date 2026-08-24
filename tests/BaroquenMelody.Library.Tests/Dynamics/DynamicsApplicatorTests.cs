@@ -77,19 +77,13 @@ internal sealed class DynamicsApplicatorTests
         );
         byte velocity = 1;
 
+        // every (instrument, beat) pair reaches the engine as its own item, instrument by instrument, beat by beat
         _mockPolicyEngine.When(policyEngine => policyEngine.Process(Arg.Any<DynamicsApplicationItem>()))
             .Do(callInfo =>
                 {
                     var dynamicsApplicationItem = callInfo.Arg<DynamicsApplicationItem>();
 
                     dynamicsApplicationItem.CurrentBeat[dynamicsApplicationItem.Instrument].Velocity = new SevenBitNumber(velocity++);
-                    dynamicsApplicationItem.HasProcessedCurrentBeat = true;
-
-                    if (velocity % 2 == 0)
-                    {
-                        dynamicsApplicationItem.HasProcessedNextBeat = true;
-                        dynamicsApplicationItem.NextBeat![dynamicsApplicationItem.Instrument].Velocity = new SevenBitNumber(velocity++);
-                    }
                 }
             );
 
@@ -113,7 +107,7 @@ internal sealed class DynamicsApplicatorTests
         _dynamicsApplicator.Apply(composition);
 
         // assert
-        _mockPolicyEngine.Received(4).Process(Arg.Any<DynamicsApplicationItem>());
+        _mockPolicyEngine.Received(8).Process(Arg.Any<DynamicsApplicationItem>());
 
         var actualInstrumentOneVelocities = composition.Measures
             .SelectMany(measure => measure.Beats)
@@ -125,8 +119,8 @@ internal sealed class DynamicsApplicatorTests
             .Select(beat => beat[Instrument.Two].Velocity)
             .ToArray();
 
-        actualInstrumentOneVelocities.Should().HaveSameCount(expectedInstrumentOneVelocities).And.BeEquivalentTo(expectedInstrumentOneVelocities);
-        actualInstrumentTwoVelocities.Should().HaveSameCount(expectedInstrumentTwoVelocities).And.BeEquivalentTo(expectedInstrumentTwoVelocities);
+        actualInstrumentOneVelocities.Should().Equal(expectedInstrumentOneVelocities);
+        actualInstrumentTwoVelocities.Should().Equal(expectedInstrumentTwoVelocities);
     }
 
     [Test]
