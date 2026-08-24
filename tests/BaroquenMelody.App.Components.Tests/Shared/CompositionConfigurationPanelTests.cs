@@ -2,9 +2,11 @@ using BaroquenMelody.App.Components.Shared;
 using BaroquenMelody.App.Components.Tests.TestData;
 using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.Forms;
+using BaroquenMelody.Library.Store.Actions;
 using BaroquenMelody.Library.Store.State;
 using Bunit;
 using FluentAssertions;
+using Melanchall.DryWetMidi.MusicTheory;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
@@ -59,6 +61,53 @@ internal sealed class CompositionConfigurationPanelTests
                     _testContext.StateOf<InstrumentConfigurationState>().EnabledConfigurations,
                     state.Scale
                 ).Should().Contain(pattern, "the rolled pattern must fit the rolled key {0} {1}", state.TonicNote, state.Mode);
+            }
+        }
+    }
+
+    [Test]
+    public void Randomize_with_the_ground_bass_form_rolls_the_pattern_against_the_ranges_the_rolled_key_snaps_to()
+    {
+        // arrange: changing the key re-snaps every voice's last user-applied range to the new scale, so by
+        // the time the rolled pattern lands in state, the ground-hosting voice may sit on different bounds
+        // than the ones the roll consulted. Recreating that drift before every click - user-applied G3-B4,
+        // current range widened to B1-B5 as a previous key's snap would leave it - makes a roll that
+        // consults the stale current ranges pick infeasible patterns almost surely within a few clicks.
+        GroundBassScenarios.SelectGroundBassForm(_testContext);
+        GroundBassScenarios.ReduceTheGroundBankToTheTetrachord(_testContext);
+
+        var component = _testContext.RenderComponent<CompositionConfigurationPanel>();
+        var groundBassFeasibilityAnalyzer = _testContext.Services.GetRequiredService<IGroundBassFeasibilityAnalyzer>();
+
+        for (var roll = 0; roll < 25; ++roll)
+        {
+            var groundHostingVoice = _testContext.StateOf<InstrumentConfigurationState>()[Instrument.Three]!;
+
+            _testContext.Dispatcher.Dispatch(
+                new UpdateInstrumentConfiguration(
+                    Instrument.Three,
+                    Notes.B1,
+                    Notes.B5,
+                    groundHostingVoice.MinVelocity,
+                    groundHostingVoice.MaxVelocity,
+                    groundHostingVoice.MidiProgram,
+                    groundHostingVoice.Status,
+                    IsUserApplied: false
+                )
+            );
+
+            // act
+            component.ClickButtonByText("Randomize");
+
+            // assert
+            var state = _testContext.StateOf<CompositionConfigurationState>();
+
+            if (state.GroundBassPattern is { } pattern)
+            {
+                groundBassFeasibilityAnalyzer.GetFeasibleGroundBasses(
+                    _testContext.StateOf<InstrumentConfigurationState>().EnabledConfigurations,
+                    state.Scale
+                ).Should().Contain(pattern, "the rolled pattern must fit the ranges the rolled key {0} {1} snaps the voices to", state.TonicNote, state.Mode);
             }
         }
     }

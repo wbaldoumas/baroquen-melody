@@ -83,11 +83,16 @@ internal sealed class CompositionConfigurationService(
 
     private GroundBass? RandomizeGroundBassPattern(NoteName rootNote, Mode mode)
     {
+        // Feasibility must be judged in the world the dispatch is about to create: the key change re-snaps
+        // every voice's last user-applied range to the new scale, so the current ranges (still snapped to
+        // the old key) can host patterns the new key cannot.
+        var scale = new BaroquenScale(rootNote, mode);
+
         List<GroundBass?> candidatePatterns =
         [
             null,
             .. groundBassFeasibilityAnalyzer
-                .GetFeasibleGroundBasses(instrumentConfigurationState.Value.EnabledConfigurations, new BaroquenScale(rootNote, mode))
+                .GetFeasibleGroundBasses(instrumentConfigurationState.Value.EnabledConfigurationsSnappedTo(scale), scale)
                 .Select(static groundBass => (GroundBass?)groundBass)
         ];
 

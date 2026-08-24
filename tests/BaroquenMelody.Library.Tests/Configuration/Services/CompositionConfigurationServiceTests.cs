@@ -214,7 +214,9 @@ internal sealed class CompositionConfigurationServiceTests
     {
         // arrange: a G3-B4 bass hosts only the tetrachord in some keys and the whole bank in others, so a
         // valid roll must consult feasibility against the key rolled into the same action - pinning an
-        // infeasible pattern would silently turn the randomized composition into a fugue.
+        // infeasible pattern would silently turn the randomized composition into a fugue. The key change
+        // re-snaps every voice's last user-applied range to the new scale, so feasibility is judged against
+        // those snapped ranges, not the ranges as they sat under the old key.
         _mockCompositionConfigurationState.Value.Returns(new CompositionConfigurationState { Form = CompositionForm.GroundBass });
         _mockInstrumentConfigurationState.Value.Returns(new InstrumentConfigurationState(BuildTenorBassConfigurations(), BuildTenorBassConfigurations()));
 
@@ -237,9 +239,11 @@ internal sealed class CompositionConfigurationServiceTests
 
             if (dispatchedAction.GroundBassPattern is { } pattern)
             {
+                var rolledScale = new BaroquenScale(dispatchedAction.RootNote, dispatchedAction.Mode);
+
                 _groundBassFeasibilityAnalyzer.GetFeasibleGroundBasses(
-                    _mockInstrumentConfigurationState.Value.EnabledConfigurations,
-                    new BaroquenScale(dispatchedAction.RootNote, dispatchedAction.Mode)
+                    _mockInstrumentConfigurationState.Value.EnabledConfigurationsSnappedTo(rolledScale),
+                    rolledScale
                 ).Should().Contain(pattern, "the randomized pattern must fit the randomized key {0} {1}", dispatchedAction.RootNote, dispatchedAction.Mode);
             }
         }

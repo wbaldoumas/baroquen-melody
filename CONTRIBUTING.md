@@ -30,6 +30,35 @@ has been discussed in the past, or if the change was already implemented but not
 We expect new pull requests to include tests for any affected behavior, and, as we follow semantic versioning, we may
 reserve breaking changes until the next major version release.
 
+### Mutation Testing
+
+Pull requests are mutation-tested with [Stryker.NET](https://stryker-mutator.io/docs/stryker-net/): Stryker plants small
+bugs ("mutants") in the code your change touches and checks that the tests catch them. The `Mutation` workflow posts a
+per-project summary to the run's job summary and uploads the full HTML reports as artifacts; full runs of every project
+happen on pushes to `main`, weekly, and on demand.
+
+To run it locally, restore the repository's tools once, then run Stryker from the test project whose source you changed
+(each test project carries its own `stryker-config.json`):
+
+```bash
+dotnet tool restore
+
+cd tests/BaroquenMelody.Library.Tests
+dotnet stryker --since:main        # only mutants in code changed since main
+dotnet stryker --open-report       # everything, and open the HTML report when done
+```
+
+`--since` reads the git diff itself, so run it from a normal clone rather than a linked `git worktree` (there it resolves
+the main checkout and reports nothing changed). It re-tests every mutant covered by a test you changed — and would
+re-test *everything* when a non-C# file under a test project changes, so each `stryker-config.json` lists the test
+`.csproj` and the config itself under `since.ignore-changes-in`; add any new non-C# test-project file there too.
+
+The Library configuration runs the unit-level suite only: the seeded composition sweeps — fixtures tagged
+`[Category("Composition")]` — take most of the suite's wall time and are left to `dotnet test`, so mutants that only
+those sweeps would catch are reported as "no coverage" rather than survived. Tag any new `Enumerable.Range(1, N)`
+composition sweep the same way. (The filter has to be a category filter: NUnit's adapter silently runs every test when
+a name-based filter selects more than 2,000 of them.)
+
 ## Other Ways to Contribute
 
 We welcome anyone that wants to contribute to `baroquen-melody` to triage and reply to open issues to help troubleshoot

@@ -18,6 +18,7 @@ namespace BaroquenMelody.Library.Tests.Forms;
 ///     in-process test can compare against a graph this branch no longer builds.
 /// </summary>
 [TestFixture]
+[Category("Composition")]
 internal sealed class GroundBassDivisionCompositionTests
 {
     private const long TicksPerStatement = 1536;
