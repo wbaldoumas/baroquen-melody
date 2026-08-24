@@ -20,5 +20,6 @@ Note that by _not_ including a description, you are asking reviewers to do extra
 - [ ] I have verified this change is not present in other open pull requests
 - [ ] Functionality is documented
 - [ ] All code style checks pass
+- [ ] Architecture tests pass (`dotnet test tests/BaroquenMelody.Architecture.Tests/`); any rule I changed or allow-listed says why in its `Because()`
 - [ ] New code contribution is covered by automated tests
 - [ ] All new and existing tests pass
