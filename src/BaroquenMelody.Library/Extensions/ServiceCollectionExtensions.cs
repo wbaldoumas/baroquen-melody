@@ -39,7 +39,8 @@ public static class ServiceCollectionExtensions
 
         // Both of the configurator's random providers (the composition stream and the processor-shuffle stream)
         // resolve to this one unseeded singleton: the streams only need to be distinct under a seed, which is a
-        // test-side construction (SeededRandomProviders), never a registration.
+        // test-side construction (SeededRandomProviders), never a registration. A future production seeded mode must
+        // register two DISTINCT providers (e.g. keyed services), or the two streams silently alias.
         .AddSingleton<IRandomProvider, ThreadLocalRandomProvider>()
         .AddSingleton<IMusicalTimeSpanCalculator, MusicalTimeSpanCalculator>()
         .AddSingleton<IOrnamentationProcessorConfigurationFactoryProvider, OrnamentationProcessorConfigurationFactoryProvider>();

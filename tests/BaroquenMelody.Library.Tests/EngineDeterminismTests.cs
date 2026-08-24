@@ -6,8 +6,9 @@ using NUnit.Framework;
 namespace BaroquenMelody.Library.Tests;
 
 /// <summary>
-///     The linchpin of the regression safety net: for any seed, composing twice with ornamentation shuffling disabled
-///     must produce byte-identical MIDI. This forces every randomness leak in the composition pipeline closed.
+///     The linchpin of the regression safety net: for any seed, composing twice - with the ornamentation processor
+///     shuffle on or off - must produce byte-identical MIDI. This forces every randomness leak in the composition
+///     pipeline closed.
 /// </summary>
 [TestFixture]
 internal sealed class EngineDeterminismTests

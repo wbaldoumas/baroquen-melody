@@ -93,9 +93,10 @@ internal sealed class CompositionDecorator(
 
     /// <summary>
     ///     Re-orders the engine's processors through the seeded shuffle stream rather than the engine's own
-    ///     <c>Shuffle()</c>, which draws from an unseeded shared source. One draw per processor,
-    ///     all from the shuffle stream - never the composition's shared stream, whose draw count therefore stays the
-    ///     same whether or not shuffling is on.
+    ///     <c>Shuffle()</c>, which draws from an unseeded shared source. One draw per processor, all from the shuffle
+    ///     stream - never the composition's shared stream. The resulting order still decides which processor claims
+    ///     each note, so toggling shuffling is NOT draw-aligned on the shared stream; the shuffle itself just adds no
+    ///     draws to it.
     /// </summary>
     private void ShuffleProcessors(IPolicyEngine<OrnamentationItem> processor) =>
         processor.Replace(processor.Processors.OrderByRandom(processorShuffleRandomProvider).ToArray());

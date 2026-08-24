@@ -245,7 +245,31 @@ internal sealed class CompositionDecoratorTests
 
         // assert
         firstReplacements.Should().HaveCount(8);
+        secondReplacements.Should().HaveCount(8);
         firstReplacements.Zip(secondReplacements).Should().AllSatisfy(pair => pair.First.Should().Equal(pair.Second));
+    }
+
+    [Test]
+    public void WhenDecorateIsInvokedForASpecificInstrument_AndShuffleIsOn_ThenTheProcessorsAreReplacedWithAPermutation()
+    {
+        // arrange
+        var processors = CreateProcessors(5);
+        var replacements = CaptureReplacements(_mockOrnamentationEngine, processors);
+        var composition = CreateTwoInstrumentComposition();
+
+        // act
+        _compositionDecorator.Decorate(composition, Instrument.One);
+
+        // assert
+        _mockOrnamentationEngine.DidNotReceive().Shuffle();
+        replacements.Should().HaveCount(4, "the per-instrument pass re-orders the processors once per beat");
+
+        foreach (var replacement in replacements)
+        {
+            replacement.Should().HaveCount(processors.Count);
+            replacement.Should().OnlyHaveUniqueItems();
+            replacement.Should().OnlyContain(processor => processors.Contains(processor));
+        }
     }
 
     [Test]

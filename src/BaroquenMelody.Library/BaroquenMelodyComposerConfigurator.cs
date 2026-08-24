@@ -34,7 +34,7 @@ namespace BaroquenMelody.Library;
 /// <param name="logger">A logger to be used throughout the composition process.</param>
 /// <param name="dispatcher">A dispatcher to be used to dispatch actions to the store.</param>
 /// <param name="randomProvider">The random provider threaded through the composition graph so randomness is reproducible under a seed.</param>
-/// <param name="processorShuffleRandomProvider">A separate random provider that orders the ornamentation processors between beats when <see cref="CompositionConfiguration.ShuffleOrnamentationProcessors"/> is on. It is kept apart from <paramref name="randomProvider"/> so shuffling never shifts the composition's own draws, and shuffle-off draws nothing from it.</param>
+/// <param name="processorShuffleRandomProvider">A separate random provider that orders the ornamentation processors between beats when <see cref="CompositionConfiguration.ShuffleOrnamentationProcessors"/> is on. It is kept apart from <paramref name="randomProvider"/> so the shuffle itself consumes none of the composition's draws (the shuffled order still decides which processor claims a note), and shuffle-off draws nothing from it.</param>
 /// <param name="voiceSpacingSatisfiabilityAnalyzer">Determines whether the voice spacing rule can be satisfied by the configured instrument ranges, so an unsatisfiable rule can be skipped instead of dead-ending the composition.</param>
 internal sealed class BaroquenMelodyComposerConfigurator(
     ILogger<MidiFileComposition> logger,
