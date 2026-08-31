@@ -14,9 +14,10 @@ internal static class TestCompositionConfigurations
         int numberOfInstruments = 4,
         int compositionLength = 100,
         NoteName tonic = NoteName.C,
-        Mode mode = Mode.Ionian
+        Mode mode = Mode.Ionian,
+        ISet<InstrumentConfiguration>? instrumentConfigurations = null
     ) => new(
-        GenerateInstrumentConfigurations(numberOfInstruments),
+        instrumentConfigurations ?? GenerateInstrumentConfigurations(numberOfInstruments),
         PhrasingConfiguration.Default,
         AggregateCompositionRuleConfiguration.Default,
         AggregateOrnamentationConfiguration.Default,

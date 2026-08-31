@@ -2,6 +2,7 @@
 using BaroquenMelody.Infrastructure.Collections;
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
+using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Ornamentation;
 using BaroquenMelody.Library.Ornamentation.Engine.Policies.Input;
 using BaroquenMelody.Library.Tests.TestData;
@@ -34,6 +35,54 @@ internal sealed class IsIntervalWithinInstrumentRangeTests
 
         // assert
         result.Should().Be(expectedInputPolicyResult);
+    }
+
+    // In B Aeolian the scale's note list starts at B(-1)/C0, so A0 sits at index 6; the octave-pedal guard's -7 offset
+    // used to index the list at -1 and throw instead of rejecting the out-of-range interval.
+    [Test]
+    public void ShouldProcess_rejects_instead_of_throwing_when_the_interval_falls_below_the_scale_list()
+    {
+        // arrange
+        var compositionConfiguration = TestCompositionConfigurations.Get(tonic: NoteName.B, mode: Mode.Aeolian);
+        var policy = new IsIntervalWithinInstrumentRange(compositionConfiguration, interval: -7);
+
+        var ornamentationItem = new OrnamentationItem(
+            Instrument.One,
+            new FixedSizeList<Beat>(1),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.A0, MusicalTimeSpan.Half)])),
+            null
+        );
+
+        // act
+        var act = () => policy.ShouldProcess(ornamentationItem);
+
+        // assert
+        act.Should().NotThrow("an interval that leaves the scale's note list is simply not within the instrument range");
+        act().Should().Be(InputPolicyResult.Reject);
+    }
+
+    // The symmetric edge: in C Ionian only five scale notes sit above B8 (C9..G9), so an upper-octave +7 offset from
+    // B8 leaves the top of the note list.
+    [Test]
+    public void ShouldProcess_rejects_instead_of_throwing_when_the_interval_rises_above_the_scale_list()
+    {
+        // arrange
+        var compositionConfiguration = TestCompositionConfigurations.Get();
+        var policy = new IsIntervalWithinInstrumentRange(compositionConfiguration, interval: 7);
+
+        var ornamentationItem = new OrnamentationItem(
+            Instrument.One,
+            new FixedSizeList<Beat>(1),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.B8, MusicalTimeSpan.Half)])),
+            null
+        );
+
+        // act
+        var act = () => policy.ShouldProcess(ornamentationItem);
+
+        // assert
+        act.Should().NotThrow("an interval that leaves the scale's note list is simply not within the instrument range");
+        act().Should().Be(InputPolicyResult.Reject);
     }
 
     private static IEnumerable<TestCaseData> TestCases
