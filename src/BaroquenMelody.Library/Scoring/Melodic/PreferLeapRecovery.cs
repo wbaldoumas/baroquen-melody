@@ -6,7 +6,8 @@ namespace BaroquenMelody.Library.Scoring.Melodic;
 /// <inheritdoc cref="IMelodicScoringRule"/>
 /// <remarks>
 ///     After a melodic leap (three or more scale steps), a voice should recover with a one- or two-step move in
-///     the opposite direction. A leap left unrecovered costs one.
+///     the opposite direction. A leap left unrecovered costs one. The line is read as distinct harmonic events,
+///     so a leap the voice holds across duplicated held beats still awaits its recovery at the next fresh beat.
 /// </remarks>
 internal sealed class PreferLeapRecovery(CompositionConfiguration compositionConfiguration) : IMelodicScoringRule
 {
@@ -16,8 +17,10 @@ internal sealed class PreferLeapRecovery(CompositionConfiguration compositionCon
 
     public double Score(in MelodicLine line)
     {
-        var secondLastNote = line.PrecedingNote(2);
-        var lastNote = line.PrecedingNote(1);
+        // Distinct-event reads: a harmony sustained across held duplicate beats is one melodic event, so the
+        // leap that preceded a hold stays visible instead of reading as a zero move.
+        var secondLastNote = line.PrecedingEventNote(2);
+        var lastNote = line.PrecedingEventNote(1);
 
         if (secondLastNote is null || lastNote is null)
         {
