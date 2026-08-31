@@ -109,4 +109,30 @@ internal sealed class RunProcessorTests
 
         noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Eighth);
     }
+
+    // A note outside the scale cannot pivot the run's scale-relative translations: F# is not in C Ionian, and
+    // falling through with IndexOf's -1 pivot would build the run from the very bottom of the note list (C-1, D-1,
+    // E-1). Unreachable during composition (every composed note is drawn from the scale), but the processor must
+    // leave such a site untouched for any input.
+    [Test]
+    public void Process_leaves_the_note_untouched_when_the_current_note_is_not_in_the_scale()
+    {
+        // arrange
+        var ornamentationItem = new OrnamentationItem(
+            Instrument.One,
+            new FixedSizeList<Beat>(1),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.FSharp4, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.One, Notes.C5, MusicalTimeSpan.Half)]))
+        );
+
+        // act
+        _processor.Process(ornamentationItem);
+
+        // assert
+        var noteToAssert = ornamentationItem.CurrentBeat[Instrument.One];
+
+        noteToAssert.OrnamentationType.Should().Be(OrnamentationType.None);
+        noteToAssert.Ornamentations.Should().BeEmpty();
+        noteToAssert.MusicalTimeSpan.Should().Be(MusicalTimeSpan.Half);
+    }
 }
