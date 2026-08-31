@@ -172,6 +172,45 @@ internal sealed class GroundBassComposerTests
     }
 
     [Test]
+    public void Compose_HandsTheSelectorAContextReachingPastTheHeldDuplicates()
+    {
+        // arrange: capture every selector context. The walk's held slots are plain duplicates, so a
+        // two-chord window would only ever hold one distinct harmony and the selector's context-sensitive
+        // scoring could never see real motion at any onset.
+        var selectorContexts = new List<IReadOnlyList<BaroquenChord>>();
+
+        _selector.SelectNextChord(Arg.Any<IReadOnlyList<BaroquenChord>>(), Arg.Any<IEnumerable<BaroquenChord>>())
+            .Returns(call =>
+            {
+                selectorContexts.Add(call.Arg<IReadOnlyList<BaroquenChord>>().ToList());
+
+                return call.Arg<IEnumerable<BaroquenChord>>().FirstOrDefault();
+            });
+
+        // act
+        _ = CreateComposer().Compose(CancellationToken.None);
+
+        // assert: eight selections - seven pinned onsets and the close. Every context must end at the
+        // walk's newest chord (the held duplicate of the preceding onset, so its bass carries that onset's
+        // ground pitch), and once the walk is two onsets deep it must span the full fugue-sized window,
+        // which the moving ground guarantees to carry two distinct bass pitches.
+        selectorContexts.Should().HaveCount(8);
+
+        var expectedLastBassNotes = GroundNotes.Concat(GroundNotes).ToList();
+
+        for (var contextIndex = 0; contextIndex < selectorContexts.Count; ++contextIndex)
+        {
+            selectorContexts[contextIndex][^1][Instrument.Two].Raw.Should().Be(expectedLastBassNotes[contextIndex], $"selection {contextIndex}'s context must end at the newest chord");
+        }
+
+        foreach (var selectorContext in selectorContexts.Skip(1))
+        {
+            selectorContext.Should().HaveCount(_configuration.CompositionContextSize, "the walk hands the selector the fugue-sized window once it exists");
+            selectorContext.Select(static chord => chord[Instrument.Two].Raw).Distinct().Should().HaveCountGreaterThanOrEqualTo(2);
+        }
+    }
+
+    [Test]
     public void Compose_StripsTheOpeningStatementToTheBassAlone()
     {
         // act
