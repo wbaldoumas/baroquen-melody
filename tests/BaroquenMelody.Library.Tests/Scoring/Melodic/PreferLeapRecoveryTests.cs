@@ -199,6 +199,92 @@ internal sealed class PreferLeapRecoveryTests
             ]),
             0d
         ).SetName("An out-of-scale note in the middle context chord is not scored");
+
+        // Audit: search-scoring-random-1 - a held-harmony duplicate (the harmonic-rhythm hold) must not erase the leap.
+        yield return new TestCaseData(
+            new List<BaroquenChord>
+            {
+                new([
+                    new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]),
+                new([
+                    new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]),
+                new BaroquenChord(new BaroquenChord([
+                    new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]))
+            },
+            BuildNextChord(Notes.C5),
+            1d
+        ).SetName("A leap held across a duplicated chord and then continued in the same direction costs one");
+
+        yield return new TestCaseData(
+            new List<BaroquenChord>
+            {
+                new([
+                    new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]),
+                new([
+                    new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]),
+                new BaroquenChord(new BaroquenChord([
+                    new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]))
+            },
+            BuildNextChord(Notes.G4),
+            0d
+        ).SetName("A leap held across a duplicated chord and then recovered by step costs nothing");
+
+        // The ground's close searches over already-decorated statements, so a held duplicate must stay
+        // recognizable on raw pitches after the ornamentation pass has reshaped its paired beats.
+        var heldChord = new BaroquenChord([
+            new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+            new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+        ]);
+        var decoratedDuplicate = new BaroquenChord(heldChord);
+
+        decoratedDuplicate[Instrument.One].MusicalTimeSpan = MusicalTimeSpan.Quarter;
+        decoratedDuplicate[Instrument.One].Ornamentations.Add(new BaroquenNote(Instrument.One, Notes.B4, MusicalTimeSpan.Quarter));
+
+        yield return new TestCaseData(
+            new List<BaroquenChord>
+            {
+                new([
+                    new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]),
+                heldChord,
+                decoratedDuplicate
+            },
+            BuildNextChord(Notes.C5),
+            1d
+        ).SetName("A leap held across a decorated duplicate and then continued in the same direction costs one");
+
+        yield return new TestCaseData(
+            new List<BaroquenChord>
+            {
+                new([
+                    new BaroquenNote(Instrument.One, Notes.C4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]),
+                new([
+                    new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.G3, MusicalTimeSpan.Half)
+                ]),
+                new([
+                    new BaroquenNote(Instrument.One, Notes.A4, MusicalTimeSpan.Half),
+                    new BaroquenNote(Instrument.Two, Notes.F3, MusicalTimeSpan.Half)
+                ])
+            },
+            BuildNextChord(Notes.C5),
+            0d
+        ).SetName("A voice repeating its note over a fresh harmony is a real repeat, so no leap precedes the next move");
     }
 
     private static List<BaroquenChord> BuildPrecedingChords(Note firstNote, Note secondNote) =>

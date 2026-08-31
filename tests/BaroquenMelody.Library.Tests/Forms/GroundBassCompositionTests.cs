@@ -68,6 +68,31 @@ internal sealed class GroundBassCompositionTests
     }
 
     [Test]
+    public void Compose_WithTheGroundBassForm_ClosesWithAWholeNoteFinalChordInEveryVoice()
+    {
+        // The close is crafted directly (a whole-note tonic arrival plus a trailing rest), so every voice's
+        // last sounding note must be that whole note, ending together: no later pass may rewrite the crafted
+        // close - neither truncating it nor absorbing it into an extended predecessor that outlives it.
+        var configuration = GetGroundBassConfiguration(3, 10);
+        var wholeNoteTicks = 4L * TicksPerQuarterNote;
+
+        for (var seed = 1; seed <= 3; ++seed)
+        {
+            var lastNotes = SeededComposition.Compose(configuration, seed).MidiFile.GetTrackChunks()
+                .Select(static chunk => chunk.GetNotes().ToList())
+                .Where(static notes => notes.Count > 0)
+                .Select(static notes => notes[^1])
+                .ToList();
+
+            var closeTime = lastNotes.Max(static note => note.EndTime);
+
+            lastNotes.Should().OnlyContain(
+                note => note.EndTime == closeTime && note.Length == wholeNoteTicks,
+                $"seed {seed}: every voice's last sounding note must be the crafted whole-note final chord");
+        }
+    }
+
+    [Test]
     public void Compose_WithAConfiguredPattern_StatesExactlyThatPattern()
     {
         // arrange: the free draw could state any feasible ground, so this pins the cadential ground and
