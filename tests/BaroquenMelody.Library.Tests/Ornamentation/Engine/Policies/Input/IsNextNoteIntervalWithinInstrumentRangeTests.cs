@@ -61,6 +61,31 @@ internal sealed class IsNextNoteIntervalWithinInstrumentRangeTests
         act().Should().Be(InputPolicyResult.Reject);
     }
 
+    // A note outside the scale cannot anchor a scale-relative interval, so the site must be rejected outright:
+    // C natural is not in B Aeolian, and falling through with IndexOf's -1 would range-check notes[8] = C#1 -
+    // a note inside Instrument.Four's C1-C2 range - and wrongly accept the site. Unreachable during composition
+    // (every composed note is drawn from the scale), but the guard's verdict must stay correct for any input.
+    [Test]
+    public void ShouldProcess_rejects_when_the_next_note_is_not_in_the_scale()
+    {
+        // arrange
+        var compositionConfiguration = TestCompositionConfigurations.Get(tonic: NoteName.B, mode: Mode.Aeolian);
+        var policy = new IsNextNoteIntervalWithinInstrumentRange(compositionConfiguration, interval: 9);
+
+        var ornamentationItem = new OrnamentationItem(
+            Instrument.Four,
+            new FixedSizeList<Beat>(1),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.Four, Notes.D1, MusicalTimeSpan.Half)])),
+            new Beat(new BaroquenChord([new BaroquenNote(Instrument.Four, Notes.C1, MusicalTimeSpan.Half)]))
+        );
+
+        // act
+        var result = policy.ShouldProcess(ornamentationItem);
+
+        // assert
+        result.Should().Be(InputPolicyResult.Reject);
+    }
+
     // The symmetric edge: in C Ionian only five scale notes sit above B8 (C9..G9), so a +7 offset from a next note
     // sitting there leaves the top of the note list.
     [Test]
