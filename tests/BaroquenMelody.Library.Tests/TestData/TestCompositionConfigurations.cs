@@ -17,9 +17,10 @@ internal static class TestCompositionConfigurations
         NoteName tonic = NoteName.C,
         Mode mode = Mode.Ionian,
         SevenBitNumber? minVelocity = null,
-        SevenBitNumber? maxVelocity = null
+        SevenBitNumber? maxVelocity = null,
+        ISet<InstrumentConfiguration>? instrumentConfigurations = null
     ) => new(
-        GenerateInstrumentConfigurations(numberOfInstruments, minVelocity ?? InstrumentConfiguration.DefaultMinVelocity, maxVelocity ?? InstrumentConfiguration.DefaultMaxVelocity),
+        instrumentConfigurations ?? GenerateInstrumentConfigurations(numberOfInstruments, minVelocity ?? InstrumentConfiguration.DefaultMinVelocity, maxVelocity ?? InstrumentConfiguration.DefaultMaxVelocity),
         PhrasingConfiguration.Default,
         AggregateCompositionRuleConfiguration.Default,
         AggregateOrnamentationConfiguration.Default,
