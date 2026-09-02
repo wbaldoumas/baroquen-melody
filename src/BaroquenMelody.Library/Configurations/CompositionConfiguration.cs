@@ -75,8 +75,12 @@ public sealed record CompositionConfiguration(
         InstrumentConfigurations.Select(instrumentConfiguration => instrumentConfiguration.Instrument).ToList()
     );
 
+    // The enum tie-break keeps this order a pure function of the configuration when two instruments share a
+    // MinNote: the stable sort would otherwise fall back to the set's enumeration order, and this order is
+    // draw-bearing (the dynamics pass walks it with per-instrument draws).
     public List<Instrument> Instruments { get; } = InstrumentConfigurations
         .OrderByDescending(static instrumentConfiguration => instrumentConfiguration.MinNote)
+        .ThenBy(static instrumentConfiguration => instrumentConfiguration.Instrument)
         .Select(static instrumentConfiguration => instrumentConfiguration.Instrument)
         .ToList();
 

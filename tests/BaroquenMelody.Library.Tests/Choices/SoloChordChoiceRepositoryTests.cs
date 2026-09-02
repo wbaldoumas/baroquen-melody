@@ -20,7 +20,7 @@ internal sealed class SoloChordChoiceRepositoryTests
         _mockNoteChoiceGenerator
             .GenerateNoteChoices(Arg.Is<Instrument>(instrument => instrument == Instrument.One))
             .Returns(
-                new HashSet<NoteChoice>
+                new List<NoteChoice>
                 {
                     new(Instrument.One, NoteMotion.Oblique, 0),
                     new(Instrument.One, NoteMotion.Ascending, 2),

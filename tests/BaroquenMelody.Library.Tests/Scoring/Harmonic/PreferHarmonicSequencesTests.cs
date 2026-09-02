@@ -37,6 +37,8 @@ internal sealed class PreferHarmonicSequencesTests
         var chordI = CreateChord(Notes.C2, Notes.G2, Notes.E3, Notes.C4);
         var chordII = CreateChord(Notes.D2, Notes.A2, Notes.F3, Notes.D4);
         var chordIII = CreateChord(Notes.E2, Notes.B2, Notes.G3, Notes.E4);
+        var chordIV = CreateChord(Notes.F2, Notes.C3, Notes.A3, Notes.F4);
+        var chordVII = CreateChord(Notes.B1, Notes.D3, Notes.F3, Notes.B4);
         var chordV = CreateChord(Notes.G1, Notes.B2, Notes.D3, Notes.G4);
         var chordVI = CreateChord(Notes.A1, Notes.C3, Notes.E3, Notes.A4);
         var chromaticChord = CreateChord(Notes.D2, Notes.A2, Notes.D3, Notes.FSharp4);
@@ -73,6 +75,34 @@ internal sealed class PreferHarmonicSequencesTests
 
         yield return new TestCaseData(new List<BaroquenChord> { chromaticChord, chordVI, chordII }, chordV, 0d)
             .SetName("An unidentifiable chord before the established motion cannot saturate the sequence.");
+
+        // Audit: search-scoring-random-1 - a held-harmony duplicate must not erase the established motion.
+        yield return new TestCaseData(new List<BaroquenChord> { chordI, chordIV, new BaroquenChord(chordIV) }, chordVII, 0d)
+            .SetName("Continuing a motion established across a held duplicate costs nothing.");
+
+        yield return new TestCaseData(new List<BaroquenChord> { chordI, chordIV, new BaroquenChord(chordIV) }, chordV, 1d)
+            .SetName("Breaking a motion established across a held duplicate costs one.");
+
+        yield return new TestCaseData(new List<BaroquenChord> { chordI, chordIV, new BaroquenChord(chordIV), new BaroquenChord(chordIV) }, chordV, 1d)
+            .SetName("A harmony held across a run of duplicates is one sequence member, so breaking the motion costs one.");
+
+        yield return new TestCaseData(new List<BaroquenChord> { chordIII, new BaroquenChord(chordIII), chordVI, new BaroquenChord(chordVI), chordII }, chordV, 1d)
+            .SetName("A sequence saturated across held duplicates releases, so extending it costs one.");
+
+        // The production shape at the default context size: a fully held window is [onset, dup, onset, dup],
+        // which collapses to exactly two events - enough to establish and judge a motion, one short of the
+        // three the release valve needs, so inside held regions the rule is a one-way continuation nudge.
+        yield return new TestCaseData(new List<BaroquenChord> { chordI, new BaroquenChord(chordI), chordIV, new BaroquenChord(chordIV) }, chordV, 1d)
+            .SetName("A fully held four-beat window still sees the established motion, so breaking it costs one.");
+
+        yield return new TestCaseData(new List<BaroquenChord> { chordIV, new BaroquenChord(chordIV), chordVII, new BaroquenChord(chordVII) }, chordIII, 0d)
+            .SetName("A fully held four-beat window carries two events, so continuing costs nothing and the release cannot engage inside it.");
+
+        // Distinct chords sharing a chord number (a re-voicing, not a held duplicate) still establish no motion.
+        var revoicedChordII = CreateChord(Notes.F2, Notes.D3, Notes.A3, Notes.F4);
+
+        yield return new TestCaseData(new List<BaroquenChord> { chordII, revoicedChordII }, chordV, 0d)
+            .SetName("A re-voiced repeat of the same chord number establishes no motion and is neutral.");
     }
 
     private static BaroquenChord CreateChord(Note four, Note three, Note two, Note one) => new([

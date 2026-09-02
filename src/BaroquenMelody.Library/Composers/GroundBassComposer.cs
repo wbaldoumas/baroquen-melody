@@ -297,7 +297,10 @@ internal sealed class GroundBassComposer(
                 candidatePool = searchStrategy.GetPossibleChords([chords[^1]]);
             }
 
-            var nextChord = ComponentsFor(section).ChordSelector.SelectNextChord(chords.TakeLast(2).ToList(), candidatePool);
+            // The selector's scoring reads its context as distinct harmonic events, and every other slot of the
+            // walk is a held duplicate, so a two-chord window would only ever hold one event: hand it the same
+            // window the fugal body hands its selector so the last two onsets stay visible.
+            var nextChord = ComponentsFor(section).ChordSelector.SelectNextChord(chords.TakeLast(compositionConfiguration.CompositionContextSize).ToList(), candidatePool);
 
             if (nextChord is null)
             {
@@ -473,12 +476,19 @@ internal sealed class GroundBassComposer(
             return null;
         }
 
-        // The statement walk emits only whole measures, so the closing measure's predecessor always holds the
-        // two chords the selector's context-sensitive scoring wants.
         var lastStatementChord = composition.Measures[^1].Beats[^1].Chord;
         var bestRank = candidates.Min(candidate => RankCadence(lastStatementChord, candidate));
         var bestCandidates = candidates.Where(candidate => RankCadence(lastStatementChord, candidate) == bestRank).ToList();
-        var selectorContext = new List<BaroquenChord> { composition.Measures[^1].Beats[^2].Chord, lastStatementChord };
+
+        // The statement walk emits only whole measures of [onset, held duplicate] pairs, and the selector's
+        // scoring reads them as distinct harmonic events, so the close takes the fugue-sized window to keep
+        // the last two onsets visible. The duplicates collapse on raw pitches, which the decoration pass that
+        // has already run over the statements never alters.
+        var selectorContext = composition.Measures
+            .SelectMany(static measure => measure.Beats)
+            .TakeLast(compositionConfiguration.CompositionContextSize)
+            .Select(static beat => beat.Chord)
+            .ToList();
 
         return homeComponents.ChordSelector.SelectNextChord(selectorContext, bestCandidates) ?? bestCandidates[0];
     }

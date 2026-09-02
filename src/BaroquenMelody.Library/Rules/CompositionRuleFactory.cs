@@ -17,9 +17,13 @@ internal sealed class CompositionRuleFactory(
 {
     private const int Threshold = 100;
 
+    // Rule order is load-bearing: sub-threshold rules draw a strictness bypass per evaluation, so it fixes the
+    // seeded draw sequence. Ordering by the enum keeps it a pure function of the configuration rather than of
+    // whatever order the caller's set happens to enumerate in.
     public ICompositionRule CreateAggregate(AggregateCompositionRuleConfiguration aggregateConfiguration) => new AggregateCompositionRule(
         aggregateConfiguration.Configurations
             .Where(configuration => configuration.IsEnabled)
+            .OrderBy(static configuration => configuration.Rule)
             .Select(Create)
             .Prepend(new EnsureInstrumentRange(compositionConfiguration))
             .ToList()

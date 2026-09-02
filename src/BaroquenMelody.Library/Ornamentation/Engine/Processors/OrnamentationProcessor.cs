@@ -17,9 +17,14 @@ internal sealed class OrnamentationProcessor(
         var currentNote = item.CurrentBeat[item.Instrument];
         var nextNote = item.NextBeat?[item.Instrument];
 
+        if (!TryGetOrnamentations(currentNote, nextNote, out var ornamentations))
+        {
+            return;
+        }
+
         currentNote.MusicalTimeSpan = musicalTimeSpanCalculator.CalculatePrimaryNoteTimeSpan(configuration.OrnamentationType, compositionConfiguration.Meter);
 
-        foreach (var ornamentation in GetOrnamentations(currentNote, nextNote))
+        foreach (var ornamentation in ornamentations)
         {
             currentNote.Ornamentations.Add(ornamentation);
         }
@@ -27,7 +32,7 @@ internal sealed class OrnamentationProcessor(
         currentNote.OrnamentationType = configuration.OrnamentationType;
     }
 
-    private IEnumerable<BaroquenNote> GetOrnamentations(BaroquenNote currentNote, BaroquenNote? nextNote)
+    private bool TryGetOrnamentations(BaroquenNote currentNote, BaroquenNote? nextNote, out List<BaroquenNote> ornamentations)
     {
         var shouldInvert = configuration.ShouldInvertTranslations((currentNote, nextNote));
 
@@ -37,18 +42,31 @@ internal sealed class OrnamentationProcessor(
 
         var notes = compositionConfiguration.Scale.GetNotes();
 
-        return configuration.Translations
+        var noteIndices = configuration.Translations
             .Select((translation, translationIndex) => shouldInvert && configuration.TranslationInversionIndices.Contains(translationIndex)
                 ? translationPivot - translation
                 : translationPivot + translation
             )
-            .Select(noteIndex => notes[noteIndex])
-            .Select((note, ornamentationStep) =>
+            .ToList();
+
+        // A translation that leaves the scale's note list means the ornamentation cannot be applied at this site.
+        if (translationPivot < 0 || noteIndices.Exists(noteIndex => noteIndex < 0 || noteIndex >= notes.Count))
+        {
+            ornamentations = [];
+
+            return false;
+        }
+
+        ornamentations = noteIndices
+            .Select((noteIndex, ornamentationStep) =>
                 new BaroquenNote(
                     currentNote.Instrument,
-                    note,
+                    notes[noteIndex],
                     musicalTimeSpanCalculator.CalculateOrnamentationTimeSpan(configuration.OrnamentationType, compositionConfiguration.Meter, ornamentationStep)
                 )
-            );
+            )
+            .ToList();
+
+        return true;
     }
 }
