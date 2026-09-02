@@ -1,7 +1,6 @@
 ﻿using BaroquenMelody.Library.Configurations;
 using BaroquenMelody.Library.Ornamentation.Enums;
 using Fluxor;
-using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Store.State;
 
@@ -13,7 +12,9 @@ public sealed record CompositionOrnamentationConfigurationState(IDictionary<Orna
         configuration => configuration
     );
 
-    public AggregateOrnamentationConfiguration Aggregate => new(Configurations.Values.ToFrozenSet());
+    // An insertion-ordered HashSet, never a frozen set: a frozen set of records enumerates in hash-bucket order,
+    // which varies with process history.
+    public AggregateOrnamentationConfiguration Aggregate => new(Configurations.Values.ToHashSet());
 
     public CompositionOrnamentationConfigurationState()
         : this(Defaults)
