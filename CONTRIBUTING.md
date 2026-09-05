@@ -74,8 +74,13 @@ regenerated JSON rather than editing it by hand.
 
 Pull requests are mutation-tested with [Stryker.NET](https://stryker-mutator.io/docs/stryker-net/): Stryker plants small
 bugs ("mutants") in the code your change touches and checks that the tests catch them. The `Mutation` workflow posts a
-per-project summary to the run's job summary and uploads the full HTML reports as artifacts; full runs of every project
-happen on pushes to `main`, weekly, and on demand.
+per-project summary to the run's job summary and uploads the full HTML reports as artifacts. Full runs happen on demand
+only (`gh workflow run mutation.yml`, or the Actions tab), never on a push or a schedule, because a full run is
+100–140 billed minutes against a private repository's 2,000 a month. The full Library run (2,424 testable mutants, too
+many for one job on the 2-vCPU runner) is one job per key of `.github/workflows/mutation-shards.json` — each key lists
+top-level folders of `src/BaroquenMelody.Library` — with the shard reports merged into one `library` report for the job
+summary, the artifact and the Stryker dashboard. A new top-level Library folder goes into one shard in the same pull
+request; the Architecture suite fails when one is missing.
 
 To run it locally, restore the repository's tools once, then run Stryker from the test project whose source you changed
 (each test project carries its own `stryker-config.json`):
@@ -86,6 +91,13 @@ dotnet tool restore
 cd tests/BaroquenMelody.Library.Tests
 dotnet stryker --since:main        # only mutants in code changed since main
 dotnet stryker --open-report       # everything, and open the HTML report when done
+```
+
+One Library shard runs through the script CI uses, from the repository root; anything after the shard name goes to
+`dotnet stryker`:
+
+```bash
+dotnet run scripts/mutate.cs -- --shard ornamentation
 ```
 
 `--since` reads the git diff itself, so run it from a normal clone rather than a linked `git worktree` (there it resolves

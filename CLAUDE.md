@@ -23,6 +23,9 @@ dotnet run scripts/test.cs -- --verify-shards
 # Per-fixture and per-test durations from trx files (a local TestResults folder, or downloaded test-results-* CI artifacts)
 dotnet run scripts/test.cs -- --durations TestResults
 
+# Run one shard of the full Library mutation run (a key of .github/workflows/mutation-shards.json; on CI the whole run is `gh workflow run mutation.yml`); extra arguments go to dotnet stryker
+dotnet run scripts/mutate.cs -- --shard ornamentation
+
 # Run a single test project, or a single test by name
 dotnet test tests/BaroquenMelody.Architecture.Tests/ -c Release
 dotnet test tests/BaroquenMelody.Library.Tests/ -c Release --filter "FullyQualifiedName~ComposerTests"
@@ -111,7 +114,7 @@ Uses **Fluxor** (Redux-like) for state management. States live in `Library/Store
 
 ## Architecture Tests
 
-`tests/BaroquenMelody.Architecture.Tests` (ArchUnitNET + NUnit; namespace `BaroquenMelody.ArchitectureTests`, because an `Architecture` namespace segment would shadow `ArchUnitNET.Domain.Architecture`) loads Library, Infrastructure, App.Components, the console app, the benchmarks and the three test suites and checks 33 structural rules plus the CI shard-map guard (`CompositionShardTests`: every `[Category("Composition")]` fixture sits in exactly one shard of `.github/workflows/composition-shards.json`, every shard is a matrix entry, and `codecov.yml` waits for one upload per entry) in ~10 s: `dotnet test tests/BaroquenMelody.Architecture.Tests/`. It is also the quickest way to confirm the console app and benchmarks still compile. CI runs it after the other suites and fails the pipeline on any violation. The MAUI host is never loaded (platform TFMs; no workloads on `ubuntu-latest`) and is covered only from the Razor-class-library side.
+`tests/BaroquenMelody.Architecture.Tests` (ArchUnitNET + NUnit; namespace `BaroquenMelody.ArchitectureTests`, because an `Architecture` namespace segment would shadow `ArchUnitNET.Domain.Architecture`) loads Library, Infrastructure, App.Components, the console app, the benchmarks and the three test suites and checks 33 structural rules plus the CI shard-map guards (`CompositionShardTests`: every `[Category("Composition")]` fixture sits in exactly one shard of `.github/workflows/composition-shards.json`, every shard is a matrix entry, and `codecov.yml` waits for one upload per entry; `MutationShardTests`: every Library source folder sits in exactly one shard of `mutation-shards.json` and every shard is in the mutation workflow's matrix) in ~10 s: `dotnet test tests/BaroquenMelody.Architecture.Tests/`. It is also the quickest way to confirm the console app and benchmarks still compile. CI runs it after the other suites and fails the pipeline on any violation. The MAUI host is never loaded (platform TFMs; no workloads on `ubuntu-latest`) and is covered only from the Razor-class-library side.
 
 What the rules hold — write code that satisfies them instead of discovering them red:
 
