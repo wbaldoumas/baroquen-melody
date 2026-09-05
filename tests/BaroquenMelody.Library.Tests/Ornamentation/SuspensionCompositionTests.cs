@@ -14,6 +14,7 @@ namespace BaroquenMelody.Library.Tests.Ornamentation;
 /// </summary>
 [TestFixture]
 [Category("Composition")]
+[Parallelizable(ParallelScope.All)]
 internal sealed class SuspensionCompositionTests
 {
     private const int SeedCount = 5;

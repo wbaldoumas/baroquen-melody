@@ -15,6 +15,7 @@ namespace BaroquenMelody.Library.Tests.Motifs;
 /// </summary>
 [TestFixture]
 [Category("Composition")]
+[Parallelizable(ParallelScope.All)]
 internal sealed class MotifDevelopmentCompositionTests
 {
     private const int SampleIterations = 5;

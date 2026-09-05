@@ -32,6 +32,7 @@ namespace BaroquenMelody.Library.Tests;
 /// </remarks>
 [TestFixture]
 [Category("Composition")]
+[Parallelizable(ParallelScope.All)]
 internal sealed class MusicalInvariantTests
 {
     private const int SampleIterations = 5;
