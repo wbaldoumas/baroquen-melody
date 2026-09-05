@@ -23,7 +23,7 @@ dotnet run scripts/test.cs -- --verify-shards
 # Per-fixture and per-test durations from trx files (a local TestResults folder, or downloaded test-results-* CI artifacts)
 dotnet run scripts/test.cs -- --durations TestResults
 
-# Run one shard of the full Library mutation run (a key of .github/workflows/mutation-shards.json; on CI the whole run is `gh workflow run mutation.yml`); extra arguments go to dotnet stryker
+# Run one shard of the full Library mutation run (a key of .github/workflows/mutation-shards.json; on CI the whole run happens on every merge to main that touches src, tests or the mutation tooling, and on `gh workflow run mutation.yml`); extra arguments go to dotnet stryker
 dotnet run scripts/mutate.cs -- --shard ornamentation
 
 # Run a single test project, or a single test by name
