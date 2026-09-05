@@ -107,7 +107,7 @@ Uses **Fluxor** (Redux-like) for state management. States live in `Library/Store
 
 ## Architecture Tests
 
-`tests/BaroquenMelody.Architecture.Tests` (ArchUnitNET + NUnit; namespace `BaroquenMelody.ArchitectureTests`, because an `Architecture` namespace segment would shadow `ArchUnitNET.Domain.Architecture`) loads Library, Infrastructure, App.Components, the console app, the benchmarks and the three test suites and checks 33 structural rules in ~10 s: `dotnet test tests/BaroquenMelody.Architecture.Tests/`. It is also the quickest way to confirm the console app and benchmarks still compile. CI runs it after the other suites and fails the pipeline on any violation. The MAUI host is never loaded (platform TFMs; no workloads on `ubuntu-latest`) and is covered only from the Razor-class-library side.
+`tests/BaroquenMelody.Architecture.Tests` (ArchUnitNET + NUnit; namespace `BaroquenMelody.ArchitectureTests`, because an `Architecture` namespace segment would shadow `ArchUnitNET.Domain.Architecture`) loads Library, Infrastructure, App.Components, the console app, the benchmarks and the three test suites and checks 33 structural rules plus the CI shard-map guard (`CompositionShardTests`: every `[Category("Composition")]` fixture sits in exactly one shard of `.github/workflows/composition-shards.json`) in ~10 s: `dotnet test tests/BaroquenMelody.Architecture.Tests/`. It is also the quickest way to confirm the console app and benchmarks still compile. CI runs it after the other suites and fails the pipeline on any violation. The MAUI host is never loaded (platform TFMs; no workloads on `ubuntu-latest`) and is covered only from the Razor-class-library side.
 
 What the rules hold — write code that satisfies them instead of discovering them red:
 

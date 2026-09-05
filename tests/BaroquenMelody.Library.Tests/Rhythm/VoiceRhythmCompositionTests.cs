@@ -44,6 +44,7 @@ namespace BaroquenMelody.Library.Tests.Rhythm;
 /// </summary>
 [TestFixture]
 [Category("Composition")]
+[Parallelizable(ParallelScope.All)]
 internal sealed class VoiceRhythmCompositionTests
 {
     // References the production set directly so this suite can never drift from the tier the

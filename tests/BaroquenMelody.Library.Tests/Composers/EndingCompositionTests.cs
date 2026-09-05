@@ -14,6 +14,7 @@ namespace BaroquenMelody.Library.Tests.Composers;
 /// </summary>
 [TestFixture]
 [Category("Composition")]
+[Parallelizable(ParallelScope.All)]
 internal sealed class EndingCompositionTests
 {
     private const int SeedCount = 4;

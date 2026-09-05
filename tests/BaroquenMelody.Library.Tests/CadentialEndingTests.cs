@@ -19,6 +19,7 @@ namespace BaroquenMelody.Library.Tests;
 /// </summary>
 [TestFixture]
 [Category("Composition")]
+[Parallelizable(ParallelScope.All)]
 internal sealed class CadentialEndingTests
 {
     // MIDI geometry under the generator's 96-ticks-per-quarter time division.

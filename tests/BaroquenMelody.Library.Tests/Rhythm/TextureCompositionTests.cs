@@ -32,6 +32,7 @@ namespace BaroquenMelody.Library.Tests.Rhythm;
 /// </summary>
 [TestFixture]
 [Category("Composition")]
+[Parallelizable(ParallelScope.All)]
 internal sealed class TextureCompositionTests
 {
     // Everything a recorded figuration-voice note may legally carry besides its family: the unfired case,

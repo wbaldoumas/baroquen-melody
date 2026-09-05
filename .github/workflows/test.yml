@@ -1,5 +1,17 @@
 name: Test
 
+# The Library suite is split across a matrix: one "unit" job runs everything outside the seeded composition
+# sweeps (TestCategory!=Composition — a category clause, which the NUnit adapter always honours; any other
+# filter selecting more than 2,000 tests is silently dropped) plus the three smaller test projects, and one
+# job per key of composition-shards.json runs that shard's [Category("Composition")] fixtures by name.
+# CompositionShardTests in the Architecture suite fails the build if a Composition fixture is missing from the
+# map, listed twice, or if a shard key has no matrix entry, so a new sweep fixture cannot silently stop running
+# on CI. Balance the shards by the per-fixture durations in the test-results-* artifacts (runner time, not
+# local time — the runner has 2 vCPUs and NUnit gives it 2 workers).
+#
+# Every job uploads its own coverage with its shard name as the Codecov flag; Codecov merges every upload for a
+# commit and codecov.yml holds statuses and the PR comment until all four have arrived.
+
 on:
   push:
     branches: [ main ]
@@ -19,9 +31,18 @@ env:
   COVERLET: --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.SingleHit=true
 
 jobs:
-  test:
+  shard:
+    name: 🧪 ${{ matrix.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        name:
+          - unit
+          - composition-a
+          - composition-b
+          - composition-c
     steps:
     - uses: actions/checkout@v7
 
@@ -30,11 +51,31 @@ jobs:
       with:
         global-json-file: global.json
 
-    # Release: the composition search runs ~1.9x faster than in Debug, and the Stryker Library config already
-    # builds Release. The Library suite runs its fixtures in parallel (tests/BaroquenMelody.Library.Tests/AssemblyInfo.cs).
-    - name: 🧪 run tests
+    # Release: the composition search runs ~1.9x faster than in Debug, and a Debug build under coverlet cannot
+    # finish in the job timeout (Debug assemblies disable JIT optimisation, so every coverage probe is a real
+    # call). The Library suite runs its fixtures in parallel (tests/BaroquenMelody.Library.Tests/AssemblyInfo.cs).
+    - name: 🧪 library
+      env:
+        SHARD: ${{ matrix.name }}
       run: |
-        dotnet test tests/BaroquenMelody.Library.Tests/ -c Release --logger trx --results-directory TestResults/library ${{ env.COVERLET }}
+        if [ "$SHARD" = "unit" ]; then
+          filter='TestCategory!=Composition'
+        else
+          filter=$(jq --raw-output --arg shard "$SHARD" '.[$shard] | map("FullyQualifiedName~" + . + ".") | join("|")' .github/workflows/composition-shards.json)
+        fi
+        # An empty filter would run the whole suite in this shard and mask a broken map; fail instead.
+        if [ -z "$filter" ]; then
+          echo "::error title=Test::shard '$SHARD' produced an empty test filter; check composition-shards.json"
+          exit 1
+        fi
+        echo "filter: $filter"
+        # TreatNoTestsAsError: VSTest exits 0 with a warning when a filter matches nothing, which would let a
+        # shard whose names stopped matching pass silently.
+        dotnet test tests/BaroquenMelody.Library.Tests/ -c Release --filter "$filter" --logger trx --results-directory TestResults/library ${{ env.COVERLET }} RunConfiguration.TreatNoTestsAsError=true
+
+    - name: 🧪 infrastructure, components, architecture
+      if: matrix.name == 'unit'
+      run: |
         dotnet test tests/BaroquenMelody.Infrastructure.Tests/ -c Release --logger trx --results-directory TestResults/infrastructure ${{ env.COVERLET }}
         dotnet test tests/BaroquenMelody.App.Components.Tests/ -c Release --logger trx --results-directory TestResults/components ${{ env.COVERLET }}
         dotnet test tests/BaroquenMelody.Architecture.Tests/ -c Release --logger trx --results-directory TestResults/architecture
@@ -44,12 +85,30 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: TestResults/library/**/coverage.opencover.xml,TestResults/infrastructure/**/coverage.opencover.xml,TestResults/components/**/coverage.opencover.xml
+        flags: ${{ matrix.name }}
         fail_ci_if_error: true
 
     - name: 📦 upload test results
       if: always()
       uses: actions/upload-artifact@v7
       with:
-        name: test-results
+        name: test-results-${{ matrix.name }}
         path: TestResults/**/*.trx
         if-no-files-found: ignore
+
+  # One check named "test", as before the split, so the required-status-check name never changes.
+  test:
+    name: test
+    needs: [ shard ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+    - name: ✅ gate
+      env:
+        SHARD_RESULT: ${{ needs.shard.result }}
+      run: |
+        if [ "$SHARD_RESULT" != "success" ]; then
+          echo "::error title=Test::one or more test shards failed ($SHARD_RESULT)"
+          exit 1
+        fi
+        echo "all test shards succeeded ✅"

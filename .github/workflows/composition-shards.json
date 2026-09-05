@@ -1,0 +1,21 @@
+{
+  "composition-a": [
+    "BaroquenMelody.Library.Tests.CadentialEndingTests",
+    "BaroquenMelody.Library.Tests.Motifs.MotifDevelopmentCompositionTests",
+    "BaroquenMelody.Library.Tests.FugalExpositionTests",
+    "BaroquenMelody.Library.Tests.Strategies.LookAheadDepthTests"
+  ],
+  "composition-b": [
+    "BaroquenMelody.Library.Tests.Rhythm.TextureCompositionTests",
+    "BaroquenMelody.Library.Tests.Rhythm.VoiceRhythmCompositionTests",
+    "BaroquenMelody.Library.Tests.Rhythm.HarmonicRhythmCompositionTests"
+  ],
+  "composition-c": [
+    "BaroquenMelody.Library.Tests.Forms.GroundBassDivisionCompositionTests",
+    "BaroquenMelody.Library.Tests.MusicTheory.TonicizationCompositionTests",
+    "BaroquenMelody.Library.Tests.MusicalInvariantTests",
+    "BaroquenMelody.Library.Tests.Forms.GroundBassCompositionTests",
+    "BaroquenMelody.Library.Tests.Composers.EndingCompositionTests",
+    "BaroquenMelody.Library.Tests.Ornamentation.SuspensionCompositionTests"
+  ]
+}
