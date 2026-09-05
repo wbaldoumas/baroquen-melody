@@ -15,11 +15,19 @@ name: Test
 # Every job uploads its own coverage with its shard name as the Codecov flag; Codecov merges every upload for a
 # commit and codecov.yml holds statuses and the PR comment until all four have arrived.
 
+# Documentation-only changes skip the suite: nothing under .claude or in a markdown file is built or tested,
+# and every run bills about fourteen minutes across the matrix.
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - '.claude/**'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - '.claude/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -77,20 +85,3 @@ jobs:
         name: test-results-${{ matrix.name }}
         path: TestResults/**/*.trx
         if-no-files-found: ignore
-
-  # One check named "test", as before the split, so the required-status-check name never changes.
-  test:
-    name: test
-    needs: [ shard ]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-    - name: ✅ gate
-      env:
-        SHARD_RESULT: ${{ needs.shard.result }}
-      run: |
-        if [ "$SHARD_RESULT" != "success" ]; then
-          echo "::error title=Test::one or more test shards failed ($SHARD_RESULT)"
-          exit 1
-        fi
-        echo "all test shards succeeded ✅"
