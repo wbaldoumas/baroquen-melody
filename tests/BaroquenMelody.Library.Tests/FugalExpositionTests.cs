@@ -18,6 +18,7 @@ namespace BaroquenMelody.Library.Tests;
 /// </summary>
 [TestFixture]
 [Category("Composition")]
+[Parallelizable(ParallelScope.All)]
 internal sealed class FugalExpositionTests
 {
     [TestCase(3, 1)]

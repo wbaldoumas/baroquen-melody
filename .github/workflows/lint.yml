@@ -6,28 +6,22 @@ on:
   pull_request:
     branches: [main]
 
+# One job, not three: every job bills at least one minute, and the three linters together take well under one.
 jobs:
-  markdown:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+
       - name: 🧼 lint markdown files
         uses: avto-dev/markdown-lint@v1
         with:
           config: ".markdownlint.json"
           args: "**/*.md .github/**/*.md"
 
-  json:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
       - name: 🧼 lint json files
         uses: ocular-d/json-linter@0.0.2
 
-  renovate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
       - name: 🧼 lint renovate config
         uses: suzuki-shunsuke/github-action-renovate-config-validator@v2.1.0
         with:

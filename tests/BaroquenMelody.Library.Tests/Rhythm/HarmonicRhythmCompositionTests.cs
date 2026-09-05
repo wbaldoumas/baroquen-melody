@@ -12,6 +12,7 @@ namespace BaroquenMelody.Library.Tests.Rhythm;
 /// </summary>
 [TestFixture]
 [Category("Composition")]
+[Parallelizable(ParallelScope.All)]
 internal sealed class HarmonicRhythmCompositionTests
 {
     private const int SeedCount = 5;
