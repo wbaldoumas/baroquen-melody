@@ -38,4 +38,18 @@ internal readonly struct MelodicLine(IReadOnlyList<BaroquenChord> precedingChord
 
         return precedingChord.ContainsInstrument(Instrument) ? precedingChord[Instrument] : null;
     }
+
+    /// <summary>
+    ///     Retrieves the note this voice plays some number of distinct harmonic events back from the proposed next
+    ///     note. Consecutive chords in which every voice repeats its pitch (the held-harmony duplicates the
+    ///     harmonic rhythm and the ground bass emit) sound one sustained harmony and count as a single event.
+    /// </summary>
+    /// <param name="eventsBack">How many events back to look; one is the most recent event.</param>
+    /// <returns>The note, or <see langword="null"/> when there is no such event or the voice is absent from it.</returns>
+    public BaroquenNote? PrecedingEventNote(int eventsBack)
+    {
+        var precedingChord = HarmonicEvents.PrecedingEventChord(precedingChords, eventsBack);
+
+        return precedingChord is not null && precedingChord.ContainsInstrument(Instrument) ? precedingChord[Instrument] : null;
+    }
 }

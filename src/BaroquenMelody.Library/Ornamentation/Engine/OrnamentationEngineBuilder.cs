@@ -74,10 +74,13 @@ internal sealed class OrnamentationEngineBuilder
         .WithoutOutputPolicies()
         .Build();
 
+    // The probability gate must stay the first input policy: it draws once per item on the shared seeded
+    // stream, so a deterministic policy placed ahead of it would remove draws and shift every later pass.
     public IPolicyEngine<OrnamentationItem> BuildSustainedNoteEngine() => PolicyEngineBuilder<OrnamentationItem>.Configure()
         .WithInputPolicies(
             _voiceRhythmPolicyTransformer.CreateSustainGate(),
             new IsRepeatedNote(),
+            new Not<OrnamentationItem>(new HasCraftedTimeSpan(_compositionConfiguration)),
             _hasNoOrnamentation,
             new IsApplicableInterval(_compositionConfiguration, SustainedNoteProcessor.Interval)
         )
