@@ -26,7 +26,7 @@ namespace BaroquenMelody.Library.Configurations;
 /// <param name="DefaultNoteTimeSpan"> The default note time span to be used in the composition. </param>
 /// <param name="CompositionContextSize"> The size of the context to be used in the composition. </param>
 /// <param name="Tempo"> The tempo of the composition, in beats per minute. </param>
-/// <param name="ShuffleOrnamentationProcessors"> Whether to shuffle the ornamentation processor order between beats. Defaults to <see langword="true"/> (production variety); set to <see langword="false"/> for deterministic, seed-reproducible ornamentation. </param>
+/// <param name="ShuffleOrnamentationProcessors"> Whether to shuffle the ornamentation processor order between beats. Defaults to <see langword="true"/> (production variety). The shuffle draws from its own random provider, so under a seed it is reproducible on its own and never shifts the composition's shared draw stream; set to <see langword="false"/> to keep the configured processor order at every beat. </param>
 /// <param name="MaxLookAheadDepth"> How many chords ahead the composition strategy searches to avoid dead-ends. Defaults to 1 (the prior hardcoded behavior); higher values constrain choices more strictly at a search-cost premium. </param>
 /// <param name="AggregateScoringRuleConfiguration"> The configuration of the scoring rules used to rank rule-passing candidate chords. When <see langword="null"/> (including configurations saved before scoring existed), <see cref="Configurations.AggregateScoringRuleConfiguration.Default"/> is used. </param>
 /// <param name="MotifDevelopmentConfiguration"> The configuration of how recurring themes/phrases are developed rather than repeated verbatim. When <see langword="null"/> (including configurations saved before motivic development existed), <see cref="Configurations.MotifDevelopmentConfiguration.Default"/> is used. </param>
@@ -75,8 +75,12 @@ public sealed record CompositionConfiguration(
         InstrumentConfigurations.Select(instrumentConfiguration => instrumentConfiguration.Instrument).ToList()
     );
 
+    // The enum tie-break keeps this order a pure function of the configuration when two instruments share a
+    // MinNote: the stable sort would otherwise fall back to the set's enumeration order, and this order is
+    // draw-bearing (the dynamics pass walks it with per-instrument draws).
     public List<Instrument> Instruments { get; } = InstrumentConfigurations
         .OrderByDescending(static instrumentConfiguration => instrumentConfiguration.MinNote)
+        .ThenBy(static instrumentConfiguration => instrumentConfiguration.Instrument)
         .Select(static instrumentConfiguration => instrumentConfiguration.Instrument)
         .ToList();
 
