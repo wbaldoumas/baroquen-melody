@@ -46,7 +46,7 @@ internal sealed class GroundBassDivisionCompositionTests
 
             // assert - the terrace's deterministic velocity offset guarantees a difference in every seed,
             // independent of how the probabilistic figure divergence falls
-            divisionsOnNotes.Should().NotBeEquivalentTo(divisionsOffNotes, $"divisions must change the render for seed {seed}");
+            divisionsOnNotes.Should().NotEqual(divisionsOffNotes, $"divisions must change the render for seed {seed}");
         }
     }
 

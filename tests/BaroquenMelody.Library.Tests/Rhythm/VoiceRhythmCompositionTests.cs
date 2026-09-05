@@ -73,7 +73,7 @@ internal sealed class VoiceRhythmCompositionTests
             var disabledNotes = SeededComposition.Notes(SeededComposition.Compose(disabledConfiguration, seed));
 
             // assert
-            enabledNotes.Should().NotBeEquivalentTo(disabledNotes, $"voice rhythm roles must change the rendered composition (seed {seed})");
+            enabledNotes.Should().NotEqual(disabledNotes, $"voice rhythm roles must change the rendered composition (seed {seed})");
         }
     }
 
