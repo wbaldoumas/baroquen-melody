@@ -18,6 +18,7 @@ namespace BaroquenMelody.Library.Tests.MusicTheory;
 /// </summary>
 [TestFixture]
 [Category("Composition")]
+[Parallelizable(ParallelScope.All)]
 internal sealed class TonicizationCompositionTests
 {
     private const int SeedCount = 5;

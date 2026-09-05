@@ -1,10 +1,33 @@
 name: Test
 
+# The Library suite is split across a matrix: one "unit" job runs everything outside the seeded composition
+# sweeps (TestCategory!=Composition — a category clause, which the NUnit adapter always honours; any other
+# filter selecting more than 2,000 tests is silently dropped) plus the three smaller test projects, and one
+# job per key of composition-shards.json runs that shard's [Category("Composition")] fixtures by name.
+# scripts/test.cs owns the mechanics (filters, Release, coverlet settings, results layout) and is the same
+# entry point developers run locally: `dotnet run scripts/test.cs -- --shard <name>` reproduces a job,
+# `--verify-shards` proves the map still partitions the suite test for test, and `--durations` reads the
+# test-results-* artifacts to balance the shards by runner time (not local time — the runner has 2 vCPUs and
+# NUnit gives it 2 workers). CompositionShardTests in the Architecture suite fails the build if a Composition
+# fixture is missing from the map, listed twice, if a shard key has no matrix entry, or if codecov.yml waits
+# for a different number of uploads than there are matrix entries.
+#
+# Every job uploads its own coverage with its shard name as the Codecov flag; Codecov merges every upload for a
+# commit and codecov.yml holds statuses and the PR comment until all four have arrived.
+
+# Documentation-only changes skip the suite: nothing under .claude or in a markdown file is built or tested,
+# and every run bills about fourteen minutes across the matrix.
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - '.claude/**'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - '.claude/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -14,14 +37,20 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
   DOTNET_NOLOGO: 1
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-  # coverlet's default per-hit counter increment is a ~4x tax on the composition search's hot loops; SingleHit
-  # records each sequence point once and reports identical line and branch coverage.
-  COVERLET: --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.SingleHit=true
 
 jobs:
-  test:
+  shard:
+    name: 🧪 ${{ matrix.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        name:
+          - unit
+          - composition-a
+          - composition-b
+          - composition-c
     steps:
     - uses: actions/checkout@v7
 
@@ -30,26 +59,29 @@ jobs:
       with:
         global-json-file: global.json
 
-    # Release: the composition search runs ~1.9x faster than in Debug, and the Stryker Library config already
-    # builds Release. The Library suite runs its fixtures in parallel (tests/BaroquenMelody.Library.Tests/AssemblyInfo.cs).
-    - name: 🧪 run tests
-      run: |
-        dotnet test tests/BaroquenMelody.Library.Tests/ -c Release --logger trx --results-directory TestResults/library ${{ env.COVERLET }}
-        dotnet test tests/BaroquenMelody.Infrastructure.Tests/ -c Release --logger trx --results-directory TestResults/infrastructure ${{ env.COVERLET }}
-        dotnet test tests/BaroquenMelody.App.Components.Tests/ -c Release --logger trx --results-directory TestResults/components ${{ env.COVERLET }}
-        dotnet test tests/BaroquenMelody.Architecture.Tests/ -c Release --logger trx --results-directory TestResults/architecture
+    # The script builds Release (the composition search runs ~1.9x faster than in Debug, and a Debug build under
+    # coverlet cannot finish in the job timeout: Debug assemblies disable JIT optimisation, so every coverage
+    # probe is a real call), collects coverage with coverlet's SingleHit (identical line and branch coverage,
+    # without the ~4x per-hit counter tax on the composition search's hot loops), fails a shard whose filter
+    # selects nothing, and writes trx files under TestResults/<project>/. The unit shard also runs the three
+    # smaller projects. The Library suite runs its fixtures in parallel (tests/BaroquenMelody.Library.Tests/AssemblyInfo.cs).
+    - name: 🧪 tests
+      env:
+        SHARD: ${{ matrix.name }}
+      run: dotnet run scripts/test.cs -- --shard "$SHARD" --coverage
 
     - name: 💌 publish code coverage
       uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: TestResults/library/**/coverage.opencover.xml,TestResults/infrastructure/**/coverage.opencover.xml,TestResults/components/**/coverage.opencover.xml
+        flags: ${{ matrix.name }}
         fail_ci_if_error: true
 
     - name: 📦 upload test results
       if: always()
       uses: actions/upload-artifact@v7
       with:
-        name: test-results
+        name: test-results-${{ matrix.name }}
         path: TestResults/**/*.trx
         if-no-files-found: ignore

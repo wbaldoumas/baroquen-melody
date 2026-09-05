@@ -36,17 +36,21 @@ release.
 The repository targets the .NET SDK pinned in `global.json` (`dotnet --version` must report at least that feature
 band; Renovate moves the pin, so update your SDK when it does). The solution also contains the .NET MAUI host, which
 needs the MAUI workloads — you do not need them to work on the composition engine, the infrastructure or the Blazor
-components. Build and test the projects directly:
+components. `scripts/test.cs` (a .NET 10 file-based app; nothing to install beyond the SDK) runs the four test
+projects the way CI does, and `dotnet test` on a single project is still the quickest focused check:
 
 ```bash
-dotnet test tests/BaroquenMelody.Library.Tests/          # composition engine; the seeded sweeps take 15-20 minutes
-dotnet test tests/BaroquenMelody.Infrastructure.Tests/
-dotnet test tests/BaroquenMelody.App.Components.Tests/   # bUnit tests for the Razor components
-dotnet test tests/BaroquenMelody.Architecture.Tests/     # architecture rules, about ten seconds
+dotnet run scripts/test.cs                               # all four suites in Release; about 75 seconds on a 16-core machine
+dotnet run scripts/test.cs -- --shard composition-b      # one CI shard, exactly as its matrix job runs it
+dotnet run scripts/test.cs -- --verify-shards            # after editing the shard map: the shards must still partition the Library suite
+dotnet test tests/BaroquenMelody.Architecture.Tests/     # architecture rules and the shard-map guard, about ten seconds
 ```
 
 Every project treats analyzer warnings (StyleCop, Meziantou, the .NET analyzers) as errors, so a clean build is the
-first gate. CI (`.github/workflows/test.yml`) runs all four suites on every pull request and fails on any red test.
+first gate. CI (`.github/workflows/test.yml`) runs the same script on every pull request and fails on any red test: the
+Library suite's seeded composition sweeps (fixtures tagged `[Category("Composition")]`) are split across matrix jobs by
+`.github/workflows/composition-shards.json`, and everything else runs in the `unit` job. A new sweep fixture goes into
+one shard in the same pull request; the Architecture suite fails when one is missing from the map.
 
 ### Architecture Tests
 
@@ -70,8 +74,13 @@ regenerated JSON rather than editing it by hand.
 
 Pull requests are mutation-tested with [Stryker.NET](https://stryker-mutator.io/docs/stryker-net/): Stryker plants small
 bugs ("mutants") in the code your change touches and checks that the tests catch them. The `Mutation` workflow posts a
-per-project summary to the run's job summary and uploads the full HTML reports as artifacts; full runs of every project
-happen on pushes to `main`, weekly, and on demand.
+per-project summary to the run's job summary and uploads the full HTML reports as artifacts. Full runs happen on demand
+only (`gh workflow run mutation.yml`, or the Actions tab), never on a push or a schedule, because a full run is
+100–140 billed minutes against a private repository's 2,000 a month. The full Library run (2,424 testable mutants, too
+many for one job on the 2-vCPU runner) is one job per key of `.github/workflows/mutation-shards.json` — each key lists
+top-level folders of `src/BaroquenMelody.Library` — with the shard reports merged into one `library` report for the job
+summary, the artifact and the Stryker dashboard. A new top-level Library folder goes into one shard in the same pull
+request; the Architecture suite fails when one is missing.
 
 To run it locally, restore the repository's tools once, then run Stryker from the test project whose source you changed
 (each test project carries its own `stryker-config.json`):
@@ -82,6 +91,13 @@ dotnet tool restore
 cd tests/BaroquenMelody.Library.Tests
 dotnet stryker --since:main        # only mutants in code changed since main
 dotnet stryker --open-report       # everything, and open the HTML report when done
+```
+
+One Library shard runs through the script CI uses, from the repository root; anything after the shard name goes to
+`dotnet stryker`:
+
+```bash
+dotnet run scripts/mutate.cs -- --shard ornamentation
 ```
 
 `--since` reads the git diff itself, so run it from a normal clone rather than a linked `git worktree` (there it resolves

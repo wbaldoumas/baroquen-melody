@@ -1,0 +1,32 @@
+{
+  "ornamentation": [
+    "Ornamentation"
+  ],
+  "rules-and-theory": [
+    "Rules",
+    "Scoring",
+    "Strategies",
+    "Choices",
+    "MusicTheory",
+    "Domain"
+  ],
+  "composers-and-forms": [
+    "Composers",
+    "Forms",
+    "Rhythm"
+  ],
+  "motifs-and-configuration": [
+    ".",
+    "Motifs",
+    "Phrasing",
+    "Configurations",
+    "Store",
+    "Midi",
+    "Dynamics",
+    "Enums",
+    "Extensions",
+    "Viewpoints",
+    "Logging",
+    "Exceptions"
+  ]
+}

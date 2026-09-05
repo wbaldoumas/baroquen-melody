@@ -29,6 +29,7 @@ namespace BaroquenMelody.Library.Tests.Forms;
 /// </remarks>
 [TestFixture]
 [Category("Composition")]
+[Parallelizable(ParallelScope.All)]
 internal sealed class GroundBassCompositionTests
 {
     private const int TicksPerQuarterNote = 96;

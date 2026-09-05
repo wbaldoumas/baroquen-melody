@@ -19,6 +19,7 @@ namespace BaroquenMelody.Library.Tests.Forms;
 /// </summary>
 [TestFixture]
 [Category("Composition")]
+[Parallelizable(ParallelScope.All)]
 internal sealed class GroundBassDivisionCompositionTests
 {
     private const long TicksPerStatement = 1536;

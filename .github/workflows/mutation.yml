@@ -5,13 +5,27 @@ name: Mutation
 # - pull_request: incremental — only mutants in code changed since origin/main are tested (--since), plus
 #   mutants covered by changed tests. Stryker re-tests EVERY mutant when a non-C# file inside a test
 #   project changes, so each stryker-config.json lists those files (the .csproj and the config itself)
-#   under since.ignore-changes-in; the full runs below cover them. Incremental legs are bounded to two
-#   hours so a change that touches a broadly covering test fails loudly instead of holding a runner.
-# - push to main / schedule / manual: full runs per test project, uploaded to the Stryker dashboard when
-#   the STRYKER_DASHBOARD_API_KEY secret is available.
+#   under since.ignore-changes-in; the full runs below cover them. Incremental legs are bounded to thirty
+#   minutes: a change that touches a broadly covering test re-tests most of the 2,424 mutants, which the
+#   runner cannot finish in that time anyway, so the leg fails loudly instead of billing two hours for nothing
+#   (five such legs cost 605 minutes in the first five days of September 2026).
+# - workflow_dispatch only: the full runs. Every project runs whole and uploads to the Stryker dashboard when
+#   the STRYKER_DASHBOARD_API_KEY secret is available. The Library run is 2,424 testable mutants and cannot
+#   finish in one job on the 2-vCPU runner (killed at 81 min and cancelled at 2 h 14 min on main), so it runs
+#   as one job per key of mutation-shards.json — each key lists top-level folders of src/BaroquenMelody.Library,
+#   which scripts/mutate.cs turns into -m globs — and the library-report job merges the shard reports into the
+#   one "library" report the dashboard shows. MutationShardTests in the Architecture suite fails the build if a
+#   Library folder is missing from the map, listed twice, or if a shard key has no matrix entry. Balance the
+#   shards by the mutant counts in the mutation-report-library-* artifacts. Nothing runs on push to main or on
+#   a schedule, by decision: a full run is roughly 100–140 billed minutes, a private repository has 2,000 a
+#   month, and the unsharded run had already used them up (three runs to the 360-minute timeout in August
+#   alone). Trigger it from the Actions tab or with `gh workflow run mutation.yml` when the dashboard should
+#   be refreshed.
 #
-# Each test project carries its own stryker-config.json (thresholds, reporters, test filters). The Library
-# config restricts Stryker to the unit-level suite (the seeded composition sweeps stay in test.yml).
+# Each test project carries its own stryker-config.json (thresholds, reporters, test filters). The Library config
+# restricts Stryker to the unit-level suite (the seeded composition sweeps stay in test.yml). Every Stryker
+# command here passes `-c 2` so that both vCPUs host a test run (Stryker's default is half the logical
+# processors, which is 1 here and the right 8 on a developer machine, so it is not in the config files).
 
 on:
   pull_request:
@@ -22,24 +36,16 @@ on:
       - 'global.json'
       - '.config/dotnet-tools.json'
       - '.github/workflows/mutation.yml'
-  push:
-    branches: [ main ]
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'global.json'
-      - '.config/dotnet-tools.json'
-      - '.github/workflows/mutation.yml'
-  schedule:
-    - cron: '0 6 * * 0'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# A pull request cancels its own superseded runs; a dispatched full run is never cancelled by a later dispatch
+# (it queues behind it instead), since the earlier one has a hundred billed minutes invested.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || format('{0}-{1}', github.event_name, github.ref) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -47,27 +53,100 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
 
 jobs:
-  mutate:
-    name: 🧬 mutate ${{ matrix.name }}
+  # Renovate's pull requests only touch package references, which since.ignore-changes-in excludes, so their
+  # legs would build, run the initial tests and find nothing to mutate: ~9 billed minutes per rebase for no
+  # information. For the same reason a leg whose project the pull request does not touch stops after the
+  # diff check (one billed minute instead of five to nine): --since only re-tests mutants of the project's own
+  # changed sources and tests.
+  changed:
+    name: 🧬 changed ${{ matrix.name }}
+    if: github.event_name == 'pull_request' && github.actor != 'renovate[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ github.event_name == 'pull_request' && 120 || matrix.timeout-minutes }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: library
             test-project: tests/BaroquenMelody.Library.Tests
-            timeout-minutes: 360
+            paths: src/BaroquenMelody.Library tests/BaroquenMelody.Library.Tests
           - name: infrastructure
             test-project: tests/BaroquenMelody.Infrastructure.Tests
-            timeout-minutes: 60
+            paths: src/BaroquenMelody.Infrastructure tests/BaroquenMelody.Infrastructure.Tests
           - name: app-components
             test-project: tests/BaroquenMelody.App.Components.Tests
-            timeout-minutes: 60
+            paths: src/BaroquenMelody.App.Components tests/BaroquenMelody.App.Components.Tests
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: 🔍 anything to mutate?
+        id: changes
+        env:
+          PATHS: ${{ matrix.paths }}
+        run: |
+          if git diff --quiet origin/main...HEAD -- $PATHS global.json .config/dotnet-tools.json .github/workflows/mutation.yml; then
+            echo "nothing under $PATHS changed since origin/main; skipping this leg"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 🔨 set up .net
+        if: steps.changes.outputs.run == 'true'
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: 🧰 restore tools
+        if: steps.changes.outputs.run == 'true'
+        run: dotnet tool restore
+
+      - name: 🧬 mutate changed code
+        if: steps.changes.outputs.run == 'true'
+        working-directory: ${{ matrix.test-project }}
+        run: >
+          dotnet stryker
+          -c 2
+          --since:origin/main
+          --output "${{ github.workspace }}/StrykerOutput/${{ matrix.name }}"
+
+      - name: 📝 summarize
+        if: always() && steps.changes.outputs.run == 'true'
+        env:
+          REPORT: StrykerOutput/${{ matrix.name }}/reports/mutation-report.md
+          TITLE: ${{ matrix.name }}
+        run: |
+          if [ -f "$REPORT" ]; then
+            { echo "## 🧬 $TITLE"; echo; cat "$REPORT"; echo; } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## 🧬 $TITLE: no report produced" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: 📦 upload report
+        if: always() && steps.changes.outputs.run == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutation-report-${{ matrix.name }}
+          path: StrykerOutput/${{ matrix.name }}/reports/
+          if-no-files-found: ignore
+
+  full:
+    name: 🧬 full ${{ matrix.name }}
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: infrastructure
+            test-project: tests/BaroquenMelody.Infrastructure.Tests
+          - name: app-components
+            test-project: tests/BaroquenMelody.App.Components.Tests
+    steps:
+      - uses: actions/checkout@v7
 
       - name: 🔨 set up .net
         uses: actions/setup-dotnet@v6
@@ -77,16 +156,7 @@ jobs:
       - name: 🧰 restore tools
         run: dotnet tool restore
 
-      - name: 🧬 mutate changed code (pull request)
-        if: github.event_name == 'pull_request'
-        working-directory: ${{ matrix.test-project }}
-        run: >
-          dotnet stryker
-          --since:origin/main
-          --output "${{ github.workspace }}/StrykerOutput/${{ matrix.name }}"
-
-      - name: 🧬 mutate everything (main, schedule, manual)
-        if: github.event_name != 'pull_request'
+      - name: 🧬 mutate everything
         working-directory: ${{ matrix.test-project }}
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
@@ -95,16 +165,18 @@ jobs:
           if [ -n "$STRYKER_DASHBOARD_API_KEY" ]; then
             reporters="$reporters --reporter dashboard"
           fi
-          dotnet stryker $reporters --version "$GITHUB_REF_NAME" --output "${{ github.workspace }}/StrykerOutput/${{ matrix.name }}"
+          dotnet stryker -c 2 $reporters --version "$GITHUB_REF_NAME" --output "${{ github.workspace }}/StrykerOutput/${{ matrix.name }}"
 
       - name: 📝 summarize
         if: always()
+        env:
+          REPORT: StrykerOutput/${{ matrix.name }}/reports/mutation-report.md
+          TITLE: ${{ matrix.name }}
         run: |
-          report="${{ github.workspace }}/StrykerOutput/${{ matrix.name }}/reports/mutation-report.md"
-          if [ -f "$report" ]; then
-            { echo "## 🧬 ${{ matrix.name }}"; echo; cat "$report"; echo; } >> "$GITHUB_STEP_SUMMARY"
+          if [ -f "$REPORT" ]; then
+            { echo "## 🧬 $TITLE"; echo; cat "$REPORT"; echo; } >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "## 🧬 ${{ matrix.name }}: no report produced" >> "$GITHUB_STEP_SUMMARY"
+            echo "## 🧬 $TITLE: no report produced" >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: 📦 upload report
@@ -115,18 +187,102 @@ jobs:
           path: StrykerOutput/${{ matrix.name }}/reports/
           if-no-files-found: ignore
 
-  mutation:
-    name: 🧬 mutation
-    needs: [ mutate ]
-    if: always()
+  library:
+    name: 🧬 library ${{ matrix.shard }}
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    # A shard is ~600 mutants at 2–3 s each plus ~5 min of setup; a mutant that times out costs ~70 s (the
+    # 60 s additional-timeout on top of its covering tests), so the bound leaves room for a few dozen of those.
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard:
+          - ornamentation
+          - rules-and-theory
+          - composers-and-forms
+          - motifs-and-configuration
     steps:
-      - name: ✅ gate
+      - uses: actions/checkout@v7
+
+      - name: 🔨 set up .net
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: 🧰 restore tools
+        run: dotnet tool restore
+
+      - name: 🧬 mutate the shard
         env:
-          MUTATE_RESULT: ${{ needs.mutate.result }}
+          SHARD: ${{ matrix.shard }}
+        run: dotnet run scripts/mutate.cs -- --shard "$SHARD" --output "StrykerOutput/library-$SHARD" -c 2
+
+      - name: 📝 summarize
+        if: always()
+        env:
+          REPORT: StrykerOutput/library-${{ matrix.shard }}/reports/mutation-report.md
+          TITLE: library ${{ matrix.shard }}
         run: |
-          if [ "$MUTATE_RESULT" != "success" ]; then
-            echo "::error title=Mutation::one or more mutation runs failed ($MUTATE_RESULT)"
-            exit 1
+          if [ -f "$REPORT" ]; then
+            { echo "## 🧬 $TITLE"; echo; cat "$REPORT"; echo; } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## 🧬 $TITLE: no report produced" >> "$GITHUB_STEP_SUMMARY"
           fi
-          echo "mutation runs succeeded ✅"
+
+      - name: 📦 upload report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutation-report-library-${{ matrix.shard }}
+          path: StrykerOutput/library-${{ matrix.shard }}/reports/
+          if-no-files-found: ignore
+
+  # The shards' reports merged into the one "library" report: the step summary shows the whole score, the
+  # dashboard gets one module, and the artifact holds json and html for the whole project. The merge runs even
+  # when a shard failed (the other shards' hundred minutes still produce a summary and an artifact); only the
+  # dashboard upload requires every shard to have succeeded, so a partial report never replaces a whole one.
+  library-report:
+    name: 🧬 library report
+    needs: [ library ]
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: 🔨 set up .net
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: 📥 download the shard reports
+        uses: actions/download-artifact@v7
+        with:
+          pattern: mutation-report-library-*
+          path: StrykerOutput/shards
+
+      # `shell: bash` is what gives the step pipefail: the implicit shell is `bash -e` only, which would let the
+      # tee pipe hide a failed merge (a partition violation, or no shard report downloaded at all).
+      - name: 🧬 merge the shard reports
+        shell: bash
+        run: dotnet run scripts/mutate.cs -- --merge StrykerOutput/shards --output StrykerOutput/library/reports/mutation-report.json | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: 💌 publish to the Stryker dashboard
+        if: needs.library.result == 'success'
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+        run: |
+          if [ -z "$STRYKER_DASHBOARD_API_KEY" ]; then
+            echo "STRYKER_DASHBOARD_API_KEY is not available; skipping the dashboard upload"
+            exit 0
+          fi
+          dotnet run scripts/mutate.cs -- --upload StrykerOutput/library/reports/mutation-report.json --version "$GITHUB_REF_NAME"
+
+      - name: 📦 upload report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutation-report-library
+          path: StrykerOutput/library/reports/
+          if-no-files-found: ignore
