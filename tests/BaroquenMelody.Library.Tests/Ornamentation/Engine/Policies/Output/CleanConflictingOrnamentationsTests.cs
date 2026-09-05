@@ -18,13 +18,13 @@ internal sealed class CleanConflictingOrnamentationsTests
 {
     private CleanConflictingOrnamentations _cleanConflictingOrnamentations = null!;
 
-    private IProcessor<OrnamentationCleaningItem> _mockOrnamentationCleaningEngine = null!;
+    private IProcessor<OrnamentationCleaningItem> _mockOrnamentationCleaner = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _mockOrnamentationCleaningEngine = Substitute.For<IProcessor<OrnamentationCleaningItem>>();
-        _cleanConflictingOrnamentations = new CleanConflictingOrnamentations(_mockOrnamentationCleaningEngine);
+        _mockOrnamentationCleaner = Substitute.For<IProcessor<OrnamentationCleaningItem>>();
+        _cleanConflictingOrnamentations = new CleanConflictingOrnamentations(_mockOrnamentationCleaner);
     }
 
     [Test]
@@ -54,6 +54,6 @@ internal sealed class CleanConflictingOrnamentationsTests
         _cleanConflictingOrnamentations.Apply(ornamentationItem);
 
         // assert
-        _mockOrnamentationCleaningEngine.Received(3).Process(Arg.Any<OrnamentationCleaningItem>());
+        _mockOrnamentationCleaner.Received(3).Process(Arg.Any<OrnamentationCleaningItem>());
     }
 }

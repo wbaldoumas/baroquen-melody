@@ -70,11 +70,10 @@ internal sealed class OrnamentationCleaningDispatcherTests
         // arrange - un-ornamented notes never have a cleaner
         var item = CreateItem(OrnamentationType.None, OrnamentationType.PassingTone);
 
-        // act
-        var act = () => _dispatcher.Process(item);
+        // act - must be a silent no-op
+        _dispatcher.Process(item);
 
         // assert
-        Assert.DoesNotThrow(() => act());
         _passingToneTurnCleaner.DidNotReceiveWithAnyArgs().Process(default!);
         _passingTonePassingToneCleaner.DidNotReceiveWithAnyArgs().Process(default!);
     }

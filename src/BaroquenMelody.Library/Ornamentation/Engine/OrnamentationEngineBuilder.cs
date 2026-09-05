@@ -20,11 +20,9 @@ using BaroquenMelody.Library.Ornamentation.Utilities;
 using BaroquenMelody.Library.Rhythm;
 using Microsoft.Extensions.Logging;
 using System.Collections.Frozen;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BaroquenMelody.Library.Ornamentation.Engine;
 
-[ExcludeFromCodeCoverage(Justification = "Trivial builder methods.")]
 internal sealed class OrnamentationEngineBuilder
 {
     private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator;
@@ -101,8 +99,8 @@ internal sealed class OrnamentationEngineBuilder
                 and not OrnamentationType.MidSustain
                 and not OrnamentationType.Rest
 
-                // Suspension stamps are applied only after every decoration pass has run, so the cleaning
-                // engine can never encounter them.
+                // Suspension stamps are applied only after every decoration pass has run, so the cleaner
+                // can never encounter them.
                 and not OrnamentationType.Suspension
                 and not OrnamentationType.SuspensionResolution
             )
