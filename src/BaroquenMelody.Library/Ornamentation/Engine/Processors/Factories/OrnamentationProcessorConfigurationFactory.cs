@@ -319,7 +319,7 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             wantsToOrnament,
                             _hasNoOrnamentation,
                             new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Mordent)),
-                            new IsIntervalWithinInstrumentRange(compositionConfiguration, 1).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -1))
+                            new HasNeighborNotesWithinInstrumentRange(compositionConfiguration)
                         ],
                         OutputPolicies: [logOrnamentation],
                         Translations: [1, 0],
@@ -691,7 +691,7 @@ internal sealed class OrnamentationProcessorConfigurationFactory(
                             wantsToOrnament,
                             _hasNoOrnamentation,
                             new Not<OrnamentationItem>(new HasTargetOrnamentation(OrnamentationType.Trill)),
-                            new IsIntervalWithinInstrumentRange(compositionConfiguration, 1).And(new IsIntervalWithinInstrumentRange(compositionConfiguration, -1))
+                            new HasNeighborNotesWithinInstrumentRange(compositionConfiguration)
                         ],
                         OutputPolicies: [logOrnamentation],
                         Translations: [1, 0, 1, 0, 1, -1, 0],

@@ -75,6 +75,5 @@ internal sealed class CadentialTrillApplicator(
     }
 
     private bool TrillNeighborsAreWithinInstrumentRange(OrnamentationItem ornamentationItem) =>
-        new IsIntervalWithinInstrumentRange(compositionConfiguration, 1).ShouldProcess(ornamentationItem) == InputPolicyResult.Continue
-            && new IsIntervalWithinInstrumentRange(compositionConfiguration, -1).ShouldProcess(ornamentationItem) == InputPolicyResult.Continue;
+        new HasNeighborNotesWithinInstrumentRange(compositionConfiguration).ShouldProcess(ornamentationItem) == InputPolicyResult.Continue;
 }
