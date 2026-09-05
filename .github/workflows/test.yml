@@ -30,15 +30,13 @@ jobs:
       with:
         global-json-file: global.json
 
-    # Coverage-bearing runs build Debug so the coverable-line basis Codecov reports is unchanged (Release collapses
-    # ~17 % of the sequence points and moves the percentage by +0.09 pt; measured on this branch). Architecture.Tests
-    # carries no coverage and builds Release. The Library suite runs its fixtures in parallel
-    # (tests/BaroquenMelody.Library.Tests/AssemblyInfo.cs).
+    # Release: the composition search runs ~1.9x faster than in Debug, and the Stryker Library config already
+    # builds Release. The Library suite runs its fixtures in parallel (tests/BaroquenMelody.Library.Tests/AssemblyInfo.cs).
     - name: 🧪 run tests
       run: |
-        dotnet test tests/BaroquenMelody.Library.Tests/ -c Debug --logger trx --results-directory TestResults/library ${{ env.COVERLET }}
-        dotnet test tests/BaroquenMelody.Infrastructure.Tests/ -c Debug --logger trx --results-directory TestResults/infrastructure ${{ env.COVERLET }}
-        dotnet test tests/BaroquenMelody.App.Components.Tests/ -c Debug --logger trx --results-directory TestResults/components ${{ env.COVERLET }}
+        dotnet test tests/BaroquenMelody.Library.Tests/ -c Release --logger trx --results-directory TestResults/library ${{ env.COVERLET }}
+        dotnet test tests/BaroquenMelody.Infrastructure.Tests/ -c Release --logger trx --results-directory TestResults/infrastructure ${{ env.COVERLET }}
+        dotnet test tests/BaroquenMelody.App.Components.Tests/ -c Release --logger trx --results-directory TestResults/components ${{ env.COVERLET }}
         dotnet test tests/BaroquenMelody.Architecture.Tests/ -c Release --logger trx --results-directory TestResults/architecture
 
     - name: 💌 publish code coverage
