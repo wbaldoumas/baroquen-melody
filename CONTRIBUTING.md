@@ -36,17 +36,21 @@ release.
 The repository targets the .NET SDK pinned in `global.json` (`dotnet --version` must report at least that feature
 band; Renovate moves the pin, so update your SDK when it does). The solution also contains the .NET MAUI host, which
 needs the MAUI workloads — you do not need them to work on the composition engine, the infrastructure or the Blazor
-components. Build and test the projects directly:
+components. `scripts/test.cs` (a .NET 10 file-based app; nothing to install beyond the SDK) runs the four test
+projects the way CI does, and `dotnet test` on a single project is still the quickest focused check:
 
 ```bash
-dotnet test tests/BaroquenMelody.Library.Tests/          # composition engine; the seeded sweeps take 15-20 minutes
-dotnet test tests/BaroquenMelody.Infrastructure.Tests/
-dotnet test tests/BaroquenMelody.App.Components.Tests/   # bUnit tests for the Razor components
-dotnet test tests/BaroquenMelody.Architecture.Tests/     # architecture rules, about ten seconds
+dotnet run scripts/test.cs                               # all four suites in Release; about 75 seconds on a 16-core machine
+dotnet run scripts/test.cs -- --shard composition-b      # one CI shard, exactly as its matrix job runs it
+dotnet run scripts/test.cs -- --verify-shards            # after editing the shard map: the shards must still partition the Library suite
+dotnet test tests/BaroquenMelody.Architecture.Tests/     # architecture rules and the shard-map guard, about ten seconds
 ```
 
 Every project treats analyzer warnings (StyleCop, Meziantou, the .NET analyzers) as errors, so a clean build is the
-first gate. CI (`.github/workflows/test.yml`) runs all four suites on every pull request and fails on any red test.
+first gate. CI (`.github/workflows/test.yml`) runs the same script on every pull request and fails on any red test: the
+Library suite's seeded composition sweeps (fixtures tagged `[Category("Composition")]`) are split across matrix jobs by
+`.github/workflows/composition-shards.json`, and everything else runs in the `unit` job. A new sweep fixture goes into
+one shard in the same pull request; the Architecture suite fails when one is missing from the map.
 
 ### Architecture Tests
 

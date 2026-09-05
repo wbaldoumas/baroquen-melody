@@ -1,6 +1,7 @@
 using FluentAssertions;
 using FluentAssertions.Execution;
 using NUnit.Framework;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -12,7 +13,9 @@ namespace BaroquenMelody.ArchitectureTests;
 ///     plus one job per key of <c>composition-shards.json</c>, whose fixture lists become <c>FullyQualifiedName</c>
 ///     filters. A <c>[Category("Composition")]</c> fixture missing from every shard would silently never run on CI,
 ///     one listed twice would run twice, and a shard key without a matrix entry would never be scheduled, so the
-///     map must partition the tagged fixtures exactly and the workflow must name every shard.
+///     map must partition the tagged fixtures exactly and the workflow must name every shard. Codecov, for its
+///     part, must wait for exactly one upload per matrix entry before it posts. (<c>scripts/test.cs --verify-shards</c>
+///     holds the behavioural half: that the filters built from the map select every test exactly once.)
 /// </summary>
 [TestFixture]
 internal sealed class CompositionShardTests
@@ -21,9 +24,13 @@ internal sealed class CompositionShardTests
 
     private const string UnitShard = "unit";
 
+    private const string AfterNBuildsKey = "after_n_builds:";
+
     private static readonly string ShardMapPath = GetRepositoryPath(Path.Combine(".github", "workflows", "composition-shards.json"));
 
     private static readonly string WorkflowPath = GetRepositoryPath(Path.Combine(".github", "workflows", "test.yml"));
+
+    private static readonly string CodecovPath = GetRepositoryPath("codecov.yml");
 
     [Test]
     public void Every_Composition_fixture_is_listed_in_exactly_one_CI_shard()
@@ -97,7 +104,26 @@ internal sealed class CompositionShardTests
         using var scope = new AssertionScope();
 
         shardsWithoutAJob.Should().BeEmpty("a shard key in {0} with no `- <shard>` matrix entry in {1} never runs", ShardMapPath, WorkflowPath);
-        shards.Should().NotContain(UnitShard, "`{0}` is the workflow's category-filtered leg; fixtures listed under it in {1} would never run", UnitShard, ShardMapPath);
+        shards.Should().NotContain(UnitShard, "`{0}` is the category-filtered leg that scripts/test.cs defines; fixtures listed under it in {1} would never run", UnitShard, ShardMapPath);
+    }
+
+    [Test]
+    public void Codecov_waits_for_one_upload_per_matrix_entry()
+    {
+        // Codecov counts one upload per job (the unit job sends its three coverage files in one action call), so
+        // every after_n_builds in codecov.yml must equal the matrix size: fewer, and statuses and the PR comment
+        // post on partial coverage; more, and they never post.
+        var matrixEntries = ReadMatrixEntries();
+        var afterNBuilds = File.ReadLines(CodecovPath)
+            .Select(static line => line.Trim())
+            .Where(static line => line.StartsWith(AfterNBuildsKey, StringComparison.Ordinal))
+            .Select(static line => int.Parse(line[AfterNBuildsKey.Length..], NumberStyles.Integer, CultureInfo.InvariantCulture))
+            .ToList();
+
+        using var scope = new AssertionScope();
+
+        afterNBuilds.Should().NotBeEmpty("{0} must hold statuses and the PR comment with `{1}` until every shard has uploaded", CodecovPath, AfterNBuildsKey);
+        afterNBuilds.Should().AllBeEquivalentTo(matrixEntries.Count, "every `{0}` in {1} must equal the {2} matrix entries of {3}, one upload per job", AfterNBuildsKey, CodecovPath, matrixEntries.Count, WorkflowPath);
     }
 
     private static IEnumerable<Type> GetCompositionFixtures() => BaroquenMelodyArchitecture.LibraryTests.GetTypes().Where(HasCompositionCategory);

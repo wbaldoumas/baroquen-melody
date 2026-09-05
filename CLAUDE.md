@@ -11,20 +11,24 @@ The app runs as a .NET MAUI Blazor Hybrid application (Windows, Android, iOS, ma
 ## Build and Test Commands
 
 ```bash
-# Build the solution
+# Run the whole test suite: the four test projects in Release, as CI runs them (no MAUI workloads needed)
+dotnet run scripts/test.cs
+
+# Run one CI shard exactly as its matrix job does (unit, or a key of .github/workflows/composition-shards.json)
+dotnet run scripts/test.cs -- --shard composition-b
+
+# After editing the shard map or adding a [Category("Composition")] fixture: prove the shards still partition the Library suite
+dotnet run scripts/test.cs -- --verify-shards
+
+# Per-fixture and per-test durations from trx files (a local TestResults folder, or downloaded test-results-* CI artifacts)
+dotnet run scripts/test.cs -- --durations TestResults
+
+# Run a single test project, or a single test by name
+dotnet test tests/BaroquenMelody.Architecture.Tests/ -c Release
+dotnet test tests/BaroquenMelody.Library.Tests/ -c Release --filter "FullyQualifiedName~ComposerTests"
+
+# Build the solution (needs the MAUI workloads because it includes the MAUI host; `dotnet test` on it does too)
 dotnet build src/BaroquenMelody.sln
-
-# Run all tests (needs the MAUI workloads because the solution includes the MAUI host; the four projects below do not)
-dotnet test src/BaroquenMelody.sln
-
-# Run a single test project
-dotnet test tests/BaroquenMelody.Library.Tests/
-dotnet test tests/BaroquenMelody.Infrastructure.Tests/
-dotnet test tests/BaroquenMelody.App.Components.Tests/
-dotnet test tests/BaroquenMelody.Architecture.Tests/
-
-# Run a single test by name
-dotnet test tests/BaroquenMelody.Library.Tests/ --filter "FullyQualifiedName~ComposerTests"
 
 # Run benchmarks
 dotnet run --project benchmarks/BaroquenMelody.Benchmarks/ -c Release
@@ -107,7 +111,7 @@ Uses **Fluxor** (Redux-like) for state management. States live in `Library/Store
 
 ## Architecture Tests
 
-`tests/BaroquenMelody.Architecture.Tests` (ArchUnitNET + NUnit; namespace `BaroquenMelody.ArchitectureTests`, because an `Architecture` namespace segment would shadow `ArchUnitNET.Domain.Architecture`) loads Library, Infrastructure, App.Components, the console app, the benchmarks and the three test suites and checks 33 structural rules plus the CI shard-map guard (`CompositionShardTests`: every `[Category("Composition")]` fixture sits in exactly one shard of `.github/workflows/composition-shards.json`) in ~10 s: `dotnet test tests/BaroquenMelody.Architecture.Tests/`. It is also the quickest way to confirm the console app and benchmarks still compile. CI runs it after the other suites and fails the pipeline on any violation. The MAUI host is never loaded (platform TFMs; no workloads on `ubuntu-latest`) and is covered only from the Razor-class-library side.
+`tests/BaroquenMelody.Architecture.Tests` (ArchUnitNET + NUnit; namespace `BaroquenMelody.ArchitectureTests`, because an `Architecture` namespace segment would shadow `ArchUnitNET.Domain.Architecture`) loads Library, Infrastructure, App.Components, the console app, the benchmarks and the three test suites and checks 33 structural rules plus the CI shard-map guard (`CompositionShardTests`: every `[Category("Composition")]` fixture sits in exactly one shard of `.github/workflows/composition-shards.json`, every shard is a matrix entry, and `codecov.yml` waits for one upload per entry) in ~10 s: `dotnet test tests/BaroquenMelody.Architecture.Tests/`. It is also the quickest way to confirm the console app and benchmarks still compile. CI runs it after the other suites and fails the pipeline on any violation. The MAUI host is never loaded (platform TFMs; no workloads on `ubuntu-latest`) and is covered only from the Razor-class-library side.
 
 What the rules hold — write code that satisfies them instead of discovering them red:
 
