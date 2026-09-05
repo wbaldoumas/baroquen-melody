@@ -1,6 +1,6 @@
 #!/usr/bin/env dotnet
 // The one way to run the test suite, locally and on CI (.github/workflows/test.yml calls it), so the shard
-// filters, the coverage settings and the results layout cannot drift between the two.
+// filters, the coverage settings, the hang bound and the results layout cannot drift between the two.
 //
 //   dotnet run scripts/test.cs                               whole suite: Library, Infrastructure, App.Components, Architecture
 //   dotnet run scripts/test.cs -- --shard composition-b      one CI shard as its matrix job runs it: unit, or a key of composition-shards.json
@@ -10,6 +10,11 @@
 // Options: --coverage (coverlet, opencover, SingleHit: as CI) · --results <dir> (default TestResults; the per-run
 // subfolders are wiped first so a stale file is never read as this run's) · --configuration <name> (default
 // Release: the composition search runs ~1.9x faster than in Debug, and CI measures coverage in Release).
+//
+// Every run carries VSTest's hang bound (--blame-hang-timeout, HangTimeout below): an inactivity timer that
+// resets whenever a test starts or finishes, so once nothing has happened for that long the test host is
+// terminated (no dump) and a Sequence_*.xml next to the trx lists the tests that were in flight — a hang fails
+// the run in minutes instead of holding the job until its own timeout.
 
 using System.Diagnostics;
 using System.Globalization;
@@ -23,6 +28,11 @@ const string UnitFilter = "TestCategory!=Composition";
 // The NUnit adapter honours a category clause unconditionally but silently drops any other filter that selects
 // more than this many tests, which would make an oversized name-filtered shard run the whole suite.
 const int AdapterSelectLimit = 2000;
+
+// Ten minutes without any test starting or finishing: the longest seeded sweep takes about a minute on the CI
+// runner, so only a genuine hang reaches it. The --blame-* switches are VSTest's; opting global.json into
+// Microsoft.Testing.Platform would mean replacing them with --hangdump / --hangdump-timeout.
+const string HangTimeout = "10m";
 
 const string Usage = """
     usage: dotnet run scripts/test.cs -- [mode] [options]
@@ -290,7 +300,11 @@ Outcome RunProject(Project project, string resultsSubdirectory, string? filter, 
 
     Directory.CreateDirectory(directory);
 
-    var arguments = new List<string> { "test", Path.Combine(repositoryRoot, project.Path), "-c", configuration, "--logger", "trx", "--results-directory", directory };
+    var arguments = new List<string>
+    {
+        "test", Path.Combine(repositoryRoot, project.Path), "-c", configuration, "--logger", "trx", "--results-directory", directory,
+        "--blame-hang-timeout", HangTimeout, "--blame-hang-dump-type", "none",
+    };
 
     if (noBuild)
     {

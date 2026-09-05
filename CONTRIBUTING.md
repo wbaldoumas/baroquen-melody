@@ -50,7 +50,14 @@ Every project treats analyzer warnings (StyleCop, Meziantou, the .NET analyzers)
 first gate. CI (`.github/workflows/test.yml`) runs the same script on every pull request and fails on any red test: the
 Library suite's seeded composition sweeps (fixtures tagged `[Category("Composition")]`) are split across matrix jobs by
 `.github/workflows/composition-shards.json`, and everything else runs in the `unit` job. A new sweep fixture goes into
-one shard in the same pull request; the Architecture suite fails when one is missing from the map.
+one shard in the same pull request; the Architecture suite fails when one is missing from the map. Every run is
+bounded: ten minutes without any test starting or finishing terminates the test host, and a `Sequence_*.xml` inside
+the run's `test-results-*` artifact lists the tests that were in flight.
+
+The `test` job, which waits for every shard, and the `lint` job are the two checks `.github/rulesets/main.json`
+requires of a pull request into `main` (pull requests only, no force-pushes or deletion; administrators may bypass
+from the merge dialog). The ruleset is applied by hand, from the repository's Rules settings or with
+`gh api --method POST repos/{owner}/{repo}/rulesets --input .github/rulesets/main.json`.
 
 ### Architecture Tests
 
@@ -74,13 +81,14 @@ regenerated JSON rather than editing it by hand.
 
 Pull requests are mutation-tested with [Stryker.NET](https://stryker-mutator.io/docs/stryker-net/): Stryker plants small
 bugs ("mutants") in the code your change touches and checks that the tests catch them. The `Mutation` workflow posts a
-per-project summary to the run's job summary and uploads the full HTML reports as artifacts. Full runs happen on demand
-only (`gh workflow run mutation.yml`, or the Actions tab), never on a push or a schedule, because a full run is
-100–140 billed minutes against a private repository's 2,000 a month. The full Library run (2,424 testable mutants, too
-many for one job on the 2-vCPU runner) is one job per key of `.github/workflows/mutation-shards.json` — each key lists
-top-level folders of `src/BaroquenMelody.Library` — with the shard reports merged into one `library` report for the job
-summary, the artifact and the Stryker dashboard. A new top-level Library folder goes into one shard in the same pull
-request; the Architecture suite fails when one is missing.
+per-project summary to the run's job summary and uploads the full HTML reports as artifacts. Every merge to main that
+touches `src`, `tests` or the mutation tooling (and `gh workflow run mutation.yml`, or the Actions tab) runs every
+project whole and refreshes the Stryker dashboard. The full Library run (2,424 testable mutants, hours in one job) is
+one job per key of
+`.github/workflows/mutation-shards.json` — each key lists top-level folders of `src/BaroquenMelody.Library` — with the
+shard reports merged into one `library` report for the job summary, the artifact and the Stryker dashboard. A new
+top-level Library folder goes into one shard in the same pull request; the Architecture suite fails when one is
+missing.
 
 To run it locally, restore the repository's tools once, then run Stryker from the test project whose source you changed
 (each test project carries its own `stryker-config.json`):
