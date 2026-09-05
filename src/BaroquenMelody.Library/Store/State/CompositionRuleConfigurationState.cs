@@ -13,7 +13,9 @@ public sealed record CompositionRuleConfigurationState(IDictionary<CompositionRu
         configuration => configuration
     );
 
-    public AggregateCompositionRuleConfiguration Aggregate => new(Configurations.Values.ToFrozenSet());
+    // An insertion-ordered HashSet, never a frozen set: a frozen set of records enumerates in hash-bucket order,
+    // which varies with process history (the enum-keyed Defaults dictionary above is unaffected).
+    public AggregateCompositionRuleConfiguration Aggregate => new(Configurations.Values.ToHashSet());
 
     public CompositionRuleConfigurationState()
         : this(Defaults)

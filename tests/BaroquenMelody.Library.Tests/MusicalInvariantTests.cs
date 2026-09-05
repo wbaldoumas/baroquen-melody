@@ -1,9 +1,12 @@
 using BaroquenMelody.Library.Configurations;
+using BaroquenMelody.Library.Configurations.Enums;
+using BaroquenMelody.Library.Enums;
 using BaroquenMelody.Library.MusicTheory.Enums;
 using BaroquenMelody.Library.Tests.TestData;
 using CsCheck;
 using FluentAssertions;
 using Melanchall.DryWetMidi.MusicTheory;
+using Melanchall.DryWetMidi.Standards;
 using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests;
@@ -149,6 +152,34 @@ internal sealed class MusicalInvariantTests
             },
             iter: SampleIterations
         );
+    }
+
+    [Test]
+    public void ComposedNotes_WithATonicBAndAVoiceFlooredAtTheLowestSelectableNote_ComposeForEverySeed()
+    {
+        // In B Aeolian the scale's note list holds only six notes below A0, so a voice sitting on its lowest
+        // selectable note used to send the octave-pedal figures' -7 range guard below the list and crash the
+        // whole composition with an ArgumentOutOfRangeException instead of rejecting the figure.
+        var configuration = TestCompositionConfigurations.Get(
+            tonic: NoteName.B,
+            mode: Mode.Aeolian,
+            compositionLength: 10,
+            instrumentConfigurations: new HashSet<InstrumentConfiguration>
+            {
+                new(Instrument.One, Notes.C4, Notes.C6, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled),
+                new(Instrument.Two, Notes.A0, Notes.A1, InstrumentConfiguration.DefaultMinVelocity, InstrumentConfiguration.DefaultMaxVelocity, GeneralMidi2Program.AcousticGrandPiano, ConfigurationStatus.Enabled)
+            }
+        ) with
+        {
+            ShuffleOrnamentationProcessors = false
+        };
+
+        foreach (var seed in Enumerable.Range(1, SampleIterations))
+        {
+            var act = () => SeededComposition.Compose(configuration, seed);
+
+            act.Should().NotThrow($"a voice floored at the scale's lowest selectable note must compose cleanly (seed {seed})");
+        }
     }
 
     [TestCase(2)]

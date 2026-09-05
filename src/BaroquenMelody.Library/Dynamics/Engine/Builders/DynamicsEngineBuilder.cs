@@ -22,14 +22,16 @@ internal sealed class DynamicsEngineBuilder(CompositionConfiguration configurati
 
     private readonly IWeightedRandomBooleanGenerator _weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator(randomProvider);
 
+    // The metric accent is deliberately NOT an engine processor: the walk reads each preceding note's stored
+    // velocity, so an accent applied here would feed the next beat's step and ratchet every voice to the
+    // instrument ceiling. DynamicsApplicator layers it on draw-free after the walk instead.
     public IPolicyEngine<DynamicsApplicationItem> Build()
     {
         return PolicyEngineBuilder<DynamicsApplicationItem>.Configure()
             .WithoutInputPolicies()
             .WithProcessors(
                 BuildInitialDynamicsProcessor(),
-                BuildDefaultDynamicsProcessor(),
-                BuildMetricAccentDynamicsProcessor()
+                BuildDefaultDynamicsProcessor()
             )
             .WithoutOutputPolicies()
             .Build();
@@ -57,14 +59,6 @@ internal sealed class DynamicsEngineBuilder(CompositionConfiguration configurati
                 configuration
             )
         )
-        .WithoutOutputPolicies()
-        .Build();
-
-    // layered after the base velocity is set, so it accents strong beats regardless of which base processor ran.
-    private IProcessor<DynamicsApplicationItem> BuildMetricAccentDynamicsProcessor() => PolicyEngineBuilder<DynamicsApplicationItem>
-        .Configure()
-        .WithInputPolicies(_instrumentIsPresentInCurrentBeat)
-        .WithProcessors(new MetricAccentDynamicsProcessor(configuration))
         .WithoutOutputPolicies()
         .Build();
 }

@@ -1,6 +1,5 @@
 ﻿using BaroquenMelody.Infrastructure.Collections;
 using BaroquenMelody.Library.Domain;
-using BaroquenMelody.Library.Dynamics.Enums;
 using BaroquenMelody.Library.Enums;
 
 namespace BaroquenMelody.Library.Dynamics;
@@ -34,9 +33,4 @@ internal sealed class DynamicsApplicationItem
     ///     The next beat to apply dynamics to.
     /// </summary>
     public Beat? NextBeat { get; init; }
-
-    /// <summary>
-    ///     The metric strength of the current beat within its (hyper)measure, used to shape expressive dynamics.
-    /// </summary>
-    public MetricStrength CurrentBeatStrength { get; init; } = MetricStrength.Weak;
 }

@@ -19,7 +19,8 @@ internal static class SeededComposition
         var configurator = new BaroquenMelodyComposerConfigurator(
             Substitute.For<ILogger<MidiFileComposition>>(),
             Substitute.For<IDispatcher>(),
-            new SeededRandomProvider(seed),
+            SeededRandomProviders.ForComposition(seed),
+            SeededRandomProviders.ForProcessorShuffle(seed),
             new VoiceSpacingSatisfiabilityAnalyzer()
         );
 

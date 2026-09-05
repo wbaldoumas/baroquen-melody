@@ -31,7 +31,7 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
     public void SetUp()
     {
         _mockLogger = Substitute.For<ILogger<MidiFileComposition>>();
-        _baroquenMelodyComposerConfigurator = new BaroquenMelodyComposerConfigurator(_mockLogger, Substitute.For<IDispatcher>(), new ThreadLocalRandomProvider(), new VoiceSpacingSatisfiabilityAnalyzer());
+        _baroquenMelodyComposerConfigurator = new BaroquenMelodyComposerConfigurator(_mockLogger, Substitute.For<IDispatcher>(), new ThreadLocalRandomProvider(), new ThreadLocalRandomProvider(), new VoiceSpacingSatisfiabilityAnalyzer());
     }
 
     [Test]
