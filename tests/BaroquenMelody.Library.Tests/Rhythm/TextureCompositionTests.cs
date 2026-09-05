@@ -100,7 +100,7 @@ internal sealed class TextureCompositionTests
             .Should().BeNull("the romanesca cannot fit a seven-semitone bass range");
 
         texturedNotes.Should().NotBeEmpty("the fallback fugue must compose successfully with a texture active");
-        texturedNotes.Should().NotBeEquivalentTo(untexturedNotes, "the fallback fugue takes the texture, unlike the planned ground");
+        texturedNotes.Should().NotEqual(untexturedNotes, "the fallback fugue takes the texture, unlike the planned ground");
     }
 
     [TestCase(TextureType.Walking)]
@@ -306,7 +306,7 @@ internal sealed class TextureCompositionTests
             var untexturedNotes = SeededComposition.Notes(SeededComposition.Compose(GetConfiguration(TextureType.None), seed));
 
             // assert
-            texturedNotes.Should().NotBeEquivalentTo(untexturedNotes, $"an active texture must change the rendered composition (seed {seed})");
+            texturedNotes.Should().NotEqual(untexturedNotes, $"an active texture must change the rendered composition (seed {seed})");
         }
     }
 
