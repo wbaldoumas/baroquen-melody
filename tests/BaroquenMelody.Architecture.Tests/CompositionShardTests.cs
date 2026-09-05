@@ -1,3 +1,5 @@
+using FluentAssertions;
+using FluentAssertions.Execution;
 using NUnit.Framework;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -28,7 +30,7 @@ internal sealed class CompositionShardTests
     {
         var fixtures = GetCompositionFixtures().Select(static type => type.FullName!).Order(StringComparer.Ordinal).ToList();
 
-        Assert.That(fixtures, Is.Not.Empty, "no [Category(\"Composition\")] fixture was found in Library.Tests: the discovery is broken, not the shard map");
+        fixtures.Should().NotBeEmpty("Library.Tests carries [Category(\"Composition\")] fixtures; finding none means the discovery is broken, not the shard map");
 
         var listed = ReadShardMap()
             .SelectMany(static shard => shard.Value.Select(fixture => (Shard: shard.Key, Fixture: fixture)))
@@ -42,12 +44,11 @@ internal sealed class CompositionShardTests
             .Select(static group => $"{group.Key} ({string.Join(", ", group.Select(static entry => entry.Shard))})")
             .ToList();
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(unsharded, Is.Empty, $"Composition fixtures missing from {ShardMapPath}; without an entry they never run on CI");
-            Assert.That(unknown, Is.Empty, $"entries in {ShardMapPath} that are not [Category(\"Composition\")] fixtures in Library.Tests (renamed, untagged, or a typo)");
-            Assert.That(duplicated, Is.Empty, $"fixtures listed in more than one shard of {ShardMapPath}");
-        });
+        using var scope = new AssertionScope();
+
+        unsharded.Should().BeEmpty("a Composition fixture missing from {0} never runs on CI", ShardMapPath);
+        unknown.Should().BeEmpty("every entry in {0} must be a [Category(\"Composition\")] fixture in Library.Tests (renamed, untagged, or a typo)", ShardMapPath);
+        duplicated.Should().BeEmpty("a fixture listed in more than one shard of {0} runs more than once", ShardMapPath);
     }
 
     [Test]
@@ -64,7 +65,7 @@ internal sealed class CompositionShardTests
             .Select(static type => type.FullName!)
             .ToList();
 
-        Assert.That(unselectable, Is.Empty, "Composition fixtures whose test names would not match a `FullyQualifiedName~<full name>.` filter (parameterized, sourced, generic or nested fixtures); keep sweep fixtures plain, or extend the shard filter");
+        unselectable.Should().BeEmpty("the test names of a parameterized, sourced, generic or nested fixture would not match a `FullyQualifiedName~<full name>.` filter; keep sweep fixtures plain, or extend the shard filter");
     }
 
     [Test]
@@ -80,7 +81,7 @@ internal sealed class CompositionShardTests
             .Select(static method => $"{method.DeclaringType!.FullName}.{method.Name}")
             .ToList();
 
-        Assert.That(methodLevelTags, Is.Empty, "test methods tagged [Category(\"Composition\")] inside fixtures that are not; tag the fixture (and add it to composition-shards.json) or the test never runs on CI");
+        methodLevelTags.Should().BeEmpty("a test method tagged [Category(\"Composition\")] inside an untagged fixture never runs on CI; tag the fixture (and add it to composition-shards.json)");
     }
 
     [Test]
@@ -88,16 +89,15 @@ internal sealed class CompositionShardTests
     {
         var matrixEntries = ReadMatrixEntries();
 
-        Assert.That(matrixEntries, Is.Not.Empty, $"no `- <name>` entries were found between `matrix:` and `steps:` in {WorkflowPath}; the workflow's shape changed, update this guard with it");
+        matrixEntries.Should().NotBeEmpty("the guard reads the `- <name>` entries between `matrix:` and `steps:` in {0}; if the workflow's shape changed, update this guard with it", WorkflowPath);
 
         var shards = ReadShardMap().Keys.ToList();
         var shardsWithoutAJob = shards.Except(matrixEntries, StringComparer.Ordinal).ToList();
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(shardsWithoutAJob, Is.Empty, $"shard keys in {ShardMapPath} with no `- <shard>` matrix entry in {WorkflowPath}; a shard the matrix does not name never runs");
-            Assert.That(shards, Does.Not.Contain(UnitShard), $"`{UnitShard}` is the workflow's category-filtered leg; fixtures listed under it in {ShardMapPath} would never run");
-        });
+        using var scope = new AssertionScope();
+
+        shardsWithoutAJob.Should().BeEmpty("a shard key in {0} with no `- <shard>` matrix entry in {1} never runs", ShardMapPath, WorkflowPath);
+        shards.Should().NotContain(UnitShard, "`{0}` is the workflow's category-filtered leg; fixtures listed under it in {1} would never run", UnitShard, ShardMapPath);
     }
 
     private static IEnumerable<Type> GetCompositionFixtures() => BaroquenMelodyArchitecture.LibraryTests.GetTypes().Where(HasCompositionCategory);
@@ -110,7 +110,7 @@ internal sealed class CompositionShardTests
     {
         var shards = JsonSerializer.Deserialize<Dictionary<string, string[]>>(File.ReadAllText(ShardMapPath));
 
-        Assert.That(shards, Is.Not.Null.And.Not.Empty, $"{ShardMapPath} must be a JSON object of shard name to fixture full names");
+        shards.Should().NotBeNullOrEmpty("{0} must be a JSON object of shard name to fixture full names", ShardMapPath);
 
         return shards!;
     }
