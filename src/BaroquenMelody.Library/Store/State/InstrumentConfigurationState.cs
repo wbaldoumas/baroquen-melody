@@ -2,7 +2,6 @@
 using BaroquenMelody.Library.Domain;
 using BaroquenMelody.Library.Enums;
 using Fluxor;
-using System.Collections.Frozen;
 
 namespace BaroquenMelody.Library.Store.State;
 
@@ -13,7 +12,9 @@ public sealed record InstrumentConfigurationState(IDictionary<Instrument, Instru
 
     public ISet<InstrumentConfiguration> EnabledConfigurations => Configurations.Values.Where(configuration => configuration.IsEnabled).ToHashSet();
 
-    public ISet<InstrumentConfiguration> AllConfigurations => Configurations.Values.ToFrozenSet();
+    // An insertion-ordered HashSet, never a frozen set: a frozen set of records enumerates in hash-bucket order,
+    // which varies with process history.
+    public ISet<InstrumentConfiguration> AllConfigurations => Configurations.Values.ToHashSet();
 
     public InstrumentConfigurationState()
         : this(InstrumentConfiguration.DefaultConfigurations, InstrumentConfiguration.DefaultConfigurations)

@@ -13,9 +13,13 @@ internal sealed class ScoringRuleFactory(
     IChordInversionIdentifier chordInversionIdentifier
 ) : IScoringRuleFactory
 {
+    // Rule order is load-bearing: the aggregate sums each rule's weighted penalty in this order, and floating-point
+    // addition is order-sensitive, so it feeds the softmax chord selection. Ordering by the enum keeps it a pure
+    // function of the configuration rather than of whatever order the caller's set happens to enumerate in.
     public IScoringRule CreateAggregate(AggregateScoringRuleConfiguration aggregateConfiguration) => new AggregateScoringRule(
         aggregateConfiguration.Configurations
             .Where(static configuration => configuration.IsEnabled && configuration.Weight > 0)
+            .OrderBy(static configuration => configuration.Rule)
             .Select(Create)
             .ToList()
     );

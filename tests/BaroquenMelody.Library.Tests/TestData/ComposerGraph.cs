@@ -34,7 +34,7 @@ internal sealed record ComposerGraph(Composer Composer, VoiceRhythmLedger Ledger
 {
     public static ComposerGraph Create(CompositionConfiguration configuration, int seed, IVoiceRhythmScheduler? voiceRhythmSchedulerOverride = null)
     {
-        var randomProvider = new SeededRandomProvider(seed);
+        var randomProvider = SeededRandomProviders.ForComposition(seed);
         var weightedRandomBooleanGenerator = new WeightedRandomBooleanGenerator(randomProvider);
         var logger = Substitute.For<ILogger<MidiFileComposition>>();
         var dispatcher = Substitute.For<IDispatcher>();
@@ -57,7 +57,7 @@ internal sealed record ComposerGraph(Composer Composer, VoiceRhythmLedger Ledger
         var voiceRhythmLedger = new VoiceRhythmLedger();
         var voiceRhythmScheduler = voiceRhythmSchedulerOverride ?? new VoiceRhythmScheduler(configuration);
         var ornamentationEngineBuilder = new OrnamentationEngineBuilder(configuration, musicalTimeSpanCalculator, randomProvider, logger, voiceRhythmLedger);
-        var compositionDecorator = new CompositionDecorator(ornamentationEngineBuilder.BuildOrnamentationEngine(), ornamentationEngineBuilder.BuildSustainedNoteEngine(), voiceRhythmScheduler, configuration);
+        var compositionDecorator = new CompositionDecorator(ornamentationEngineBuilder.BuildOrnamentationEngine(), ornamentationEngineBuilder.BuildSustainedNoteEngine(), voiceRhythmScheduler, configuration, SeededRandomProviders.ForProcessorShuffle(seed));
         var dynamicsApplicator = new DynamicsApplicator(configuration, new DynamicsEngineBuilder(configuration, randomProvider).Build());
         var motifBankFactory = new MotifBankFactory(new MotifExtractor(configuration), configuration);
         var motifDeveloper = new MotifDeveloper(new MotifApplicator(configuration), weightedRandomBooleanGenerator, randomProvider, configuration);
