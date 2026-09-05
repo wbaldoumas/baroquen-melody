@@ -4,30 +4,30 @@ name: Test
 # sweeps (TestCategory!=Composition — a category clause, which the NUnit adapter always honours; any other
 # filter selecting more than 2,000 tests is silently dropped) plus the three smaller test projects, and one
 # job per key of composition-shards.json runs that shard's [Category("Composition")] fixtures by name.
-# scripts/test.cs owns the mechanics (filters, Release, coverlet settings, results layout) and is the same
-# entry point developers run locally: `dotnet run scripts/test.cs -- --shard <name>` reproduces a job,
-# `--verify-shards` proves the map still partitions the suite test for test, and `--durations` reads the
-# test-results-* artifacts to balance the shards by runner time (not local time — the runner has 2 vCPUs and
-# NUnit gives it 2 workers). CompositionShardTests in the Architecture suite fails the build if a Composition
-# fixture is missing from the map, listed twice, if a shard key has no matrix entry, or if codecov.yml waits
-# for a different number of uploads than there are matrix entries.
+# scripts/test.cs owns the mechanics (filters, Release, coverlet settings, the hang bound, results layout)
+# and is the same entry point developers run locally: `dotnet run scripts/test.cs -- --shard <name>`
+# reproduces a job, `--verify-shards` proves the map still partitions the suite test for test, and
+# `--durations` reads the test-results-* artifacts to balance the shards by runner time (not local time — the
+# public-repository runner has 4 vCPUs, so NUnit gives it 4 workers, and each is slower than a developer
+# machine's core). CompositionShardTests in the Architecture suite fails the build if a Composition fixture is
+# missing from the map, listed twice, if a shard key has no matrix entry, or if codecov.yml waits for a
+# different number of uploads than there are matrix entries.
 #
 # Every job uploads its own coverage with its shard name as the Codecov flag; Codecov merges every upload for a
 # commit and codecov.yml holds statuses and the PR comment until all four have arrived.
-
-# Documentation-only changes skip the suite: nothing under .claude or in a markdown file is built or tested,
-# and every run bills about fourteen minutes across the matrix.
+#
+# The suite runs on every push and pull request, documentation-only ones included: `test` below is one of the
+# two check names the ruleset for main requires (.github/rulesets/main.json, applied by hand — CONTRIBUTING
+# has the command; Lint's `lint` is the other), and a required check that a path filter skips leaves the pull
+# request waiting for it forever.
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - '**/*.md'
-      - '.claude/**'
   pull_request:
     branches: [ main ]
-    paths-ignore:
-      - '**/*.md'
-      - '.claude/**'
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -76,12 +76,36 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: TestResults/library/**/coverage.opencover.xml,TestResults/infrastructure/**/coverage.opencover.xml,TestResults/components/**/coverage.opencover.xml
         flags: ${{ matrix.name }}
-        fail_ci_if_error: true
+        # A pull request from a fork runs without the repository's secrets, so its upload is tokenless and can
+        # be rate-limited; a failed upload must not fail a contributor's green tests.
+        fail_ci_if_error: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
 
+    # The Sequence file is what the hang bound leaves behind: it lists the tests that were in flight when the
+    # test host was terminated.
     - name: 📦 upload test results
       if: always()
       uses: actions/upload-artifact@v7
       with:
         name: test-results-${{ matrix.name }}
-        path: TestResults/**/*.trx
+        path: |
+          TestResults/**/*.trx
+          TestResults/**/Sequence_*.xml
         if-no-files-found: ignore
+
+  # The one stable check name for a ruleset to require: the matrix jobs' names change with the shard map, and a
+  # required check that stops existing blocks every merge. `always()` rather than `!cancelled()`: a shard that
+  # hits its timeout counts as cancelled, and the check must then be red, not missing (a run superseded by a
+  # newer push also runs it, and fails harmlessly).
+  test:
+    name: test
+    needs: [ shard ]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: ✅ every shard passed
+        env:
+          RESULT: ${{ needs.shard.result }}
+        run: |
+          echo "shard matrix result: $RESULT"
+          [ "$RESULT" = "success" ]

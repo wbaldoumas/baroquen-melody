@@ -6,10 +6,15 @@ on:
   pull_request:
     branches: [main]
 
-# One job, not three: every job bills at least one minute, and the three linters together take well under one.
+permissions:
+  contents: read
+
+# One job: the three linters together take well under a minute, and `lint` is one of the two check names the
+# ruleset for main requires once applied (.github/rulesets/main.json).
 jobs:
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
 
