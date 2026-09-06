@@ -82,7 +82,7 @@ regenerated JSON rather than editing it by hand.
 Pull requests are mutation-tested with [Stryker.NET](https://stryker-mutator.io/docs/stryker-net/): Stryker plants small
 bugs ("mutants") in the code your change touches and checks that the tests catch them. The `Mutation` workflow posts a
 per-project summary to the run's job summary and uploads the full HTML reports as artifacts. The pull-request legs are
-advisory: Stryker gets a twelve-minute budget, and a change that re-enables most of the Library's mutants (a broadly
+advisory: Stryker gets a fifteen-minute budget, and a change that re-enables most of the Library's mutants (a broadly
 covering test, a test-data helper) reports that it ran out of time, leaving the check green, instead of holding the
 pull request; the full run on main covers those mutants after the merge. (A genuine Stryker failure still shows red,
 though the check is not one a merge requires.) Every merge to main that

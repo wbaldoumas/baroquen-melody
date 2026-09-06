@@ -78,11 +78,12 @@ jobs:
     # Setup, the Stryker budget and the summary and upload, with room to spare: this bound must never be the one
     # that fires, since a job timeout cancels the leg (red) where the budget keeps it advisory (green, with the
     # summary saying what ran out).
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       # GNU timeout's duration for `dotnet stryker` as a whole: build, initial test run, coverage capture and mutant
-      # testing (the first three are ~5 min on this runner). A typical pull request finishes well inside it.
-      BUDGET: 12m
+      # testing (the first three took 2 min on this runner once the whole-composition tests left the universe).
+      # A typical pull request finishes well inside it.
+      BUDGET: 15m
     strategy:
       fail-fast: false
       matrix:
