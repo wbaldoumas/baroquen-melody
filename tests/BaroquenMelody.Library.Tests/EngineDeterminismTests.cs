@@ -11,6 +11,7 @@ namespace BaroquenMelody.Library.Tests;
 ///     pipeline closed.
 /// </summary>
 [TestFixture]
+[Category(TestCategories.WholeComposition)]
 internal sealed class EngineDeterminismTests
 {
     private const int SampleIterations = 5;

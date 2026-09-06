@@ -5,7 +5,7 @@
 // "library" report the Stryker dashboard shows. The same commands run locally.
 //
 //   dotnet run scripts/mutate.cs -- --shard ornamentation [stryker args...]   one shard: the map's folders become -m globs; unrecognised arguments go to dotnet stryker
-//   dotnet run scripts/mutate.cs -- --merge <dir>... --output <file>          merge every mutation-report.json under the folders into one report and print its summary
+//   dotnet run scripts/mutate.cs -- --merge <dir>... --output <file>          merge the mutation-report.json files under the folders (one per shard of the map, none partial) into one report and print its summary
 //   dotnet run scripts/mutate.cs -- --summary <report>                        print the score summary of a report (markdown; CI appends it to the step summary)
 //   dotnet run scripts/mutate.cs -- --upload <report> --version <name>        PUT a report to the Stryker dashboard as module "library" (needs STRYKER_DASHBOARD_API_KEY)
 //
@@ -27,6 +27,10 @@ const string ApiKeyVariable = "STRYKER_DASHBOARD_API_KEY";
 const string RootFolder = ".";
 const string FilteredReason = "Removed by mutate filter";
 
+// The status of a mutant a run never reached. Stryker writes its reports only when a run completes, so a
+// report should never hold one; a report that does is partial, and its score covers the tested mutants only.
+const string PendingStatus = "Pending";
+
 // The statuses a mutant can only have after a test run; Ignored (any filter) and CompileError never prove
 // that a shard ran the file's tests.
 string[] testedStatuses = ["Killed", "Survived", "Timeout", "NoCoverage", "RuntimeError"];
@@ -37,7 +41,8 @@ const string Usage = """
     modes
       --shard <name>            run one shard of the full Library mutation; the map's folders become -m globs and
                                 every argument this script does not recognise is passed to dotnet stryker
-      --merge <dir>...          merge every mutation-report.json found under the folders into one report
+      --merge <dir>...          merge the mutation-report.json files found under the folders into one report;
+                                refuses fewer reports than the map has shards, and any report with Pending mutants
       --summary <report>        print a report's score summary (markdown)
       --upload <report>         PUT a report to the Stryker dashboard (reads STRYKER_DASHBOARD_API_KEY)
 
@@ -208,6 +213,27 @@ int Merge(List<string> inputs)
         return Fail($"no mutation-report.json found under: {string.Join(", ", inputs)}");
     }
 
+    // A shard that fails or hits its timeout uploads no report, and a merge of the rest would post their score
+    // as the Library's: the first sharded run did exactly that, one finished shard's 84.55 % standing for the
+    // whole run in the step summary. An extra report (an earlier merge's own output left under the folder, a
+    // stale local run) would count its files twice. So the set must be exactly one report per shard before
+    // anything is compared or written.
+    var expectedReports = ReadShardMap().Count;
+
+    if (reportPaths.Count != expectedReports)
+    {
+        foreach (var reportPath in reportPaths)
+        {
+            var found = Path.GetRelativePath(repositoryRoot, reportPath);
+
+            Console.Error.WriteLine($"  found {(found.StartsWith("..", StringComparison.Ordinal) ? reportPath : found)}");
+        }
+
+        return Fail(reportPaths.Count < expectedReports
+            ? $"found {reportPaths.Count} shard report(s) under {string.Join(", ", inputs)} but {shardMapPath} lists {expectedReports} shards; a merge of an incomplete set would post its score as the Library's, so rerun the missing shards (no report written)"
+            : $"found {reportPaths.Count} mutation-report.json files under {string.Join(", ", inputs)} but {shardMapPath} lists {expectedReports} shards; an extra report (an earlier merge's output, a stale local run) would be counted twice, so remove it (no report written)");
+    }
+
     // A shard's report lists every file. Files outside its globs usually have no mutants, but Stryker compiles
     // every mutant before filtering, so a file can carry its compile-error mutants in every shard, and the
     // odd file carries its whole mutant list: the mutants the mutate filter removed are marked "Removed by
@@ -219,6 +245,7 @@ int Merge(List<string> inputs)
     var candidates = new Dictionary<string, List<(string Label, JsonObject File, int Tested)>>(StringComparer.Ordinal);
     var mergedTestFiles = new JsonObject();
     var projectRoots = new HashSet<string>(StringComparer.Ordinal);
+    var partial = new List<string>();
 
     foreach (var reportPath in reportPaths)
     {
@@ -226,6 +253,7 @@ int Merge(List<string> inputs)
         var relative = Path.GetRelativePath(repositoryRoot, reportPath);
         var label = relative.StartsWith("..", StringComparison.Ordinal) ? reportPath : relative;
         var mutated = 0;
+        var pending = 0;
 
         projectRoots.Add(report["projectRoot"]?.GetValue<string>() ?? string.Empty);
         merged ??= new JsonObject(report.Where(static property => property.Key is not "files" and not "testFiles").Select(property => KeyValuePair.Create(property.Key, property.Value?.DeepClone())));
@@ -245,6 +273,8 @@ int Merge(List<string> inputs)
 
             var tested = mutants.Count(mutant => testedStatuses.Contains(mutant?["status"]?.GetValue<string>() ?? string.Empty, StringComparer.Ordinal));
 
+            pending += mutants.Count(mutant => (mutant?["status"]?.GetValue<string>() ?? PendingStatus) == PendingStatus);
+
             if (tested > 0)
             {
                 mutated++;
@@ -258,7 +288,17 @@ int Merge(List<string> inputs)
             mergedTestFiles[path] ??= testFile?.DeepClone();
         }
 
+        if (pending > 0)
+        {
+            partial.Add($"{label} ({pending} Pending)");
+        }
+
         Console.Error.WriteLine($"merged {label}: {mutated} mutated files");
+    }
+
+    if (partial.Count > 0)
+    {
+        return Fail($"{partial.Count} report(s) hold mutants the run never reached, so they are partial and their scores cover the tested mutants only; rerun those shards (no report written): {string.Join(", ", partial)}");
     }
 
     var mergedFiles = new JsonObject();
@@ -387,10 +427,16 @@ void PrintSummary(JsonObject report, string title)
 
         foreach (var mutant in file?["mutants"]?.AsArray() ?? [])
         {
-            var status = mutant?["status"]?.GetValue<string>() ?? "Pending";
+            var status = mutant?["status"]?.GetValue<string>() ?? PendingStatus;
             tally.Add(status);
             total.Add(status);
         }
+    }
+
+    if (total.Pending > 0)
+    {
+        Console.WriteLine($"> ⚠️ **Partial report**: {total.Pending:N0} of the report's {total.Total:N0} mutants are Pending (the run never reached them), so the score below covers the tested mutants only.");
+        Console.WriteLine();
     }
 
     Console.WriteLine($"## 🧬 {module}: {total.ScoreText} ({title})");
@@ -405,7 +451,7 @@ void PrintSummary(JsonObject report, string title)
 
     Console.WriteLine(total.Row("**Total**"));
     Console.WriteLine();
-    Console.WriteLine($"RESULT: mutation score {total.ScoreText}, {total.Detected:N0} detected, {total.Undetected:N0} undetected, {total.Total:N0} mutants");
+    Console.WriteLine($"RESULT: mutation score {total.ScoreText}, {total.Detected:N0} detected, {total.Undetected:N0} undetected, {total.Pending:N0} pending, {total.Total:N0} mutants");
 }
 
 // Stryker's html report is a static shell with the json assigned to the report element on one line
@@ -483,6 +529,8 @@ sealed class Tally
     public int Detected => Count("Killed") + Count("Timeout");
 
     public int Undetected => Count("Survived") + Count("NoCoverage");
+
+    public int Pending => Count("Pending");
 
     public string ScoreText => Detected + Undetected == 0 ? "n/a" : $"{100.0 * Detected / (Detected + Undetected):N2} %";
 

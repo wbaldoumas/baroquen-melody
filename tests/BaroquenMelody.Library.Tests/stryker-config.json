@@ -15,7 +15,7 @@
       "!**/obj/**",
       "!**/bin/**"
     ],
-    "test-case-filter": "TestCategory!=Composition",
+    "test-case-filter": "TestCategory!=Composition&TestCategory!=WholeComposition",
     "configuration": "Release",
     "additional-timeout": 60000,
     "since": {

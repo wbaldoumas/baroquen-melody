@@ -19,41 +19,20 @@ using NUnit.Framework;
 
 namespace BaroquenMelody.Library.Tests;
 
+// Every test builds its own configurator: NUnit shares one fixture instance across the parallel cases, so fixture
+// state set in a [SetUp] would race under ParallelScope.All.
 [TestFixture]
 [Parallelizable(ParallelScope.All)]
 internal sealed class BaroquenMelodyComposerConfiguratorTests
 {
-    private ILogger<MidiFileComposition> _mockLogger = null!;
-
-    private BaroquenMelodyComposerConfigurator _baroquenMelodyComposerConfigurator = null!;
-
-    [SetUp]
-    public void SetUp()
-    {
-        _mockLogger = Substitute.For<ILogger<MidiFileComposition>>();
-        _baroquenMelodyComposerConfigurator = new BaroquenMelodyComposerConfigurator(_mockLogger, Substitute.For<IDispatcher>(), new ThreadLocalRandomProvider(), new ThreadLocalRandomProvider(), new VoiceSpacingSatisfiabilityAnalyzer());
-    }
+    [Test]
+    [TestCaseSource(nameof(RepresentativeTestCases))]
+    public void Configure_returns_configured_MidiFileComposer_which_can_compose_a_MidiFileComposition(CompositionConfiguration compositionConfiguration) => AssertComposes(compositionConfiguration);
 
     [Test]
-    [TestCaseSource(nameof(TestCases))]
-    public void Configure_returns_configured_MidiFileComposer_which_can_compose_a_MidiFileComposition(CompositionConfiguration compositionConfiguration)
-    {
-        // arrange
-        var midiFileComposer = _baroquenMelodyComposerConfigurator.Configure(compositionConfiguration);
-
-        // act
-        var midiFileComposition = midiFileComposer.Compose(CancellationToken.None);
-
-        // assert
-        midiFileComposition.Should().NotBeNull();
-        midiFileComposition.MidiFile.Should().NotBeNull();
-    }
-
-    private static IEnumerable<TestCaseData> TestCases =>
-        from numberOfInstruments in Enumerable.Range(1, 3)
-        from meter in EnumUtils<Meter>.AsEnumerable()
-        from mode in EnumUtils<Mode>.AsEnumerable()
-        select new TestCaseData(TestCompositionConfigurations.Get(numberOfInstruments, 10) with { Meter = meter, Mode = mode });
+    [Category(TestCategories.WholeComposition)]
+    [TestCaseSource(nameof(RemainingTestCases))]
+    public void Configure_composes_in_every_other_mode_and_meter(CompositionConfiguration compositionConfiguration) => AssertComposes(compositionConfiguration);
 
     [Test]
     public void BuildRelativeConfiguration_ForwardsEveryParameterExceptTheKeyCenter()
@@ -125,11 +104,13 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
     {
         // arrange - without the dynamic disable, every candidate chord fails the voice spacing rule and the
         // composition dead-ends fatally once the theme composer's retries are exhausted
-        _mockLogger.IsEnabled(LogLevel.Warning).Returns(true);
+        var mockLogger = Substitute.For<ILogger<MidiFileComposition>>();
+
+        mockLogger.IsEnabled(LogLevel.Warning).Returns(true);
 
         var compositionConfiguration = GetConfigurationWithUnsatisfiableVoiceSpacing(AllRulesEnabled);
 
-        var midiFileComposer = _baroquenMelodyComposerConfigurator.Configure(compositionConfiguration);
+        var midiFileComposer = CreateConfigurator(mockLogger).Configure(compositionConfiguration);
 
         // act
         var midiFileComposition = midiFileComposer.Compose(CancellationToken.None);
@@ -150,7 +131,7 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
 
         var compositionConfiguration = GetConfigurationWithUnsatisfiableVoiceSpacing(new AggregateCompositionRuleConfiguration(ruleConfigurations));
 
-        var midiFileComposer = _baroquenMelodyComposerConfigurator.Configure(compositionConfiguration);
+        var midiFileComposer = CreateConfigurator().Configure(compositionConfiguration);
 
         // act
         var midiFileComposition = midiFileComposer.Compose(CancellationToken.None);
@@ -166,7 +147,7 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
         // arrange
         var compositionConfiguration = GetConfigurationWithUnsatisfiableVoiceSpacing(new AggregateCompositionRuleConfiguration(new HashSet<CompositionRuleConfiguration>()));
 
-        var midiFileComposer = _baroquenMelodyComposerConfigurator.Configure(compositionConfiguration);
+        var midiFileComposer = CreateConfigurator().Configure(compositionConfiguration);
 
         // act
         var midiFileComposition = midiFileComposer.Compose(CancellationToken.None);
@@ -203,4 +184,55 @@ internal sealed class BaroquenMelodyComposerConfiguratorTests
         MusicalTimeSpan.Half,
         MinimumMeasures: 10
     );
+
+    /// <summary>
+    ///     The (mode, meter) pairs that stay in Stryker's universe: every meter, the Ionian/Aeolian pair whose gates
+    ///     the modulation and tonicization passes lift, and three of the other modes for their scale colours
+    ///     (Phrygian's lowered second, Lydian's raised fourth, Dorian's raised sixth). Mixolydian and Locrian have no
+    ///     representative: the Library has no mode-specific branch, so no path loses its only coverage, and the
+    ///     measured loss already counts their absence. The other fifteen pairs run in CI's unit leg only: measured
+    ///     over the whole Library, leaving them out of Stryker's universe lost 5 of 1,657 kills and cut this matrix's
+    ///     share of a covering mutant's test run from about 46 s to about 13 s.
+    /// </summary>
+    private static readonly (Mode Mode, Meter Meter)[] RepresentativePairs =
+    [
+        (Mode.Ionian, Meter.FourFour),
+        (Mode.Phrygian, Meter.FourFour),
+        (Mode.Lydian, Meter.FourFour),
+        (Mode.Ionian, Meter.ThreeFour),
+        (Mode.Aeolian, Meter.ThreeFour),
+        (Mode.Dorian, Meter.FiveEight)
+    ];
+
+    private static IEnumerable<TestCaseData> RepresentativeTestCases => TestCases(static pair => RepresentativePairs.Contains(pair));
+
+    private static IEnumerable<TestCaseData> RemainingTestCases => TestCases(static pair => !RepresentativePairs.Contains(pair));
+
+    private static IEnumerable<TestCaseData> TestCases(Func<(Mode Mode, Meter Meter), bool> isSelected) =>
+        from numberOfInstruments in Enumerable.Range(1, 3)
+        from meter in EnumUtils<Meter>.AsEnumerable()
+        from mode in EnumUtils<Mode>.AsEnumerable()
+        where isSelected((mode, meter))
+        select new TestCaseData(TestCompositionConfigurations.Get(numberOfInstruments, 10) with { Meter = meter, Mode = mode })
+            .SetArgDisplayNames($"{numberOfInstruments}-voice {mode} {meter}");
+
+    private static BaroquenMelodyComposerConfigurator CreateConfigurator(ILogger<MidiFileComposition>? logger = null) => new(
+        logger ?? Substitute.For<ILogger<MidiFileComposition>>(),
+        Substitute.For<IDispatcher>(),
+        new ThreadLocalRandomProvider(),
+        new ThreadLocalRandomProvider(),
+        new VoiceSpacingSatisfiabilityAnalyzer());
+
+    private static void AssertComposes(CompositionConfiguration compositionConfiguration)
+    {
+        // arrange
+        var midiFileComposer = CreateConfigurator().Configure(compositionConfiguration);
+
+        // act
+        var midiFileComposition = midiFileComposer.Compose(CancellationToken.None);
+
+        // assert
+        midiFileComposition.Should().NotBeNull();
+        midiFileComposition.MidiFile.Should().NotBeNull();
+    }
 }

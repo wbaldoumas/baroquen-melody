@@ -17,7 +17,7 @@ namespace BaroquenMelody.Library.Tests.MusicTheory;
 ///     of per-seed pins because seeded walks differ across operating systems.
 /// </summary>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
 [Parallelizable(ParallelScope.All)]
 internal sealed class TonicizationCompositionTests
 {
