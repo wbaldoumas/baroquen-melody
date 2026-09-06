@@ -20,7 +20,7 @@ namespace BaroquenMelody.Library.Tests.Strategies;
 ///     valid compositions end-to-end.
 /// </summary>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
 internal sealed class LookAheadDepthTests
 {
     private INoteChoiceGenerator _mockNoteChoiceGenerator = null!;

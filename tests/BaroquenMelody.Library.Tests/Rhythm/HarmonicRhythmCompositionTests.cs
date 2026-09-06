@@ -11,7 +11,8 @@ namespace BaroquenMelody.Library.Tests.Rhythm;
 ///     invariants are exercised by the engine-wide suites, since the harmonic rhythm is enabled by default.
 /// </summary>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
+[Parallelizable(ParallelScope.All)]
 internal sealed class HarmonicRhythmCompositionTests
 {
     private const int SeedCount = 5;

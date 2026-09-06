@@ -1,0 +1,11 @@
+# test.yml uploads one coverage report per matrix job (unit, composition-a, composition-b, composition-c), each
+# tagged with its shard name as a flag. Codecov merges every upload for a commit; hold the statuses and the PR
+# comment until all four have arrived so they never describe a partial report. A shard only uploads after its
+# tests passed, so four uploads already imply a green test gate: no need to also wait for the (much slower)
+# Mutation workflow before notifying.
+codecov:
+  notify:
+    after_n_builds: 4
+    wait_for_ci: false
+comment:
+  after_n_builds: 4

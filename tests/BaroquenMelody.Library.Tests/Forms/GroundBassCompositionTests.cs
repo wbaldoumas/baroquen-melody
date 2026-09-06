@@ -28,7 +28,8 @@ namespace BaroquenMelody.Library.Tests.Forms;
 ///     for every seed on every platform; nothing pins a per-seed outcome.
 /// </remarks>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
+[Parallelizable(ParallelScope.All)]
 internal sealed class GroundBassCompositionTests
 {
     private const int TicksPerQuarterNote = 96;

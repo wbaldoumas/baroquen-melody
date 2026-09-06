@@ -1,42 +1,111 @@
 name: Test
 
+# The Library suite is split across a matrix: one "unit" job runs everything outside the seeded composition
+# sweeps (TestCategory!=Composition — a category clause, which the NUnit adapter always honours; any other
+# filter selecting more than 2,000 tests is silently dropped) plus the three smaller test projects, and one
+# job per key of composition-shards.json runs that shard's [Category(TestCategories.Composition)] fixtures by name.
+# scripts/test.cs owns the mechanics (filters, Release, coverlet settings, the hang bound, results layout)
+# and is the same entry point developers run locally: `dotnet run scripts/test.cs -- --shard <name>`
+# reproduces a job, `--verify-shards` proves the map still partitions the suite test for test, and
+# `--durations` reads the test-results-* artifacts to balance the shards by runner time (not local time — the
+# public-repository runner has 4 vCPUs, so NUnit gives it 4 workers, and each is slower than a developer
+# machine's core). CompositionShardTests in the Architecture suite fails the build if a Composition fixture is
+# missing from the map, listed twice, if a shard key has no matrix entry, or if codecov.yml waits for a
+# different number of uploads than there are matrix entries.
+#
+# Every job uploads its own coverage with its shard name as the Codecov flag; Codecov merges every upload for a
+# commit and codecov.yml holds statuses and the PR comment until all four have arrived.
+#
+# The suite runs on every push and pull request, documentation-only ones included: `test` below is one of the
+# two check names the ruleset for main requires (.github/rulesets/main.json, applied by hand — CONTRIBUTING
+# has the command; Lint's `lint` is the other), and a required check that a path filter skips leaves the pull
+# request waiting for it forever.
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+
 jobs:
-  test:
+  shard:
+    name: 🧪 ${{ matrix.name }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        name:
+          - unit
+          - composition-a
+          - composition-b
+          - composition-c
     steps:
     - uses: actions/checkout@v7
 
     - name: 🔨 set up .net
       uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 10.0.x
+        global-json-file: global.json
 
-    - name: 🧪 run tests
-      run: |
-        cd ./tests/BaroquenMelody.Library.Tests/
-        dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-        cp TestResults/*/coverage.opencover.xml .
-
-        cd ../BaroquenMelody.Infrastructure.Tests/
-        dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-        cp TestResults/*/coverage.opencover.xml .
-
-        cd ../BaroquenMelody.App.Components.Tests/
-        dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-        cp TestResults/*/coverage.opencover.xml .
-
-        cd ../BaroquenMelody.Architecture.Tests/
-        dotnet test
+    # The script builds Release (the composition search runs ~1.9x faster than in Debug, and a Debug build under
+    # coverlet cannot finish in the job timeout: Debug assemblies disable JIT optimisation, so every coverage
+    # probe is a real call), collects coverage with coverlet's SingleHit (identical line and branch coverage,
+    # without the ~4x per-hit counter tax on the composition search's hot loops), fails a shard whose filter
+    # selects nothing, and writes trx files under TestResults/<project>/. The unit shard also runs the three
+    # smaller projects. The Library suite runs its fixtures in parallel (tests/BaroquenMelody.Library.Tests/AssemblyInfo.cs).
+    - name: 🧪 tests
+      env:
+        SHARD: ${{ matrix.name }}
+      run: dotnet run scripts/test.cs -- --shard "$SHARD" --coverage
 
     - name: 💌 publish code coverage
       uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: /home/runner/work/baroquen-melody/baroquen-melody/tests/BaroquenMelody.Library.Tests/coverage.opencover.xml,/home/runner/work/baroquen-melody/baroquen-melody/tests/BaroquenMelody.Infrastructure.Tests/coverage.opencover.xml,/home/runner/work/baroquen-melody/baroquen-melody/tests/BaroquenMelody.App.Components.Tests/coverage.opencover.xml
-        fail_ci_if_error: true
+        files: TestResults/library/**/coverage.opencover.xml,TestResults/infrastructure/**/coverage.opencover.xml,TestResults/components/**/coverage.opencover.xml
+        flags: ${{ matrix.name }}
+        # A pull request from a fork runs without the repository's secrets, so its upload is tokenless and can
+        # be rate-limited; a failed upload must not fail a contributor's green tests.
+        fail_ci_if_error: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+
+    # The Sequence file is what the hang bound leaves behind: it lists the tests that were in flight when the
+    # test host was terminated.
+    - name: 📦 upload test results
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: test-results-${{ matrix.name }}
+        path: |
+          TestResults/**/*.trx
+          TestResults/**/Sequence_*.xml
+        if-no-files-found: ignore
+
+  # The one stable check name for a ruleset to require: the matrix jobs' names change with the shard map, and a
+  # required check that stops existing blocks every merge. `always()` rather than `!cancelled()`: a shard that
+  # hits its timeout counts as cancelled, and the check must then be red, not missing (a run superseded by a
+  # newer push also runs it, and fails harmlessly).
+  test:
+    name: test
+    needs: [ shard ]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: ✅ every shard passed
+        env:
+          RESULT: ${{ needs.shard.result }}
+        run: |
+          echo "shard matrix result: $RESULT"
+          [ "$RESULT" = "success" ]

@@ -18,7 +18,8 @@ namespace BaroquenMelody.Library.Tests.Forms;
 ///     in-process test can compare against a graph this branch no longer builds.
 /// </summary>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
+[Parallelizable(ParallelScope.All)]
 internal sealed class GroundBassDivisionCompositionTests
 {
     private const long TicksPerStatement = 1536;
@@ -46,7 +47,7 @@ internal sealed class GroundBassDivisionCompositionTests
 
             // assert - the terrace's deterministic velocity offset guarantees a difference in every seed,
             // independent of how the probabilistic figure divergence falls
-            divisionsOnNotes.Should().NotBeEquivalentTo(divisionsOffNotes, $"divisions must change the render for seed {seed}");
+            divisionsOnNotes.Should().NotEqual(divisionsOffNotes, $"divisions must change the render for seed {seed}");
         }
     }
 

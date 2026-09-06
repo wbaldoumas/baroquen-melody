@@ -36,17 +36,28 @@ release.
 The repository targets the .NET SDK pinned in `global.json` (`dotnet --version` must report at least that feature
 band; Renovate moves the pin, so update your SDK when it does). The solution also contains the .NET MAUI host, which
 needs the MAUI workloads — you do not need them to work on the composition engine, the infrastructure or the Blazor
-components. Build and test the projects directly:
+components. `scripts/test.cs` (a .NET 10 file-based app; nothing to install beyond the SDK) runs the four test
+projects the way CI does, and `dotnet test` on a single project is still the quickest focused check:
 
 ```bash
-dotnet test tests/BaroquenMelody.Library.Tests/          # composition engine; the seeded sweeps take 15-20 minutes
-dotnet test tests/BaroquenMelody.Infrastructure.Tests/
-dotnet test tests/BaroquenMelody.App.Components.Tests/   # bUnit tests for the Razor components
-dotnet test tests/BaroquenMelody.Architecture.Tests/     # architecture rules, about ten seconds
+dotnet run scripts/test.cs                               # all four suites in Release; about 75 seconds on a 16-core machine
+dotnet run scripts/test.cs -- --shard composition-b      # one CI shard, exactly as its matrix job runs it
+dotnet run scripts/test.cs -- --verify-shards            # after editing the shard map: the shards must still partition the Library suite
+dotnet test tests/BaroquenMelody.Architecture.Tests/     # architecture rules and the shard-map guard, about ten seconds
 ```
 
 Every project treats analyzer warnings (StyleCop, Meziantou, the .NET analyzers) as errors, so a clean build is the
-first gate. CI (`.github/workflows/test.yml`) runs all four suites on every pull request and fails on any red test.
+first gate. CI (`.github/workflows/test.yml`) runs the same script on every pull request and fails on any red test: the
+Library suite's seeded composition sweeps (fixtures tagged `[Category("Composition")]`) are split across matrix jobs by
+`.github/workflows/composition-shards.json`, and everything else runs in the `unit` job. A new sweep fixture goes into
+one shard in the same pull request; the Architecture suite fails when one is missing from the map. Every run is
+bounded: ten minutes without any test starting or finishing terminates the test host, and a `Sequence_*.xml` inside
+the run's `test-results-*` artifact lists the tests that were in flight.
+
+The `test` job, which waits for every shard, and the `lint` job are the two checks `.github/rulesets/main.json`
+requires of a pull request into `main` (pull requests only, no force-pushes or deletion; administrators may bypass
+from the merge dialog). The ruleset is applied by hand, from the repository's Rules settings or with
+`gh api --method POST repos/{owner}/{repo}/rulesets --input .github/rulesets/main.json`.
 
 ### Architecture Tests
 
@@ -70,8 +81,18 @@ regenerated JSON rather than editing it by hand.
 
 Pull requests are mutation-tested with [Stryker.NET](https://stryker-mutator.io/docs/stryker-net/): Stryker plants small
 bugs ("mutants") in the code your change touches and checks that the tests catch them. The `Mutation` workflow posts a
-per-project summary to the run's job summary and uploads the full HTML reports as artifacts; full runs of every project
-happen on pushes to `main`, weekly, and on demand.
+per-project summary to the run's job summary and uploads the full HTML reports as artifacts. The pull-request legs are
+advisory: Stryker gets a fifteen-minute budget, and a change that re-enables most of the Library's mutants (a broadly
+covering test, a test-data helper) reports that it ran out of time, leaving the check green, instead of holding the
+pull request; the full run on main covers those mutants after the merge. (A genuine Stryker failure still shows red,
+though the check is not one a merge requires.) Every merge to main that
+touches `src`, `tests` or the mutation tooling (and `gh workflow run mutation.yml`, or the Actions tab) runs every
+project whole and refreshes the Stryker dashboard. The full Library run (2,424 testable mutants, hours in one job) is
+one job per key of
+`.github/workflows/mutation-shards.json` — each key lists top-level folders of `src/BaroquenMelody.Library` — with the
+shard reports merged into one `library` report for the job summary, the artifact and the Stryker dashboard. A new
+top-level Library folder goes into one shard in the same pull request; the Architecture suite fails when one is
+missing.
 
 To run it locally, restore the repository's tools once, then run Stryker from the test project whose source you changed
 (each test project carries its own `stryker-config.json`):
@@ -84,16 +105,28 @@ dotnet stryker --since:main        # only mutants in code changed since main
 dotnet stryker --open-report       # everything, and open the HTML report when done
 ```
 
+One Library shard runs through the script CI uses, from the repository root; anything after the shard name goes to
+`dotnet stryker`:
+
+```bash
+dotnet run scripts/mutate.cs -- --shard ornamentation
+```
+
 `--since` reads the git diff itself, so run it from a normal clone rather than a linked `git worktree` (there it resolves
 the main checkout and reports nothing changed). It re-tests every mutant covered by a test you changed — and would
 re-test *everything* when a non-C# file under a test project changes, so each `stryker-config.json` lists the test
 `.csproj` and the config itself under `since.ignore-changes-in`; add any new non-C# test-project file there too.
 
-The Library configuration runs the unit-level suite only: the seeded composition sweeps — fixtures tagged
-`[Category("Composition")]` — take most of the suite's wall time and are left to `dotnet test`, so mutants that only
-those sweeps would catch are reported as "no coverage" rather than survived. Tag any new `Enumerable.Range(1, N)`
-composition sweep the same way. (The filter has to be a category filter: NUnit's adapter silently runs every test when
-a name-based filter selects more than 2,000 of them.)
+The Library configuration excludes two NUnit categories, both declared as constants in
+`tests/BaroquenMelody.Library.Tests/TestCategories.cs`: the seeded composition sweeps (fixtures tagged
+`TestCategories.Composition`) take most of the suite's wall time and are left to `dotnet test`, so mutants that only
+those sweeps would catch are reported as "no coverage" rather than survived; and the tests that compose a whole piece
+to pin one property (tagged `TestCategories.WholeComposition`, at the method unless every test in the fixture composes)
+still run in CI's unit leg but not under Stryker, because each covers nearly every mutant and they were most of a
+mutant's test time while catching almost nothing the fast unit tests miss. Tag any new `Enumerable.Range(1, N)`
+composition sweep `Composition` and any new whole-piece test `WholeComposition`; the Architecture suite requires the
+suite to use exactly the declared names and the Stryker filter to exclude exactly them. (The filter has to be a
+category filter: NUnit's adapter silently runs every test when a name-based filter selects more than 2,000 of them.)
 
 ## Other Ways to Contribute
 

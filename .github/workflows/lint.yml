@@ -6,28 +6,27 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
+# One job: the three linters together take well under a minute, and `lint` is one of the two check names the
+# ruleset for main requires once applied (.github/rulesets/main.json).
 jobs:
-  markdown:
+  lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+
       - name: 🧼 lint markdown files
         uses: avto-dev/markdown-lint@v1
         with:
           config: ".markdownlint.json"
           args: "**/*.md .github/**/*.md"
 
-  json:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
       - name: 🧼 lint json files
         uses: ocular-d/json-linter@0.0.2
 
-  renovate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
       - name: 🧼 lint renovate config
         uses: suzuki-shunsuke/github-action-renovate-config-validator@v2.1.0
         with:

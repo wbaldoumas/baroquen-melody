@@ -18,7 +18,8 @@ namespace BaroquenMelody.Library.Tests;
 ///     which seeds happen to cadence authentically differs between local Windows runs and the Linux CI runners.
 /// </summary>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
+[Parallelizable(ParallelScope.All)]
 internal sealed class CadentialEndingTests
 {
     // MIDI geometry under the generator's 96-ticks-per-quarter time division.

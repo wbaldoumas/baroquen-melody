@@ -11,20 +11,27 @@ The app runs as a .NET MAUI Blazor Hybrid application (Windows, Android, iOS, ma
 ## Build and Test Commands
 
 ```bash
-# Build the solution
+# Run the whole test suite: the four test projects in Release, as CI runs them (no MAUI workloads needed)
+dotnet run scripts/test.cs
+
+# Run one CI shard exactly as its matrix job does (unit, or a key of .github/workflows/composition-shards.json)
+dotnet run scripts/test.cs -- --shard composition-b
+
+# After editing the shard map or adding a [Category(TestCategories.Composition)] fixture: prove the shards still partition the Library suite
+dotnet run scripts/test.cs -- --verify-shards
+
+# Per-fixture and per-test durations from trx files (a local TestResults folder, or downloaded test-results-* CI artifacts)
+dotnet run scripts/test.cs -- --durations TestResults
+
+# Run one shard of the full Library mutation run (a key of .github/workflows/mutation-shards.json; on CI the whole run happens on every merge to main that touches src, tests or the mutation tooling, and on `gh workflow run mutation.yml`); extra arguments go to dotnet stryker
+dotnet run scripts/mutate.cs -- --shard ornamentation
+
+# Run a single test project, or a single test by name
+dotnet test tests/BaroquenMelody.Architecture.Tests/ -c Release
+dotnet test tests/BaroquenMelody.Library.Tests/ -c Release --filter "FullyQualifiedName~ComposerTests"
+
+# Build the solution (needs the MAUI workloads because it includes the MAUI host; `dotnet test` on it does too)
 dotnet build src/BaroquenMelody.sln
-
-# Run all tests (needs the MAUI workloads because the solution includes the MAUI host; the four projects below do not)
-dotnet test src/BaroquenMelody.sln
-
-# Run a single test project
-dotnet test tests/BaroquenMelody.Library.Tests/
-dotnet test tests/BaroquenMelody.Infrastructure.Tests/
-dotnet test tests/BaroquenMelody.App.Components.Tests/
-dotnet test tests/BaroquenMelody.Architecture.Tests/
-
-# Run a single test by name
-dotnet test tests/BaroquenMelody.Library.Tests/ --filter "FullyQualifiedName~ComposerTests"
 
 # Run benchmarks
 dotnet run --project benchmarks/BaroquenMelody.Benchmarks/ -c Release
@@ -107,7 +114,7 @@ Uses **Fluxor** (Redux-like) for state management. States live in `Library/Store
 
 ## Architecture Tests
 
-`tests/BaroquenMelody.Architecture.Tests` (ArchUnitNET + NUnit; namespace `BaroquenMelody.ArchitectureTests`, because an `Architecture` namespace segment would shadow `ArchUnitNET.Domain.Architecture`) loads Library, Infrastructure, App.Components, the console app, the benchmarks and the three test suites and checks 33 structural rules in ~10 s: `dotnet test tests/BaroquenMelody.Architecture.Tests/`. It is also the quickest way to confirm the console app and benchmarks still compile. CI runs it after the other suites and fails the pipeline on any violation. The MAUI host is never loaded (platform TFMs; no workloads on `ubuntu-latest`) and is covered only from the Razor-class-library side.
+`tests/BaroquenMelody.Architecture.Tests` (ArchUnitNET + NUnit; namespace `BaroquenMelody.ArchitectureTests`, because an `Architecture` namespace segment would shadow `ArchUnitNET.Domain.Architecture`) loads Library, Infrastructure, App.Components, the console app, the benchmarks and the three test suites and checks 33 structural rules plus the CI shard-map guards (`CompositionShardTests`: every `[Category(TestCategories.Composition)]` fixture sits in exactly one shard of `.github/workflows/composition-shards.json`, every shard is a matrix entry, and `codecov.yml` waits for one upload per entry; `MutationShardTests`: every Library source folder sits in exactly one shard of `mutation-shards.json` and every shard is in the mutation workflow's matrix; `MutationUniverseTests`: Stryker's `test-case-filter` excludes exactly the categories `TestCategories` declares, the Library suite tags exactly those names, and the unit leg's filter excludes only `Composition`) in ~10 s: `dotnet test tests/BaroquenMelody.Architecture.Tests/`. It is also the quickest way to confirm the console app and benchmarks still compile. CI runs it after the other suites and fails the pipeline on any violation. The MAUI host is never loaded (platform TFMs; no workloads on `ubuntu-latest`) and is covered only from the Razor-class-library side.
 
 What the rules hold — write code that satisfies them instead of discovering them red:
 
@@ -115,14 +122,13 @@ What the rules hold — write code that satisfies them instead of discovering th
 - **Library types**: every class is sealed (static classes qualify; the source-generated `JsonSerializerContext` is the one exemption); enums live in a `*.Enums` sub-namespace of their area (`Rhythm/Enums/`, `Dynamics/Enums/`, …); interfaces start with `I`; `ICompositionRule` / `IMelodicCompositionRule` implementations are `internal sealed` under `Rules.*`; nothing under `Ornamentation` is public except its enums; `Configurations` root types and `Store.Actions` are `public sealed record`s; `Store.State` types are `[FeatureState] public sealed record *State`; reducers are `public static class *Reducers`; effects are `public sealed class *Effects`.
 - **Forbidden dependencies**: `System.Random` only inside Infrastructure's `ThreadLocalRandom` and `SeededRandomProvider` (everything else takes `IRandomProvider`); `System.Console` only in the console app; static `System.IO` file/directory/stream APIs stay out of the Library (go through `IFileSystem`; `System.IO.Path` is fine); `Atrea.PolicyEngine` only in `Ornamentation.*`, `Dynamics.*` and `BaroquenMelodyComposerConfigurator`; the concrete composers (`Composer`, `ChordComposer`, `ThemeComposer`, `EndingComposer`, `GroundBassComposer`, `MidiFileComposer`) are constructed only by the configurator; `IMidiLauncher` / `IMidiSaver` are implemented by hosts, never inside the Library.
 - **UI**: components live in the `App.Components` root, `Layout`, `Pages` or `Shared`; the UI defines no `[ReducerMethod]`, `[EffectMethod]` or `IActionSubscriber` (state transitions belong to the Library's Store); a component that calls `ObserveChanges()` declares its own `DisposeAsync()`.
-- **Test suites**: fixtures are `[TestFixture] internal sealed class *Tests`; no `[Explicit]` / `[Ignore]`; new `Library.Tests` fixtures build configurations through `TestCompositionConfigurations.Get` (see Determinism below).
+- **Test suites**: fixtures are `[TestFixture] internal sealed class *Tests`; no `[Explicit]` / `[Ignore]`; new `Library.Tests` fixtures build configurations through `TestCompositionConfigurations.Get` (see Determinism below); test categories are the `TestCategories` constants — `Composition` for seeded sweep fixtures (their own CI shards), `WholeComposition` for tests that compose a whole piece but are not sweeps (the unit leg runs them, Stryker does not).
 
 When a rule fails, fix the code: every rule reflects how the codebase is already written (each was at 100 % adherence, or within two files of it, when it was introduced). Change a rule only when the convention itself is wrong, and say why in its `Because()` — that text is the first line of the CI failure message. An allowlist entry is the last resort and also needs a `Because()`. Never make a rule pass with `WithoutRequiringPositiveResults()` (an empty match means the predicate is wrong), and never hand-edit `FrozenViolations/*.json`: a frozen rule's baseline is rewritten by running the tests, so fixing, renaming or deleting a baselined fixture means rerunning the tests and committing the shrunk JSON, or the baseline guard fails in CI. Rule-authoring guidance and the ArchUnitNET traps live in `.claude/rules/architecture-tests.md`, which loads when you work in that project.
 
 ## Determinism in Seeded Tests
 
 - `ShuffleOrnamentationProcessors` (default `true`) is seed-reproducible: the between-beat shuffle re-orders each engine's `Processors` through `Replace` using a SECOND, seed-derived `IRandomProvider` (`BaroquenMelodyComposerConfigurator`'s `processorShuffleRandomProvider`; `SeededRandomProviders.ForProcessorShuffle` in tests), never the engine's own unseeded `Shuffle()` and never the composition's shared stream — so the shuffle itself consumes none of the composition's draws. A seed reproduces its MIDI byte-for-byte in either setting (the two settings compose different pieces from each other, since the processor order differs); toggling the shuffle still changes which processor claims each note and therefore the shared stream's later draws, so shuffle-on vs shuffle-off is NOT a draw-aligned A/B pair — compare only divergence-robust properties across that toggle. Set it to `false` only when a test needs the configured processor order itself, or when comparing against a pre-seeded-shuffle baseline (whose shuffle-on renders were not reproducible).
-- Seeded walks differ across operating systems: assert seed-sweep existence properties (`Enumerable.Range(1, N).Any(...)`), never per-seed outcome pins; per-seed pins are only safe for properties that hold for every seed.
 - The draw-order-bearing collections (note-choice candidates, rule order, ornamentation-processor order) are insertion-/enum-ordered, never `FrozenSet`s of records — a frozen set of records enumerates in hash-bucket order that varies with process history (`SeededDeterminismTests` guards this). A seed therefore reproduces across processes of one binary; per-seed reproducibility across operating systems has not been re-confirmed on Linux CI, so keep asserting sweep properties until it is.
 - A/B comparisons between two seeded runs must be draw-aligned: disabling a feature outright (`Enabled: false`) removes its RNG draws and shifts every later pass's decisions, so compare against a control that consumes identical draws (e.g. the feature enabled at `Probability: 0`) or compare only divergence-robust properties.
-- New `Library.Tests` fixtures obtain their `CompositionConfiguration` from `TestCompositionConfigurations.Get` (in `TestData`), never from the primary constructor; a frozen architecture rule lets the 17 legacy fixtures stand and fails any new fixture type that constructs one directly (`with { … }` clones of an existing configuration are fine).
+- Test-authoring conventions for `Library.Tests` — `TestCompositionConfigurations.Get`, seed-sweep existence properties, ordered note-list comparison (never `BeEquivalentTo`), fixture-level parallelism, sweep cost — live in `.claude/rules/library-tests.md`, which loads when you work in that project.

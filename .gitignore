@@ -400,5 +400,8 @@ FodyWeavers.xsd
 # Stryker.NET mutation testing output
 StrykerOutput/
 
+# scripts/test.cs output (trx and coverage)
+TestResults/
+
 # Claude Code
 .claude/tasks

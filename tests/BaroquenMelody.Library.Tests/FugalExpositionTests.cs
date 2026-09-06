@@ -17,7 +17,8 @@ namespace BaroquenMelody.Library.Tests;
 ///     and the default-enabled voice spacing rule.
 /// </summary>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
+[Parallelizable(ParallelScope.All)]
 internal sealed class FugalExpositionTests
 {
     [TestCase(3, 1)]

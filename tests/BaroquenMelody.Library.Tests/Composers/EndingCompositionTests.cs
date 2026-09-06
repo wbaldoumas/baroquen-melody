@@ -13,7 +13,8 @@ namespace BaroquenMelody.Library.Tests.Composers;
 ///     final chord and its trailing rest must survive every later pass, whatever the meter's default grid.
 /// </summary>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
+[Parallelizable(ParallelScope.All)]
 internal sealed class EndingCompositionTests
 {
     private const int SeedCount = 4;

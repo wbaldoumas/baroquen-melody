@@ -43,7 +43,8 @@ namespace BaroquenMelody.Library.Tests.Rhythm;
 ///     the byte-identity anchor compares two same-process renders, not a recorded baseline.
 /// </summary>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
+[Parallelizable(ParallelScope.All)]
 internal sealed class VoiceRhythmCompositionTests
 {
     // References the production set directly so this suite can never drift from the tier the
@@ -73,7 +74,7 @@ internal sealed class VoiceRhythmCompositionTests
             var disabledNotes = SeededComposition.Notes(SeededComposition.Compose(disabledConfiguration, seed));
 
             // assert
-            enabledNotes.Should().NotBeEquivalentTo(disabledNotes, $"voice rhythm roles must change the rendered composition (seed {seed})");
+            enabledNotes.Should().NotEqual(disabledNotes, $"voice rhythm roles must change the rendered composition (seed {seed})");
         }
     }
 

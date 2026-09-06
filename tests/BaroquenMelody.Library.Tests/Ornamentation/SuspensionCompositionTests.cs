@@ -13,7 +13,8 @@ namespace BaroquenMelody.Library.Tests.Ornamentation;
 ///     seed sweeps are used instead of per-seed pins because seeded walks differ across operating systems.
 /// </summary>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
+[Parallelizable(ParallelScope.All)]
 internal sealed class SuspensionCompositionTests
 {
     private const int SeedCount = 5;
