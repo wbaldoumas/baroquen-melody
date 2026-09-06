@@ -114,6 +114,25 @@ internal sealed class OrnamentationProcessorConfigurationFactoryTests
     }
 
     [Test]
+    [TestCase(OrnamentationType.Mordent)]
+    [TestCase(OrnamentationType.Trill)]
+    public void Create_ForNeighborOscillatingOrnamentations_GuardsBothNeighborsWithTheSharedRangePolicy(OrnamentationType ornamentationType)
+    {
+        // act
+        var configurations = _ornamentationProcessorConfigurationFactory
+            .Create(new OrnamentationConfiguration(ornamentationType, ConfigurationStatus.Enabled, 100))
+            .ToList();
+
+        // assert
+        configurations.Should().NotBeEmpty();
+
+        foreach (var configuration in configurations)
+        {
+            configuration.InputPolicies.Should().ContainSingle(static policy => policy is HasNeighborNotesWithinInstrumentRange);
+        }
+    }
+
+    [Test]
     public void Create_ProducesConfigurationsLabeledWithTheRequestedOrnamentationType()
     {
         // arrange

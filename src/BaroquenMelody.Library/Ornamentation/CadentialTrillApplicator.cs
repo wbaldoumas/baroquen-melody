@@ -25,6 +25,8 @@ internal sealed class CadentialTrillApplicator(
     CompositionConfiguration compositionConfiguration
 ) : ICadentialTrillApplicator
 {
+    private readonly HasNeighborNotesWithinInstrumentRange _trillNeighborsAreWithinInstrumentRange = new(compositionConfiguration);
+
     public void ApplyTrill(BaroquenChord penultimateChord, BaroquenChord finalChord)
     {
         var cadenceType = cadenceClassifier.ClassifyCadence(penultimateChord, finalChord);
@@ -75,6 +77,5 @@ internal sealed class CadentialTrillApplicator(
     }
 
     private bool TrillNeighborsAreWithinInstrumentRange(OrnamentationItem ornamentationItem) =>
-        new IsIntervalWithinInstrumentRange(compositionConfiguration, 1).ShouldProcess(ornamentationItem) == InputPolicyResult.Continue
-            && new IsIntervalWithinInstrumentRange(compositionConfiguration, -1).ShouldProcess(ornamentationItem) == InputPolicyResult.Continue;
+        _trillNeighborsAreWithinInstrumentRange.ShouldProcess(ornamentationItem) == InputPolicyResult.Continue;
 }
