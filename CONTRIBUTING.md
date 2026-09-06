@@ -81,7 +81,11 @@ regenerated JSON rather than editing it by hand.
 
 Pull requests are mutation-tested with [Stryker.NET](https://stryker-mutator.io/docs/stryker-net/): Stryker plants small
 bugs ("mutants") in the code your change touches and checks that the tests catch them. The `Mutation` workflow posts a
-per-project summary to the run's job summary and uploads the full HTML reports as artifacts. Every merge to main that
+per-project summary to the run's job summary and uploads the full HTML reports as artifacts. The pull-request legs are
+advisory: Stryker gets a twelve-minute budget, and a change that re-enables most of the Library's mutants (a broadly
+covering test, a test-data helper) reports that it ran out of time, leaving the check green, instead of holding the
+pull request; the full run on main covers those mutants after the merge. (A genuine Stryker failure still shows red,
+though the check is not one a merge requires.) Every merge to main that
 touches `src`, `tests` or the mutation tooling (and `gh workflow run mutation.yml`, or the Actions tab) runs every
 project whole and refreshes the Stryker dashboard. The full Library run (2,424 testable mutants, hours in one job) is
 one job per key of
@@ -113,11 +117,16 @@ the main checkout and reports nothing changed). It re-tests every mutant covered
 re-test *everything* when a non-C# file under a test project changes, so each `stryker-config.json` lists the test
 `.csproj` and the config itself under `since.ignore-changes-in`; add any new non-C# test-project file there too.
 
-The Library configuration runs the unit-level suite only: the seeded composition sweeps — fixtures tagged
-`[Category("Composition")]` — take most of the suite's wall time and are left to `dotnet test`, so mutants that only
-those sweeps would catch are reported as "no coverage" rather than survived. Tag any new `Enumerable.Range(1, N)`
-composition sweep the same way. (The filter has to be a category filter: NUnit's adapter silently runs every test when
-a name-based filter selects more than 2,000 of them.)
+The Library configuration excludes two NUnit categories, both declared as constants in
+`tests/BaroquenMelody.Library.Tests/TestCategories.cs`: the seeded composition sweeps (fixtures tagged
+`TestCategories.Composition`) take most of the suite's wall time and are left to `dotnet test`, so mutants that only
+those sweeps would catch are reported as "no coverage" rather than survived; and the tests that compose a whole piece
+to pin one property (tagged `TestCategories.WholeComposition`, at the method unless every test in the fixture composes)
+still run in CI's unit leg but not under Stryker, because each covers nearly every mutant and they were most of a
+mutant's test time while catching almost nothing the fast unit tests miss. Tag any new `Enumerable.Range(1, N)`
+composition sweep `Composition` and any new whole-piece test `WholeComposition`; the Architecture suite requires the
+suite to use exactly the declared names and the Stryker filter to exclude exactly them. (The filter has to be a
+category filter: NUnit's adapter silently runs every test when a name-based filter selects more than 2,000 of them.)
 
 ## Other Ways to Contribute
 

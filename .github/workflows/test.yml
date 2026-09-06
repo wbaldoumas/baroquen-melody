@@ -3,7 +3,7 @@ name: Test
 # The Library suite is split across a matrix: one "unit" job runs everything outside the seeded composition
 # sweeps (TestCategory!=Composition — a category clause, which the NUnit adapter always honours; any other
 # filter selecting more than 2,000 tests is silently dropped) plus the three smaller test projects, and one
-# job per key of composition-shards.json runs that shard's [Category("Composition")] fixtures by name.
+# job per key of composition-shards.json runs that shard's [Category(TestCategories.Composition)] fixtures by name.
 # scripts/test.cs owns the mechanics (filters, Release, coverlet settings, the hang bound, results layout)
 # and is the same entry point developers run locally: `dotnet run scripts/test.cs -- --shard <name>`
 # reproduces a job, `--verify-shards` proves the map still partitions the suite test for test, and

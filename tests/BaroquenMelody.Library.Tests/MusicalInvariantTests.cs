@@ -31,7 +31,7 @@ namespace BaroquenMelody.Library.Tests;
 ///     </para>
 /// </remarks>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
 [Parallelizable(ParallelScope.All)]
 internal sealed class MusicalInvariantTests
 {

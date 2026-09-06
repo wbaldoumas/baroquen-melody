@@ -147,6 +147,7 @@ internal sealed class SeededDeterminismTests
     }
 
     [Test]
+    [Category(TestCategories.WholeComposition)]
     public void Compose_SameSeedTwiceInOneProcess_ProducesTheSameNotes()
     {
         var configuration = TestCompositionConfigurations.Get(3, 8, NoteName.A, Mode.Aeolian) with

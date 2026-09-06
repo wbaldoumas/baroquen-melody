@@ -57,26 +57,28 @@ internal sealed class NoteIndexPairSelectorTests
     }
 
     [Test]
-    public void Select_handles_every_ornamentation_type_in_ever_meter()
+    [TestCaseSource(nameof(OrnamentationTypes))]
+    public void Select_handles_every_ornamentation_type_in_every_meter(OrnamentationType ornamentationType)
     {
-        foreach (var ornamentationType in EnumUtils<OrnamentationType>.AsEnumerable())
+        // One case per primary type: Stryker then runs only the cases that reach a mutant's branch of the selector
+        // instead of the whole type × type × meter sweep for every mutant in it.
+        foreach (var otherOrnamentationType in EnumUtils<OrnamentationType>.AsEnumerable())
         {
-            foreach (var otherOrnamentationType in EnumUtils<OrnamentationType>.AsEnumerable())
+            foreach (var meter in EnumUtils<Meter>.AsEnumerable())
             {
-                foreach (var meter in EnumUtils<Meter>.AsEnumerable())
-                {
-                    var compositionConfiguration = TestCompositionConfigurations.Get() with { Meter = meter };
-                    var musicalTimespanCalculator = new MusicalTimeSpanCalculator();
-                    var noteOnsetCalculator = new NoteOnsetCalculator(musicalTimespanCalculator, compositionConfiguration);
-                    var selector = new NoteIndexPairSelector(noteOnsetCalculator);
+                var compositionConfiguration = TestCompositionConfigurations.Get() with { Meter = meter };
+                var musicalTimespanCalculator = new MusicalTimeSpanCalculator();
+                var noteOnsetCalculator = new NoteOnsetCalculator(musicalTimespanCalculator, compositionConfiguration);
+                var selector = new NoteIndexPairSelector(noteOnsetCalculator);
 
-                    var act = () => selector.Select(ornamentationType, otherOrnamentationType);
+                var act = () => selector.Select(ornamentationType, otherOrnamentationType);
 
-                    act.Should().NotThrow();
-                }
+                act.Should().NotThrow();
             }
         }
     }
+
+    private static IEnumerable<OrnamentationType> OrnamentationTypes => EnumUtils<OrnamentationType>.AsEnumerable();
 
     private static IEnumerable<TestCaseData> TestCases()
     {
