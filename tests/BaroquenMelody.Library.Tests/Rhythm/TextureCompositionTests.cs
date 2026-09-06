@@ -31,7 +31,7 @@ namespace BaroquenMelody.Library.Tests.Rhythm;
 ///     would make them self-fulfilling, blind to any note the recording missed.
 /// </summary>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
 [Parallelizable(ParallelScope.All)]
 internal sealed class TextureCompositionTests
 {

@@ -2,12 +2,17 @@ name: Mutation
 
 # Mutation testing with Stryker.NET (https://stryker-mutator.io/docs/stryker-net/).
 #
-# - pull_request: incremental — only mutants in code changed since origin/main are tested (--since), plus
-#   mutants covered by changed tests. Stryker re-tests EVERY mutant when a non-C# file inside a test
-#   project changes, so each stryker-config.json lists those files (the .csproj and the config itself)
-#   under since.ignore-changes-in; the full runs below cover them. Incremental legs are bounded to thirty
-#   minutes: a change that touches a broadly covering test re-tests most of the 2,424 mutants, which is the
-#   full run's job, so the leg fails loudly instead of running for hours.
+# - pull_request: incremental and advisory — only mutants in code changed since origin/main are tested (--since),
+#   plus mutants covered by changed tests; the leg informs the review, while test.yml and lint are the gates.
+#   Stryker gets a fixed time budget (BUDGET on the job) because --since is file-granular: a changed test file
+#   re-enables every mutant its tests cover, so a pull request that touches a broadly covering test or a
+#   test-data helper re-tests most of the Library, which is the full run's job. At the budget, timeout kills
+#   Stryker (it writes no report for an interrupted run), the summary says so and the check stays green; the
+#   full run on main tests those mutants after the merge. A genuine Stryker failure (a crash, a failing initial
+#   test run) still turns the leg red so it is noticed, though the check is not one the ruleset requires.
+#   Stryker re-tests EVERY mutant when a non-C# file inside a test project changes, so each stryker-config.json
+#   lists those files (the .csproj and the config itself) under since.ignore-changes-in; the full runs below
+#   cover them.
 # - push to main and workflow_dispatch: the full runs. Every project runs whole and uploads to the Stryker
 #   dashboard when the STRYKER_DASHBOARD_API_KEY secret is available, so the dashboard follows main merge by
 #   merge. The Library run is 2,424 testable mutants — hours in one job — so it runs as one job per key of
@@ -19,8 +24,10 @@ name: Mutation
 #   artifacts are the tie-breaker: an uncovered mutant costs no test run).
 #
 # Each test project carries its own stryker-config.json (thresholds, reporters, test filters). The Library config
-# restricts Stryker to the unit-level suite (the seeded composition sweeps stay in test.yml). Every Stryker
-# command here passes `-c 4` so that each of the public-repository runner's four vCPUs hosts a test run
+# runs the suite minus the categories tests/BaroquenMelody.Library.Tests/TestCategories.cs declares: the seeded
+# composition sweeps (which stay in test.yml's shards) and the whole-composition tests (which stay in its unit
+# leg), together most of every mutant's test time; MutationUniverseTests in the Architecture suite holds the
+# filter to that list. Every Stryker command here passes `-c 4` so that each of the public-repository runner's four vCPUs hosts a test run
 # (Stryker's default is half the logical processors: 2 here and the right 8 on a developer machine, so it is
 # not in the config files).
 
@@ -68,7 +75,15 @@ jobs:
     name: 🧬 changed ${{ matrix.name }}
     if: github.event_name == 'pull_request' && github.actor != 'renovate[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Setup, the Stryker budget and the summary and upload, with room to spare: this bound must never be the one
+    # that fires, since a job timeout cancels the leg (red) where the budget keeps it advisory (green, with the
+    # summary saying what ran out).
+    timeout-minutes: 25
+    env:
+      # GNU timeout's duration for `dotnet stryker` as a whole: build, initial test run, coverage capture and mutant
+      # testing (the first three took 2 min on this runner once the whole-composition tests left the universe).
+      # A typical pull request finishes well inside it.
+      BUDGET: 15m
     strategy:
       fail-fast: false
       matrix:
@@ -109,25 +124,61 @@ jobs:
         if: steps.changes.outputs.run == 'true'
         run: dotnet tool restore
 
+      # The budget is a hard stop: Stryker writes nothing for an interrupted run, so timeout sends SIGKILL to its
+      # whole process group (itself included, which is why the status is 137 rather than 124) and no grace period
+      # is needed; the output goes to a file rather than through a pipe, so a test host that escaped the group
+      # could not hold the step open either. A budget exit ends the step green (the summary says what ran out);
+      # any other failure keeps it red, so a genuine Stryker crash stays visible. Stryker's console output is kept
+      # for the summary: its progress reporter prints nothing on a non-interactive runner, but the "total mutants
+      # will be tested" line says how much work the budget faced.
       - name: 🧬 mutate changed code
+        id: mutate
         if: steps.changes.outputs.run == 'true'
+        shell: bash
         working-directory: ${{ matrix.test-project }}
-        run: >
-          dotnet stryker
-          -c 4
-          --since:origin/main
-          --output "${{ github.workspace }}/StrykerOutput/${{ matrix.name }}"
+        env:
+          OUTPUT: ${{ github.workspace }}/StrykerOutput/${{ matrix.name }}
+        run: |
+          mkdir -p "$OUTPUT"
+          status=0
+          timeout --signal=KILL "$BUDGET" dotnet stryker -c 4 --since:origin/main --output "$OUTPUT" > "$OUTPUT/stryker.log" 2>&1 || status=$?
+          cat "$OUTPUT/stryker.log"
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          case "$status" in
+            124|137) echo "budget of $BUDGET exhausted (status $status)" ;;
+            *) exit "$status" ;;
+          esac
 
       - name: 📝 summarize
         if: always() && steps.changes.outputs.run == 'true'
+        shell: bash
         env:
-          REPORT: StrykerOutput/${{ matrix.name }}/reports/mutation-report.md
+          OUTPUT: StrykerOutput/${{ matrix.name }}
           TITLE: ${{ matrix.name }}
+          STATUS: ${{ steps.mutate.outputs.status }}
         run: |
-          if [ -f "$REPORT" ]; then
-            { echo "## 🧬 $TITLE"; echo; cat "$REPORT"; echo; } >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "## 🧬 $TITLE: no report produced" >> "$GITHUB_STEP_SUMMARY"
+          report="$OUTPUT/reports/mutation-report.md"
+          planned=$(sed -E 's/\x1b\[[0-9;]*m//g' "$OUTPUT/stryker.log" 2>/dev/null | grep -o '[0-9]* *total mutants will be tested' | tr -s ' ' | tail -1 || true)
+          {
+            echo "## 🧬 $TITLE (advisory)"
+            echo
+            case "${STATUS:-none}" in
+              0)
+                ;;
+              124|137)
+                echo "> ⏱️ Stryker did not finish inside the $BUDGET budget (${planned:-it had not reached the mutant count}), so there is no report. The change re-enables more mutants than the pull-request leg tests: a broadly covering test, a test-data helper or a hot file changed. The full run on main tests them after the merge."
+                echo
+                ;;
+              *)
+                echo "> ⚠️ dotnet stryker exited ${STATUS:-without a status}; see the step log."
+                echo
+                ;;
+            esac
+            if [ -f "$report" ]; then cat "$report"; else echo "_no report produced_"; fi
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "${STATUS:-none}" != "0" ]; then
+            echo "::warning title=🧬 changed $TITLE (advisory)::dotnet stryker exited ${STATUS:-without a status} (124 or 137 = the $BUDGET budget ran out); see the job summary"
           fi
 
       - name: 📦 upload report
@@ -135,7 +186,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: mutation-report-${{ matrix.name }}
-          path: StrykerOutput/${{ matrix.name }}/reports/
+          path: |
+            StrykerOutput/${{ matrix.name }}/reports/
+            StrykerOutput/${{ matrix.name }}/stryker.log
           if-no-files-found: ignore
 
   full:
@@ -197,9 +250,11 @@ jobs:
     name: 🧬 library ${{ matrix.shard }}
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    # A shard is ~600 mutants at 2–3 s each plus ~5 min of setup; a mutant that times out costs ~70 s (the 60 s
-    # additional-timeout on top of its covering tests). The bound is sized for concurrency 2; tighten it once
-    # the first push-triggered run has reported the shards' durations at concurrency 4.
+    # Before the whole-composition tests left Stryker's universe, a shard of ~600 tested mutants took 89.6 min at
+    # concurrency 4 and the other three shards were cut off at this bound; those tests were about 70 % of a
+    # mutant's test time, so a shard should now finish in about a third of that. A mutant that times out still
+    # costs ~70 s (the 60 s additional-timeout on top of its covering tests). Rebalance the shards before raising
+    # this bound.
     timeout-minutes: 90
     strategy:
       fail-fast: false
@@ -246,9 +301,10 @@ jobs:
           if-no-files-found: ignore
 
   # The shards' reports merged into the one "library" report: the step summary shows the whole score, the
-  # dashboard gets one module, and the artifact holds json and html for the whole project. The merge runs even
-  # when a shard failed (the other shards' work still produces a summary and an artifact); only the dashboard
-  # upload requires every shard to have succeeded, so a partial report never replaces a whole one.
+  # dashboard gets one module, and the artifact holds json and html for the whole project. The merge refuses an
+  # incomplete set (one report per key of mutation-shards.json, none with Pending mutants), so a shard that
+  # failed or timed out fails this job loudly instead of letting the other shards' score stand for the Library,
+  # which the first sharded run did; the dashboard upload additionally requires every shard job to have succeeded.
   library-report:
     name: 🧬 library report
     needs: [ library ]

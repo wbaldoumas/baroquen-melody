@@ -11,7 +11,7 @@ namespace BaroquenMelody.ArchitectureTests;
 /// <summary>
 ///     Tier 3: the CI shard map. <c>test.yml</c> runs the Library suite as one "unit" job (<c>TestCategory!=Composition</c>)
 ///     plus one job per key of <c>composition-shards.json</c>, whose fixture lists become <c>FullyQualifiedName</c>
-///     filters. A <c>[Category("Composition")]</c> fixture missing from every shard would silently never run on CI,
+///     filters. A <c>[Category(TestCategories.Composition)]</c> fixture missing from every shard would silently never run on CI,
 ///     one listed twice would run twice, and a shard key without a matrix entry would never be scheduled, so the
 ///     map must partition the tagged fixtures exactly and the workflow must name every shard. Codecov, for its
 ///     part, must wait for exactly one upload per matrix entry before it posts. (<c>scripts/test.cs --verify-shards</c>
@@ -83,8 +83,8 @@ internal sealed class CompositionShardTests
         var methodLevelTags = BaroquenMelodyArchitecture.LibraryTests
             .GetTypes()
             .Where(static type => !HasCompositionCategory(type))
-            .SelectMany(static type => type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly))
-            .Where(static method => method.GetCustomAttributes<CategoryAttribute>(inherit: true).Any(IsCompositionCategory))
+            .SelectMany(TestCategoryReflection.TestsOf)
+            .Where(static method => TestCategoryReflection.OfTest(method).Any(IsCompositionCategory))
             .Select(static method => $"{method.DeclaringType!.FullName}.{method.Name}")
             .ToList();
 
@@ -128,9 +128,9 @@ internal sealed class CompositionShardTests
 
     private static IEnumerable<Type> GetCompositionFixtures() => BaroquenMelodyArchitecture.LibraryTests.GetTypes().Where(HasCompositionCategory);
 
-    private static bool HasCompositionCategory(Type type) => type.GetCustomAttributes<CategoryAttribute>(inherit: true).Any(IsCompositionCategory);
+    private static bool HasCompositionCategory(Type type) => TestCategoryReflection.OfFixture(type).Any(IsCompositionCategory);
 
-    private static bool IsCompositionCategory(CategoryAttribute category) => string.Equals(category.Name, CompositionCategory, StringComparison.Ordinal);
+    private static bool IsCompositionCategory(string category) => string.Equals(category, CompositionCategory, StringComparison.Ordinal);
 
     private static Dictionary<string, string[]> ReadShardMap()
     {

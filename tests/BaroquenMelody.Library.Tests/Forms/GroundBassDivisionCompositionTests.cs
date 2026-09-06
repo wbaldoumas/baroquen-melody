@@ -18,7 +18,7 @@ namespace BaroquenMelody.Library.Tests.Forms;
 ///     in-process test can compare against a graph this branch no longer builds.
 /// </summary>
 [TestFixture]
-[Category("Composition")]
+[Category(TestCategories.Composition)]
 [Parallelizable(ParallelScope.All)]
 internal sealed class GroundBassDivisionCompositionTests
 {
